@@ -1,0 +1,21 @@
+% Check if all visible popup menus for functions are not empty
+function isEntered = hasEnteredAllFunctions(handles)
+% popups = array of visible popup objects for functions
+popups = flipud(findobj(handles.uipanel6.Children,'visible','on','style','popupmenu'));
+
+if isempty(popups)
+		isEntered = false;
+		return
+end
+
+popValue = [popups.Value];
+
+if isempty(find(popValue==1, 1))
+		isEntered = true;
+		
+else
+		isEntered = false;
+end
+
+
+
