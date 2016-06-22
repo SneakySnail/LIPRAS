@@ -1,6 +1,6 @@
 
 % --- 
-function fillEmptyCells(hObject, eventdata, handles)
+function isFilled = fillEmptyCells(hObject, eventdata, handles)
 % --- Fills empty cells in uitable1 with their default values only if the
 % initial peak positions are in the table. 
 profile=find(handles.uipanel3==handles.profiles);
@@ -9,6 +9,7 @@ rowname = hObject.RowName;
 ind=[]; coeff={}; SP=[]; UB=[]; LB=[]; fxns='';
 data = hObject.Data;
 pos = handles.uipanel4.UserData.PeakPositions;
+isFilled = false;
 
 if length(pos) < length(fxnNum)
 	for i=1:length(rowname)
@@ -28,22 +29,7 @@ elseif length(pos) > length(fxnNum)
 	pos = pos(1:length(fxnNum));
 end
 
-for i=1:length(fxnNum)
-	if fxnNum(i) == 2
-		fxns{i} = 'Gaussian';
-	elseif fxnNum(i) == 3
-		fxns{i} = 'Lorentzian';
-	elseif fxnNum(i) == 4
-		fxns{i} = 'PearsonVII';
-	elseif fxnNum(i) == 5
-		fxns{i} = 'PsuedoVoigt';
-	elseif fxnNum(i) == 6
-		fxns{i} = 'AsymmetricPVII';
-	else
-		uiwait(errordlg('Function not found.')), return
-	end
-end
-
+fxns = num2fnstr(fxnNum);
 handles.uipanel4.UserData.PeakNames=fxns;
 handles.xrd.Constrains = handles.uipanel5.UserData;
 
@@ -63,6 +49,11 @@ for i=1:size(coeff,1)
 	end
 end
 
+isFilled = true;
+
+if strcmpi(handles.uitoggletool5.State,'on')
+	legend(handles.xrd.DisplayName,'box','off')
+end
 plotSampleFit(handles);
 
 guidata(hObject,handles)

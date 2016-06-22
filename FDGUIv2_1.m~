@@ -167,28 +167,17 @@ function pushbutton15_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 set(hObject,'enable','off');
 set(handles.uipanel4,'visible','on');
-set(handles.uitable1,'visible','on','enable','on');
 status='Updating fit parameters... ';
 handles.xrd.Status=status;
-fxnsOld = handles.uipanel6.UserData;
-rnamesOld = handles.uitable1.RowName;
-dataOld = handles.uitable1.Data;
 filenum = handles.popup_filename.Value;
 
+% pop = array of function popup menu objects
 pop=flipud(findobj(handles.uipanel6.Children,'Style','popupmenu','visible','on'));
 
-try
+if length(pop) > 1
 	fxns=cell2mat(get(pop,'Value'))';
-catch
+else
 	fxns=pop.Value;
-end
-
-% Check if all functions are valid
-if find(fxns==1,1)
-	handles.xrd.Status=[status,'Error: some function(s) missing.'];
-	uiwait(errordlg('Please choose a function for each peak.'))
-% 	handles.xrd.Status=[status,'Error: some function(s) missing.']);
-	return
 end
 
 % If data has already been fitted, issue warning
@@ -200,43 +189,38 @@ if strcmp(a,'Cancel')
 	return
 end
 
-set(handles.uitable1,'Enable','on');
-set(handles.uipanel4,'Visible','on');
-set(handles.uipanel4.Children,'Visible','on','TooltipString','');
-set(handles.pushbutton17,'Enable','on');
-
 handles.xrd.Fmodel=[];
-set(handles.uipanel4,'Visible','on');
-fxnNames = {};
 
 % Make new variable with the names of the functions
-for i=1:length(fxns)
-	if fxns(i) == 2; fxnNames{i} = 'Gaussian';
-	elseif fxns(i) == 3; fxnNames{i} = 'Lorentzian';
-	elseif fxns(i) == 4; fxnNames{i} = 'PearsonVII';
-	elseif fxns(i) == 5; fxnNames{i} = 'PsuedoVoigt';
-	elseif fxns(i) == 6; fxnNames{i} = 'AsymmetricPVII';
-	else 
-	end
-end
+fxnNames = num2fnstr(fxns);
 
-handles.xrd.Constrains=fliplr([handles.uipanel5.Children.Value]);
-coeff=handles.xrd.getCoeff(fxnNames,handles.xrd.Constrains);
-handles.uipanel4.UserData.coeff=coeff;
+handles.xrd.Constrains = fliplr([handles.uipanel5.Children.Value]);
+coeff = handles.xrd.getCoeff(fxnNames,handles.xrd.Constrains);
+handles.uipanel4.UserData.coeff = coeff;
 
 set(handles.uitable1,'RowName', coeff);
 handles.uitable1.Data = cell(length(coeff), 4);
 
-cla(handles.axes1)
-cla(handles.axes2)
+cla(handles.axes1), cla(handles.axes2)
 handles.axes2.Visible = 'off';
-axes(handles.axes1)
 handles.xrd.plotData(filenum)
-set(handles.uipanel6,'UserData',fxns);
-handles.xrd.Status=[status,'Done.'];
+set(handles.uipanel6, 'UserData', fxns);
+handles.xrd.Status = [status,'Done.'];
 
-if strcmpi(handles.uitoggletool5.State,'on')
-	legend(handles.xrd.DisplayName,'box','off')
+if fillEmptyCells(handles.uitable1, [], handles) % If the table was successfully completely filled
+	set(handles.uipanel4.Children, 'enable', 'on');
+else
+	
+	set(handles.push_fitdata, 'enable', 'off');
+	
+	% find if a cell in the table is **not** empty
+	if find(cellfun(@isempty, handles.uitable1.Data(:, 1:3)) == 0, 1)
+		% Only passes if ALL cells in the table are empty
+		set(handles.push_default, 'enable', 'off');
+	elseif isempty(find(cellfun(@isempty, handles.uitable1.Data(:, 1:3)), 1))
+		% Only passes if ALL cells in the table are filled
+		set(handles.push_fitdata, 'enable', 'on');
+	end
 end
 
 guidata(hObject,handles)
@@ -294,10 +278,7 @@ function push_fitdata_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 handles.xrd.Status='Fitting dataset...';
 
-% profile = find(handles.uipanel3==handles.profiles);
-% numprofiles = handles.uipanel3.UserData(2);
-
-fnames = getUserDataFunctionNames(handles);
+fnames = num2fnstr(handles.uipanel6.UserData);
 
 data = handles.uitable1.Data;
 SP = []; UB = []; LB = [];
@@ -525,6 +506,7 @@ else
 end
 
 % --- Executes on button press of any checkbox in uipanel5.
+% Saves new constraint values to handles.uipanel5.UserData.
 function checkboxN_Callback(hObject, eventdata, handles)
 % hObject    handle to checkboxN (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -559,16 +541,7 @@ else
 	end
 end
 
-% If uipanel5.UserData is the same as the constraints in xrd, exit
-if isempty(find(hObject.Parent.UserData==handles.xrd.Constrains,1))
-	return
-end
-
-if ~isempty(find(fxns==1,1))
-	set(handles.pushbutton15,'enable','off');
-else
-	set(handles.pushbutton15,'enable','on');
-end
+setEnableUpdateButton(handles);
 
 % --- Superimpose raw data.
 function checkbox10_Callback(hObject, eventdata, handles)
@@ -632,6 +605,8 @@ guidata(hObject, handles)
 
 
 % --- Executes on selection change in popup_functionX where X is 1-6.
+% Enables/disables checkboxes in handles.uipanel5 based on what function(s)
+% are already chosen.
 function popup_function1_Callback(hObject, eventdata, handles)
 % hObject    handle to popup_function1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -639,9 +614,6 @@ function popup_function1_Callback(hObject, eventdata, handles)
 % 
 % Hints: contents = cellstr(get(hObject,'String')) returns popup_function1 contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from popup_function1
-% 
-% Enables/disables Constraints checkboxes based on what function(s)
-% are already chosen.
 
 contents = cellstr(get(hObject,'String'));
 tag=get(hObject,'Tag');
@@ -651,13 +623,7 @@ if get(hObject,'Value') > 1
 	handles.xrd.Status=['Function ',tag(end),' set to ', selection,'.'];
 end
 
-if hasEnteredAllFunctions(handles)
-	set(handles.pushbutton15,'enable','on');
-else
-	set(handles.pushbutton15,'enable','off');
-end
-
-set(handles.uitable1,'Enable','off');
+set(handles.uipanel4.Children,'Enable','off');
 set(handles.checkboxN,'Enable','off','Value',0);
 set(handles.checkboxf,'Enable','off','Value',0);
 set(handles.checkboxw,'Enable','off','Value',0);
@@ -692,6 +658,8 @@ else
 	set(handles.checkboxN,'Enable','off');
 	set(handles.checkboxf,'Enable','off');
 end
+
+setEnableUpdateButton(handles); % enables/disables 'Update' button and uipanel4
 
 
 % --- Executes on selection change in popup_numprofile.
@@ -756,6 +724,10 @@ elseif num > 0
 		end
 	end
 	
+	hiddenPops = flipud(findobj(handles.uipanel6.Children,'style','popupmenu', 'visible', 'off'));
+	set(hiddenPops, 'value', 1);
+	popup_function1_Callback(handles.popup_function1,eventdata,handles);
+	
 else
 	set(handles.uipanel10,'Visible','off');
 	set(findobj(handles.uipanel6.Children,'style','popupmenu'),'value',1);
@@ -766,16 +738,6 @@ else
 	set(handles.uipanel4,'Visible','off');
 	set(handles.uipanel4.Children,'Enable','off');
 end
-
-% TODO Check if all popup menus have an entry
-if hasEnteredAllFunctions(handles)
-	set(handles.pushbutton15, 'Enable', 'on');
-else
-	set(handles.pushbutton15, 'Enable', 'off');
-end
-
-popup_function1_Callback(handles.popup_function1,eventdata,handles);
-
 
 % ------------------------------------------
 %% Edit box callback functions
@@ -1355,9 +1317,16 @@ function tabgroup_SelectionChangedFcn(hObject,eventdata,handles)
 if hObject.SelectedTab==handles.tab_peak && ...
 		isempty(handles.xrd.bkgd2th)
 	hObject.SelectedTab=handles.tab_setup;
-	warndlg('Please select background points first.','No Background Points');
-	
+	uiwait(warndlg('Please select background points first.','No Background Points'));
+	return
 end
+
+if hObject.SelectedTab == handles.tab_setup
+	set(handles.uipanel4, 'visible', 'off');
+elseif handles.popup_numpeaks.Value > 1
+	setEnableUpdateButton(handles);
+end
+	
 
 % ------------------------------------------
 %% CreateFcns and Unused Callbacks
