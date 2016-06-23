@@ -295,6 +295,7 @@ axes(handles.axes1)
 peakpos=handles.xrd.PeakPositions;
 handles.xrd.fitData(peakpos, fnames, SP, UB, LB);
 
+filenum = get(handles.popup_filename, 'Value');
 handles.xrd.plotFit(filenum);
 
 % Populate results column

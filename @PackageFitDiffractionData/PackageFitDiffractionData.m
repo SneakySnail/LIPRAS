@@ -437,16 +437,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
             Stro.temperature = Data{2:DataIndex,2}(:,1);
 		end	
 		
-		function [coeff, SP, LB, UB] = startingValues(Stro,position,PSfxn,fitrange)
-			Stro.PeakPositions = position;
-			Stro.PSfxn = PSfxn;
-			Stro.fitrange=fitrange;
-			data = Stro.getRawData(1,fitrange);
-			[g,SP,LB,UB] = Stro.makeFunction(PSfxn,data,position);
-			coeff = coeffnames(g);
-			Stro.Fcoeff=coeff;
-		end
-		
 		function coeff=getCoeff(Stro,fxn,constraints)
 			coeff=''; 
 			if constraints(1); coeff=[coeff,{'N'}]; end
@@ -1092,6 +1082,12 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
 		end
 
 	end
+	
+% 	methods (Access = protected)
+% 		[SP, LB, UB] = getDefaultStartingBounds(Stro, fcn, position);
+% 		
+% 		
+% 	end
 	
     methods(Static,Hidden)
 		

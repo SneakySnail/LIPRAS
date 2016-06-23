@@ -206,11 +206,9 @@ handles.axes2.Visible = 'off';
 handles.xrd.plotData(filenum)
 set(handles.uipanel6, 'UserData', fxns);
 handles.xrd.Status = [status,'Done.'];
+set(handles.uipanel4.Children, 'enable', 'on');
 
-if fillEmptyCells(handles.uitable1, [], handles) % If the table was successfully completely filled
-	set(handles.uipanel4.Children, 'enable', 'on');
-else
-	
+if ~fillEmptyCells(handles.uitable1, [], handles) % If the table was successfully completely filled
 	set(handles.push_fitdata, 'enable', 'off');
 	
 	% find if a cell in the table is **not** empty
@@ -297,6 +295,7 @@ axes(handles.axes1)
 peakpos=handles.xrd.PeakPositions;
 handles.xrd.fitData(peakpos, fnames, SP, UB, LB);
 
+filenum = get(handles.
 handles.xrd.plotFit(filenum);
 
 % Populate results column

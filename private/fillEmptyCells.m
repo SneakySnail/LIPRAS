@@ -33,8 +33,8 @@ fxns = num2fnstr(fxnNum);
 handles.uipanel4.UserData.PeakNames=fxns;
 handles.xrd.Constrains = handles.uipanel5.UserData;
 
-[coeff,SP,LB,UB] = handles.xrd.startingValues(...
-	pos, fxns, str2double(handles.edit7.String));
+[SP,LB,UB] = handles.xrd.getDefaultStartingBounds(fxns, pos);
+coeff = handles.xrd.getCoeff(fxns, handles.xrd.Constrains);
 
 % Fill in table with default values if cell is empty
 for i=1:size(coeff,1)
