@@ -5,6 +5,12 @@ data = Stro.getRawData(1, Stro.fitrange);
 x = data(1,:);
 y = data(2,:);
 
+if isempty(fcn) || length(fcn) > length(position)
+	return
+elseif length(fcn) < length(position)
+	position = position(1:length(fcn));
+end
+
 coeff = Stro.getCoeff(fcn, Stro.Constrains);
 
 for i=1:length(coeff)

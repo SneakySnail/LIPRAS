@@ -1,6 +1,7 @@
 
 % --- Resets handles.uipanel3 according to the last saved state.
 function saveduipanel3(handles)
+param = getUpdatedParam(handles);
 % If there are no functions chosen
 	if isempty(handles.xrd.bkgd2th)
 		set(handles.uipanel6.Children,'Visible','off');
@@ -34,16 +35,16 @@ function saveduipanel3(handles)
 		% set appropriate value to popup_functions
 		pop=flipud(findobj(handles.uipanel6.Children,...
 			'style','popupmenu','visible','on')); 
-		a=num2cell(handles.uipanel6.UserData);
+		a=num2cell(fnstr2num(handles.xrd.PSfxn));
 		try
-			[pop.Value]=a{:}; 
+			[pop.Value]=a{:};
 		catch
 % 			handles.xrd.PSfxn={};
 % 			saveduipanel3(handles);
 			return
 		end
 		
-		FDGUIv2_1('popup_function1_Callback', handles.popup_function1, [], handles);
+		allowWhichConstraints(handles);
 		
 		% Check/uncheck the constraints in uipanel5
 		chk=flipud(handles.uipanel5.Children);

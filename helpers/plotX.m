@@ -1,6 +1,6 @@
 function plotX(handles)
 
-axes(handles.axes1)
+% axes(handles.axes1)
 cla(handles.axes1)
 cla(handles.axes2)
 filenum=handles.popup_filename.Value;

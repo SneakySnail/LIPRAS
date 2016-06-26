@@ -439,6 +439,11 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
 		
 		function coeff=getCoeff(Stro,fxn,constraints)
 			coeff=''; 
+			
+			if isempty(fxn)
+				return 
+			end
+			
 			if constraints(1); coeff=[coeff,{'N'}]; end
 			if constraints(2); coeff=[coeff,{'f'}]; end
 			if constraints(3); coeff=[coeff,{'w'}]; end
@@ -1082,12 +1087,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
 		end
 
 	end
-	
-% 	methods (Access = protected)
-% 		[SP, LB, UB] = getDefaultStartingBounds(Stro, fcn, position);
-% 		
-% 		
-% 	end
 	
     methods(Static,Hidden)
 		

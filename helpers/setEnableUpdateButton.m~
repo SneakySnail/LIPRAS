@@ -23,19 +23,41 @@ catch
 end
 
 %% Check if functions and constraints are the same values as previously
-prevfn = handles.uipanel6.UserData;
-if length(popValue) == length(prevfn) % ONLY if numpeaks the same 
+% prevfn = handles.uipanel6.UserData;
+prev = getUpdatedParam(handles);
+current = getModifiedParam(handles);
+
+if isempty(current.fcnNames) % If there are some blank popups
+	return
+end
+
+try
+	cmpFcns = strcmpi(current.fcnNames, prev.fcnNames);
+	
+	if isempty(find(~cmpFcns)) % if there is a mismatch
+		set(handles.pushbutton15, 'enable', 'on');
+		isEnabled = true;
+		
+	elseif isempty(find(prev.constraints ~= current.constraints, 1))
+		set(handles.uipanel4.Children, 'enable', 'on');
+	end
+	
+catch % length of function names are not the same
+	
+end
+	
+
+if length(current.fcnNames) == length(prev.fcnNames) % ONLY if numpeaks the same 
 	
 	if isempty(find(popValue == 1, 1)) % ONLY if there are no blank popups 
 		
 		if isempty(find((prevfn==popValue) == 0, 1)) % ONLY if functions are the same
 			
 			if find(handles.xrd.Constrains ~= handles.uipanel5.UserData, 1) % ONLY if constraints not the same
-				set(handles.pushbutton15, 'enable', 'on');
-				isEnabled = true;
+				
 				
 			else % ONLY if functions AND constraints are the same
-				set(handles.uipanel4.Children, 'enable', 'on');
+				
 			end
 			
 		else % if functions are different
