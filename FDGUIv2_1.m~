@@ -26,7 +26,7 @@ function varargout = FDGUIv2_1(varargin)
 
 % Edit the above text to modify the response to help FDGUIv2_1
 
-% Last Modified by GUIDE v2.5 01-Jun-2016 13:53:15
+% Last Modified by GUIDE v2.5 25-Jun-2016 02:14:41
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -110,7 +110,7 @@ xrd = PackageFitDiffractionData;
 handles.xrd = xrd;
 handles.xrdContainer = xrd; % The handle which will contain the xrd array
 
-% handles.History = cell(1,10);
+addpath('./helpers/');
 
 % Choose default command line output for FDGUIv2_1
 handles.output = hObject;
@@ -167,6 +167,7 @@ function pushbutton15_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 set(hObject,'enable','off');
 set(handles.uipanel4,'visible','on');
+set(handles.uipanel4.Children,'visible','on');
 status='Updating fit parameters... ';
 handles.xrd.Status=status;
 filenum = handles.popup_filename.Value;
@@ -186,8 +187,9 @@ handles.xrd.Fmodel=[];
 param = getModifiedParam(handles);
 handles.xrd.PSfxn = param.fcnNames;
 handles.xrd.Constrains = param.constraints;
+
 set(handles.uitable1,'RowName', param.coeff);
-handles.uitable1.Data = cell(length(param.coeff), 4);
+handles.uitable1.Data = param.Data;
 
 cla(handles.axes1), cla(handles.axes2)
 handles.axes2.Visible = 'off';
@@ -195,7 +197,8 @@ handles.xrd.plotData(filenum)
 
 handles.xrd.Status = [status,'Done.'];
 
-checktable(handles);
+fillEmptyCells(handles);
+checkuitable1(handles);
 
 guidata(hObject,handles)
 	
@@ -367,8 +370,6 @@ if strcmpi(a,'Cancel')
 end
 
 handles.xrd.Fmodel=[];
-handles.xrd.PSfxn={};
-handles.xrd.PeakPositions = [];
 len = size(handles.uitable1.Data,1);
 handles.uitable1.Data = cell(len,4);
 set(hObject.Parent.Children,'Enable','off');
@@ -411,27 +412,29 @@ handles.xrd.plotData(get(handles.popup_filename,'Value'));
 
 filenum = get(handles.popup_filename, 'Value');
 p = getUpdatedParam(handles);
-peakpos=[];
 hold on
 
 % ginput for x position of peaks
 for i=1:length(p.fcnNames)
 	ind=find(strcmp(handles.uitable1.RowName,['x',num2str(i)]), 1);
 	handles.uitable1.Data{ind, 1} = [];
-	handles.xrd.Status=[status, 'Peak ',num2str(i),'.'];
-	[x,~]=ginput(1);
-	handles.uitable1.Data{ind,1} = x;
 	handles.uitable1.Data{ind, 2} = [];
 	handles.uitable1.Data{ind, 3} = [];
-	peakpos=[peakpos,x];
+	
+	handles.xrd.Status=[status, 'Peak ',num2str(i),'.'];
+	[x,~, btn]=ginput(1);
+	if btn ~= 1 % if the left mouse button was not pressed
+		break
+	end
+	handles.xrd.PeakPositions(i) = x;
+	handles.uitable1.Data{ind,1} = x;
+	fillEmptyCells(handles);
 	pos=PackageFitDiffractionData.Find2theta(handles.xrd.two_theta,x);
 	plot(x, handles.xrd.data_fit(1,pos), 'r*') % 'ko'
 end
 hold off
 
-handles.xrd.PeakPositions = peakpos;
-fillEmptyCells(handles);
-set(handles.uipanel4.Children,'Enable','on');
+
 
 plotSampleFit(handles);
 handles.xrd.Status=[status, 'Done.'];
@@ -599,41 +602,7 @@ if get(hObject,'Value') > 1
 	handles.xrd.Status=['Function ',tag(end),' set to ', selection,'.'];
 end
 
-set(handles.uipanel4.Children,'Enable','off');
-set(handles.checkboxN,'Enable','off','Value',0);
-set(handles.checkboxf,'Enable','off','Value',0);
-set(handles.checkboxw,'Enable','off','Value',0);
-set(handles.checkboxm,'Enable','off','Value',0);
-handles.uipanel5.UserData=[0 0 0 0];
-
-% pop = array of visible popup objects for functions
-pop=flipud(findobj(handles.uipanel6.Children,'visible','on','style','popupmenu'));
-% fxns: doubles array representing current functions chosen
-if ~isempty(pop)
-	fxns = [pop.Value];
-else
-	return 
-end
-
-if length(find(fxns>1)) > 1
-	set(handles.checkboxN,'Enable','on');
-	set(handles.checkboxf,'Enable','on');
-	
-	if length(find(fxns==4 | fxns==6)) > 1
-		set(handles.checkboxm,'Enable','on');
-	else
-		set(handles.checkboxm,'Enable','off');
-	end
-	
-	if length(find(fxns==5)) > 1
-		set(handles.checkboxw,'Enable','on');
-	else
-		set(handles.checkboxw,'Enable','off');
-	end
-else
-	set(handles.checkboxN,'Enable','off');
-	set(handles.checkboxf,'Enable','off');
-end
+allowWhichConstraints(handles);
 
 setEnableUpdateButton(handles); % enables/disables 'Update' button and uipanel4
 
@@ -668,8 +637,9 @@ num = get(hObject, 'Value') - 1;
 % if the same value as previous
 if num==hObject.UserData
 	return
-	
-elseif num > 0
+end
+
+if num > 0
 	handles.xrd.Status=['Number of peaks set to ',num2str(num),'.'];
 	set(handles.uipanel6, 'Visible','on');
 	set(handles.uipanel6.Children,'Visible','off');
@@ -702,7 +672,7 @@ elseif num > 0
 	
 	hiddenPops = flipud(findobj(handles.uipanel6.Children,'style','popupmenu', 'visible', 'off'));
 	set(hiddenPops, 'value', 1);
-	popup_function1_Callback(handles.popup_function1,eventdata,handles);
+	allowWhichConstraints(handles);
 	
 else
 	set(handles.uipanel10,'Visible','off');
@@ -714,6 +684,8 @@ else
 	set(handles.uipanel4,'Visible','off');
 	set(handles.uipanel4.Children,'Enable','off');
 end
+
+setEnableUpdateButton(handles);
 
 % ------------------------------------------
 %% Edit box callback functions
@@ -764,8 +736,8 @@ set(handles.edit_min2t,'String',sprintf('%2.4f',min));
 max = str2double(get(handles.edit_max2t,'String'));
 
 % If minimum is less than absolute min or greater than absolute max
-if min < handles.xrd.two_theta(1) || min > handles.xrd.two_theta(end)
-	msg='Error: Value is not within bounds.';
+if min < handles.xrd.two_theta(1) || min > handles.xrd.two_theta(end) || isnan(min)
+	msg='Error: min2t value is not within bounds.';
 	handles.xrd.Status=[status,msg];
 	if min<handles.xrd.two_theta(1)
 		min=handles.xrd.two_theta(1);
@@ -774,7 +746,6 @@ if min < handles.xrd.two_theta(1) || min > handles.xrd.two_theta(end)
 	end
 	handles.xrd.Min2T=min;
 	set(handles.edit_min2t,'String',sprintf('%2.4f',min));
-	uiwait(errordlg(msg))
 	return
 end
 
@@ -837,8 +808,8 @@ end
 set(handles.edit_max2t,'String',sprintf('%2.4f',max));
 
 % If maximum is less than absolute max
-if min < handles.xrd.two_theta(1) || max > handles.xrd.two_theta(end)
-	msg='Error: Value is not within bounds.';
+if min < handles.xrd.two_theta(1) || max > handles.xrd.two_theta(end) || isnan(max)
+	msg='Error: max2t value is not within bounds.';
 	handles.xrd.Status=[status,msg];
 	if max > handles.xrd.two_theta(end)
 		max=handles.xrd.two_theta(end);
@@ -849,7 +820,6 @@ if min < handles.xrd.two_theta(1) || max > handles.xrd.two_theta(end)
 	handles.xrd.Max2T=max;
 	set(handles.edit_max2t,'String',sprintf('%2.4f',max));
 	
-	uiwait(errordlg(msg))
 	return
 end
 
@@ -914,61 +884,69 @@ numpeaks=get(handles.popup_numpeaks,'Value')-1;
 r=eventdata.Indices(1);
 c=eventdata.Indices(2);
 
-try
-	num = str2double(eventdata.NewData);
-	hObject.Data{r,c} = num;
-catch
-	hObject.Data{r,c} = [];
-	return
+if ~isa(eventdata.NewData, 'double')
+	try
+		num = str2double(eventdata.NewData);
+		hObject.Data{r, c} = num;
+	catch
+		hObject.Data{r,c} = [];
+		cla
+		plotX(handles);
+		return
+	end
+else
+	num = eventdata.NewData;
 end
 
 % If NewData is empty or was not changed
-if isnan(eventdata.NewData)
+if isnan(num)
 	hObject.Data{r,c} = [];
 	handles.xrd.Status=[handles.uitable1.ColumnName{c},...
 		' value of coefficient ',hObject.RowName{r}, ' is now empty.'];
-	checktable(handles);
+	checkuitable1(handles);
+	cla
+	plotX(handles);
 	return
 	
 else
 	
 	if strcmpi(hObject.RowName{r}(1), 'x') && c == 1
 		ipk = str2double(hObject.RowName{r}(2));
-		hObject.UserData{ipk} = eventdata.NewData;
+		hObject.UserData{ipk} = num;
 	end
 	
 	% Check if SP, LB, and UB are within bounds
 	switch c
 		case 1 % If first column, SP
-			if eventdata.NewData < hObject.Data{r,2}
-				hObject.Data{r,2} = eventdata.NewData;
+			if num < hObject.Data{r,2}
+				hObject.Data{r,2} = num;
 			end
-			if eventdata.NewData > hObject.Data{r,3}
-				hObject.Data{r,3} = eventdata.NewData;
+			if num > hObject.Data{r,3}
+				hObject.Data{r,3} = num;
 			end
 		case 2 % If second column, LB
-			if eventdata.NewData > hObject.Data{r,1}
-				hObject.Data{r,1} = eventdata.NewData;
+			if num > hObject.Data{r,1}
+				hObject.Data{r,1} = num;
 			end
-			if eventdata.NewData > hObject.Data{r,3}
-				hObject.Data{r,3} = eventdata.NewData;
+			if num > hObject.Data{r,3}
+				hObject.Data{r,3} = num;
 			end
 		case 3 % If third column, UB
-			if eventdata.NewData < hObject.Data{r,1}
-				hObject.Data{r,1} = eventdata.NewData;
+			if num < hObject.Data{r,1}
+				hObject.Data{r,1} = num;
 			end
-			if eventdata.NewData < hObject.Data{r,2}
-				hObject.Data{r,2} = eventdata.NewData;
+			if num < hObject.Data{r,2}
+				hObject.Data{r,2} = num;
 			end
 	end
 end
 
 % Enable/disable 'Clear' button
-checktable(handles);
+checkuitable1(handles);
 
-if ~isempty(eventdata.NewData)
+if ~isempty(num)
 	handles.xrd.Status=[handles.uitable1.ColumnName{c},...
-		' value of coefficient ',hObject.RowName{r}, ' was changed to ',num2str(eventdata.NewData),'.'];
+		' value of coefficient ',hObject.RowName{r}, ' was changed to ',num2str(num),'.'];
 end
 
 plotSampleFit(handles);
@@ -1558,4 +1536,3 @@ function menu_clearfit_Callback(hObject, eventdata, handles)
 % hObject    handle to menu_clearfit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-

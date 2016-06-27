@@ -13,9 +13,14 @@ if isempty(Stro.bkgd2th)
 		end
 		
 		hold on
+		points = []; indX = [];
 		for i=1:numpoints
 				Stro.Status=['Choosing ',num2str(numpoints),' background points... Point ',num2str(i),'.'];
-				[x,~]=ginput(1);
+				[x,~, key]=ginput(1);
+				if key ~= 1
+					Stro.Status = 'Canceled.';
+					return
+				end
 				points(i,1)=x;
 				pos = PackageFitDiffractionData.Find2theta(Stro.two_theta,x);
 				plot(x, Stro.data_fit(1,pos), 'r*') % 'ko'

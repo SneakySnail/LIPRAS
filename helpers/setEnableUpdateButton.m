@@ -24,6 +24,11 @@ if isempty(current.fcnNames) % If there are some blank popups
 end
 
 try
+	if length(current.fcnNames) ~= length(prev.fcnNames)
+		set(handles.pushbutton15, 'enable', 'on');
+		return
+	end
+	
 	cmpFcns = strcmpi(current.fcnNames, prev.fcnNames);
 	
 	if ~isempty(find(~cmpFcns, 1)) % if there is a mismatch of functions

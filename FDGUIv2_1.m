@@ -187,6 +187,8 @@ handles.xrd.Fmodel=[];
 param = getModifiedParam(handles);
 handles.xrd.PSfxn = param.fcnNames;
 handles.xrd.Constrains = param.constraints;
+handles.xrd.PeakPositions = [];
+
 set(handles.uitable1,'RowName', param.coeff);
 handles.uitable1.Data = cell(length(param.coeff), 4);
 
@@ -211,11 +213,12 @@ numpoints = str2num(handles.edit_bkgdpoints.String);
 polyorder = str2num(handles.edit_polyorder.String);
 handles.xrd.resetBackground(numpoints,polyorder);
 if ~isempty(handles.xrd.bkgd2th)
-	handles.push_fitOK.Enable = 'on';
 	set(handles.tab_peak,'ForegroundColor',[0 0 0]);
 	handles.tabgroup.SelectedTab=handles.tab_peak;
 	set(handles.togglebutton_showbkgd,'enable','on');
 end
+
+plotX(handles);
 
 % --- Executes on button press in push_fitOK.
 function push_fitOK_Callback(hObject, eventdata, handles)
@@ -372,7 +375,7 @@ handles.xrd.Fmodel=[];
 len = size(handles.uitable1.Data,1);
 handles.uitable1.Data = cell(len,4);
 set(hObject.Parent.Children,'Enable','off');
-set(handles.pushbutton17,'Enable','on');
+set(handles.pushbutton17,'Enable','on', 'string', 'Select Peak(s)');
 set(handles.uitable1,'Enable','on');
 handles.xrd.plotData(get(handles.popup_filename,'Value'));
 
@@ -411,7 +414,6 @@ handles.xrd.plotData(get(handles.popup_filename,'Value'));
 
 filenum = get(handles.popup_filename, 'Value');
 p = getUpdatedParam(handles);
-peakpos=[];
 hold on
 
 % ginput for x position of peaks
@@ -421,18 +423,20 @@ for i=1:length(p.fcnNames)
 	handles.uitable1.Data{ind, 2} = [];
 	handles.uitable1.Data{ind, 3} = [];
 	
-	handles.xrd.Status=[status, 'Peak ',num2str(i),'.'];
-	[x,~]=ginput(1);
+	handles.xrd.Status=[status, 'Peak ',num2str(i),'. Right click to cancel.'];
+	[x,~, btn]=ginput(1);
+	if btn == 3 % if the left mouse button was not pressed
+		break
+	end
+	handles.xrd.PeakPositions(i) = x;
 	handles.uitable1.Data{ind,1} = x;
-	peakpos=[peakpos,x];
 	pos=PackageFitDiffractionData.Find2theta(handles.xrd.two_theta,x);
 	plot(x, handles.xrd.data_fit(1,pos), 'r*') % 'ko'
 end
 hold off
-
-handles.xrd.PeakPositions = peakpos;
 fillEmptyCells(handles);
-set(handles.uipanel4.Children,'Enable','on');
+checkuitable1(handles);
+
 
 plotSampleFit(handles);
 handles.xrd.Status=[status, 'Done.'];
@@ -635,8 +639,9 @@ num = get(hObject, 'Value') - 1;
 % if the same value as previous
 if num==hObject.UserData
 	return
-	
-elseif num > 0
+end
+
+if num > 0
 	handles.xrd.Status=['Number of peaks set to ',num2str(num),'.'];
 	set(handles.uipanel6, 'Visible','on');
 	set(handles.uipanel6.Children,'Visible','off');
@@ -670,7 +675,6 @@ elseif num > 0
 	hiddenPops = flipud(findobj(handles.uipanel6.Children,'style','popupmenu', 'visible', 'off'));
 	set(hiddenPops, 'value', 1);
 	allowWhichConstraints(handles);
-	setEnableUpdateButton(handles);
 	
 else
 	set(handles.uipanel10,'Visible','off');
@@ -682,6 +686,8 @@ else
 	set(handles.uipanel4,'Visible','off');
 	set(handles.uipanel4.Children,'Enable','off');
 end
+
+setEnableUpdateButton(handles);
 
 % ------------------------------------------
 %% Edit box callback functions
