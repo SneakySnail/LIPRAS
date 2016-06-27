@@ -1,4 +1,4 @@
-function param = getUpdatedParam(handles)
+function param = getSavedParam(handles)
 % param.fcnNames
 % param.constraints
 % param.coeff

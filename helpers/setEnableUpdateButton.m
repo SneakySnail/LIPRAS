@@ -16,7 +16,7 @@ end
 
 %% Check if functions and constraints are the same values as previously
 % prevfn = handles.uipanel6.UserData;
-prev = getUpdatedParam(handles);
+prev = getSavedParam(handles);
 current = getModifiedParam(handles);
 
 if isempty(current.fcnNames) % If there are some blank popups

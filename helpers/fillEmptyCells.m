@@ -2,7 +2,7 @@
 function isFilled = fillEmptyCells(handles)
 % --- Fills empty cells in uitable1 with their default values only if the
 % initial peak upd.peakPositionsitions are in the table. 
-upd = getUpdatedParam(handles);
+upd = getSavedParam(handles);
 isFilled = false;
 
 % If not enough peak upd.peakPositions for each function

@@ -256,7 +256,7 @@ function push_fitdata_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 handles.xrd.Status='Fitting dataset...';
-param = getUpdatedParam(handles);
+param = getSavedParam(handles);
 
 fnames = param.fcnNames;
 
@@ -413,7 +413,7 @@ handles.xrd.Fmodel=[];
 handles.xrd.plotData(get(handles.popup_filename,'Value'));
 
 filenum = get(handles.popup_filename, 'Value');
-p = getUpdatedParam(handles);
+p = getSavedParam(handles);
 hold on
 
 % ginput for x position of peaks

@@ -1,7 +1,7 @@
 
 % --- Resets handles.uipanel3 according to the last saved state.
 function saveduipanel3(handles)
-param = getUpdatedParam(handles);
+param = getSavedParam(handles);
 % If there are no functions chosen
 	if isempty(handles.xrd.bkgd2th)
 		set(handles.uipanel6.Children,'Visible','off');

@@ -44,7 +44,7 @@ background=polyval(P,data(1,:),S,U);
 dataNB(2,:) = data(2,:) - background;
 
 % Use initial coefficient values to plot fit
-p = getUpdatedParam(handles);
+p = getSavedParam(handles);
 peakPos=p.peakPositions;
 peakNames=p.fcnNames;
 constraints=p.constraints;
