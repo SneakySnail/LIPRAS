@@ -5,7 +5,11 @@ function plotSampleFit(handles)
 % Make sure all the cells with starting values are not empty
 try
 val=[handles.uitable1.Data{:,1}];
-coeff=handles.uipanel4.UserData.coeff;
+coeff=handles.uitable1.RowName;
+assert(~isempty(val));
+assert(~isempty(coeff));
+temp = cellfun(@isempty, handles.uitable1.Data(:, 1:3));
+assert(isempty(find(temp, 1)));
 assert(length(val)==length(coeff));
 catch
 	return
@@ -40,9 +44,10 @@ background=polyval(P,data(1,:),S,U);
 dataNB(2,:) = data(2,:) - background;
 
 % Use initial coefficient values to plot fit
-peakPos=handles.uipanel4.UserData.PeakPositions;
-peakNames=handles.uipanel4.UserData.PeakNames;
-constraints=handles.xrd.Constrains;
+p = getUpdatedParam(handles);
+peakPos=p.peakPositions;
+peakNames=p.fcnNames;
+constraints=p.constraints;
 k=1;
 peakfit=[];
 

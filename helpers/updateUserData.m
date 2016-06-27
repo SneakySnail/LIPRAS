@@ -6,15 +6,12 @@ try
 	switch hObject.Style
 		case 'edit'
 			val=str2double(hObject.String);
-			if val~=hObject.UserData
-				set(hObject, 'userdata', val);
-			end
+			set(hObject, 'userdata', val);
 			
 		otherwise
 			val=hObject.Value - 1;
-			if val ~= hObject.UserData
-				set(hObject,'userdata', val);
-			end
+			set(hObject,'userdata', val);
+			
 	end
 catch
 	return

@@ -13,9 +13,9 @@ for i = 1:length(fcnNames)
 		num = [num, 4];
 	elseif strcmpi(name, 'PsuedoVoigt')
 		num = [num, 5];
-	elseif strmpi(name, 'AsymmetricPVII')
+	elseif strcmpi(name, 'AsymmetricPVII')
 		num = [num, 6];
 	else
-		num = nan;
+		num = [num, 1];
 	end
 end

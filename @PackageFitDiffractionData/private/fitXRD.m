@@ -46,25 +46,14 @@ for i=1:size(position,1)
 		%                 figure(3);
 		%                 plot(fitdata{filenum,i}(1,:),fitdata{filenum,i}(2,:));
 		
-		[g,~,~,~]=Stro.makeFunction(Stro.PSfxn(i,:),fitdata{i},position(i,:));
+		g=Stro.makeFunction(Stro.PSfxn(i,:),fitdata{i},position(i,:));
 		
 		coefficients{i}=coeffnames(g);
 		len=length(coefficients{1});
 		if exist('InputPSfxn','var')==1
 				InputPSfxn=evalin('base','InputPSfxn');
 		end
-		% 				if strcmp(Stro.inputSP,'n')==1;
-		% 					%     clearvars global InputPSfxn
-		% 					evalin('base',['clear InputPSfxn'])
-		% 				end
-		% 				if and(Stro.inputSP=='y',exist('InputPSfxn','var')==1);
-		% 					for ck=1:length(Stro.PSfxn);
-		% 						if strcmp(InputPSfxn{ck},Stro.PSfxn(ck))==0
-		% 							error('PSfxn coefficients have not been updated since last change, either update them manually or switch to inputSP=n. To update them quickly take the original_SP and copy them to fit_initial AFTER running the program again with inputSP=n' )
-		% 						end
-		% 					end
-		% 				end
-		
+	
 		SP = Stro.fit_initial{1,filenum};
 		UB = Stro.fit_initial{2};
 		LB = Stro.fit_initial{3};

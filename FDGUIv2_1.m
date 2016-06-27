@@ -26,7 +26,7 @@ function varargout = FDGUIv2_1(varargin)
 
 % Edit the above text to modify the response to help FDGUIv2_1
 
-% Last Modified by GUIDE v2.5 01-Jun-2016 13:53:15
+% Last Modified by GUIDE v2.5 25-Jun-2016 02:14:41
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -110,7 +110,7 @@ xrd = PackageFitDiffractionData;
 handles.xrd = xrd;
 handles.xrdContainer = xrd; % The handle which will contain the xrd array
 
-% handles.History = cell(1,10);
+addpath('./helpers/');
 
 % Choose default command line output for FDGUIv2_1
 handles.output = hObject;
@@ -167,18 +167,10 @@ function pushbutton15_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 set(hObject,'enable','off');
 set(handles.uipanel4,'visible','on');
+set(handles.uipanel4.Children,'visible','on');
 status='Updating fit parameters... ';
 handles.xrd.Status=status;
 filenum = handles.popup_filename.Value;
-
-% pop = array of function popup menu objects
-pop=flipud(findobj(handles.uipanel6.Children,'Style','popupmenu','visible','on'));
-
-if length(pop) > 1
-	fxns=cell2mat(get(pop,'Value'))';
-else
-	fxns=pop.Value;
-end
 
 % If data has already been fitted, issue warning
 a=checkToOverwrite('This will cause the current fit to be discarded. Continue?',handles);
@@ -191,35 +183,23 @@ end
 
 handles.xrd.Fmodel=[];
 
-% Make new variable with the names of the functions
-fxnNames = num2fnstr(fxns);
+% Set parameters in xrd
+param = getModifiedParam(handles);
+handles.xrd.PSfxn = param.fcnNames;
+handles.xrd.Constrains = param.constraints;
+handles.xrd.PeakPositions = [];
 
-handles.xrd.Constrains = fliplr([handles.uipanel5.Children.Value]);
-coeff = handles.xrd.getCoeff(fxnNames,handles.xrd.Constrains);
-handles.uipanel4.UserData.coeff = coeff;
-
-set(handles.uitable1,'RowName', coeff);
-handles.uitable1.Data = cell(length(coeff), 4);
+set(handles.uitable1,'RowName', param.coeff);
+handles.uitable1.Data = cell(length(param.coeff), 4);
 
 cla(handles.axes1), cla(handles.axes2)
 handles.axes2.Visible = 'off';
 handles.xrd.plotData(filenum)
-set(handles.uipanel6, 'UserData', fxns);
-handles.xrd.Status = [status,'Done.'];
-set(handles.uipanel4.Children, 'enable', 'on');
 
-if ~fillEmptyCells(handles.uitable1, [], handles) % If the table was successfully completely filled
-	set(handles.push_fitdata, 'enable', 'off');
-	
-	% find if a cell in the table is **not** empty
-	if find(cellfun(@isempty, handles.uitable1.Data(:, 1:3)) == 0, 1)
-		% Only passes if ALL cells in the table are empty
-		set(handles.push_default, 'enable', 'off');
-	elseif isempty(find(cellfun(@isempty, handles.uitable1.Data(:, 1:3)), 1))
-		% Only passes if ALL cells in the table are filled
-		set(handles.push_fitdata, 'enable', 'on');
-	end
-end
+handles.xrd.Status = [status,'Done.'];
+
+fillEmptyCells(handles);
+checkuitable1(handles);
 
 guidata(hObject,handles)
 	
@@ -233,11 +213,12 @@ numpoints = str2num(handles.edit_bkgdpoints.String);
 polyorder = str2num(handles.edit_polyorder.String);
 handles.xrd.resetBackground(numpoints,polyorder);
 if ~isempty(handles.xrd.bkgd2th)
-	handles.push_fitOK.Enable = 'on';
 	set(handles.tab_peak,'ForegroundColor',[0 0 0]);
 	handles.tabgroup.SelectedTab=handles.tab_peak;
 	set(handles.togglebutton_showbkgd,'enable','on');
 end
+
+plotX(handles);
 
 % --- Executes on button press in push_fitOK.
 function push_fitOK_Callback(hObject, eventdata, handles)
@@ -275,8 +256,9 @@ function push_fitdata_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 handles.xrd.Status='Fitting dataset...';
+param = getUpdatedParam(handles);
 
-fnames = num2fnstr(handles.uipanel6.UserData);
+fnames = param.fcnNames;
 
 data = handles.uitable1.Data;
 SP = []; UB = []; LB = [];
@@ -295,6 +277,7 @@ axes(handles.axes1)
 peakpos=handles.xrd.PeakPositions;
 handles.xrd.fitData(peakpos, fnames, SP, UB, LB);
 
+filenum = get(handles.popup_filename, 'Value');
 handles.xrd.plotFit(filenum);
 
 % Populate results column
@@ -389,11 +372,10 @@ if strcmpi(a,'Cancel')
 end
 
 handles.xrd.Fmodel=[];
-handles.xrd.PSfxn={};
 len = size(handles.uitable1.Data,1);
 handles.uitable1.Data = cell(len,4);
 set(hObject.Parent.Children,'Enable','off');
-set(handles.pushbutton17,'Enable','on');
+set(handles.pushbutton17,'Enable','on', 'string', 'Select Peak(s)');
 set(handles.uitable1,'Enable','on');
 handles.xrd.plotData(get(handles.popup_filename,'Value'));
 
@@ -427,34 +409,35 @@ if strcmpi(a,'Cancel')
 end
 
 handles.xrd.Fmodel=[];
-handles.xrd.PSfxn={};
-len = size(handles.uitable1.Data,1);
-handles.uitable1.Data = cell(len,4);
-set(handles.uipanel4.Children,'Enable','off');
-set(handles.pushbutton17,'Enable','on');
-set(handles.uitable1,'Enable','on');
+
 handles.xrd.plotData(get(handles.popup_filename,'Value'));
 
 filenum = get(handles.popup_filename, 'Value');
-fxns=get(handles.uipanel6,'UserData');
+p = getUpdatedParam(handles);
 hold on
-peakpos=[];
+
 % ginput for x position of peaks
-for i=1:length(fxns)
-	handles.xrd.Status=[status, 'Peak ',num2str(i),'.'];
-	[x,~]=ginput(1);
-	ind=find(strcmp(handles.uitable1.RowName,['x',num2str(i)]));
-	handles.uitable1.Data{ind,1}=x;
-	peakpos=[peakpos,x];
+for i=1:length(p.fcnNames)
+	ind=find(strcmp(handles.uitable1.RowName,['x',num2str(i)]), 1);
+	handles.uitable1.Data{ind, 1} = [];
+	handles.uitable1.Data{ind, 2} = [];
+	handles.uitable1.Data{ind, 3} = [];
+	
+	handles.xrd.Status=[status, 'Peak ',num2str(i),'. Right click to cancel.'];
+	[x,~, btn]=ginput(1);
+	if btn == 3 % if the left mouse button was not pressed
+		break
+	end
+	handles.xrd.PeakPositions(i) = x;
+	handles.uitable1.Data{ind,1} = x;
 	pos=PackageFitDiffractionData.Find2theta(handles.xrd.two_theta,x);
 	plot(x, handles.xrd.data_fit(1,pos), 'r*') % 'ko'
 end
 hold off
+fillEmptyCells(handles);
+checkuitable1(handles);
 
-handles.uipanel4.UserData.PeakPositions=peakpos;
-fillEmptyCells(handles.uitable1, [], handles);
-set(handles.uipanel4.Children,'Enable','on');
-set(gcf,'pointer','arrow');
+
 plotSampleFit(handles);
 handles.xrd.Status=[status, 'Done.'];
 
@@ -621,41 +604,7 @@ if get(hObject,'Value') > 1
 	handles.xrd.Status=['Function ',tag(end),' set to ', selection,'.'];
 end
 
-set(handles.uipanel4.Children,'Enable','off');
-set(handles.checkboxN,'Enable','off','Value',0);
-set(handles.checkboxf,'Enable','off','Value',0);
-set(handles.checkboxw,'Enable','off','Value',0);
-set(handles.checkboxm,'Enable','off','Value',0);
-handles.uipanel5.UserData=[0 0 0 0];
-
-% pop = array of visible popup objects for functions
-pop=flipud(findobj(handles.uipanel6.Children,'visible','on','style','popupmenu'));
-% fxns: doubles array representing current functions chosen
-if ~isempty(pop)
-	fxns = [pop.Value];
-else
-	return 
-end
-
-if length(find(fxns>1)) > 1
-	set(handles.checkboxN,'Enable','on');
-	set(handles.checkboxf,'Enable','on');
-	
-	if length(find(fxns==4 | fxns==6)) > 1
-		set(handles.checkboxm,'Enable','on');
-	else
-		set(handles.checkboxm,'Enable','off');
-	end
-	
-	if length(find(fxns==5)) > 1
-		set(handles.checkboxw,'Enable','on');
-	else
-		set(handles.checkboxw,'Enable','off');
-	end
-else
-	set(handles.checkboxN,'Enable','off');
-	set(handles.checkboxf,'Enable','off');
-end
+allowWhichConstraints(handles);
 
 setEnableUpdateButton(handles); % enables/disables 'Update' button and uipanel4
 
@@ -690,8 +639,9 @@ num = get(hObject, 'Value') - 1;
 % if the same value as previous
 if num==hObject.UserData
 	return
-	
-elseif num > 0
+end
+
+if num > 0
 	handles.xrd.Status=['Number of peaks set to ',num2str(num),'.'];
 	set(handles.uipanel6, 'Visible','on');
 	set(handles.uipanel6.Children,'Visible','off');
@@ -724,7 +674,7 @@ elseif num > 0
 	
 	hiddenPops = flipud(findobj(handles.uipanel6.Children,'style','popupmenu', 'visible', 'off'));
 	set(hiddenPops, 'value', 1);
-	popup_function1_Callback(handles.popup_function1,eventdata,handles);
+	allowWhichConstraints(handles);
 	
 else
 	set(handles.uipanel10,'Visible','off');
@@ -736,6 +686,8 @@ else
 	set(handles.uipanel4,'Visible','off');
 	set(handles.uipanel4.Children,'Enable','off');
 end
+
+setEnableUpdateButton(handles);
 
 % ------------------------------------------
 %% Edit box callback functions
@@ -786,8 +738,8 @@ set(handles.edit_min2t,'String',sprintf('%2.4f',min));
 max = str2double(get(handles.edit_max2t,'String'));
 
 % If minimum is less than absolute min or greater than absolute max
-if min < handles.xrd.two_theta(1) || min > handles.xrd.two_theta(end)
-	msg='Error: Value is not within bounds.';
+if min < handles.xrd.two_theta(1) || min > handles.xrd.two_theta(end) || isnan(min)
+	msg='Error: min2t value is not within bounds.';
 	handles.xrd.Status=[status,msg];
 	if min<handles.xrd.two_theta(1)
 		min=handles.xrd.two_theta(1);
@@ -796,7 +748,6 @@ if min < handles.xrd.two_theta(1) || min > handles.xrd.two_theta(end)
 	end
 	handles.xrd.Min2T=min;
 	set(handles.edit_min2t,'String',sprintf('%2.4f',min));
-	uiwait(errordlg(msg))
 	return
 end
 
@@ -859,8 +810,8 @@ end
 set(handles.edit_max2t,'String',sprintf('%2.4f',max));
 
 % If maximum is less than absolute max
-if min < handles.xrd.two_theta(1) || max > handles.xrd.two_theta(end)
-	msg='Error: Value is not within bounds.';
+if min < handles.xrd.two_theta(1) || max > handles.xrd.two_theta(end) || isnan(max)
+	msg='Error: max2t value is not within bounds.';
 	handles.xrd.Status=[status,msg];
 	if max > handles.xrd.two_theta(end)
 		max=handles.xrd.two_theta(end);
@@ -871,7 +822,6 @@ if min < handles.xrd.two_theta(1) || max > handles.xrd.two_theta(end)
 	handles.xrd.Max2T=max;
 	set(handles.edit_max2t,'String',sprintf('%2.4f',max));
 	
-	uiwait(errordlg(msg))
 	return
 end
 
@@ -933,106 +883,75 @@ function uitable1_CellEditCallback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 handles.xrd.Status=['Editing table...'];
 numpeaks=get(handles.popup_numpeaks,'Value')-1;
-pop=flipud(findobj(handles.uipanel6.Children,...
-	'style','popupmenu','visible','on'));
-fxns = [pop.Value];
-data = hObject.Data;
-
-
-if ~isequal(fxns,handles.uipanel6.UserData) ||...
-		~isequal(handles.uipanel5.UserData,handles.xrd.Constrains)
-	prompt='The changes you have made to the fit profile will be discarded. Continue?';
-	a=questdlg(prompt,'Warning','Continue','Cancel','Continue');
-else
-	a='';
-end
-
 r=eventdata.Indices(1);
 c=eventdata.Indices(2);
 
-switch(a)
-	case 'Continue'
-		saveduipanel3(handles);
-		numpeaks = get(handles.popup_numpeaks,'Value')-1;
-% 		set(handles.pushbutton15,'Enable','off');
-	case 'Cancel'
-		hObject.Data{r,c}=eventdata.PreviousData;
-		handles.xrd.Status=['Editing table... Canceled.'];
-		return	
+if ~isa(eventdata.NewData, 'double')
+	try
+		num = str2double(eventdata.NewData);
+		hObject.Data{r, c} = num;
+	catch
+		hObject.Data{r,c} = [];
+		cla
+		plotX(handles);
+		return
+	end
+else
+	num = eventdata.NewData;
 end
 
-
 % If NewData is empty or was not changed
-if isnan(eventdata.NewData)
+if isnan(num)
 	hObject.Data{r,c} = [];
-	set(handles.push_fitdata,'Enable','off');
 	handles.xrd.Status=[handles.uitable1.ColumnName{c},...
-		' value of coefficient ',coeff{r}, ' is now empty.'];
+		' value of coefficient ',hObject.RowName{r}, ' is now empty.'];
+	checkuitable1(handles);
+	cla
+	plotX(handles);
 	return
 	
 else
-	% Save previous data 
-	hObject.UserData.PreviousData=eventdata.PreviousData;
+	
+	if strcmpi(hObject.RowName{r}(1), 'x') && c == 1
+		ipk = str2double(hObject.RowName{r}(2));
+		hObject.UserData{ipk} = num;
+	end
 	
 	% Check if SP, LB, and UB are within bounds
 	switch c
 		case 1 % If first column, SP
-			if eventdata.NewData < hObject.Data{r,2}
-				hObject.Data{r,2} = eventdata.NewData;
+			if num < hObject.Data{r,2}
+				hObject.Data{r,2} = num;
 			end
-			if eventdata.NewData > hObject.Data{r,3}
-				hObject.Data{r,3} = eventdata.NewData;
+			if num > hObject.Data{r,3}
+				hObject.Data{r,3} = num;
 			end
 		case 2 % If second column, LB
-			if eventdata.NewData > hObject.Data{r,1}
-				hObject.Data{r,1} = eventdata.NewData;
+			if num > hObject.Data{r,1}
+				hObject.Data{r,1} = num;
 			end
-			if eventdata.NewData > hObject.Data{r,3}
-				hObject.Data{r,3} = eventdata.NewData;
+			if num > hObject.Data{r,3}
+				hObject.Data{r,3} = num;
 			end
 		case 3 % If third column, UB
-			if eventdata.NewData < hObject.Data{r,1}
-				hObject.Data{r,1} = eventdata.NewData;
+			if num < hObject.Data{r,1}
+				hObject.Data{r,1} = num;
 			end
-			if eventdata.NewData < hObject.Data{r,2}
-				hObject.Data{r,2} = eventdata.NewData;
+			if num < hObject.Data{r,2}
+				hObject.Data{r,2} = num;
 			end
 	end
-end
-
-coeff=hObject.RowName; pos=[];
-for i=1:length(coeff)
-	if strcmp(coeff{i}(1),'x')
-		pos=[pos,hObject.Data{i,1}];
-	end
-end
-
-% Check if all the peak locations are in the table
-if isequal(length(pos),numpeaks)
-	set(handles.push_fitdata,'Enable','on');
-	% fill in empty cells in uitable1 with default values
-	fillEmptyCells(hObject,eventdata,handles);
-else
-	set(handles.push_fitdata,'Enable','off');
 end
 
 % Enable/disable 'Clear' button
-a=[hObject.Data{1:end,1:3}];
-if isempty(a)
-	handles.push_default.Enable='off'; 
-else
-	handles.push_default.Enable = 'on';
-end
+checkuitable1(handles);
 
-coeff=handles.uipanel4.UserData.coeff;
-
-if ~isempty(eventdata.NewData)
+if ~isempty(num)
 	handles.xrd.Status=[handles.uitable1.ColumnName{c},...
-		' value of coefficient ',coeff{r}, ' was changed to ',num2str(eventdata.NewData),'.'];
+		' value of coefficient ',hObject.RowName{r}, ' was changed to ',num2str(num),'.'];
 end
 
 plotSampleFit(handles);
-
 guidata(hObject,handles)
 
 % --- Executes when selected cell(s) is changed in uitable1.
@@ -1200,9 +1119,7 @@ end
 
 handles.xrd.Fmodel=[];
 
-handles.uipanel4.UserData.coeff=handles.xrd.Fcoeff;
-handles.uipanel4.UserData.PeakPositions=handles.xrd.PeakPositions;
-handles.uipanel4.UserData.PeakNames=handles.xrd.PSfxn;
+handles.uipanel4.UserData = handles.xrd.PeakPositions;
 
 set(handles.edit_min2t,'String',sprintf('%2.4f',handles.xrd.Min2T));
 set(handles.edit_max2t,'String',sprintf('%2.4f',handles.xrd.Max2T));
@@ -1212,19 +1129,6 @@ set(handles.popup_numpeaks,'Value',length(handles.xrd.PSfxn)+1);
 % Set uipanel6/popup functions
 popup_numpeaks_Callback(handles.popup_numpeaks, [], handles); 
 
-for i=1:length(handles.xrd.PSfxn)
-	if strcmp(handles.xrd.PSfxn(i),'Gaussian')
-		handles.uipanel6.UserData(i)=2;
-	elseif strcmp(handles.xrd.PSfxn(i),'Lorentzian')
-		handles.uipanel6.UserData(i)=3;
-	elseif strcmp(handles.xrd.PSfxn(i),'PearsonVII')
-		handles.uipanel6.UserData(i)=4;
-	elseif strcmp(handles.xrd.PSfxn(i),'PsuedoVoigt')
-		handles.uipanel6.UserData(i)=5;
-	elseif strcmp(handles.xrd.PSfxn(i),'AsymmetricPVII')
-		handles.uipanel6.UserData(i)=6;
-	end	
-end
 
 saveduipanel3(handles);
 set(handles.tabgroup,'SelectedTab',handles.tab_peak);
@@ -1276,6 +1180,26 @@ end
 handles.xrd.plotFit('all')
 saveas(figure(5),strcat(fitOutputPath,'Profile ',num2str(profile), 'of ',tot,' - ',strcat('Master','-','plotFit')));
 delete(gcf);
+
+
+% --------------------------------------------------------------------
+function menu_clearall_Callback(hObject, eventdata, handles)
+% hObject    handle to menu_clearall (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% If there is data loaded, confirm
+ans=questdlg('This will reset the figure and your data will be lost.','Warning','Continue','Cancel','Cancel');
+if strcmp(ans,'Continue')
+	handles.xrd = PackageFitDiffractionData;
+	handles.xrdContainer = handles.xrd;
+	set(handles.panel_rightside,'Visible','off');
+	set(handles.popup_numprofile, 'value', 1, 'enable','off');
+	set(handles.edit8,...
+		'String', 'Upload new file(s)...',...
+		'FontAngle', 'italic',...
+		'ForegroundColor', [0.5 0.5 0.5]);
+end
 
 
 % --------------------------------------------------------------------
@@ -1612,12 +1536,5 @@ end
 % --------------------------------------------------------------------
 function menu_clearfit_Callback(hObject, eventdata, handles)
 % hObject    handle to menu_clearfit (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function menu_clearall_Callback(hObject, eventdata, handles)
-% hObject    handle to menu_clearall (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
