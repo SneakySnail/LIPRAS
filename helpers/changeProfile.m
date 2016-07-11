@@ -69,7 +69,7 @@ handles.tab_peak=findobj(handles.profiles(profile).Children,'tag','tab_peak');
 handles.xrd = handles.xrdContainer(profile);
 
 set(handles.text_numprofile,'string',...
-	['Profile ',num2str(profile),' of ',num2str(handles.popup_numprofile.Value-1)]);
+	['Profile ',num2str(profile),' of ', 'TO DO']);
 
 plotX(handles);
 

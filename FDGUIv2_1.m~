@@ -26,7 +26,7 @@ function varargout = FDGUIv2_1(varargin)
 
 % Edit the above text to modify the response to help FDGUIv2_1
 
-% Last Modified by GUIDE v2.5 25-Jun-2016 02:14:41
+% Last Modified by GUIDE v2.5 03-Jul-2016 15:37:32
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -158,7 +158,7 @@ function button_browse_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 menu_new_Callback(handles.menu_new,[],handles);
-popup_numprofile_Callback(handles.popup_numprofile,[],handles);
+
 
 % --- Executes on  'Update' button press.
 function pushbutton15_Callback(hObject, eventdata, handles)
@@ -187,9 +187,10 @@ handles.xrd.Fmodel=[];
 param = getModifiedParam(handles);
 handles.xrd.PSfxn = param.fcnNames;
 handles.xrd.Constrains = param.constraints;
+handles.xrd.PeakPositions = [];
 
 set(handles.uitable1,'RowName', param.coeff);
-handles.uitable1.Data = param.Data;
+handles.uitable1.Data = cell(length(param.coeff), 4);
 
 cla(handles.axes1), cla(handles.axes2)
 handles.axes2.Visible = 'off';
@@ -212,41 +213,13 @@ numpoints = str2num(handles.edit_bkgdpoints.String);
 polyorder = str2num(handles.edit_polyorder.String);
 handles.xrd.resetBackground(numpoints,polyorder);
 if ~isempty(handles.xrd.bkgd2th)
-	handles.push_fitOK.Enable = 'on';
 	set(handles.tab_peak,'ForegroundColor',[0 0 0]);
 	handles.tabgroup.SelectedTab=handles.tab_peak;
 	set(handles.togglebutton_showbkgd,'enable','on');
 end
 
-% --- Executes on button press in push_fitOK.
-function push_fitOK_Callback(hObject, eventdata, handles)
-% hObject    handle to push_fitOK (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-handles.xrd.Status=['Number of fit profiles set to ',num2str(handles.popup_numprofile.Value-1),'.'];
-handles = changeProfile(handles.profiles(1),handles);
-set(handles.tabgroup,'SelectedTab',handles.tab_setup);
+plotX(handles);
 
-num = handles.popup_numprofile.Value-1;
-
-for i=1:num
-	handles.profiles(i).UserData(2) = num;
-end
-
-set(handles.push_prevprofile, 'Enable','off');
-
-if num == 1
-	set(handles.push_nextprofile,'Enable','off');
-else
-	set(handles.push_nextprofile,'Enable','on');
-end
-
-saveduipanel3(handles);
-set(handles.uipanel3,'Visible','on');
-set(hObject,'Enable','off');
-
-assignin('base','handles',handles)
-guidata(hObject,handles)
 
 % --- Executes on button press in push_fitdata.
 function push_fitdata_Callback(hObject, eventdata, handles)
@@ -254,7 +227,7 @@ function push_fitdata_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 handles.xrd.Status='Fitting dataset...';
-param = getUpdatedParam(handles);
+param = getSavedParam(handles);
 
 fnames = param.fcnNames;
 
@@ -373,7 +346,7 @@ handles.xrd.Fmodel=[];
 len = size(handles.uitable1.Data,1);
 handles.uitable1.Data = cell(len,4);
 set(hObject.Parent.Children,'Enable','off');
-set(handles.pushbutton17,'Enable','on');
+set(handles.pushbutton17,'Enable','on', 'string', 'Select Peak(s)');
 set(handles.uitable1,'Enable','on');
 handles.xrd.plotData(get(handles.popup_filename,'Value'));
 
@@ -411,7 +384,7 @@ handles.xrd.Fmodel=[];
 handles.xrd.plotData(get(handles.popup_filename,'Value'));
 
 filenum = get(handles.popup_filename, 'Value');
-p = getUpdatedParam(handles);
+p = getSavedParam(handles);
 hold on
 
 % ginput for x position of peaks
@@ -421,19 +394,19 @@ for i=1:length(p.fcnNames)
 	handles.uitable1.Data{ind, 2} = [];
 	handles.uitable1.Data{ind, 3} = [];
 	
-	handles.xrd.Status=[status, 'Peak ',num2str(i),'.'];
+	handles.xrd.Status=[status, 'Peak ',num2str(i),'. Right click to cancel.'];
 	[x,~, btn]=ginput(1);
-	if btn ~= 1 % if the left mouse button was not pressed
+	if btn == 3 % if the left mouse button was not pressed
 		break
 	end
 	handles.xrd.PeakPositions(i) = x;
 	handles.uitable1.Data{ind,1} = x;
-	fillEmptyCells(handles);
 	pos=PackageFitDiffractionData.Find2theta(handles.xrd.two_theta,x);
 	plot(x, handles.xrd.data_fit(1,pos), 'r*') % 'ko'
 end
 hold off
-
+fillEmptyCells(handles);
+checkuitable1(handles);
 
 
 plotSampleFit(handles);
@@ -607,19 +580,6 @@ allowWhichConstraints(handles);
 setEnableUpdateButton(handles); % enables/disables 'Update' button and uipanel4
 
 
-% --- Executes on selection change in popup_numprofile.
-function popup_numprofile_Callback(hObject, eventdata, handles)
-% hObject    handle to popup_numpeaks (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popup_numpeaks contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popup_numpeaks
-set(hObject,'UserData',get(hObject,'value'));
-if hObject.Value > 1
-	handles.push_fitOK.Enable = 'on';
-end
-
 % --- Executes on selection change in popup_numpeaks.
 % Sets visibility of uipanel6 and uipanel5. 
 % Sets visibility of popup_functionX in uipanel6.
@@ -706,7 +666,7 @@ function edit_polyorder_Callback(hObject, eventdata, handles)
 % hObject    handle to edit_polyorder (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles.push_fitOK.Enable = 'on';
+
 set(hObject,'UserData',get(hObject,'value'));
 handles.xrd.PolyOrder=str2double(hObject.String);
 handles.xrd.Status=['Polynomial order changed to ',get(hObject,'String'),'.'];
@@ -860,7 +820,6 @@ function edit_bkgdpoints_Callback(hObject, eventdata, handles)
 % hObject    handle to edit_bkgdpoints (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles.push_fitOK.Enable = 'on';
 set(hObject,'UserData',get(hObject,'value'));
 handles.xrd.Status=['Number of background points changed to ',get(hObject,'String'),'.'];
 guidata(hObject,handles)
@@ -1014,74 +973,30 @@ function menu_new_Callback(hObject, eventdata, handles)
 handles.xrd.Status='Loading data... ';
 axes(handles.axes1)
 
+% Check if there is current data loaded
 ans=checkToOverwrite('Overwrite current data?',handles);
-if strcmpi(ans,'Cancel') || ~handles.xrdContainer(1).Read_Data % If data has already been fitted, issue warning
+if strcmpi(ans,'Cancel') || ~handles.xrdContainer(1).Read_Data % If user cancels action
 	handles.xrd.Status=[status,'Canceled.'];
 	return
 end
 
-handles.xrdContainer = [handles.xrdContainer(1),copy(handles.xrd),copy(handles.xrd),...
-	copy(handles.xrd),copy(handles.xrd),copy(handles.xrd)]; % Make a new copy of xrd handles
+set(handles.uipanel3, 'visible', 'on');
+set(handles.panel_rightside,'Visible','on');
 
-set(handles.popup_numprofile,'Value',1);
-set(handles.push_fitOK,'Enable','off');
-set(handles.uipanel3,'Visible','off');
-set(handles.uipanel4,'Visible','off');
+handles=createProfileObjects(handles);
+saveduipanel3(handles);
 
-if isempty(handles.xrd.Filename)
-	set(handles.panel_rightside,'Visible','off');
-	set(handles.popup_numprofile,'enable','off');
-	set(handles.edit8,...
-		'String','Upload new file(s)...',...
-		'FontAngle','italic',...
-		'ForegroundColor',[0.5 0.5 0.5]);
+uitoggletool5_OnCallback(handles.uitoggletool5,[],handles);
+plotX(handles);
 
-else
-	handles.xrd.Fmodel=[];
-	set(handles.panel_rightside,'Visible','on');
-	set(handles.popup_numprofile,'enable','on');
-	
-	if length(handles.xrd.Filename)>1
-		set(handles.checkbox10,'Visible','on');
-		set(handles.push_viewall,'Visible','on');
-	else
-		set(handles.checkbox10,'Visible','off');
-		set(handles.push_viewall,'Visible','off');
-	end
-	
-	for i=1:length(handles.xrd.Filename)
-		files{i} = handles.xrd.Filename{i};  %#ok<AGROW>
-	end
-	
-	set(handles.edit8,'String',handles.xrd.DataPath,...
-		'FontAngle','normal','ForegroundColor',[0 0 0]);
-	set(handles.popup_filename, 'String',files);
-	
-	handles=createProfileObjects(handles);
-	
-	saveduipanel3(handles);
-	uitoggletool5_OnCallback(handles.uitoggletool5,[],handles);
-	plotX(handles);
-	set(handles.menu_save,'Enable','off');
-	set(handles.axes2,'Visible','off');
-	set(handles.axes2.Children,'Visible','off');
-	set(handles.uipanel4.Children,'Enable','off');
-	set(handles.pushbutton15,'Enable','on');
-	handles = changeProfile(handles.profiles(1),handles);
-	numfiles=length(handles.xrd.Filename);
-	if numfiles > 1
-		handles.xrd.Status=['Imported ',num2str(length(handles.xrd.Filename)),' files.'];
-	else
-		handles.xrd.Status='Imported 1 file.';
-	end
-	set(handles.text_filenum,'String',['1 of ',num2str(numfiles)]);
-end
+set(handles.menu_save,'Enable','off');
+set(handles.axes2,'Visible','off');
+set(handles.axes2.Children,'Visible','off');
+set(handles.uipanel4.Children,'Enable','off');
+set(handles.pushbutton15,'Enable','on');
+handles = changeProfile(handles.profiles(1),handles);
 
 assignin('base','handles',handles)
-
-if strcmpi(handles.uitoggletool5.State,'on')
-	legend(handles.xrd.DisplayName,'box','off')
-end
 
 guidata(hObject, handles)
 
@@ -1192,7 +1107,6 @@ if strcmp(ans,'Continue')
 	handles.xrd = PackageFitDiffractionData;
 	handles.xrdContainer = handles.xrd;
 	set(handles.panel_rightside,'Visible','off');
-	set(handles.popup_numprofile, 'value', 1, 'enable','off');
 	set(handles.edit8,...
 		'String', 'Upload new file(s)...',...
 		'FontAngle', 'italic',...
@@ -1275,12 +1189,6 @@ function edit_max2t_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
 	set(hObject,'BackgroundColor','white');
 end
-
-% --- Executes during object creation, after setting all properties.
-function popup_numprofile_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popup_numpeaks (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
 
 % Hint: popupmenu controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
@@ -1448,7 +1356,6 @@ function uibuttongroup2_SelectionChangedFcn(hObject, eventdata, handles)
 % hObject    handle to the selected object in uibuttongroup2 
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles.push_fitOK.Enable = 'on';
 
 
 % --- Executes on mouse press over axes background.
@@ -1534,5 +1441,19 @@ end
 % --------------------------------------------------------------------
 function menu_clearfit_Callback(hObject, eventdata, handles)
 % hObject    handle to menu_clearfit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in push_removeprofile.
+function push_removeprofile_Callback(hObject, eventdata, handles)
+% hObject    handle to push_removeprofile (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in push_addprofile.
+function push_addprofile_Callback(hObject, eventdata, handles)
+% hObject    handle to push_addprofile (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
