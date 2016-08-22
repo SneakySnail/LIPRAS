@@ -9,7 +9,7 @@ try
 	popObjs =  flipud(findobj(handles.uipanel6.Children, ...
 		'visible','on','style','popupmenu'));
 	nFcn = [popObjs.Value];
-	param.fcnNames = num2fnstr(nFcn);
+	param.fcnNames = call.num2fnstr(nFcn);
 catch
 	param.fcnNames = '';
 end

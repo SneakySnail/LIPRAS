@@ -2,7 +2,7 @@
 function isFilled = fillEmptyCells(handles)
 % --- Fills empty cells in uitable1 with their default values only if the
 % initial peak upd.peakPositionsitions are in the table. 
-upd = getSavedParam(handles);
+upd = call.getSavedParam(handles);
 isFilled = false;
 
 % If not enough peak upd.peakPositions for each function
@@ -31,6 +31,5 @@ if strcmpi(handles.uitoggletool5.State,'on')
 	legend(handles.xrd.DisplayName,'box','off')
 end
 
-plotSampleFit(handles);
 
 guidata(handles.uitable1,handles)

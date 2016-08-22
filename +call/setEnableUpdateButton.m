@@ -1,25 +1,27 @@
-% Check if all visible popup menus for functions are not empty and if
-% they have the same constraints before enabling pushbutton15 ('Update' button) or uipanel4.
+% In the 'Peak Selection' tab, this function enables pushbutton15 if fit
+% functions are filled and disables it if not. 
 function isEnabled = setEnableUpdateButton(handles)
 
 %% Verify all visible popup menus are not blank
-% --- set initial values --- %
+% pushbutton15 is initially disabled before checking for functions.
 isEnabled = false;
 set(handles.pushbutton15, 'enable', 'off');
 set(handles.uipanel4.Children, 'enable', 'off');
 % ----------------- %
 
+% If the number of peaks is empty, make uipanel4 invisible
 if handles.popup_numpeaks.Value == 1
 	set(handles.uipanel4, 'visible', 'off');
 	return
 end
 
-%% Check if functions and constraints are the same values as previously
+%% Check if functions and constraints are the same values as previous
 % prevfn = handles.uipanel6.UserData;
-prev = getSavedParam(handles);
-current = getModifiedParam(handles);
+prev = call.getSavedParam(handles);
+current = call.getModifiedParam(handles);
 
-if isempty(current.fcnNames) % If there are some blank popups
+% Exit function if there are some blank functions
+if isempty(current.fcnNames) 
 	return
 end
 

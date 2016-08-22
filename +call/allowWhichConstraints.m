@@ -1,6 +1,5 @@
 function allowWhichConstraints(handles)
 
-set(handles.uipanel4.Children,'Enable','off');
 set(handles.checkboxN,'Enable','off','Value',0);
 set(handles.checkboxf,'Enable','off','Value',0);
 set(handles.checkboxw,'Enable','off','Value',0);

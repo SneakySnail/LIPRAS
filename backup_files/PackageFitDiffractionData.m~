@@ -276,6 +276,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
                % if k<10, lZ=''; elseif k<100, lZ=''; else lZ=''; end;
                if k<10, lZ='00'; elseif k<100, lZ='0'; else lZ=''; end;
 
+%                 filename = [basename, lZ, num2str(k), '.', Stro.suffix];
                 filename = Stro.Filename{k};
                 fprintf(1, '\nProcessing %s...', filename);
 

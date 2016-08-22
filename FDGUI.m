@@ -1,39 +1,42 @@
-% ------------------------------------------
-%% GUI Initialization
-% ------------------------------------------
+%% GUI for FitDiffractionData
 
-function varargout = FDGUIv2_1(varargin)
-% FDGUIv2_1 MATLAB code for FDGUIv2_1.fig
-%      FDGUIv2_1, by itself, creates a new FDGUIv2_1 or raises the existing
+%% handles structure
+% Descriptions of each variable saved in the handles structure.
+% 
+% <include>handles_structure.m</include>
+
+%% Initialization
+
+function varargout = FDGUI(varargin)
+% FDGUI MATLAB code for FDGUI.fig
+%      FDGUI, by itself, creates a new FDGUI or raises the existing
 %      singleton*.
 %
-%      H = FDGUIv2_1 returns the handle to a new FDGUIv2_1 or the handle to
+%      H = FDGUI returns the handle to a new FDGUI or the handle to
 %      the existing singleton*.
 %
-%      FDGUIv2_1('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in FDGUIv2_1.M with the given input arguments.
+%      FDGUI('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in FDGUI.M with the given input arguments.
 %
-%      FDGUIv2_1('Property','Value',...) creates a new FDGUIv2_1 or raises the
+%      FDGUI('Property','Value',...) creates a new FDGUI or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before FDGUIv2_1_OpeningFcn gets called.  An
+%      applied to the GUI before FDGUI_OpeningFcn gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to FDGUIv2_1_OpeningFcn via varargin.
+%      stop.  All inputs are passed to FDGUI_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help FDGUIv2_1
-
-% Last Modified by GUIDE v2.5 03-Jul-2016 15:37:32
+% Last Modified by GUIDE v2.5 15-Aug-2016 21:10:00
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
 	'gui_Singleton',  gui_Singleton, ...
-	'gui_OpeningFcn', @FDGUIv2_1_OpeningFcn, ...
-	'gui_OutputFcn',  @FDGUIv2_1_OutputFcn, ...
+	'gui_OpeningFcn', @FDGUI_OpeningFcn, ...
+	'gui_OutputFcn',  @FDGUI_OutputFcn, ...
 	'gui_LayoutFcn',  [] , ...
 	'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -47,99 +50,21 @@ else
 end
 % End initialization code - DO NOT EDIT
 
-% --- Executes just before FDGUIv2_1 is made visible.
-function FDGUIv2_1_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before FDGUI is made visible.
+function FDGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to FDGUIv2_1 (see VARARGIN)
+% varargin   command line arguments to FDGUI (see VARARGIN)
 
-% ADDED BY KLARISSA - java components
-
-axes(handles.axes1)
-hold(handles.axes1,'all');
-xlabel('2\theta','FontSize',15);
-ylabel('Intensity','FontSize',15);
-
-% Create tab group
-handles.tabgroup=uitabgroup('Parent',handles.uipanel16,'tag','tabgroup',...
-	'SelectionChangedFcn',@(hObject,eventdata)FDGUIv2_1('tabgroup_SelectionChangedFcn',...
-	hObject,eventdata,guidata(hObject)));
-handles.tab_setup=uitab(handles.tabgroup,'Title','Setup','tag','tab_setup');
-set(flipud(handles.uipanel17.Children),'Parent',handles.tab_setup);
-handles.tab_peak=uitab(handles.tabgroup,'Title','Peak Selection', ...
-	'tag','tab_peak','ForegroundColor',[0.8 0.8 0.8]);
-set(flipud(handles.uipanel18.Children),'Parent',handles.tab_peak);
-
-% Initialize 6 instances of handles.uipanel3
-handles.profiles(1) = handles.uipanel3;
-uictrls=findobj(handles.uipanel3.Children,'Type','uicontrol');
-table=findobj(handles.uipanel3.Children,'tag','uitable1');
-
-
-% Copy all callback functions to each instance
-for i=1:6
-	if i ~= 1
-		handles.profiles(i) = copyobj(handles.uipanel3, handles.figure1);
-	end
-	handles.profiles(i).UserData = [i,0];
-	
-	popup=findobj(handles.profiles(i).Children,'style','popupmenu');
-	edit=findobj(handles.profiles(i).Children,'style','edit');
-	check=findobj(handles.profiles(i).Children,'style','checkbox');
-	set([popup;edit;check],'userdata',0);
-	addlistener([popup;check],'Value','PreSet',@(o,e)updateUserData(o,e,handles));
-	addlistener(edit,'String','PreSet',@(o,e)updateUserData(o,e,handles));
-	
-	
-	temp1=findobj(handles.profiles(i).Children,'Type','uicontrol');
-	[temp1.Callback]=deal(uictrls.Callback);
-	handles.profiles(i).UserData = [i, 0];
-	
-	temp2=findobj(handles.profiles(i).Children,'tag','uitable1');
-	temp2.CellEditCallback=table.CellEditCallback;
-	temp2.CellSelectionCallback=table.CellSelectionCallback;
-	
-	temp3=findobj(handles.profiles(i).Children,'tag','tabgroup');
-	temp3.SelectionChangedFcn=handles.tabgroup.SelectionChangedFcn;
-end
-
-% Initialize only one xrd object until user loads in data to fit
-xrd = PackageFitDiffractionData;
-handles.xrd = xrd;
-handles.xrdContainer = xrd; % The handle which will contain the xrd array
-
-addpath('./helpers/');
-
-% Choose default command line output for FDGUIv2_1
-handles.output = hObject;
-
-% Turn off JavaFrame obsolete warning
-warning off MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame;
-
-% Creating the java object status bar
-jFrame=get(handles.figure1,'JavaFrame');
-try
-	jRootPane = jFrame.fHG2Client.getWindow; 
-catch
-	try
-		jRootPane = jFrame.fHG1Client.getWindow;
-	catch
-	end
-end
-handles.text_status = com.mathworks.mwswing.MJStatusBar;
-jRootPane.setStatusBar(handles.text_status);
-
-handles.text_status.setText('<html>Please import file(s) containing data to fit.</html>');
-
-assignin('base','handles',handles)
+handles = call.initGUI(hObject, eventdata, handles, varargin);
 
 % Update handles structure
 guidata(hObject, handles);
 
 % --- Outputs from this function are returned to the command line.
-function varargout = FDGUIv2_1_OutputFcn(hObject, eventdata, handles)
+function varargout = FDGUI_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -148,19 +73,18 @@ function varargout = FDGUIv2_1_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
-% ------------------------------------------
-%% Pushbutton callback functions
-% ------------------------------------------
 
-% --- Executes on button press in button_browse.
+%% Pushbutton callback functions
+
+%  Executes on button press in button_browse.
 function button_browse_Callback(hObject, eventdata, handles)
 % hObject    handle to button_browse (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 menu_new_Callback(handles.menu_new,[],handles);
 
-
-% --- Executes on  'Update' button press.
+%%% pushbutton15
+% Executes on  'Update' button press.
 function pushbutton15_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton15 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -173,21 +97,21 @@ handles.xrd.Status=status;
 filenum = handles.popup_filename.Value;
 
 % If data has already been fitted, issue warning
-a=checkToOverwrite('This will cause the current fit to be discarded. Continue?',handles);
+a = call.checkToOverwrite('This will cause the current fit to be discarded. Continue?', handles);
 
 if strcmp(a,'Cancel')
 	handles.xrd.Status=[status,'Canceled.'];
-	saveduipanel3(handles);
+	call.revertPanel(handles);
 	return
 end
 
 handles.xrd.Fmodel=[];
 
 % Set parameters in xrd
-param = getModifiedParam(handles);
+param = call.getModifiedParam(handles);
 handles.xrd.PSfxn = param.fcnNames;
 handles.xrd.Constrains = param.constraints;
-handles.xrd.PeakPositions = [];
+handles.xrd.PeakPositions = param.peakPositions;
 
 set(handles.uitable1,'RowName', param.coeff);
 handles.uitable1.Data = cell(length(param.coeff), 4);
@@ -198,8 +122,9 @@ handles.xrd.plotData(filenum)
 
 handles.xrd.Status = [status,'Done.'];
 
-fillEmptyCells(handles);
-checkuitable1(handles);
+call.fillEmptyCells(handles);
+handles = call.plotSampleFit(handles);
+call.checkuitable1(handles);
 
 guidata(hObject,handles)
 	
@@ -218,7 +143,7 @@ if ~isempty(handles.xrd.bkgd2th)
 	set(handles.togglebutton_showbkgd,'enable','on');
 end
 
-plotX(handles);
+call.plotX(handles);
 
 
 % --- Executes on button press in push_fitdata.
@@ -227,39 +152,10 @@ function push_fitdata_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 handles.xrd.Status='Fitting dataset...';
-param = getSavedParam(handles);
 
-fnames = param.fcnNames;
+handles = call.fitdata(hObject, eventdata, handles);
 
-data = handles.uitable1.Data;
-SP = []; UB = []; LB = [];
-coeff = handles.uitable1.RowName;
-fitrange = str2double(handles.edit7.String);
-
-if isequal(handles.uibuttongroup2.SelectedObject, handles.radio_sum)
-	for i=1:length(coeff)
-		SP(i) = data{i,1};
-		LB(i) = data{i,2};
-		UB(i) = data{i,3};
-	end
-end
-
-axes(handles.axes1)
-peakpos=handles.xrd.PeakPositions;
-handles.xrd.fitData(peakpos, fnames, SP, UB, LB);
-
-filenum = get(handles.popup_filename, 'Value');
-handles.xrd.plotFit(filenum);
-
-% Populate results column
-vals = handles.xrd.fit_parms{filenum};
-for i=1:length(vals)
-	data{i,4} = ['<html><table border=0 width=75 bgcolor=#E5E4E2><tr><td align="right"><b>',...
-		num2str(vals(i),'%6G'), '</b></td></tr></table></html>'];
-end
-
-handles.uitable1.Data = data;
-handles.xrd.Status='Fitting dataset... Done.';
+handles.xrd.Status = 'Fitting dataset... Done.';
 set(handles.menu_save,'Enable','on');
 
 guidata(hObject, handles)
@@ -269,27 +165,7 @@ function push_prevprofile_Callback(hObject, eventdata, handles)
 % hObject    handle to push_prevprofile (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-profile=find(handles.uipanel3==handles.profiles)-1;
-handles.xrd.Status=['Changed to Profile ',num2str(profile),'.'];
-filenum = handles.popup_filename.Value;
-
-handles.uipanel3.Visible = 'off';
-handles = changeProfile(handles.profiles(profile),handles);
-
-handles.uipanel3.Visible = 'on';
-handles = guidata(hObject);
-
-handles.push_nextprofile.Enable = 'on';
-if profile == 1; handles.push_prevprofile.Enable = 'off';
-else handles.push_prevprofile.Enable = 'on'; end
-
-axes(handles.axes1)
-min = str2double(handles.edit_min2t.String);
-max = str2double(handles.edit_max2t.String);
-xlim([min,max])
-
-plotX(handles);
-
+handles = call.changeProfile(hObject, eventdata,handles);
 guidata(hObject,handles)
 
 % --- Executes on button press in push_nextprofile.
@@ -297,27 +173,7 @@ function push_nextprofile_Callback(hObject, eventdata, handles)
 % hObject    handle to push_nextprofile (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-profile = find(handles.uipanel3==handles.profiles)+1;
-handles.xrd.Status=['Changed to Profile ',num2str(profile),'.'];
-max = handles.uipanel3.UserData(2);
-filenum = handles.popup_filename.Value;
-
-handles.uipanel3.Visible = 'off';
-handles = changeProfile(handles.profiles(profile),handles);
-
-handles.uipanel3.Visible = 'on';
-
-handles.push_prevprofile.Enable = 'on';
-if profile == max; handles.push_nextprofile.Enable = 'off';
-else handles.push_nextprofile.Enable = 'on'; end
-
-axes(handles.axes1)
-min = str2double(handles.edit_min2t.String);
-max = str2double(handles.edit_max2t.String);
-xlim([min,max])
-
-plotX(handles);
-
+handles = call.changeProfile(hObject, eventdata, handles);
 guidata(hObject,handles)
 
 % --- Executes on button press in push_viewall.
@@ -335,7 +191,7 @@ function push_default_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 status='Clearing the table... ';
 handles.xrd.Status=status;
-a=checkToOverwrite('This will cause the current fit to be discarded. Continue?',handles);
+a=call.checkToOverwrite('This will cause the current fit to be discarded. Continue?',handles);
 
 if strcmpi(a,'Cancel')
 	handles.xrd.Status=[status,'Canceled.'];
@@ -358,10 +214,6 @@ set(handles.axes2,'Visible','off');
 set(handles.axes2.Children,'Visible','off');
 handles.xrd.Status=[status,'Done.'];
 
-% handles.History={handles.History{1:end-1}};
-% handles.History{end+1}.Tag = hObject.Tag;
-% handles.History{end}.Style = hObject.Style;
-
 guidata(hObject,handles)
 
 % --- Executes on button press of 'Select Peak(s)'.
@@ -372,44 +224,15 @@ function pushbutton17_Callback(hObject, eventdata, handles)
 status='Selecting peak positions(s)... ';
 handles.xrd.Status=status;
 
-a=checkToOverwrite('This will cause the current fit to be discarded. Continue?',handles);
+a=call.checkToOverwrite('This will cause the current fit to be discarded. Continue?',handles);
 
 if strcmpi(a,'Cancel')
-	handles.xrd.Status=[status, 'Stopped.'];
+	handles.xrd.Status=['Current action was interrupted.'];
 	return
 end
 
-handles.xrd.Fmodel=[];
+call.selectPeaks(hObject, eventdata, handles);
 
-handles.xrd.plotData(get(handles.popup_filename,'Value'));
-
-filenum = get(handles.popup_filename, 'Value');
-p = getSavedParam(handles);
-hold on
-
-% ginput for x position of peaks
-for i=1:length(p.fcnNames)
-	ind=find(strcmp(handles.uitable1.RowName,['x',num2str(i)]), 1);
-	handles.uitable1.Data{ind, 1} = [];
-	handles.uitable1.Data{ind, 2} = [];
-	handles.uitable1.Data{ind, 3} = [];
-	
-	handles.xrd.Status=[status, 'Peak ',num2str(i),'. Right click to cancel.'];
-	[x,~, btn]=ginput(1);
-	if btn == 3 % if the left mouse button was not pressed
-		break
-	end
-	handles.xrd.PeakPositions(i) = x;
-	handles.uitable1.Data{ind,1} = x;
-	pos=PackageFitDiffractionData.Find2theta(handles.xrd.two_theta,x);
-	plot(x, handles.xrd.data_fit(1,pos), 'r*') % 'ko'
-end
-hold off
-fillEmptyCells(handles);
-checkuitable1(handles);
-
-
-plotSampleFit(handles);
 handles.xrd.Status=[status, 'Done.'];
 
 
@@ -424,11 +247,8 @@ function togglebutton_showbkgd_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of togglebutton_showbkgd
 filenum=get(handles.popup_filename,'value');
 
-% handles.History = {handles.History{1:end-1}};
-% handles.History{end+1}=copy(hObject);
-
 axes(handles.axes1)
-plotX(handles);
+call.plotx(handles);
 
 if hObject.Value
 	[pos,indX]=handles.xrd.getBackground;
@@ -463,10 +283,12 @@ function checkboxN_Callback(hObject, eventdata, handles)
 % hObject    handle to checkboxN (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-profile = find(handles.uipanel3==handles.profiles);
-pop=flipud(findobj(handles.uipanel6.Children,'style','popupmenu','visible','on'));
+
+% Get the values of the popups for choosing functions
+pop = flipud(findobj(handles.uipanel6.Children, ...
+		'style', 'popupmenu', ...
+		'visible','on'));
 fxns = [pop.Value];
-numpeaks = handles.popup_numpeaks.Value - 1;
 
 % Save constraint value in uipanel5.UserData
 if hObject.Value == 1
@@ -493,7 +315,7 @@ else
 	end
 end
 
-setEnableUpdateButton(handles);
+call.setEnableUpdateButton(handles);
 
 % --- Superimpose raw data.
 function checkbox10_Callback(hObject, eventdata, handles)
@@ -514,7 +336,7 @@ if get(hObject,'Value')
 	uitoggletool5_OnCallback(handles.uitoggletool5, eventdata, handles)
 else
 	hold off
-	plotX(handles);
+	call.plotx(handles);
 	if strcmpi(handles.uitoggletool5.UserData,'off')
 		uitoggletool5_OffCallback(handles.uitoggletool5, eventdata, handles)
 	end
@@ -550,7 +372,7 @@ else
 	cla
 	hold off
 	handles.xrd.Status=['File changed to ',handles.xrd.Filename{filenum},'.'];
-	plotX(handles);
+	call.plotX(handles);
 end
 
 guidata(hObject, handles)
@@ -575,9 +397,9 @@ if get(hObject,'Value') > 1
 	handles.xrd.Status=['Function ',tag(end),' set to ', selection,'.'];
 end
 
-allowWhichConstraints(handles);
+call.allowWhichConstraints(handles);
 
-setEnableUpdateButton(handles); % enables/disables 'Update' button and uipanel4
+call.setEnableUpdateButton(handles); % enables/disables 'Update' button and uipanel4
 
 
 % --- Executes on selection change in popup_numpeaks.
@@ -594,7 +416,7 @@ function popup_numpeaks_Callback(hObject, eventdata, handles)
 
 num = get(hObject, 'Value') - 1;
 
-% if the same value as previous
+% if the same value as previous, exit function
 if num==hObject.UserData
 	return
 end
@@ -632,7 +454,7 @@ if num > 0
 	
 	hiddenPops = flipud(findobj(handles.uipanel6.Children,'style','popupmenu', 'visible', 'off'));
 	set(hiddenPops, 'value', 1);
-	allowWhichConstraints(handles);
+	call.allowWhichConstraints(handles);
 	
 else
 	set(handles.uipanel10,'Visible','off');
@@ -642,10 +464,9 @@ else
 	set(handles.uipanel5,'Visible','off');
 	set(handles.pushbutton15,'Visible','off');
 	set(handles.uipanel4,'Visible','off');
-	set(handles.uipanel4.Children,'Enable','off');
 end
 
-setEnableUpdateButton(handles);
+call.setEnableUpdateButton(handles);
 
 % ------------------------------------------
 %% Edit box callback functions
@@ -680,9 +501,7 @@ function edit_min2t_Callback(hObject, eventdata, handles)
 status='Editing min2T... ';
 handles.xrd.Status=status;
 
-filenum = handles.popup_filename.Value;
-
-a=checkToOverwrite('This will cause the current fit to be discarded. Continue?',handles);
+a=call.checkToOverwrite('This will cause the current fit to be discarded. Continue?',handles);
 
 if strcmp(a,'No') || strcmp(a,'Cancel')
 	handles.xrd.Status=[status, 'Stopped.'];
@@ -691,27 +510,30 @@ if strcmp(a,'No') || strcmp(a,'Cancel')
 end
 
 min = str2double(get(hObject,'String'));
-set(handles.popup_numpeaks,'Enable','on');
-set(handles.edit_min2t,'String',sprintf('%2.4f',min));
 max = str2double(get(handles.edit_max2t,'String'));
 
-% If minimum is less than absolute min or greater than absolute max
+% If user-inputted min2T is out of range, reset to the default and exit function
 if min < handles.xrd.two_theta(1) || min > handles.xrd.two_theta(end) || isnan(min)
 	msg='Error: min2t value is not within bounds.';
-	handles.xrd.Status=[status,msg];
+	handles.xrd.Status=[status, msg];
+	
 	if min<handles.xrd.two_theta(1)
 		min=handles.xrd.two_theta(1);
 	else
 		min=handles.xrd.Min2T;
 	end
+	
 	handles.xrd.Min2T=min;
 	set(handles.edit_min2t,'String',sprintf('%2.4f',min));
 	return
 end
 
+% Save min2T into xrd
 handles.xrd.Min2T = min;
+set(handles.popup_numpeaks,'Enable','on');
+set(handles.edit_min2t,'String',sprintf('%2.4f',min));
 
-% 
+% If user-inputted min2T is greater than current max2T, 
 if min >= max 
 	max = min+handles.xrd.fitrange;
 	if max > handles.xrd.two_theta(end)
@@ -721,21 +543,25 @@ if min >= max
 	set(handles.edit_max2t,'String',sprintf('%2.4f',max));
 end
 
-if ~isempty(handles.xrd.bkgd2th) &&...
+% Reset background points if not within profile range
+if ~isempty(handles.xrd.bkgd2th) && ...
 		(isempty(find(min<handles.xrd.bkgd2th,1)) ||...
 		isempty(find(max>handles.xrd.bkgd2th,1)))
 	handles.xrd.bkgd2th=[];
 end
+
+% Reset peak positions if not within profile range
 if ~isempty(handles.xrd.PeakPositions) &&...
 		(isempty(find(min<handles.xrd.PeakPositions,1)) ||...
 		isempty(find(max>handles.xrd.PeakPositions,1)))
 	handles.xrd.PeakPositions=[];
 	set(handles.popup_numpeaks,'Value',1);
 	handles.xrd.bkgd2th=[];
-	saveduipanel3(handles);
+	call.revertPanel(handles);
 end
+
 handles.xrd.Fmodel=[];
-handles.xrd.plotData(filenum)
+handles.xrd.plotData(handles.popup_filename.Value)
 handles.xrd.Status=['<html>Min2&theta; set to ',get(hObject,'String'),'.'];
 
 % --- 
@@ -748,7 +574,7 @@ handles.xrd.Status=status;
 
 filenum = handles.popup_filename.Value;
 
-a=checkToOverwrite('This will cause the current fit to be discarded. Continue?',handles);
+a=call.checkToOverwrite('This will cause the current fit to be discarded. Continue?',handles);
 
 if strcmp(a,'No') || strcmp(a,'Cancel')
 	handles.xrd.Status=[status, 'Stopped.'];
@@ -807,7 +633,7 @@ if ~isempty(handles.xrd.PeakPositions) &&...
 	handles.xrd.PeakPositions=[];
 	set(handles.popup_numpeaks,'Value',1);
 	handles.xrd.PSfxn={};
-	saveduipanel3(handles);
+	call.revertPanel(handles);
 end
 
 handles.xrd.Fmodel=[];
@@ -850,7 +676,7 @@ if ~isa(eventdata.NewData, 'double')
 	catch
 		hObject.Data{r,c} = [];
 		cla
-		plotX(handles);
+		call.plotx(handles);
 		return
 	end
 else
@@ -862,9 +688,9 @@ if isnan(num)
 	hObject.Data{r,c} = [];
 	handles.xrd.Status=[handles.uitable1.ColumnName{c},...
 		' value of coefficient ',hObject.RowName{r}, ' is now empty.'];
-	checkuitable1(handles);
+	call.checkuitable1(handles);
 	cla
-	plotX(handles);
+	call.plotx(handles);
 	return
 	
 else
@@ -901,14 +727,14 @@ else
 end
 
 % Enable/disable 'Clear' button
-checkuitable1(handles);
+call.checkuitable1(handles);
 
 if ~isempty(num)
 	handles.xrd.Status=[handles.uitable1.ColumnName{c},...
 		' value of coefficient ',hObject.RowName{r}, ' was changed to ',num2str(num),'.'];
 end
 
-plotSampleFit(handles);
+handles = call.plotSampleFit(handles);
 guidata(hObject,handles)
 
 % --- Executes when selected cell(s) is changed in uitable1.
@@ -971,34 +797,8 @@ function menu_new_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 handles.xrd.Status='Loading data... ';
-axes(handles.axes1)
 
-% Check if there is current data loaded
-ans=checkToOverwrite('Overwrite current data?',handles);
-if strcmpi(ans,'Cancel') || ~handles.xrdContainer(1).Read_Data % If user cancels action
-	handles.xrd.Status=[status,'Canceled.'];
-	return
-end
-
-set(handles.uipanel3, 'visible', 'on');
-set(handles.panel_rightside,'Visible','on');
-
-handles=createProfileObjects(handles);
-saveduipanel3(handles);
-
-uitoggletool5_OnCallback(handles.uitoggletool5,[],handles);
-plotX(handles);
-
-set(handles.menu_save,'Enable','off');
-set(handles.axes2,'Visible','off');
-set(handles.axes2.Children,'Visible','off');
-set(handles.uipanel4.Children,'Enable','off');
-set(handles.pushbutton15,'Enable','on');
-handles = changeProfile(handles.profiles(1),handles);
-
-assignin('base','handles',handles)
-
-guidata(hObject, handles)
+call.importData(hObject, eventdata, handles);
 
 % --- 
 function menu_save_Callback(hObject, eventdata, handles)
@@ -1018,7 +818,7 @@ status='Loading input parameter file... ';
 handles.xrd.Status=status;
 
 % --- Check if there is already a fit
-a=checkToOverwrite('This will cause the current fit to be discarded. Continue?',handles);
+a=call.checkToOverwrite('This will cause the current fit to be discarded. Continue?',handles);
 
 if strcmp(a,'Cancel')
 	handles.xrd.Status=[status,'Canceled.'];
@@ -1043,7 +843,7 @@ set(handles.popup_numpeaks,'Value',length(handles.xrd.PSfxn)+1);
 popup_numpeaks_Callback(handles.popup_numpeaks, [], handles); 
 
 
-saveduipanel3(handles);
+call.revertPanel(handles);
 set(handles.tabgroup,'SelectedTab',handles.tab_peak);
 
 pushbutton15_Callback(handles.pushbutton15,[],handles);
@@ -1061,7 +861,7 @@ end
 
 handles.xrd.Status=[status,'Done.'];
 set(handles.uipanel4.Children,'Enable','on');
-plotX(handles);
+call.plotX(handles);
 
 guidata(hObject, handles)
 
@@ -1158,7 +958,7 @@ end
 if hObject.SelectedTab == handles.tab_setup
 	set(handles.uipanel4, 'visible', 'off');
 elseif handles.popup_numpeaks.Value > 1
-	setEnableUpdateButton(handles);
+	call.setEnableUpdateButton(handles);
 end
 	
 
@@ -1453,7 +1253,15 @@ function push_removeprofile_Callback(hObject, eventdata, handles)
 
 
 % --- Executes on button press in push_addprofile.
+% 
 function push_addprofile_Callback(hObject, eventdata, handles)
 % hObject    handle to push_addprofile (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+% When user adds a profile:
+% * push_nextprofile is enabled unless the number of profiles is max (6)
+% * Automatically switch profile to the added one
+handles.profiles(7).UserData = handles.profiles(7).UserData + 1;
+
+call.changeProfile(hObject, [], handles);
