@@ -1,6 +1,6 @@
 
 % Plot an example fit using the starting values from table
-function plotSampleFit(handles)
+function handles = plotSampleFit(handles)
 
 % Make sure all the cells with starting values are not empty
 try
@@ -44,7 +44,7 @@ background=polyval(P,data(1,:),S,U);
 dataNB(2,:) = data(2,:) - background;
 
 % Use initial coefficient values to plot fit
-p = getSavedParam(handles);
+p = call.getSavedParam(handles);
 peakPos=p.peakPositions;
 peakNames=p.fcnNames;
 constraints=p.constraints;
@@ -157,10 +157,10 @@ for i=1:length(peakNames)
 	end
 	
 	datafit(end+1)=plot(x,peakfit(i,:)+background,':','LineWidth',2,...
-		'DisplayName',['Peak ',num2str(i),' (',fxn,')']);
+		'DisplayName',['Peak ', num2str(i),' (',fxn,')']);
 	if handles.xrd.CuKa
 		datafit(end+1)=plot(x,CuKaPeak(i,:)+background,':','LineWidth',2,...
-			'DisplayName',['Cu-K\alpha2 (Peak ',num2str(i)]);
+			'DisplayName',['Cu-K\alpha2 (Peak ', num2str(i)]);
 	end
 end
 

@@ -1,0 +1,2812 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>GUI for FitDiffractionData</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-08-07"><meta name="DC.source" content="FDGUI.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>GUI for FitDiffractionData</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">handles structure</a></li><li><a href="#2">Initialization</a></li><li><a href="#4">Pushbutton callback functions</a></li><li><a href="#6">pushbutton15</a></li><li><a href="#8">Toggle Button callback functions</a></li><li><a href="#11">Checkbox callback functions</a></li><li><a href="#14">Popup callback functions</a></li><li><a href="#17">Edit box callback functions</a></li><li><a href="#20">uitable callback functions</a></li><li><a href="#23">Toobar callback functions</a></li><li><a href="#26">Menu callback functions</a></li><li><a href="#29">Custom helper functions</a></li><li><a href="#32">CreateFcns and Unused Callbacks</a></li></ul></div><h2>handles structure<a name="1"></a></h2><p>Descriptions of each variable saved in the handles structure.</p><pre class="language-matlab">
+<span class="comment">%% The handles structure</span>
+<span class="comment">% * _text_filenum_: [1x1 UIControl] -- The text object next to _popup_filename_ </span>
+<span class="comment">% describing the current file number displayed in axes1</span>
+<span class="comment">% * _uipanel4_: [1x1 Panel] -- panel containing _uitable1_ and related buttons</span>
+<span class="comment">% *</span>
+
+</pre><h2>Initialization<a name="2"></a></h2><pre class="codeinput"><span class="keyword">function</span> varargout = FDGUI(varargin)
+<span class="comment">% FDGUI MATLAB code for FDGUI.fig</span>
+<span class="comment">%      FDGUI, by itself, creates a new FDGUI or raises the existing</span>
+<span class="comment">%      singleton*.</span>
+<span class="comment">%</span>
+<span class="comment">%      H = FDGUI returns the handle to a new FDGUI or the handle to</span>
+<span class="comment">%      the existing singleton*.</span>
+<span class="comment">%</span>
+<span class="comment">%      FDGUI('CALLBACK',hObject,eventData,handles,...) calls the local</span>
+<span class="comment">%      function named CALLBACK in FDGUI.M with the given input arguments.</span>
+<span class="comment">%</span>
+<span class="comment">%      FDGUI('Property','Value',...) creates a new FDGUI or raises the</span>
+<span class="comment">%      existing singleton*.  Starting from the left, property value pairs are</span>
+<span class="comment">%      applied to the GUI before FDGUI_OpeningFcn gets called.  An</span>
+<span class="comment">%      unrecognized property name or invalid value makes property application</span>
+<span class="comment">%      stop.  All inputs are passed to FDGUI_OpeningFcn via varargin.</span>
+<span class="comment">%</span>
+<span class="comment">%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one</span>
+<span class="comment">%      instance to run (singleton)".</span>
+<span class="comment">%</span>
+<span class="comment">% See also: GUIDE, GUIDATA, GUIHANDLES</span>
+
+<span class="comment">% Last Modified by GUIDE v2.5 07-Aug-2016 21:27:00</span>
+
+<span class="comment">% Begin initialization code - DO NOT EDIT</span>
+gui_Singleton = 1;
+gui_State = struct(<span class="string">'gui_Name'</span>,       mfilename, <span class="keyword">...</span>
+	<span class="string">'gui_Singleton'</span>,  gui_Singleton, <span class="keyword">...</span>
+	<span class="string">'gui_OpeningFcn'</span>, @FDGUI_OpeningFcn, <span class="keyword">...</span>
+	<span class="string">'gui_OutputFcn'</span>,  @FDGUI_OutputFcn, <span class="keyword">...</span>
+	<span class="string">'gui_LayoutFcn'</span>,  [] , <span class="keyword">...</span>
+	<span class="string">'gui_Callback'</span>,   []);
+<span class="keyword">if</span> nargin &amp;&amp; ischar(varargin{1})
+	gui_State.gui_Callback = str2func(varargin{1});
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> nargout
+	[varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+<span class="keyword">else</span>
+	gui_mainfcn(gui_State, varargin{:});
+<span class="keyword">end</span>
+<span class="comment">% End initialization code - DO NOT EDIT</span>
+
+<span class="comment">% --- Executes just before FDGUI is made visible.</span>
+<span class="keyword">function</span> FDGUI_OpeningFcn(hObject, eventdata, handles, varargin)
+<span class="comment">% This function has no output args, see OutputFcn.</span>
+<span class="comment">% hObject    handle to figure</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+<span class="comment">% varargin   command line arguments to FDGUI (see VARARGIN)</span>
+handles = call.initGUI(hObject, eventdata, handles, varargin);
+
+<span class="comment">% Update handles structure</span>
+guidata(hObject, handles);
+
+<span class="comment">% --- Outputs from this function are returned to the command line.</span>
+<span class="keyword">function</span> varargout = FDGUI_OutputFcn(hObject, eventdata, handles)
+</pre><pre class="codeinput"><span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
+<span class="comment">% hObject    handle to figure</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+<span class="comment">% Get default command line output from handles structure</span>
+varargout{1} = handles.output;
+</pre><h2>Pushbutton callback functions<a name="4"></a></h2><pre class="codeinput"><span class="comment">%  Executes on button press in button_browse.</span>
+</pre><pre class="codeinput"><span class="keyword">function</span> button_browse_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to button_browse (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+menu_new_Callback(handles.menu_new,[],handles);
+</pre><h2>pushbutton15<a name="6"></a></h2><p>Executes on  'Update' button press.</p><pre class="codeinput"><span class="keyword">function</span> pushbutton15_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to pushbutton15 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+set(hObject,<span class="string">'enable'</span>,<span class="string">'off'</span>);
+set(handles.uipanel4,<span class="string">'visible'</span>,<span class="string">'on'</span>);
+set(handles.uipanel4.Children,<span class="string">'visible'</span>,<span class="string">'on'</span>);
+status=<span class="string">'Updating fit parameters... '</span>;
+handles.xrd.Status=status;
+filenum = handles.popup_filename.Value;
+
+<span class="comment">% If data has already been fitted, issue warning</span>
+a=checkToOverwrite(<span class="string">'This will cause the current fit to be discarded. Continue?'</span>,handles);
+
+<span class="keyword">if</span> strcmp(a,<span class="string">'Cancel'</span>)
+	handles.xrd.Status=[status,<span class="string">'Canceled.'</span>];
+	saveduipanel3(handles);
+	<span class="keyword">return</span>
+<span class="keyword">end</span>
+
+handles.xrd.Fmodel=[];
+
+<span class="comment">% Set parameters in xrd</span>
+param = getModifiedParam(handles);
+handles.xrd.PSfxn = param.fcnNames;
+handles.xrd.Constrains = param.constraints;
+handles.xrd.PeakPositions = [];
+
+set(handles.uitable1,<span class="string">'RowName'</span>, param.coeff);
+handles.uitable1.Data = cell(length(param.coeff), 4);
+
+cla(handles.axes1), cla(handles.axes2)
+handles.axes2.Visible = <span class="string">'off'</span>;
+handles.xrd.plotData(filenum)
+
+handles.xrd.Status = [status,<span class="string">'Done.'</span>];
+
+fillEmptyCells(handles);
+checkuitable1(handles);
+
+guidata(hObject,handles)
+
+<span class="comment">% --- Executes on button press in push_newbkgd.</span>
+<span class="keyword">function</span> push_newbkgd_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to push_newbkgd (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+numpoints = str2num(handles.edit_bkgdpoints.String);
+polyorder = str2num(handles.edit_polyorder.String);
+handles.xrd.resetBackground(numpoints,polyorder);
+<span class="keyword">if</span> ~isempty(handles.xrd.bkgd2th)
+	set(handles.tab_peak,<span class="string">'ForegroundColor'</span>,[0 0 0]);
+	handles.tabgroup.SelectedTab=handles.tab_peak;
+	set(handles.togglebutton_showbkgd,<span class="string">'enable'</span>,<span class="string">'on'</span>);
+<span class="keyword">end</span>
+
+plotX(handles);
+
+
+<span class="comment">% --- Executes on button press in push_fitdata.</span>
+<span class="keyword">function</span> push_fitdata_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to push_fitdata (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+handles.xrd.Status=<span class="string">'Fitting dataset...'</span>;
+param = getSavedParam(handles);
+
+fnames = param.fcnNames;
+
+data = handles.uitable1.Data;
+SP = []; UB = []; LB = [];
+coeff = handles.uitable1.RowName;
+fitrange = str2double(handles.edit7.String);
+
+<span class="keyword">if</span> isequal(handles.uibuttongroup2.SelectedObject, handles.radio_sum)
+	<span class="keyword">for</span> i=1:length(coeff)
+		SP(i) = data{i,1};
+		LB(i) = data{i,2};
+		UB(i) = data{i,3};
+	<span class="keyword">end</span>
+<span class="keyword">end</span>
+
+axes(handles.axes1)
+peakpos=handles.xrd.PeakPositions;
+handles.xrd.fitData(peakpos, fnames, SP, UB, LB);
+
+filenum = get(handles.popup_filename, <span class="string">'Value'</span>);
+handles.xrd.plotFit(filenum);
+
+<span class="comment">% Populate results column</span>
+vals = handles.xrd.fit_parms{filenum};
+<span class="keyword">for</span> i=1:length(vals)
+	data{i,4} = [<span class="string">'&lt;html&gt;&lt;table border=0 width=75 bgcolor=#E5E4E2&gt;&lt;tr&gt;&lt;td align="right"&gt;&lt;b&gt;'</span>,<span class="keyword">...</span>
+		num2str(vals(i),<span class="string">'%6G'</span>), <span class="string">'&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/html&gt;'</span>];
+<span class="keyword">end</span>
+
+handles.uitable1.Data = data;
+handles.xrd.Status=<span class="string">'Fitting dataset... Done.'</span>;
+set(handles.menu_save,<span class="string">'Enable'</span>,<span class="string">'on'</span>);
+
+guidata(hObject, handles)
+
+<span class="comment">% --- Executes on button press in push_prevprofile.</span>
+<span class="keyword">function</span> push_prevprofile_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to push_prevprofile (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+profile=find(handles.uipanel3==handles.profiles)-1;
+handles.xrd.Status=[<span class="string">'Changed to Profile '</span>,num2str(profile),<span class="string">'.'</span>];
+filenum = handles.popup_filename.Value;
+
+handles.uipanel3.Visible = <span class="string">'off'</span>;
+handles = changeProfile(handles.profiles(profile),handles);
+
+handles.uipanel3.Visible = <span class="string">'on'</span>;
+handles = guidata(hObject);
+
+handles.push_nextprofile.Enable = <span class="string">'on'</span>;
+<span class="keyword">if</span> profile == 1; handles.push_prevprofile.Enable = <span class="string">'off'</span>;
+<span class="keyword">else</span> handles.push_prevprofile.Enable = <span class="string">'on'</span>; <span class="keyword">end</span>
+
+axes(handles.axes1)
+min = str2double(handles.edit_min2t.String);
+max = str2double(handles.edit_max2t.String);
+xlim([min,max])
+
+plotX(handles);
+
+guidata(hObject,handles)
+
+<span class="comment">% --- Executes on button press in push_nextprofile.</span>
+<span class="keyword">function</span> push_nextprofile_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to push_nextprofile (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+profile = find(handles.uipanel3==handles.profiles)+1;
+handles.xrd.Status=[<span class="string">'Changed to Profile '</span>,num2str(profile),<span class="string">'.'</span>];
+max = handles.uipanel3.UserData(2);
+filenum = handles.popup_filename.Value;
+
+handles.uipanel3.Visible = <span class="string">'off'</span>;
+handles = changeProfile(handles.profiles(profile),handles);
+
+handles.uipanel3.Visible = <span class="string">'on'</span>;
+
+handles.push_prevprofile.Enable = <span class="string">'on'</span>;
+<span class="keyword">if</span> profile == max; handles.push_nextprofile.Enable = <span class="string">'off'</span>;
+<span class="keyword">else</span> handles.push_nextprofile.Enable = <span class="string">'on'</span>; <span class="keyword">end</span>
+
+axes(handles.axes1)
+min = str2double(handles.edit_min2t.String);
+max = str2double(handles.edit_max2t.String);
+xlim([min,max])
+
+plotX(handles);
+
+guidata(hObject,handles)
+
+<span class="comment">% --- Executes on button press in push_viewall.</span>
+<span class="keyword">function</span> push_viewall_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to push_viewall (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+handles.xrd.plotFit(<span class="string">'all'</span>)
+
+<span class="comment">% --- Executes on button press in push_default.</span>
+<span class="keyword">function</span> push_default_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to push_default (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+status=<span class="string">'Clearing the table... '</span>;
+handles.xrd.Status=status;
+a=checkToOverwrite(<span class="string">'This will cause the current fit to be discarded. Continue?'</span>,handles);
+
+<span class="keyword">if</span> strcmpi(a,<span class="string">'Cancel'</span>)
+	handles.xrd.Status=[status,<span class="string">'Canceled.'</span>];
+	<span class="keyword">return</span>
+<span class="keyword">end</span>
+
+handles.xrd.Fmodel=[];
+len = size(handles.uitable1.Data,1);
+handles.uitable1.Data = cell(len,4);
+set(hObject.Parent.Children,<span class="string">'Enable'</span>,<span class="string">'off'</span>);
+set(handles.pushbutton17,<span class="string">'Enable'</span>,<span class="string">'on'</span>, <span class="string">'string'</span>, <span class="string">'Select Peak(s)'</span>);
+set(handles.uitable1,<span class="string">'Enable'</span>,<span class="string">'on'</span>);
+handles.xrd.plotData(get(handles.popup_filename,<span class="string">'Value'</span>));
+
+<span class="keyword">if</span> strcmpi(handles.uitoggletool5.State,<span class="string">'on'</span>)
+	legend(handles.xrd.DisplayName,<span class="string">'box'</span>,<span class="string">'off'</span>)
+<span class="keyword">end</span>
+
+set(handles.axes2,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+set(handles.axes2.Children,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+handles.xrd.Status=[status,<span class="string">'Done.'</span>];
+
+<span class="comment">% handles.History={handles.History{1:end-1}};</span>
+<span class="comment">% handles.History{end+1}.Tag = hObject.Tag;</span>
+<span class="comment">% handles.History{end}.Style = hObject.Style;</span>
+
+guidata(hObject,handles)
+
+<span class="comment">% --- Executes on button press of 'Select Peak(s)'.</span>
+<span class="keyword">function</span> pushbutton17_Callback(hObject, eventdata, handles)
+</pre><pre class="codeinput"><span class="comment">% hObject    handle to pushbutton17 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+status=<span class="string">'Selecting peak positions(s)... '</span>;
+handles.xrd.Status=status;
+
+a=checkToOverwrite(<span class="string">'This will cause the current fit to be discarded. Continue?'</span>,handles);
+
+<span class="keyword">if</span> strcmpi(a,<span class="string">'Cancel'</span>)
+	handles.xrd.Status=[status, <span class="string">'Stopped.'</span>];
+	<span class="keyword">return</span>
+<span class="keyword">end</span>
+
+handles.xrd.Fmodel=[];
+
+handles.xrd.plotData(get(handles.popup_filename,<span class="string">'Value'</span>));
+
+filenum = get(handles.popup_filename, <span class="string">'Value'</span>);
+p = getSavedParam(handles);
+hold <span class="string">on</span>
+
+<span class="comment">% ginput for x position of peaks</span>
+<span class="keyword">for</span> i=1:length(p.fcnNames)
+	ind=find(strcmp(handles.uitable1.RowName,[<span class="string">'x'</span>,num2str(i)]), 1);
+	handles.uitable1.Data{ind, 1} = [];
+	handles.uitable1.Data{ind, 2} = [];
+	handles.uitable1.Data{ind, 3} = [];
+
+	handles.xrd.Status=[status, <span class="string">'Peak '</span>,num2str(i),<span class="string">'. Right click to cancel.'</span>];
+	[x,~, btn]=ginput(1);
+	<span class="keyword">if</span> btn == 3 <span class="comment">% if the left mouse button was not pressed</span>
+		<span class="keyword">break</span>
+	<span class="keyword">end</span>
+	handles.xrd.PeakPositions(i) = x;
+	handles.uitable1.Data{ind,1} = x;
+	pos=PackageFitDiffractionData.Find2theta(handles.xrd.two_theta,x);
+	plot(x, handles.xrd.data_fit(1,pos), <span class="string">'r*'</span>) <span class="comment">% 'ko'</span>
+<span class="keyword">end</span>
+hold <span class="string">off</span>
+fillEmptyCells(handles);
+checkuitable1(handles);
+
+
+plotSampleFit(handles);
+handles.xrd.Status=[status, <span class="string">'Done.'</span>];
+</pre><h2>Toggle Button callback functions<a name="8"></a></h2><pre class="codeinput"><span class="comment">% --- Executes on button press in togglebutton_showbkgd.</span>
+</pre><pre class="codeinput"><span class="keyword">function</span> togglebutton_showbkgd_Callback(hObject, eventdata, handles)
+</pre><pre class="codeinput"><span class="comment">% hObject    handle to togglebutton_showbkgd (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+<span class="comment">% Hint: get(hObject,'Value') returns toggle state of togglebutton_showbkgd</span>
+filenum=get(handles.popup_filename,<span class="string">'value'</span>);
+
+<span class="comment">% handles.History = {handles.History{1:end-1}};</span>
+<span class="comment">% handles.History{end+1}=copy(hObject);</span>
+
+axes(handles.axes1)
+plotX(handles);
+
+<span class="keyword">if</span> hObject.Value
+	[pos,indX]=handles.xrd.getBackground;
+	hold <span class="string">on</span>
+	plot(pos,handles.xrd.data_fit(filenum,indX),<span class="string">'r*'</span>)
+<span class="keyword">end</span>
+
+
+<span class="comment">% ------------------------------------------</span>
+</pre><h2>Checkbox callback functions<a name="11"></a></h2><p>------------------------------------------</p><pre class="codeinput"><span class="comment">% --- Executes on button press in checkbox_lambda.</span>
+</pre><pre class="codeinput"><span class="keyword">function</span> checkbox_lambda_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to checkbox_lambda (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+<span class="comment">% Hint: get(hObject,'Value') returns toggle state of checkbox_lambda</span>
+
+<span class="keyword">if</span> get(hObject,<span class="string">'Value'</span>)
+	set(handles.edit_lambda,<span class="string">'Enable'</span>,<span class="string">'on'</span>);
+	handles.xrd.CuKa=true;
+<span class="keyword">else</span>
+	set(handles.edit_lambda,<span class="string">'Enable'</span>,<span class="string">'off'</span>);
+	handles.xrd.CuKa=false;
+<span class="keyword">end</span>
+
+<span class="comment">% --- Executes on button press of any checkbox in uipanel5.</span>
+<span class="comment">% Saves new constraint values to handles.uipanel5.UserData.</span>
+<span class="keyword">function</span> checkboxN_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to checkboxN (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+profile = find(handles.uipanel3==handles.profiles);
+pop=flipud(findobj(handles.uipanel6.Children,<span class="string">'style'</span>,<span class="string">'popupmenu'</span>,<span class="string">'visible'</span>,<span class="string">'on'</span>));
+fxns = [pop.Value];
+numpeaks = handles.popup_numpeaks.Value - 1;
+
+<span class="comment">% Save constraint value in uipanel5.UserData</span>
+<span class="keyword">if</span> hObject.Value == 1
+	handles.xrd.Status=[<span class="string">'Selected constraint '</span>,get(hObject,<span class="string">'String'</span>),<span class="string">'.'</span>];
+	<span class="keyword">if</span> strcmpi(hObject.String, <span class="string">'N'</span>)
+		hObject.Parent.UserData(1) = 1;
+	<span class="keyword">elseif</span> strcmpi(hObject.String, <span class="string">'f'</span>)
+		hObject.Parent.UserData(2) = 1;
+	<span class="keyword">elseif</span> strcmpi(hObject.String, <span class="string">'w'</span>)
+		hObject.Parent.UserData(3) = 1;
+	<span class="keyword">elseif</span> strcmpi(hObject.String,<span class="string">'m'</span>)
+		hObject.Parent.UserData(4) = 1;
+	<span class="keyword">end</span>
+<span class="keyword">else</span>
+	handles.xrd.Status=[<span class="string">'Deselected constraint '</span>,get(hObject,<span class="string">'String'</span>),<span class="string">'.'</span>];
+	<span class="keyword">if</span> strcmpi(hObject.String, <span class="string">'N'</span>)
+		hObject.Parent.UserData(1) = 0;
+	<span class="keyword">elseif</span> strcmpi(hObject.String, <span class="string">'f'</span>)
+		hObject.Parent.UserData(2) = 0;
+	<span class="keyword">elseif</span> strcmpi(hObject.String, <span class="string">'w'</span>)
+		hObject.Parent.UserData(3) = 0;
+	<span class="keyword">elseif</span> strcmpi(hObject.String,<span class="string">'m'</span>)
+		hObject.Parent.UserData(4) = 0;
+	<span class="keyword">end</span>
+<span class="keyword">end</span>
+
+setEnableUpdateButton(handles);
+
+<span class="comment">% --- Superimpose raw data.</span>
+<span class="keyword">function</span> checkbox10_Callback(hObject, eventdata, handles)
+</pre><pre class="codeinput"><span class="comment">% hObject    handle to checkbox10 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+handles.xrd.Status=<span class="string">'Superimposing raw data...'</span>;
+axes(handles.axes1)
+filenum=get(handles.popup_filename,<span class="string">'Value'</span>);
+cla
+<span class="comment">% If box is checked, turn on hold in axes1</span>
+<span class="keyword">if</span> get(hObject,<span class="string">'Value'</span>)
+	handles.xrd.DisplayName = {};
+	handles.xrd.plotData(filenum,<span class="string">'superimpose'</span>);
+	set(handles.axes2,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+	set(handles.axes2.Children,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+	handles.uitoggletool5.UserData=handles.uitoggletool5.State;
+	uitoggletool5_OnCallback(handles.uitoggletool5, eventdata, handles)
+<span class="keyword">else</span>
+	hold <span class="string">off</span>
+	plotX(handles);
+	<span class="keyword">if</span> strcmpi(handles.uitoggletool5.UserData,<span class="string">'off'</span>)
+		uitoggletool5_OffCallback(handles.uitoggletool5, eventdata, handles)
+	<span class="keyword">end</span>
+<span class="keyword">end</span>
+handles.xrd.Status=<span class="string">'Superimposing raw data... Done.'</span>;
+</pre><h2>Popup callback functions<a name="14"></a></h2><pre class="codeinput">	<span class="comment">% --- Executes on selection change in popup_filename.</span>
+</pre><pre class="codeinput"><span class="keyword">function</span> popup_filename_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to popup_filename (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+<span class="comment">% hObject.UserData: uitable1 values for each separate file</span>
+filenum = get(hObject, <span class="string">'Value'</span>);
+set(handles.text_filenum,<span class="string">'String'</span>,[num2str(filenum),<span class="string">' of '</span>,num2str(length(hObject.String))]);
+set(hObject,<span class="string">'UserData'</span>,handles.uitable1.Data);
+
+axes(handles.axes1)
+<span class="comment">% If superimpose box is checked, plot any subsequent data sets together</span>
+<span class="keyword">if</span> get(handles.checkbox10,<span class="string">'Value'</span>)==1
+	<span class="comment">% If there is only one dataset plotted</span>
+	<span class="keyword">if</span> length(handles.xrd.DisplayName)==1
+		<span class="comment">% If the same dataset is chosen</span>
+		<span class="keyword">if</span> strcmp(handles.xrd.Filename(filenum),handles.xrd.DisplayName)
+			<span class="comment">% Do nothing and exit out of the function</span>
+			<span class="keyword">return</span>
+		<span class="keyword">end</span>
+	<span class="keyword">end</span>
+	handles.xrd.plotData(filenum,<span class="string">'superimpose'</span>);
+
+<span class="keyword">else</span>
+	cla
+	hold <span class="string">off</span>
+	handles.xrd.Status=[<span class="string">'File changed to '</span>,handles.xrd.Filename{filenum},<span class="string">'.'</span>];
+	plotX(handles);
+<span class="keyword">end</span>
+
+guidata(hObject, handles)
+
+
+<span class="comment">% --- Executes on selection change in popup_functionX where X is 1-6.</span>
+<span class="comment">% Enables/disables checkboxes in handles.uipanel5 based on what function(s)</span>
+<span class="comment">% are already chosen.</span>
+<span class="keyword">function</span> popup_function1_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to popup_function1 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+<span class="comment">%</span>
+<span class="comment">% Hints: contents = cellstr(get(hObject,'String')) returns popup_function1 contents as cell array</span>
+<span class="comment">%        contents{get(hObject,'Value')} returns selected item from popup_function1</span>
+
+contents = cellstr(get(hObject,<span class="string">'String'</span>));
+tag=get(hObject,<span class="string">'Tag'</span>);
+selection=contents{get(hObject,<span class="string">'Value'</span>)};
+
+<span class="keyword">if</span> get(hObject,<span class="string">'Value'</span>) &gt; 1
+	handles.xrd.Status=[<span class="string">'Function '</span>,tag(end),<span class="string">' set to '</span>, selection,<span class="string">'.'</span>];
+<span class="keyword">end</span>
+
+allowWhichConstraints(handles);
+
+setEnableUpdateButton(handles); <span class="comment">% enables/disables 'Update' button and uipanel4</span>
+
+
+<span class="comment">% --- Executes on selection change in popup_numpeaks.</span>
+<span class="comment">% Sets visibility of uipanel6 and uipanel5.</span>
+<span class="comment">% Sets visibility of popup_functionX in uipanel6.</span>
+<span class="comment">% Calls popup_function1 which enables/disables uipanel5 (constraints).</span>
+<span class="keyword">function</span> popup_numpeaks_Callback(hObject, eventdata, handles)
+</pre><pre class="codeinput"><span class="comment">% hObject    handle to popup_numpeaks (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+<span class="comment">%</span>
+<span class="comment">% Hints: contents = cellstr(get(hObject,'String')) returns popup_numpeaks contents as cell array</span>
+<span class="comment">%        contents{get(hObject,'Value')} returns selected item from popup_numpeaks</span>
+
+num = get(hObject, <span class="string">'Value'</span>) - 1;
+
+<span class="comment">% if the same value as previous</span>
+<span class="keyword">if</span> num==hObject.UserData
+	<span class="keyword">return</span>
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> num &gt; 0
+	handles.xrd.Status=[<span class="string">'Number of peaks set to '</span>,num2str(num),<span class="string">'.'</span>];
+	set(handles.uipanel6, <span class="string">'Visible'</span>,<span class="string">'on'</span>);
+	set(handles.uipanel6.Children,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+	set(handles.uipanel5,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+	set(handles.pushbutton15, <span class="string">'Visible'</span>,<span class="string">'on'</span>);
+	set(handles.text7,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+	set(handles.popup_function1,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+	set(handles.uipanel10,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+
+	<span class="keyword">if</span> num &gt; 1
+		set(handles.text13,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+		set(handles.popup_function2,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+		<span class="keyword">if</span> num &gt; 2
+			set(handles.text14,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+			set(handles.popup_function3,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+			<span class="keyword">if</span> num &gt; 3
+				set(handles.text15,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+				set(handles.popup_function4,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+				<span class="keyword">if</span> num &gt; 4
+					set(handles.text17,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+					set(handles.popup_function5,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+					<span class="keyword">if</span> num &gt; 5
+						set(handles.text18,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+						set(handles.popup_function6,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+					<span class="keyword">end</span>
+				<span class="keyword">end</span>
+			<span class="keyword">end</span>
+		<span class="keyword">end</span>
+	<span class="keyword">end</span>
+
+	hiddenPops = flipud(findobj(handles.uipanel6.Children,<span class="string">'style'</span>,<span class="string">'popupmenu'</span>, <span class="string">'visible'</span>, <span class="string">'off'</span>));
+	set(hiddenPops, <span class="string">'value'</span>, 1);
+	allowWhichConstraints(handles);
+
+<span class="keyword">else</span>
+	set(handles.uipanel10,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+	set(findobj(handles.uipanel6.Children,<span class="string">'style'</span>,<span class="string">'popupmenu'</span>),<span class="string">'value'</span>,1);
+	set(findobj(handles.uipanel5.Children),<span class="string">'Enable'</span>,<span class="string">'off'</span>,<span class="string">'Value'</span>,0);
+	set(handles.uipanel6,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+	set(handles.uipanel5,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+	set(handles.pushbutton15,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+	set(handles.uipanel4,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+	set(handles.uipanel4.Children,<span class="string">'Enable'</span>,<span class="string">'off'</span>);
+<span class="keyword">end</span>
+
+setEnableUpdateButton(handles);
+
+<span class="comment">% ------------------------------------------</span>
+</pre><h2>Edit box callback functions<a name="17"></a></h2><p>------------------------------------------</p><pre class="codeinput"><span class="comment">% --- Profile Range edit box callback function.</span>
+</pre><pre class="codeinput"><span class="keyword">function</span> edit7_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to edit7 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+<span class="comment">% Hints: get(hObject,'String') returns contents of edit7 as text</span>
+<span class="comment">%        str2double(get(hObject,'String')) returns contents of edit7 as a double</span>
+handles.xrd.fitrange=str2double(get(hObject,<span class="string">'String'</span>));
+set(hObject,<span class="string">'UserData'</span>,get(hObject,<span class="string">'value'</span>));
+
+<span class="comment">% ---</span>
+<span class="keyword">function</span> edit_polyorder_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to edit_polyorder (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+set(hObject,<span class="string">'UserData'</span>,get(hObject,<span class="string">'value'</span>));
+handles.xrd.PolyOrder=str2double(hObject.String);
+handles.xrd.Status=[<span class="string">'Polynomial order changed to '</span>,get(hObject,<span class="string">'String'</span>),<span class="string">'.'</span>];
+
+
+<span class="comment">% ---</span>
+<span class="keyword">function</span> edit_min2t_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to edit_min2t (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+status=<span class="string">'Editing min2T... '</span>;
+handles.xrd.Status=status;
+
+filenum = handles.popup_filename.Value;
+
+a=checkToOverwrite(<span class="string">'This will cause the current fit to be discarded. Continue?'</span>,handles);
+
+<span class="keyword">if</span> strcmp(a,<span class="string">'No'</span>) || strcmp(a,<span class="string">'Cancel'</span>)
+	handles.xrd.Status=[status, <span class="string">'Stopped.'</span>];
+	set(handles.edit_min2t,<span class="string">'String'</span>,sprintf(<span class="string">'%2.4f'</span>,handles.xrd.Min2T));
+	<span class="keyword">return</span>
+<span class="keyword">end</span>
+
+min = str2double(get(hObject,<span class="string">'String'</span>));
+set(handles.popup_numpeaks,<span class="string">'Enable'</span>,<span class="string">'on'</span>);
+set(handles.edit_min2t,<span class="string">'String'</span>,sprintf(<span class="string">'%2.4f'</span>,min));
+max = str2double(get(handles.edit_max2t,<span class="string">'String'</span>));
+
+<span class="comment">% If minimum is less than absolute min or greater than absolute max</span>
+<span class="keyword">if</span> min &lt; handles.xrd.two_theta(1) || min &gt; handles.xrd.two_theta(end) || isnan(min)
+	msg=<span class="string">'Error: min2t value is not within bounds.'</span>;
+	handles.xrd.Status=[status,msg];
+	<span class="keyword">if</span> min&lt;handles.xrd.two_theta(1)
+		min=handles.xrd.two_theta(1);
+	<span class="keyword">else</span>
+		min=handles.xrd.Min2T;
+	<span class="keyword">end</span>
+	handles.xrd.Min2T=min;
+	set(handles.edit_min2t,<span class="string">'String'</span>,sprintf(<span class="string">'%2.4f'</span>,min));
+	<span class="keyword">return</span>
+<span class="keyword">end</span>
+
+handles.xrd.Min2T = min;
+
+<span class="comment">%</span>
+<span class="keyword">if</span> min &gt;= max
+	max = min+handles.xrd.fitrange;
+	<span class="keyword">if</span> max &gt; handles.xrd.two_theta(end)
+		max = handles.xrd.two_theta(end);
+	<span class="keyword">end</span>
+	handles.xrd.Max2T = max;
+	set(handles.edit_max2t,<span class="string">'String'</span>,sprintf(<span class="string">'%2.4f'</span>,max));
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> ~isempty(handles.xrd.bkgd2th) &amp;&amp;<span class="keyword">...</span>
+		(isempty(find(min&lt;handles.xrd.bkgd2th,1)) ||<span class="keyword">...</span>
+		isempty(find(max&gt;handles.xrd.bkgd2th,1)))
+	handles.xrd.bkgd2th=[];
+<span class="keyword">end</span>
+<span class="keyword">if</span> ~isempty(handles.xrd.PeakPositions) &amp;&amp;<span class="keyword">...</span>
+		(isempty(find(min&lt;handles.xrd.PeakPositions,1)) ||<span class="keyword">...</span>
+		isempty(find(max&gt;handles.xrd.PeakPositions,1)))
+	handles.xrd.PeakPositions=[];
+	set(handles.popup_numpeaks,<span class="string">'Value'</span>,1);
+	handles.xrd.bkgd2th=[];
+	saveduipanel3(handles);
+<span class="keyword">end</span>
+handles.xrd.Fmodel=[];
+handles.xrd.plotData(filenum)
+handles.xrd.Status=[<span class="string">'&lt;html&gt;Min2&amp;theta; set to '</span>,get(hObject,<span class="string">'String'</span>),<span class="string">'.'</span>];
+
+<span class="comment">% ---</span>
+<span class="keyword">function</span> edit_max2t_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to edit_max2t (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+status=<span class="string">'Editing max2T... '</span>;
+handles.xrd.Status=status;
+
+filenum = handles.popup_filename.Value;
+
+a=checkToOverwrite(<span class="string">'This will cause the current fit to be discarded. Continue?'</span>,handles);
+
+<span class="keyword">if</span> strcmp(a,<span class="string">'No'</span>) || strcmp(a,<span class="string">'Cancel'</span>)
+	handles.xrd.Status=[status, <span class="string">'Stopped.'</span>];
+	set(handles.edit_max2t,<span class="string">'String'</span>,sprintf(<span class="string">'%2.4f'</span>,handles.xrd.Max2T));
+	<span class="keyword">return</span>
+<span class="keyword">end</span>
+
+min = str2double(get(handles.edit_min2t,<span class="string">'String'</span>));
+max = str2double(get(hObject,<span class="string">'String'</span>));
+
+<span class="keyword">if</span> isnan(max)
+	handles.xrd.Status=[<span class="string">'Error: '</span>,hObject.String,<span class="string">' is not a valid number.'</span>];
+	set(handles.edit_max2t,<span class="string">'String'</span>,sprintf(<span class="string">'%2.4f'</span>,handles.xrd.Max2T));
+	<span class="keyword">return</span>
+<span class="keyword">end</span>
+
+set(handles.edit_max2t,<span class="string">'String'</span>,sprintf(<span class="string">'%2.4f'</span>,max));
+
+<span class="comment">% If maximum is less than absolute max</span>
+<span class="keyword">if</span> min &lt; handles.xrd.two_theta(1) || max &gt; handles.xrd.two_theta(end) || isnan(max)
+	msg=<span class="string">'Error: max2t value is not within bounds.'</span>;
+	handles.xrd.Status=[status,msg];
+	<span class="keyword">if</span> max &gt; handles.xrd.two_theta(end)
+		max=handles.xrd.two_theta(end);
+	<span class="keyword">else</span>
+		max=handles.xrd.Max2T;
+	<span class="keyword">end</span>
+
+	handles.xrd.Max2T=max;
+	set(handles.edit_max2t,<span class="string">'String'</span>,sprintf(<span class="string">'%2.4f'</span>,max));
+
+	<span class="keyword">return</span>
+<span class="keyword">end</span>
+
+handles.xrd.Max2T = max;
+set(handles.edit_max2t,<span class="string">'String'</span>,sprintf(<span class="string">'%2.4f'</span>,max));
+
+<span class="keyword">if</span> max &lt;= min
+	min = max-handles.xrd.fitrange;
+	<span class="keyword">if</span> min &lt; handles.xrd.two_theta(1)
+		min = handles.xrd.two_theta(1);
+	<span class="keyword">end</span>
+	handles.xrd.Min2T = min;
+	set(handles.edit_min2t,<span class="string">'String'</span>,sprintf(<span class="string">'%2.4f'</span>,min));
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> ~isempty(handles.xrd.bkgd2th) &amp;&amp;<span class="keyword">...</span>
+		(isempty(find(min&lt;handles.xrd.bkgd2th,1)) ||<span class="keyword">...</span>
+		isempty(find(max&gt;handles.xrd.bkgd2th,1)))
+	handles.xrd.bkgd2th=[];
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> ~isempty(handles.xrd.PeakPositions) &amp;&amp;<span class="keyword">...</span>
+		(isempty(find(min&lt;handles.xrd.PeakPositions,1)) ||<span class="keyword">...</span>
+		isempty(find(max&gt;handles.xrd.PeakPositions,1)))
+	handles.xrd.PeakPositions=[];
+	set(handles.popup_numpeaks,<span class="string">'Value'</span>,1);
+	handles.xrd.PSfxn={};
+	saveduipanel3(handles);
+<span class="keyword">end</span>
+
+handles.xrd.Fmodel=[];
+handles.xrd.plotData(filenum)
+handles.xrd.Status=[<span class="string">'&lt;html&gt;Max2&amp;theta; set to '</span>,get(hObject,<span class="string">'String'</span>),<span class="string">'.'</span>];
+
+guidata(hObject, handles)
+
+<span class="keyword">function</span> edit_bkgdpoints_Callback(hObject, eventdata, handles)
+</pre><pre class="codeinput"><span class="comment">% hObject    handle to edit_bkgdpoints (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+set(hObject,<span class="string">'UserData'</span>,get(hObject,<span class="string">'value'</span>));
+handles.xrd.Status=[<span class="string">'Number of background points changed to '</span>,get(hObject,<span class="string">'String'</span>),<span class="string">'.'</span>];
+guidata(hObject,handles)
+
+<span class="comment">% ------------------------------------------</span>
+</pre><h2>uitable callback functions<a name="20"></a></h2><p>------------------------------------------</p><pre class="codeinput"><span class="comment">% --- Executes when entered data in editable cell(s) in uitable1.</span>
+</pre><pre class="codeinput"><span class="keyword">function</span> uitable1_CellEditCallback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to uitable1 (see GCBO)</span>
+<span class="comment">% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)</span>
+<span class="comment">%	Indices: row and column indices of the cell(s) edited</span>
+<span class="comment">%	PreviousData: previous data for the cell(s) edited</span>
+<span class="comment">%	EditData: string(s) entered by the user</span>
+<span class="comment">%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed</span>
+<span class="comment">%	Error: error string when failed to convert EditData to appropriate value for Data</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+handles.xrd.Status=[<span class="string">'Editing table...'</span>];
+numpeaks=get(handles.popup_numpeaks,<span class="string">'Value'</span>)-1;
+r=eventdata.Indices(1);
+c=eventdata.Indices(2);
+
+<span class="keyword">if</span> ~isa(eventdata.NewData, <span class="string">'double'</span>)
+	<span class="keyword">try</span>
+		num = str2double(eventdata.NewData);
+		hObject.Data{r, c} = num;
+	<span class="keyword">catch</span>
+		hObject.Data{r,c} = [];
+		cla
+		plotX(handles);
+		<span class="keyword">return</span>
+	<span class="keyword">end</span>
+<span class="keyword">else</span>
+	num = eventdata.NewData;
+<span class="keyword">end</span>
+
+<span class="comment">% If NewData is empty or was not changed</span>
+<span class="keyword">if</span> isnan(num)
+	hObject.Data{r,c} = [];
+	handles.xrd.Status=[handles.uitable1.ColumnName{c},<span class="keyword">...</span>
+		<span class="string">' value of coefficient '</span>,hObject.RowName{r}, <span class="string">' is now empty.'</span>];
+	checkuitable1(handles);
+	cla
+	plotX(handles);
+	<span class="keyword">return</span>
+
+<span class="keyword">else</span>
+
+	<span class="keyword">if</span> strcmpi(hObject.RowName{r}(1), <span class="string">'x'</span>) &amp;&amp; c == 1
+		ipk = str2double(hObject.RowName{r}(2));
+		hObject.UserData{ipk} = num;
+	<span class="keyword">end</span>
+
+	<span class="comment">% Check if SP, LB, and UB are within bounds</span>
+	<span class="keyword">switch</span> c
+		<span class="keyword">case</span> 1 <span class="comment">% If first column, SP</span>
+			<span class="keyword">if</span> num &lt; hObject.Data{r,2}
+				hObject.Data{r,2} = num;
+			<span class="keyword">end</span>
+			<span class="keyword">if</span> num &gt; hObject.Data{r,3}
+				hObject.Data{r,3} = num;
+			<span class="keyword">end</span>
+		<span class="keyword">case</span> 2 <span class="comment">% If second column, LB</span>
+			<span class="keyword">if</span> num &gt; hObject.Data{r,1}
+				hObject.Data{r,1} = num;
+			<span class="keyword">end</span>
+			<span class="keyword">if</span> num &gt; hObject.Data{r,3}
+				hObject.Data{r,3} = num;
+			<span class="keyword">end</span>
+		<span class="keyword">case</span> 3 <span class="comment">% If third column, UB</span>
+			<span class="keyword">if</span> num &lt; hObject.Data{r,1}
+				hObject.Data{r,1} = num;
+			<span class="keyword">end</span>
+			<span class="keyword">if</span> num &lt; hObject.Data{r,2}
+				hObject.Data{r,2} = num;
+			<span class="keyword">end</span>
+	<span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">% Enable/disable 'Clear' button</span>
+checkuitable1(handles);
+
+<span class="keyword">if</span> ~isempty(num)
+	handles.xrd.Status=[handles.uitable1.ColumnName{c},<span class="keyword">...</span>
+		<span class="string">' value of coefficient '</span>,hObject.RowName{r}, <span class="string">' was changed to '</span>,num2str(num),<span class="string">'.'</span>];
+<span class="keyword">end</span>
+
+plotSampleFit(handles);
+guidata(hObject,handles)
+
+<span class="comment">% --- Executes when selected cell(s) is changed in uitable1.</span>
+<span class="keyword">function</span> uitable1_CellSelectionCallback(hObject, eventdata, handles)
+</pre><pre class="codeinput"><span class="comment">% hObject    handle to uitable1 (see GCBO)</span>
+<span class="comment">% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)</span>
+<span class="comment">%	Indices: row and column indices of the cell(s) currently selecteds</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+<span class="comment">%</span>
+
+<span class="comment">% ------------------------------------------</span>
+</pre><h2>Toobar callback functions<a name="23"></a></h2><p>------------------------------------------</p><pre class="codeinput"><span class="comment">% --- Import new file(s) to fit.</span>
+</pre><pre class="codeinput"><span class="keyword">function</span> uipushtoolnew_ClickedCallback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to uipushtoolnew (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+menu_new_Callback(hObject, eventdata, handles);
+guidata(hObject,handles);
+
+<span class="comment">% --- Toggles the legend.</span>
+<span class="keyword">function</span> uitoggletool5_ClickedCallback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to uitoggletool5 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+<span class="keyword">if</span> strcmpi(hObject.State,<span class="string">'on'</span>)
+	handles.xrd.Status=<span class="string">'Legend was turned on.'</span>;
+	uitoggletool5_OnCallback(hObject, eventdata, handles)
+<span class="keyword">else</span>
+		handles.xrd.Status=<span class="string">'Legend was turned off.'</span>;
+	uitoggletool5_OffCallback(hObject, eventdata, handles)
+<span class="keyword">end</span>
+
+<span class="comment">% --- Turns off the legend.</span>
+<span class="keyword">function</span> uitoggletool5_OffCallback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to uitoggletool5 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+set(hObject,<span class="string">'State'</span>,<span class="string">'off'</span>);
+legend(<span class="string">'hide'</span>)
+
+<span class="comment">% ----Turns on the legend.</span>
+<span class="keyword">function</span> uitoggletool5_OnCallback(hObject, eventdata, handles)
+</pre><pre class="codeinput"><span class="comment">% hObject    handle to uitoggletool5 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+set(hObject,<span class="string">'State'</span>,<span class="string">'on'</span>);
+legend(handles.xrd.DisplayName,<span class="string">'Box'</span>,<span class="string">'off'</span>)
+
+<span class="comment">% ------------------------------------------</span>
+</pre><h2>Menu callback functions<a name="26"></a></h2><p>------------------------------------------</p><pre class="codeinput"><span class="comment">% ---</span>
+</pre><pre class="codeinput"><span class="keyword">function</span> menu_new_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to menu_new (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+handles.xrd.Status=<span class="string">'Loading data... '</span>;
+axes(handles.axes1)
+
+<span class="comment">% Check if there is current data loaded</span>
+ans=checkToOverwrite(<span class="string">'Overwrite current data?'</span>,handles);
+<span class="keyword">if</span> strcmpi(ans,<span class="string">'Cancel'</span>) || ~handles.xrdContainer(1).Read_Data <span class="comment">% If user cancels action</span>
+	handles.xrd.Status=[status,<span class="string">'Canceled.'</span>];
+	<span class="keyword">return</span> <span class="comment">% interrupts function</span>
+<span class="keyword">end</span>
+<span class="comment">% Function continues to below only if there is data loaded</span>
+
+<span class="comment">% ------- changes availability of buttons -------</span>
+set(handles.uipanel3, <span class="string">'visible'</span>, <span class="string">'on'</span>);
+set(handles.push_removeprofile, <span class="string">'visible'</span>, <span class="string">'on'</span>, <span class="string">'enable'</span>, <span class="string">'off'</span>);
+set(handles.push_addprofile, <span class="string">'visible'</span>, <span class="string">'on'</span>, <span class="string">'enable'</span>, <span class="string">'on'</span>);
+set(handles.panel_rightside,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+<span class="comment">% ------------------------------------------</span>
+
+
+handles=createProfileObjects(handles);
+saveduipanel3(handles);
+
+uitoggletool5_OnCallback(handles.uitoggletool5,[],handles);
+plotX(handles);
+
+set(handles.menu_save,<span class="string">'Enable'</span>,<span class="string">'off'</span>);
+set(handles.axes2,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+set(handles.axes2.Children,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+set(handles.uipanel4.Children,<span class="string">'Enable'</span>,<span class="string">'off'</span>);
+set(handles.pushbutton15,<span class="string">'Enable'</span>,<span class="string">'on'</span>);
+handles = changeProfile(handles.profiles(1),handles);
+
+assignin(<span class="string">'base'</span>,<span class="string">'handles'</span>,handles)
+
+guidata(hObject, handles)
+
+<span class="comment">% ---</span>
+<span class="keyword">function</span> menu_save_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to menu_save (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+handles.xrd.Status=<span class="string">'Saving results...'</span>;
+handles.xrd.outputError;
+handles.xrd.Status=<span class="string">'Saving results... Done.'</span>;
+
+<span class="comment">% ---</span>
+<span class="keyword">function</span> menu_input_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to menu_input (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+status=<span class="string">'Loading input parameter file... '</span>;
+handles.xrd.Status=status;
+
+<span class="comment">% --- Check if there is already a fit</span>
+a=checkToOverwrite(<span class="string">'This will cause the current fit to be discarded. Continue?'</span>,handles);
+
+<span class="keyword">if</span> strcmp(a,<span class="string">'Cancel'</span>)
+	handles.xrd.Status=[status,<span class="string">'Canceled.'</span>];
+	<span class="keyword">return</span>
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> ~handles.xrd.Read_Inputs
+	handles.xrd.Status=[status,<span class="string">'Input file not found.'</span>];
+	<span class="keyword">return</span>
+<span class="keyword">end</span>
+
+handles.xrd.Fmodel=[];
+
+handles.uipanel4.UserData = handles.xrd.PeakPositions;
+
+set(handles.edit_min2t,<span class="string">'String'</span>,sprintf(<span class="string">'%2.4f'</span>,handles.xrd.Min2T));
+set(handles.edit_max2t,<span class="string">'String'</span>,sprintf(<span class="string">'%2.4f'</span>,handles.xrd.Max2T));
+set(handles.edit7,<span class="string">'String'</span>,num2str(handles.xrd.fitrange));
+set(handles.popup_numpeaks,<span class="string">'Value'</span>,length(handles.xrd.PSfxn)+1);
+
+<span class="comment">% Set uipanel6/popup functions</span>
+popup_numpeaks_Callback(handles.popup_numpeaks, [], handles);
+
+
+saveduipanel3(handles);
+set(handles.tabgroup,<span class="string">'SelectedTab'</span>,handles.tab_peak);
+
+pushbutton15_Callback(handles.pushbutton15,[],handles);
+coeff=handles.xrd.Fcoeff;
+
+SP=handles.xrd.fit_initial{1};
+UB=handles.xrd.fit_initial{2};
+LB=handles.xrd.fit_initial{3};
+
+<span class="keyword">for</span> i=1:length(coeff)
+	handles.uitable1.Data{i,1}=SP(i);
+	handles.uitable1.Data{i,2}=LB(i);
+	handles.uitable1.Data{i,3}=UB(i);
+<span class="keyword">end</span>
+
+handles.xrd.Status=[status,<span class="string">'Done.'</span>];
+set(handles.uipanel4.Children,<span class="string">'Enable'</span>,<span class="string">'on'</span>);
+plotX(handles);
+
+guidata(hObject, handles)
+
+<span class="comment">% --------------------------------------------------------------------</span>
+<span class="keyword">function</span> menu_savefig_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to menu_savefig (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)axes(handles.axes1)</span>
+profile = find(handles.uipanel3==handles.profiles,1);
+fitOutputPath =strcat(handles.xrd.DataPath,<span class="string">'FitOutputs/Fit_Figure/'</span>);
+<span class="keyword">if</span> ~exist(fitOutputPath,<span class="string">'dir'</span>)
+	mkdir(fitOutputPath);
+<span class="keyword">end</span>
+
+tot=handles.text_numprofile.String(end);
+
+<span class="keyword">for</span> s=1:length(handles.xrd.Filename)
+	f_new=figure;
+	a1=copyobj(handles.axes1,f_new);
+	a2=copyobj(handles.axes2,f_new);
+
+	filename=[<span class="string">'Profile '</span>,num2str(profile),<span class="string">' of '</span>,tot,<span class="string">' - '</span>,handles.xrd.Filename{s}];
+	set(gcf,<span class="string">'name'</span>,filename,<span class="string">'numbertitle'</span>,<span class="string">'off'</span>);
+	set(a1.Title,<span class="string">'String'</span>,filename);
+	saveas(gcf,[fitOutputPath,filename,<span class="string">'-plotFit.png'</span>])
+	delete(gcf)
+<span class="keyword">end</span>
+
+handles.xrd.plotFit(<span class="string">'all'</span>)
+saveas(figure(5),strcat(fitOutputPath,<span class="string">'Profile '</span>,num2str(profile), <span class="string">'of '</span>,tot,<span class="string">' - '</span>,strcat(<span class="string">'Master'</span>,<span class="string">'-'</span>,<span class="string">'plotFit'</span>)));
+delete(gcf);
+
+
+<span class="comment">% --------------------------------------------------------------------</span>
+<span class="keyword">function</span> menu_clearall_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to menu_clearall (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+<span class="comment">% If there is data loaded, confirm</span>
+ans=questdlg(<span class="string">'This will reset the figure and your data will be lost.'</span>,<span class="string">'Warning'</span>,<span class="string">'Continue'</span>,<span class="string">'Cancel'</span>,<span class="string">'Cancel'</span>);
+<span class="keyword">if</span> strcmp(ans,<span class="string">'Continue'</span>)
+	handles.xrd = PackageFitDiffractionData;
+	handles.xrdContainer = handles.xrd;
+	set(handles.panel_rightside,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+	set(handles.edit8,<span class="keyword">...</span>
+		<span class="string">'String'</span>, <span class="string">'Upload new file(s)...'</span>,<span class="keyword">...</span>
+		<span class="string">'FontAngle'</span>, <span class="string">'italic'</span>,<span class="keyword">...</span>
+		<span class="string">'ForegroundColor'</span>, [0.5 0.5 0.5]);
+<span class="keyword">end</span>
+
+
+<span class="comment">% --------------------------------------------------------------------</span>
+<span class="keyword">function</span> menu_close_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to menu_close (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+ans=questdlg(<span class="string">'Are you sure you want to quit?'</span>,<span class="string">'Warning'</span>,<span class="string">'Yes'</span>,<span class="string">'No'</span>,<span class="string">'Yes'</span>);
+<span class="keyword">if</span> strcmp(ans,<span class="string">'Yes'</span>)
+	delete(gcf)
+<span class="keyword">end</span>
+
+<span class="comment">% --------------------------------------------------------------------</span>
+<span class="keyword">function</span> menu_bkgdpoints_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to menu_bkgdpoints (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+
+<span class="comment">% --- Menu: File -&gt; Save As callback function</span>
+<span class="keyword">function</span> Untitled_7_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to Untitled_7 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+<span class="comment">% --- Menu option callback to Import Workspace.</span>
+<span class="keyword">function</span> Untitled_9_Callback(hObject, eventdata, handles)
+</pre><pre class="codeinput"><span class="comment">% hObject    handle to Untitled_9 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+<span class="comment">% ------------------------------------------</span>
+</pre><h2>Custom helper functions<a name="29"></a></h2><p>------------------------------------------</p><pre class="codeinput"><span class="keyword">function</span> tabgroup_SelectionChangedFcn(hObject,eventdata,handles)
+</pre><pre class="codeinput"><span class="keyword">if</span> hObject.SelectedTab==handles.tab_peak &amp;&amp; <span class="keyword">...</span>
+		isempty(handles.xrd.bkgd2th)
+	hObject.SelectedTab=handles.tab_setup;
+	uiwait(warndlg(<span class="string">'Please select background points first.'</span>,<span class="string">'No Background Points'</span>));
+	<span class="keyword">return</span>
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> hObject.SelectedTab == handles.tab_setup
+	set(handles.uipanel4, <span class="string">'visible'</span>, <span class="string">'off'</span>);
+<span class="keyword">elseif</span> handles.popup_numpeaks.Value &gt; 1
+	setEnableUpdateButton(handles);
+<span class="keyword">end</span>
+
+
+<span class="comment">% ------------------------------------------</span>
+</pre><h2>CreateFcns and Unused Callbacks<a name="32"></a></h2><p>------------------------------------------</p><pre class="codeinput"><span class="comment">% --- Executes during object creation, after setting all properties.</span>
+</pre><pre class="codeinput"><span class="keyword">function</span> edit_min2t_CreateFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to edit_min2t (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+
+<span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+<span class="comment">%       See ISPC and COMPUTER.</span>
+<span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+	set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+<span class="keyword">end</span>
+
+<span class="comment">% --- Executes during object creation, after setting all properties.</span>
+<span class="keyword">function</span> edit_max2t_CreateFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to edit_max2t (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+
+<span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+<span class="comment">%       See ISPC and COMPUTER.</span>
+<span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+	set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+<span class="keyword">end</span>
+
+<span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+<span class="comment">%       See ISPC and COMPUTER.</span>
+<span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+	set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+<span class="keyword">end</span>
+
+<span class="comment">% --- Executes during object creation, after setting all properties.</span>
+<span class="keyword">function</span> edit_bkgdpoints_CreateFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to edit_bkgdpoints (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+
+<span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+<span class="comment">%       See ISPC and COMPUTER.</span>
+<span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+	set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+<span class="keyword">end</span>
+
+<span class="comment">% --- Executes during object creation, after setting all properties.</span>
+<span class="keyword">function</span> edit_polyorder_CreateFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to edit_polyorder (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+
+<span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+<span class="comment">%       See ISPC and COMPUTER.</span>
+<span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+	set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+<span class="keyword">end</span>
+
+
+<span class="comment">% --- Executes during object creation, after setting all properties.</span>
+<span class="keyword">function</span> popup_filename_CreateFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to popup_filename (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+handles.n=1;
+<span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+<span class="comment">%       See ISPC and COMPUTER.</span>
+<span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+	set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+<span class="keyword">end</span>
+
+<span class="comment">% --- Executes during object creation, after setting all properties.</span>
+<span class="keyword">function</span> popup_numpeaks_CreateFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to popup_numpeaks (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+
+<span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+<span class="comment">%       See ISPC and COMPUTER.</span>
+<span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+	set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+<span class="keyword">end</span>
+
+<span class="comment">% ---</span>
+<span class="keyword">function</span> menu_file_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to menu_file (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+<span class="comment">% --- Executes during object creation, after setting all properties.</span>
+<span class="keyword">function</span> edit7_CreateFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to edit7 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+
+<span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+<span class="comment">%       See ISPC and COMPUTER.</span>
+<span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+    set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+<span class="keyword">end</span>
+
+<span class="comment">% --- Stop Least Squares radio button.</span>
+<span class="keyword">function</span> radiobutton1_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to radiobutton1 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+<span class="comment">% Hint: get(hObject,'Value') returns toggle state of radiobutton1</span>
+
+
+<span class="comment">% ---</span>
+<span class="keyword">function</span> uitoggletool4_ClickedCallback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to uitoggletool4 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+
+<span class="comment">% --- Executes during object creation, after setting all properties.</span>
+<span class="keyword">function</span> popup_function1_CreateFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to popup_function1 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+
+<span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+<span class="comment">%       See ISPC and COMPUTER.</span>
+<span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+	set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+<span class="keyword">end</span>
+
+<span class="comment">% --- Executes during object creation, after setting all properties.</span>
+<span class="keyword">function</span> popup_function2_CreateFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to popup_function2 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+
+<span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+<span class="comment">%       See ISPC and COMPUTER.</span>
+<span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+	set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+<span class="keyword">end</span>
+
+<span class="comment">% --- Executes during object creation, after setting all properties.</span>
+<span class="keyword">function</span> popup_function3_CreateFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to popup_function3 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+
+<span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+<span class="comment">%       See ISPC and COMPUTER.</span>
+<span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+	set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+<span class="keyword">end</span>
+
+<span class="comment">% --- Executes during object creation, after setting all properties.</span>
+<span class="keyword">function</span> popup_function4_CreateFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to popup_function4 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+
+<span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+<span class="comment">%       See ISPC and COMPUTER.</span>
+<span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+	set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+<span class="keyword">end</span>
+
+<span class="comment">% --- Executes during object creation, after setting all properties.</span>
+<span class="keyword">function</span> popup_function5_CreateFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to popup_function5 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+
+<span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+<span class="comment">%       See ISPC and COMPUTER.</span>
+<span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+    set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+<span class="keyword">end</span>
+
+<span class="comment">% --- Executes during object creation, after setting all properties.</span>
+<span class="keyword">function</span> popup_function6_CreateFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to popup_function6 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+
+<span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+<span class="comment">%       See ISPC and COMPUTER.</span>
+<span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+    set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+<span class="keyword">end</span>
+
+
+<span class="comment">% --- Executes when selected object is changed in uibuttongroup2.</span>
+<span class="keyword">function</span> uibuttongroup2_SelectionChangedFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to the selected object in uibuttongroup2</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+
+<span class="comment">% --- Executes on mouse press over axes background.</span>
+<span class="keyword">function</span> axes2_ButtonDownFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to axes2 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+<span class="comment">% --------------------------------------------------------------------</span>
+<span class="keyword">function</span> menu_help_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to menu_help (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+<span class="comment">% --------------------------------------------------------------------</span>
+<span class="keyword">function</span> Untitled_10_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to Untitled_10 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+
+<span class="comment">% --------------------------------------------------------------------</span>
+<span class="keyword">function</span> menuHelp_fxns_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to menuHelp_fxns (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+
+
+<span class="keyword">function</span> edit8_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to edit8 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+<span class="comment">% Hints: get(hObject,'String') returns contents of edit8 as text</span>
+<span class="comment">%        str2double(get(hObject,'String')) returns contents of edit8 as a double</span>
+
+
+<span class="comment">% --- Executes during object creation, after setting all properties.</span>
+<span class="keyword">function</span> edit8_CreateFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to edit8 (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+
+<span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+<span class="comment">%       See ISPC and COMPUTER.</span>
+<span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+    set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+<span class="keyword">end</span>
+
+
+<span class="comment">% --------------------------------------------------------------------</span>
+<span class="keyword">function</span> menu_edit_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to menu_edit (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+
+
+<span class="keyword">function</span> edit_lambda_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to edit_lambda (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+<span class="comment">% Hints: get(hObject,'String') returns contents of edit_lambda as text</span>
+<span class="comment">%        str2double(get(hObject,'String')) returns contents of edit_lambda as a double</span>
+lambda=str2double(get(hObject,<span class="string">'String'</span>));
+handles.xrd.lambda=lambda;
+
+<span class="comment">% --- Executes during object creation, after setting all properties.</span>
+<span class="keyword">function</span> edit_lambda_CreateFcn(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to edit_lambda (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+
+<span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+<span class="comment">%       See ISPC and COMPUTER.</span>
+<span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+    set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+<span class="keyword">end</span>
+
+
+<span class="comment">% --------------------------------------------------------------------</span>
+<span class="keyword">function</span> menu_clearfit_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to menu_clearfit (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+
+<span class="comment">% --- Executes on button press in push_removeprofile.</span>
+<span class="keyword">function</span> push_removeprofile_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to push_removeprofile (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+
+
+<span class="comment">% --- Executes on button press in push_addprofile.</span>
+<span class="keyword">function</span> push_addprofile_Callback(hObject, eventdata, handles)
+<span class="comment">% hObject    handle to push_addprofile (see GCBO)</span>
+<span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+<span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% GUI for FitDiffractionData
+
+%% handles structure
+% Descriptions of each variable saved in the handles structure.
+% 
+% <include>handles_structure.m</include>
+
+%% Initialization
+
+function varargout = FDGUI(varargin)
+% FDGUI MATLAB code for FDGUI.fig
+%      FDGUI, by itself, creates a new FDGUI or raises the existing
+%      singleton*.
+%
+%      H = FDGUI returns the handle to a new FDGUI or the handle to
+%      the existing singleton*.
+%
+%      FDGUI('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in FDGUI.M with the given input arguments.
+%
+%      FDGUI('Property','Value',...) creates a new FDGUI or raises the
+%      existing singleton*.  Starting from the left, property value pairs are
+%      applied to the GUI before FDGUI_OpeningFcn gets called.  An
+%      unrecognized property name or invalid value makes property application
+%      stop.  All inputs are passed to FDGUI_OpeningFcn via varargin.
+%
+%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+%      instance to run (singleton)".
+%
+% See also: GUIDE, GUIDATA, GUIHANDLES
+
+% Last Modified by GUIDE v2.5 07-Aug-2016 21:27:00
+
+% Begin initialization code - DO NOT EDIT
+gui_Singleton = 1;
+gui_State = struct('gui_Name',       mfilename, ...
+	'gui_Singleton',  gui_Singleton, ...
+	'gui_OpeningFcn', @FDGUI_OpeningFcn, ...
+	'gui_OutputFcn',  @FDGUI_OutputFcn, ...
+	'gui_LayoutFcn',  [] , ...
+	'gui_Callback',   []);
+if nargin && ischar(varargin{1})
+	gui_State.gui_Callback = str2func(varargin{1});
+end
+
+if nargout
+	[varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+else
+	gui_mainfcn(gui_State, varargin{:});
+end
+% End initialization code - DO NOT EDIT
+
+% REPLACE_WITH_DASH_DASH- Executes just before FDGUI is made visible.
+function FDGUI_OpeningFcn(hObject, eventdata, handles, varargin)
+% This function has no output args, see OutputFcn.
+% hObject    handle to figure
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% varargin   command line arguments to FDGUI (see VARARGIN)
+handles = call.initGUI(hObject, eventdata, handles, varargin);
+
+% Update handles structure
+guidata(hObject, handles);
+
+% REPLACE_WITH_DASH_DASH- Outputs from this function are returned to the command line.
+function varargout = FDGUI_OutputFcn(hObject, eventdata, handles)
+% varargout  cell array for returning output args (see VARARGOUT);
+% hObject    handle to figure
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Get default command line output from handles structure
+varargout{1} = handles.output;
+
+
+%% Pushbutton callback functions
+
+%  Executes on button press in button_browse.
+function button_browse_Callback(hObject, eventdata, handles)
+% hObject    handle to button_browse (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+menu_new_Callback(handles.menu_new,[],handles);
+
+%%% pushbutton15
+% Executes on  'Update' button press.
+function pushbutton15_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton15 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+set(hObject,'enable','off');
+set(handles.uipanel4,'visible','on');
+set(handles.uipanel4.Children,'visible','on');
+status='Updating fit parameters... ';
+handles.xrd.Status=status;
+filenum = handles.popup_filename.Value;
+
+% If data has already been fitted, issue warning
+a=checkToOverwrite('This will cause the current fit to be discarded. Continue?',handles);
+
+if strcmp(a,'Cancel')
+	handles.xrd.Status=[status,'Canceled.'];
+	saveduipanel3(handles);
+	return
+end
+
+handles.xrd.Fmodel=[];
+
+% Set parameters in xrd
+param = getModifiedParam(handles);
+handles.xrd.PSfxn = param.fcnNames;
+handles.xrd.Constrains = param.constraints;
+handles.xrd.PeakPositions = [];
+
+set(handles.uitable1,'RowName', param.coeff);
+handles.uitable1.Data = cell(length(param.coeff), 4);
+
+cla(handles.axes1), cla(handles.axes2)
+handles.axes2.Visible = 'off';
+handles.xrd.plotData(filenum)
+
+handles.xrd.Status = [status,'Done.'];
+
+fillEmptyCells(handles);
+checkuitable1(handles);
+
+guidata(hObject,handles)
+	
+% REPLACE_WITH_DASH_DASH- Executes on button press in push_newbkgd.
+function push_newbkgd_Callback(hObject, eventdata, handles)
+% hObject    handle to push_newbkgd (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+numpoints = str2num(handles.edit_bkgdpoints.String);
+polyorder = str2num(handles.edit_polyorder.String);
+handles.xrd.resetBackground(numpoints,polyorder);
+if ~isempty(handles.xrd.bkgd2th)
+	set(handles.tab_peak,'ForegroundColor',[0 0 0]);
+	handles.tabgroup.SelectedTab=handles.tab_peak;
+	set(handles.togglebutton_showbkgd,'enable','on');
+end
+
+plotX(handles);
+
+
+% REPLACE_WITH_DASH_DASH- Executes on button press in push_fitdata.
+function push_fitdata_Callback(hObject, eventdata, handles)
+% hObject    handle to push_fitdata (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.xrd.Status='Fitting dataset...';
+param = getSavedParam(handles);
+
+fnames = param.fcnNames;
+
+data = handles.uitable1.Data;
+SP = []; UB = []; LB = [];
+coeff = handles.uitable1.RowName;
+fitrange = str2double(handles.edit7.String);
+
+if isequal(handles.uibuttongroup2.SelectedObject, handles.radio_sum)
+	for i=1:length(coeff)
+		SP(i) = data{i,1};
+		LB(i) = data{i,2};
+		UB(i) = data{i,3};
+	end
+end
+
+axes(handles.axes1)
+peakpos=handles.xrd.PeakPositions;
+handles.xrd.fitData(peakpos, fnames, SP, UB, LB);
+
+filenum = get(handles.popup_filename, 'Value');
+handles.xrd.plotFit(filenum);
+
+% Populate results column
+vals = handles.xrd.fit_parms{filenum};
+for i=1:length(vals)
+	data{i,4} = ['<html><table border=0 width=75 bgcolor=#E5E4E2><tr><td align="right"><b>',...
+		num2str(vals(i),'%6G'), '</b></td></tr></table></html>'];
+end
+
+handles.uitable1.Data = data;
+handles.xrd.Status='Fitting dataset... Done.';
+set(handles.menu_save,'Enable','on');
+
+guidata(hObject, handles)
+
+% REPLACE_WITH_DASH_DASH- Executes on button press in push_prevprofile.
+function push_prevprofile_Callback(hObject, eventdata, handles)
+% hObject    handle to push_prevprofile (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+profile=find(handles.uipanel3==handles.profiles)-1;
+handles.xrd.Status=['Changed to Profile ',num2str(profile),'.'];
+filenum = handles.popup_filename.Value;
+
+handles.uipanel3.Visible = 'off';
+handles = changeProfile(handles.profiles(profile),handles);
+
+handles.uipanel3.Visible = 'on';
+handles = guidata(hObject);
+
+handles.push_nextprofile.Enable = 'on';
+if profile == 1; handles.push_prevprofile.Enable = 'off';
+else handles.push_prevprofile.Enable = 'on'; end
+
+axes(handles.axes1)
+min = str2double(handles.edit_min2t.String);
+max = str2double(handles.edit_max2t.String);
+xlim([min,max])
+
+plotX(handles);
+
+guidata(hObject,handles)
+
+% REPLACE_WITH_DASH_DASH- Executes on button press in push_nextprofile.
+function push_nextprofile_Callback(hObject, eventdata, handles)
+% hObject    handle to push_nextprofile (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+profile = find(handles.uipanel3==handles.profiles)+1;
+handles.xrd.Status=['Changed to Profile ',num2str(profile),'.'];
+max = handles.uipanel3.UserData(2);
+filenum = handles.popup_filename.Value;
+
+handles.uipanel3.Visible = 'off';
+handles = changeProfile(handles.profiles(profile),handles);
+
+handles.uipanel3.Visible = 'on';
+
+handles.push_prevprofile.Enable = 'on';
+if profile == max; handles.push_nextprofile.Enable = 'off';
+else handles.push_nextprofile.Enable = 'on'; end
+
+axes(handles.axes1)
+min = str2double(handles.edit_min2t.String);
+max = str2double(handles.edit_max2t.String);
+xlim([min,max])
+
+plotX(handles);
+
+guidata(hObject,handles)
+
+% REPLACE_WITH_DASH_DASH- Executes on button press in push_viewall.
+function push_viewall_Callback(hObject, eventdata, handles)
+% hObject    handle to push_viewall (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+handles.xrd.plotFit('all')
+
+% REPLACE_WITH_DASH_DASH- Executes on button press in push_default.
+function push_default_Callback(hObject, eventdata, handles)
+% hObject    handle to push_default (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+status='Clearing the table... ';
+handles.xrd.Status=status;
+a=checkToOverwrite('This will cause the current fit to be discarded. Continue?',handles);
+
+if strcmpi(a,'Cancel')
+	handles.xrd.Status=[status,'Canceled.'];
+	return
+end
+
+handles.xrd.Fmodel=[];
+len = size(handles.uitable1.Data,1);
+handles.uitable1.Data = cell(len,4);
+set(hObject.Parent.Children,'Enable','off');
+set(handles.pushbutton17,'Enable','on', 'string', 'Select Peak(s)');
+set(handles.uitable1,'Enable','on');
+handles.xrd.plotData(get(handles.popup_filename,'Value'));
+
+if strcmpi(handles.uitoggletool5.State,'on')
+	legend(handles.xrd.DisplayName,'box','off')
+end
+
+set(handles.axes2,'Visible','off');
+set(handles.axes2.Children,'Visible','off');
+handles.xrd.Status=[status,'Done.'];
+
+% handles.History={handles.History{1:end-1}};
+% handles.History{end+1}.Tag = hObject.Tag;
+% handles.History{end}.Style = hObject.Style;
+
+guidata(hObject,handles)
+
+% REPLACE_WITH_DASH_DASH- Executes on button press of 'Select Peak(s)'.
+function pushbutton17_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton17 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+status='Selecting peak positions(s)... ';
+handles.xrd.Status=status;
+
+a=checkToOverwrite('This will cause the current fit to be discarded. Continue?',handles);
+
+if strcmpi(a,'Cancel')
+	handles.xrd.Status=[status, 'Stopped.'];
+	return
+end
+
+handles.xrd.Fmodel=[];
+
+handles.xrd.plotData(get(handles.popup_filename,'Value'));
+
+filenum = get(handles.popup_filename, 'Value');
+p = getSavedParam(handles);
+hold on
+
+% ginput for x position of peaks
+for i=1:length(p.fcnNames)
+	ind=find(strcmp(handles.uitable1.RowName,['x',num2str(i)]), 1);
+	handles.uitable1.Data{ind, 1} = [];
+	handles.uitable1.Data{ind, 2} = [];
+	handles.uitable1.Data{ind, 3} = [];
+	
+	handles.xrd.Status=[status, 'Peak ',num2str(i),'. Right click to cancel.'];
+	[x,~, btn]=ginput(1);
+	if btn == 3 % if the left mouse button was not pressed
+		break
+	end
+	handles.xrd.PeakPositions(i) = x;
+	handles.uitable1.Data{ind,1} = x;
+	pos=PackageFitDiffractionData.Find2theta(handles.xrd.two_theta,x);
+	plot(x, handles.xrd.data_fit(1,pos), 'r*') % 'ko'
+end
+hold off
+fillEmptyCells(handles);
+checkuitable1(handles);
+
+
+plotSampleFit(handles);
+handles.xrd.Status=[status, 'Done.'];
+
+
+%% Toggle Button callback functions
+
+% REPLACE_WITH_DASH_DASH- Executes on button press in togglebutton_showbkgd.
+function togglebutton_showbkgd_Callback(hObject, eventdata, handles)
+% hObject    handle to togglebutton_showbkgd (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of togglebutton_showbkgd
+filenum=get(handles.popup_filename,'value');
+
+% handles.History = {handles.History{1:end-1}};
+% handles.History{end+1}=copy(hObject);
+
+axes(handles.axes1)
+plotX(handles);
+
+if hObject.Value
+	[pos,indX]=handles.xrd.getBackground;
+	hold on
+	plot(pos,handles.xrd.data_fit(filenum,indX),'r*')
+end
+
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+%% Checkbox callback functions
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+
+% REPLACE_WITH_DASH_DASH- Executes on button press in checkbox_lambda.
+function checkbox_lambda_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox_lambda (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox_lambda
+
+if get(hObject,'Value')
+	set(handles.edit_lambda,'Enable','on');
+	handles.xrd.CuKa=true;
+else
+	set(handles.edit_lambda,'Enable','off');
+	handles.xrd.CuKa=false;
+end
+
+% REPLACE_WITH_DASH_DASH- Executes on button press of any checkbox in uipanel5.
+% Saves new constraint values to handles.uipanel5.UserData.
+function checkboxN_Callback(hObject, eventdata, handles)
+% hObject    handle to checkboxN (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+profile = find(handles.uipanel3==handles.profiles);
+pop=flipud(findobj(handles.uipanel6.Children,'style','popupmenu','visible','on'));
+fxns = [pop.Value];
+numpeaks = handles.popup_numpeaks.Value - 1;
+
+% Save constraint value in uipanel5.UserData
+if hObject.Value == 1
+	handles.xrd.Status=['Selected constraint ',get(hObject,'String'),'.'];
+	if strcmpi(hObject.String, 'N')
+		hObject.Parent.UserData(1) = 1;
+	elseif strcmpi(hObject.String, 'f')
+		hObject.Parent.UserData(2) = 1;
+	elseif strcmpi(hObject.String, 'w')
+		hObject.Parent.UserData(3) = 1;
+	elseif strcmpi(hObject.String,'m')
+		hObject.Parent.UserData(4) = 1;
+	end
+else
+	handles.xrd.Status=['Deselected constraint ',get(hObject,'String'),'.'];
+	if strcmpi(hObject.String, 'N')
+		hObject.Parent.UserData(1) = 0;
+	elseif strcmpi(hObject.String, 'f')
+		hObject.Parent.UserData(2) = 0;
+	elseif strcmpi(hObject.String, 'w')
+		hObject.Parent.UserData(3) = 0;
+	elseif strcmpi(hObject.String,'m')
+		hObject.Parent.UserData(4) = 0;
+	end
+end
+
+setEnableUpdateButton(handles);
+
+% REPLACE_WITH_DASH_DASH- Superimpose raw data.
+function checkbox10_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox10 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.xrd.Status='Superimposing raw data...';
+axes(handles.axes1)
+filenum=get(handles.popup_filename,'Value');
+cla
+% If box is checked, turn on hold in axes1
+if get(hObject,'Value')
+	handles.xrd.DisplayName = {};
+	handles.xrd.plotData(filenum,'superimpose');
+	set(handles.axes2,'Visible','off');
+	set(handles.axes2.Children,'Visible','off');
+	handles.uitoggletool5.UserData=handles.uitoggletool5.State;
+	uitoggletool5_OnCallback(handles.uitoggletool5, eventdata, handles)
+else
+	hold off
+	plotX(handles);
+	if strcmpi(handles.uitoggletool5.UserData,'off')
+		uitoggletool5_OffCallback(handles.uitoggletool5, eventdata, handles)
+	end
+end
+handles.xrd.Status='Superimposing raw data... Done.';
+
+
+%% Popup callback functions
+	% REPLACE_WITH_DASH_DASH- Executes on selection change in popup_filename.
+function popup_filename_Callback(hObject, eventdata, handles)
+% hObject    handle to popup_filename (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% hObject.UserData: uitable1 values for each separate file
+filenum = get(hObject, 'Value');
+set(handles.text_filenum,'String',[num2str(filenum),' of ',num2str(length(hObject.String))]);
+set(hObject,'UserData',handles.uitable1.Data);
+
+axes(handles.axes1)
+% If superimpose box is checked, plot any subsequent data sets together
+if get(handles.checkbox10,'Value')==1
+	% If there is only one dataset plotted
+	if length(handles.xrd.DisplayName)==1
+		% If the same dataset is chosen
+		if strcmp(handles.xrd.Filename(filenum),handles.xrd.DisplayName)
+			% Do nothing and exit out of the function
+			return
+		end
+	end
+	handles.xrd.plotData(filenum,'superimpose');
+	
+else
+	cla
+	hold off
+	handles.xrd.Status=['File changed to ',handles.xrd.Filename{filenum},'.'];
+	plotX(handles);
+end
+
+guidata(hObject, handles)
+
+
+% REPLACE_WITH_DASH_DASH- Executes on selection change in popup_functionX where X is 1-6.
+% Enables/disables checkboxes in handles.uipanel5 based on what function(s)
+% are already chosen.
+function popup_function1_Callback(hObject, eventdata, handles)
+% hObject    handle to popup_function1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% 
+% Hints: contents = cellstr(get(hObject,'String')) returns popup_function1 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popup_function1
+
+contents = cellstr(get(hObject,'String'));
+tag=get(hObject,'Tag');
+selection=contents{get(hObject,'Value')};
+
+if get(hObject,'Value') > 1
+	handles.xrd.Status=['Function ',tag(end),' set to ', selection,'.'];
+end
+
+allowWhichConstraints(handles);
+
+setEnableUpdateButton(handles); % enables/disables 'Update' button and uipanel4
+
+
+% REPLACE_WITH_DASH_DASH- Executes on selection change in popup_numpeaks.
+% Sets visibility of uipanel6 and uipanel5. 
+% Sets visibility of popup_functionX in uipanel6.
+% Calls popup_function1 which enables/disables uipanel5 (constraints).
+function popup_numpeaks_Callback(hObject, eventdata, handles)
+% hObject    handle to popup_numpeaks (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+%
+% Hints: contents = cellstr(get(hObject,'String')) returns popup_numpeaks contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popup_numpeaks
+
+num = get(hObject, 'Value') - 1;
+
+% if the same value as previous
+if num==hObject.UserData
+	return
+end
+
+if num > 0
+	handles.xrd.Status=['Number of peaks set to ',num2str(num),'.'];
+	set(handles.uipanel6, 'Visible','on');
+	set(handles.uipanel6.Children,'Visible','off');
+	set(handles.uipanel5,'Visible','on');
+	set(handles.pushbutton15, 'Visible','on');
+	set(handles.text7,'Visible','on');
+	set(handles.popup_function1,'Visible','on');
+	set(handles.uipanel10,'Visible','on');
+	
+	if num > 1
+		set(handles.text13,'Visible','on');
+		set(handles.popup_function2,'Visible','on');
+		if num > 2
+			set(handles.text14,'Visible','on');
+			set(handles.popup_function3,'Visible','on');
+			if num > 3
+				set(handles.text15,'Visible','on');
+				set(handles.popup_function4,'Visible','on');
+				if num > 4
+					set(handles.text17,'Visible','on');
+					set(handles.popup_function5,'Visible','on');
+					if num > 5
+						set(handles.text18,'Visible','on');
+						set(handles.popup_function6,'Visible','on');
+					end
+				end
+			end
+		end
+	end
+	
+	hiddenPops = flipud(findobj(handles.uipanel6.Children,'style','popupmenu', 'visible', 'off'));
+	set(hiddenPops, 'value', 1);
+	allowWhichConstraints(handles);
+	
+else
+	set(handles.uipanel10,'Visible','off');
+	set(findobj(handles.uipanel6.Children,'style','popupmenu'),'value',1);
+	set(findobj(handles.uipanel5.Children),'Enable','off','Value',0);
+	set(handles.uipanel6,'Visible','off');
+	set(handles.uipanel5,'Visible','off');
+	set(handles.pushbutton15,'Visible','off');
+	set(handles.uipanel4,'Visible','off');
+	set(handles.uipanel4.Children,'Enable','off');
+end
+
+setEnableUpdateButton(handles);
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+%% Edit box callback functions
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+
+% REPLACE_WITH_DASH_DASH- Profile Range edit box callback function.
+function edit7_Callback(hObject, eventdata, handles)
+% hObject    handle to edit7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% Hints: get(hObject,'String') returns contents of edit7 as text
+%        str2double(get(hObject,'String')) returns contents of edit7 as a double
+handles.xrd.fitrange=str2double(get(hObject,'String'));
+set(hObject,'UserData',get(hObject,'value'));
+
+% REPLACE_WITH_DASH_DASH- 
+function edit_polyorder_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_polyorder (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+set(hObject,'UserData',get(hObject,'value'));
+handles.xrd.PolyOrder=str2double(hObject.String);
+handles.xrd.Status=['Polynomial order changed to ',get(hObject,'String'),'.'];
+
+
+% REPLACE_WITH_DASH_DASH- 
+function edit_min2t_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_min2t (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+status='Editing min2T... ';
+handles.xrd.Status=status;
+
+filenum = handles.popup_filename.Value;
+
+a=checkToOverwrite('This will cause the current fit to be discarded. Continue?',handles);
+
+if strcmp(a,'No') || strcmp(a,'Cancel')
+	handles.xrd.Status=[status, 'Stopped.'];
+	set(handles.edit_min2t,'String',sprintf('%2.4f',handles.xrd.Min2T));
+	return
+end
+
+min = str2double(get(hObject,'String'));
+set(handles.popup_numpeaks,'Enable','on');
+set(handles.edit_min2t,'String',sprintf('%2.4f',min));
+max = str2double(get(handles.edit_max2t,'String'));
+
+% If minimum is less than absolute min or greater than absolute max
+if min < handles.xrd.two_theta(1) || min > handles.xrd.two_theta(end) || isnan(min)
+	msg='Error: min2t value is not within bounds.';
+	handles.xrd.Status=[status,msg];
+	if min<handles.xrd.two_theta(1)
+		min=handles.xrd.two_theta(1);
+	else
+		min=handles.xrd.Min2T;
+	end
+	handles.xrd.Min2T=min;
+	set(handles.edit_min2t,'String',sprintf('%2.4f',min));
+	return
+end
+
+handles.xrd.Min2T = min;
+
+% 
+if min >= max 
+	max = min+handles.xrd.fitrange;
+	if max > handles.xrd.two_theta(end)
+		max = handles.xrd.two_theta(end);
+	end
+	handles.xrd.Max2T = max;
+	set(handles.edit_max2t,'String',sprintf('%2.4f',max));
+end
+
+if ~isempty(handles.xrd.bkgd2th) &&...
+		(isempty(find(min<handles.xrd.bkgd2th,1)) ||...
+		isempty(find(max>handles.xrd.bkgd2th,1)))
+	handles.xrd.bkgd2th=[];
+end
+if ~isempty(handles.xrd.PeakPositions) &&...
+		(isempty(find(min<handles.xrd.PeakPositions,1)) ||...
+		isempty(find(max>handles.xrd.PeakPositions,1)))
+	handles.xrd.PeakPositions=[];
+	set(handles.popup_numpeaks,'Value',1);
+	handles.xrd.bkgd2th=[];
+	saveduipanel3(handles);
+end
+handles.xrd.Fmodel=[];
+handles.xrd.plotData(filenum)
+handles.xrd.Status=['<html>Min2&theta; set to ',get(hObject,'String'),'.'];
+
+% REPLACE_WITH_DASH_DASH- 
+function edit_max2t_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_max2t (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+status='Editing max2T... ';
+handles.xrd.Status=status;
+
+filenum = handles.popup_filename.Value;
+
+a=checkToOverwrite('This will cause the current fit to be discarded. Continue?',handles);
+
+if strcmp(a,'No') || strcmp(a,'Cancel')
+	handles.xrd.Status=[status, 'Stopped.'];
+	set(handles.edit_max2t,'String',sprintf('%2.4f',handles.xrd.Max2T));
+	return
+end
+
+min = str2double(get(handles.edit_min2t,'String'));
+max = str2double(get(hObject,'String'));
+
+if isnan(max)
+	handles.xrd.Status=['Error: ',hObject.String,' is not a valid number.'];
+	set(handles.edit_max2t,'String',sprintf('%2.4f',handles.xrd.Max2T));
+	return
+end
+
+set(handles.edit_max2t,'String',sprintf('%2.4f',max));
+
+% If maximum is less than absolute max
+if min < handles.xrd.two_theta(1) || max > handles.xrd.two_theta(end) || isnan(max)
+	msg='Error: max2t value is not within bounds.';
+	handles.xrd.Status=[status,msg];
+	if max > handles.xrd.two_theta(end)
+		max=handles.xrd.two_theta(end);
+	else
+		max=handles.xrd.Max2T;
+	end
+	
+	handles.xrd.Max2T=max;
+	set(handles.edit_max2t,'String',sprintf('%2.4f',max));
+	
+	return
+end
+
+handles.xrd.Max2T = max;
+set(handles.edit_max2t,'String',sprintf('%2.4f',max));
+
+if max <= min 
+	min = max-handles.xrd.fitrange;
+	if min < handles.xrd.two_theta(1)
+		min = handles.xrd.two_theta(1);
+	end
+	handles.xrd.Min2T = min;
+	set(handles.edit_min2t,'String',sprintf('%2.4f',min));
+end
+
+if ~isempty(handles.xrd.bkgd2th) &&...
+		(isempty(find(min<handles.xrd.bkgd2th,1)) ||...
+		isempty(find(max>handles.xrd.bkgd2th,1)))
+	handles.xrd.bkgd2th=[];
+end
+
+if ~isempty(handles.xrd.PeakPositions) &&...
+		(isempty(find(min<handles.xrd.PeakPositions,1)) ||...
+		isempty(find(max>handles.xrd.PeakPositions,1)))
+	handles.xrd.PeakPositions=[];
+	set(handles.popup_numpeaks,'Value',1);
+	handles.xrd.PSfxn={};
+	saveduipanel3(handles);
+end
+
+handles.xrd.Fmodel=[];
+handles.xrd.plotData(filenum)
+handles.xrd.Status=['<html>Max2&theta; set to ',get(hObject,'String'),'.'];
+
+guidata(hObject, handles)
+
+function edit_bkgdpoints_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_bkgdpoints (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+set(hObject,'UserData',get(hObject,'value'));
+handles.xrd.Status=['Number of background points changed to ',get(hObject,'String'),'.'];
+guidata(hObject,handles)
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+%% uitable callback functions
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+
+% REPLACE_WITH_DASH_DASH- Executes when entered data in editable cell(s) in uitable1.
+function uitable1_CellEditCallback(hObject, eventdata, handles)
+% hObject    handle to uitable1 (see GCBO)
+% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
+%	Indices: row and column indices of the cell(s) edited
+%	PreviousData: previous data for the cell(s) edited
+%	EditData: string(s) entered by the user
+%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
+%	Error: error string when failed to convert EditData to appropriate value for Data
+% handles    structure with handles and user data (see GUIDATA)
+handles.xrd.Status=['Editing table...'];
+numpeaks=get(handles.popup_numpeaks,'Value')-1;
+r=eventdata.Indices(1);
+c=eventdata.Indices(2);
+
+if ~isa(eventdata.NewData, 'double')
+	try
+		num = str2double(eventdata.NewData);
+		hObject.Data{r, c} = num;
+	catch
+		hObject.Data{r,c} = [];
+		cla
+		plotX(handles);
+		return
+	end
+else
+	num = eventdata.NewData;
+end
+
+% If NewData is empty or was not changed
+if isnan(num)
+	hObject.Data{r,c} = [];
+	handles.xrd.Status=[handles.uitable1.ColumnName{c},...
+		' value of coefficient ',hObject.RowName{r}, ' is now empty.'];
+	checkuitable1(handles);
+	cla
+	plotX(handles);
+	return
+	
+else
+	
+	if strcmpi(hObject.RowName{r}(1), 'x') && c == 1
+		ipk = str2double(hObject.RowName{r}(2));
+		hObject.UserData{ipk} = num;
+	end
+	
+	% Check if SP, LB, and UB are within bounds
+	switch c
+		case 1 % If first column, SP
+			if num < hObject.Data{r,2}
+				hObject.Data{r,2} = num;
+			end
+			if num > hObject.Data{r,3}
+				hObject.Data{r,3} = num;
+			end
+		case 2 % If second column, LB
+			if num > hObject.Data{r,1}
+				hObject.Data{r,1} = num;
+			end
+			if num > hObject.Data{r,3}
+				hObject.Data{r,3} = num;
+			end
+		case 3 % If third column, UB
+			if num < hObject.Data{r,1}
+				hObject.Data{r,1} = num;
+			end
+			if num < hObject.Data{r,2}
+				hObject.Data{r,2} = num;
+			end
+	end
+end
+
+% Enable/disable 'Clear' button
+checkuitable1(handles);
+
+if ~isempty(num)
+	handles.xrd.Status=[handles.uitable1.ColumnName{c},...
+		' value of coefficient ',hObject.RowName{r}, ' was changed to ',num2str(num),'.'];
+end
+
+plotSampleFit(handles);
+guidata(hObject,handles)
+
+% REPLACE_WITH_DASH_DASH- Executes when selected cell(s) is changed in uitable1.
+function uitable1_CellSelectionCallback(hObject, eventdata, handles)
+% hObject    handle to uitable1 (see GCBO)
+% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
+%	Indices: row and column indices of the cell(s) currently selecteds
+% handles    structure with handles and user data (see GUIDATA)
+%
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+%% Toobar callback functions
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+
+% REPLACE_WITH_DASH_DASH- Import new file(s) to fit.
+function uipushtoolnew_ClickedCallback(hObject, eventdata, handles)
+% hObject    handle to uipushtoolnew (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+menu_new_Callback(hObject, eventdata, handles);
+guidata(hObject,handles);
+
+% REPLACE_WITH_DASH_DASH- Toggles the legend. 
+function uitoggletool5_ClickedCallback(hObject, eventdata, handles)
+% hObject    handle to uitoggletool5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+if strcmpi(hObject.State,'on')
+	handles.xrd.Status='Legend was turned on.';
+	uitoggletool5_OnCallback(hObject, eventdata, handles)
+else
+		handles.xrd.Status='Legend was turned off.';
+	uitoggletool5_OffCallback(hObject, eventdata, handles)
+end
+
+% REPLACE_WITH_DASH_DASH- Turns off the legend.
+function uitoggletool5_OffCallback(hObject, eventdata, handles)
+% hObject    handle to uitoggletool5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+set(hObject,'State','off');
+legend('hide')
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHTurns on the legend.
+function uitoggletool5_OnCallback(hObject, eventdata, handles)
+% hObject    handle to uitoggletool5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+set(hObject,'State','on');
+legend(handles.xrd.DisplayName,'Box','off')
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+%% Menu callback functions
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+
+% REPLACE_WITH_DASH_DASH- 
+function menu_new_Callback(hObject, eventdata, handles)
+% hObject    handle to menu_new (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.xrd.Status='Loading data... ';
+axes(handles.axes1)
+
+% Check if there is current data loaded
+ans=checkToOverwrite('Overwrite current data?',handles);
+if strcmpi(ans,'Cancel') || ~handles.xrdContainer(1).Read_Data % If user cancels action
+	handles.xrd.Status=[status,'Canceled.'];
+	return % interrupts function 
+end
+% Function continues to below only if there is data loaded
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH- changes availability of buttons REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+set(handles.uipanel3, 'visible', 'on');
+set(handles.push_removeprofile, 'visible', 'on', 'enable', 'off');
+set(handles.push_addprofile, 'visible', 'on', 'enable', 'on');
+set(handles.panel_rightside,'Visible','on');
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+
+
+handles=createProfileObjects(handles);
+saveduipanel3(handles);
+
+uitoggletool5_OnCallback(handles.uitoggletool5,[],handles);
+plotX(handles);
+
+set(handles.menu_save,'Enable','off');
+set(handles.axes2,'Visible','off');
+set(handles.axes2.Children,'Visible','off');
+set(handles.uipanel4.Children,'Enable','off');
+set(handles.pushbutton15,'Enable','on');
+handles = changeProfile(handles.profiles(1),handles);
+
+assignin('base','handles',handles)
+
+guidata(hObject, handles)
+
+% REPLACE_WITH_DASH_DASH- 
+function menu_save_Callback(hObject, eventdata, handles)
+% hObject    handle to menu_save (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.xrd.Status='Saving results...';
+handles.xrd.outputError;
+handles.xrd.Status='Saving results... Done.';
+
+% REPLACE_WITH_DASH_DASH- 
+function menu_input_Callback(hObject, eventdata, handles)
+% hObject    handle to menu_input (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+status='Loading input parameter file... ';
+handles.xrd.Status=status;
+
+% REPLACE_WITH_DASH_DASH- Check if there is already a fit
+a=checkToOverwrite('This will cause the current fit to be discarded. Continue?',handles);
+
+if strcmp(a,'Cancel')
+	handles.xrd.Status=[status,'Canceled.'];
+	return
+end
+
+if ~handles.xrd.Read_Inputs
+	handles.xrd.Status=[status,'Input file not found.'];
+	return
+end
+
+handles.xrd.Fmodel=[];
+
+handles.uipanel4.UserData = handles.xrd.PeakPositions;
+
+set(handles.edit_min2t,'String',sprintf('%2.4f',handles.xrd.Min2T));
+set(handles.edit_max2t,'String',sprintf('%2.4f',handles.xrd.Max2T));
+set(handles.edit7,'String',num2str(handles.xrd.fitrange));
+set(handles.popup_numpeaks,'Value',length(handles.xrd.PSfxn)+1);
+
+% Set uipanel6/popup functions
+popup_numpeaks_Callback(handles.popup_numpeaks, [], handles); 
+
+
+saveduipanel3(handles);
+set(handles.tabgroup,'SelectedTab',handles.tab_peak);
+
+pushbutton15_Callback(handles.pushbutton15,[],handles);
+coeff=handles.xrd.Fcoeff;
+
+SP=handles.xrd.fit_initial{1};
+UB=handles.xrd.fit_initial{2};
+LB=handles.xrd.fit_initial{3};
+
+for i=1:length(coeff)
+	handles.uitable1.Data{i,1}=SP(i);
+	handles.uitable1.Data{i,2}=LB(i);
+	handles.uitable1.Data{i,3}=UB(i);
+end
+
+handles.xrd.Status=[status,'Done.'];
+set(handles.uipanel4.Children,'Enable','on');
+plotX(handles);
+
+guidata(hObject, handles)
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+function menu_savefig_Callback(hObject, eventdata, handles)
+% hObject    handle to menu_savefig (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)axes(handles.axes1)
+profile = find(handles.uipanel3==handles.profiles,1);
+fitOutputPath =strcat(handles.xrd.DataPath,'FitOutputs/Fit_Figure/');
+if ~exist(fitOutputPath,'dir')
+	mkdir(fitOutputPath);
+end
+
+tot=handles.text_numprofile.String(end);
+
+for s=1:length(handles.xrd.Filename)
+	f_new=figure;
+	a1=copyobj(handles.axes1,f_new);
+	a2=copyobj(handles.axes2,f_new);
+	
+	filename=['Profile ',num2str(profile),' of ',tot,' - ',handles.xrd.Filename{s}];
+	set(gcf,'name',filename,'numbertitle','off');
+	set(a1.Title,'String',filename);
+	saveas(gcf,[fitOutputPath,filename,'-plotFit.png'])
+	delete(gcf)
+end
+
+handles.xrd.plotFit('all')
+saveas(figure(5),strcat(fitOutputPath,'Profile ',num2str(profile), 'of ',tot,' - ',strcat('Master','-','plotFit')));
+delete(gcf);
+
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+function menu_clearall_Callback(hObject, eventdata, handles)
+% hObject    handle to menu_clearall (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% If there is data loaded, confirm
+ans=questdlg('This will reset the figure and your data will be lost.','Warning','Continue','Cancel','Cancel');
+if strcmp(ans,'Continue')
+	handles.xrd = PackageFitDiffractionData;
+	handles.xrdContainer = handles.xrd;
+	set(handles.panel_rightside,'Visible','off');
+	set(handles.edit8,...
+		'String', 'Upload new file(s)...',...
+		'FontAngle', 'italic',...
+		'ForegroundColor', [0.5 0.5 0.5]);
+end
+
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+function menu_close_Callback(hObject, eventdata, handles)
+% hObject    handle to menu_close (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+ans=questdlg('Are you sure you want to quit?','Warning','Yes','No','Yes');
+if strcmp(ans,'Yes')
+	delete(gcf)
+end
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+function menu_bkgdpoints_Callback(hObject, eventdata, handles)
+% hObject    handle to menu_bkgdpoints (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% REPLACE_WITH_DASH_DASH- Menu: File -> Save As callback function
+function Untitled_7_Callback(hObject, eventdata, handles)
+% hObject    handle to Untitled_7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% REPLACE_WITH_DASH_DASH- Menu option callback to Import Workspace.
+function Untitled_9_Callback(hObject, eventdata, handles)
+% hObject    handle to Untitled_9 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+%% Custom helper functions
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+
+function tabgroup_SelectionChangedFcn(hObject,eventdata,handles)
+if hObject.SelectedTab==handles.tab_peak && ...
+		isempty(handles.xrd.bkgd2th)
+	hObject.SelectedTab=handles.tab_setup;
+	uiwait(warndlg('Please select background points first.','No Background Points'));
+	return
+end
+
+if hObject.SelectedTab == handles.tab_setup
+	set(handles.uipanel4, 'visible', 'off');
+elseif handles.popup_numpeaks.Value > 1
+	setEnableUpdateButton(handles);
+end
+	
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+%% CreateFcns and Unused Callbacks
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+
+% REPLACE_WITH_DASH_DASH- Executes during object creation, after setting all properties.
+function edit_min2t_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_min2t (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+	set(hObject,'BackgroundColor','white');
+end
+
+% REPLACE_WITH_DASH_DASH- Executes during object creation, after setting all properties.
+function edit_max2t_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_max2t (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+	set(hObject,'BackgroundColor','white');
+end
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+	set(hObject,'BackgroundColor','white');
+end
+
+% REPLACE_WITH_DASH_DASH- Executes during object creation, after setting all properties.
+function edit_bkgdpoints_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_bkgdpoints (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+	set(hObject,'BackgroundColor','white');
+end
+
+% REPLACE_WITH_DASH_DASH- Executes during object creation, after setting all properties.
+function edit_polyorder_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_polyorder (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+	set(hObject,'BackgroundColor','white');
+end
+
+
+% REPLACE_WITH_DASH_DASH- Executes during object creation, after setting all properties.
+function popup_filename_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popup_filename (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+handles.n=1;
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+	set(hObject,'BackgroundColor','white');
+end
+
+% REPLACE_WITH_DASH_DASH- Executes during object creation, after setting all properties.
+function popup_numpeaks_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popup_numpeaks (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+	set(hObject,'BackgroundColor','white');
+end
+
+% REPLACE_WITH_DASH_DASH- 
+function menu_file_Callback(hObject, eventdata, handles)
+% hObject    handle to menu_file (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% REPLACE_WITH_DASH_DASH- Executes during object creation, after setting all properties.
+function edit7_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+% REPLACE_WITH_DASH_DASH- Stop Least Squares radio button.
+function radiobutton1_Callback(hObject, eventdata, handles)
+% hObject    handle to radiobutton1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% Hint: get(hObject,'Value') returns toggle state of radiobutton1
+
+
+% REPLACE_WITH_DASH_DASH- 
+function uitoggletool4_ClickedCallback(hObject, eventdata, handles)
+% hObject    handle to uitoggletool4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% REPLACE_WITH_DASH_DASH- Executes during object creation, after setting all properties.
+function popup_function1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popup_function1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+	set(hObject,'BackgroundColor','white');
+end
+
+% REPLACE_WITH_DASH_DASH- Executes during object creation, after setting all properties.
+function popup_function2_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popup_function2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+	set(hObject,'BackgroundColor','white');
+end
+
+% REPLACE_WITH_DASH_DASH- Executes during object creation, after setting all properties.
+function popup_function3_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popup_function3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+	set(hObject,'BackgroundColor','white');
+end
+
+% REPLACE_WITH_DASH_DASH- Executes during object creation, after setting all properties.
+function popup_function4_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popup_function4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+	set(hObject,'BackgroundColor','white');
+end
+
+% REPLACE_WITH_DASH_DASH- Executes during object creation, after setting all properties.
+function popup_function5_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popup_function5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+% REPLACE_WITH_DASH_DASH- Executes during object creation, after setting all properties.
+function popup_function6_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popup_function6 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% REPLACE_WITH_DASH_DASH- Executes when selected object is changed in uibuttongroup2.
+function uibuttongroup2_SelectionChangedFcn(hObject, eventdata, handles)
+% hObject    handle to the selected object in uibuttongroup2 
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% REPLACE_WITH_DASH_DASH- Executes on mouse press over axes background.
+function axes2_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to axes2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+function menu_help_Callback(hObject, eventdata, handles)
+% hObject    handle to menu_help (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+function Untitled_10_Callback(hObject, eventdata, handles)
+% hObject    handle to Untitled_10 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+function menuHelp_fxns_Callback(hObject, eventdata, handles)
+% hObject    handle to menuHelp_fxns (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+
+function edit8_Callback(hObject, eventdata, handles)
+% hObject    handle to edit8 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit8 as text
+%        str2double(get(hObject,'String')) returns contents of edit8 as a double
+
+
+% REPLACE_WITH_DASH_DASH- Executes during object creation, after setting all properties.
+function edit8_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit8 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+function menu_edit_Callback(hObject, eventdata, handles)
+% hObject    handle to menu_edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+
+function edit_lambda_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_lambda (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_lambda as text
+%        str2double(get(hObject,'String')) returns contents of edit_lambda as a double
+lambda=str2double(get(hObject,'String'));
+handles.xrd.lambda=lambda;
+
+% REPLACE_WITH_DASH_DASH- Executes during object creation, after setting all properties.
+function edit_lambda_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_lambda (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+function menu_clearfit_Callback(hObject, eventdata, handles)
+% hObject    handle to menu_clearfit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% REPLACE_WITH_DASH_DASH- Executes on button press in push_removeprofile.
+function push_removeprofile_Callback(hObject, eventdata, handles)
+% hObject    handle to push_removeprofile (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% REPLACE_WITH_DASH_DASH- Executes on button press in push_addprofile.
+function push_addprofile_Callback(hObject, eventdata, handles)
+% hObject    handle to push_addprofile (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+##### SOURCE END #####
+--></body></html>

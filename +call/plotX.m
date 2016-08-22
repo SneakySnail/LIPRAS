@@ -5,11 +5,16 @@ cla(handles.axes1)
 cla(handles.axes2)
 filenum=handles.popup_filename.Value;
 
+minR = str2double(handles.edit_min2t.String);
+maxR = str2double(handles.edit_max2t.String);
+axes(handles.axes1)
+xlim([minR, maxR])
+
 if isempty(handles.xrd.Fmodel) % If there isn't a fit yet
 	handles.xrd.plotData(get(handles.popup_filename,'Value'));
 	set(handles.axes2,'Visible','off');
 	set(handles.axes2.Children,'Visible','off');
-	plotSampleFit(handles);
+	handles = call.plotSampleFit(handles);
 else
 	handles.xrd.plotFit(get(handles.popup_filename,'Value'));
 	set(handles.axes2,'Visible','on');

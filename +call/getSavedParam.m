@@ -1,3 +1,5 @@
+% Used in: [plotSampleFit.m, revertPanel.m, FDGUI.m, fillEmptyCells.m,
+% setEnableUpdateButton.m].
 function param = getSavedParam(handles)
 % param.fcnNames
 % param.constraints
