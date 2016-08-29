@@ -4,10 +4,6 @@ function isEnabled = setEnableUpdateButton(handles)
 
 %% Verify all visible popup menus are not blank
 % pushbutton15 is initially disabled before checking for functions.
-% 
-%  PREFORMATTED
-%  TEXT
-% 
 isEnabled = false;
 set(handles.pushbutton15, 'enable', 'off');
 set(handles.uipanel4.Children, 'enable', 'off');

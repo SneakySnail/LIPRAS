@@ -950,23 +950,15 @@ function Untitled_9_Callback(hObject, eventdata, handles)
 % ------------------------------------------
 
 % Executes when the active tab changes to/from 'Setup' and 'Peak Selection'.
-function tabgroup_SelectionChangedFcn(hObject, eventdata, handles)
-%%
-% 
-%  PREFORMATTED
-%  TEXT
-% 
+function tabgroup_SelectionChangedFcn(hObject,eventdata,handles)
 
-
-% If user switches to 'Peak Selection' tab from 'Setup' tab and there is no
-% background, issue warning
-if hObject.SelectedTab == handles.tab_peak && isempty(handles.xrd.bkgd2th)
+% If user switches to 'Peak S'Setup' tab 
+if hObject.SelectedTab == handles.tab_peak && isempty (handles.xrd.bkgd2th)
 	hObject.SelectedTab = handles.tab_setup;
 	uiwait(warndlg('Please select background points first.','No Background Points'));
 	return
 end
 
-% If user switches to 'Setup' tab from 'Peak Selection' tab
 if hObject.SelectedTab == handles.tab_setup
 	set(handles.uipanel4, 'visible', 'off');
 elseif handles.popup_numpeaks.Value > 1
