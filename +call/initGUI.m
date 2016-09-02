@@ -1,6 +1,7 @@
 % Initialize GUI controls
 function handles = initGUI(hObject, eventdata, handles, varargin)
 
+
 axes(handles.axes1)
 hold(handles.axes1,'all');
 xlabel('2\theta','FontSize',15);
@@ -103,17 +104,17 @@ Creates the tab groups for uipanel3.
 
 	jFrame=get(handles.figure1,'JavaFrame');
 	try
-		jClient = jFrame.fFigureClient;  % This works up to R2011a
+		jRootPane = jFrame.fFigureClient.getWindow;  % This works up to R2011a
 	catch
 		try
-			jClient = jFrame.fHG1Client;  % This works from R2008b-R2014a
+			jRootPane = jFrame.fHG1Client.getWindow;  % This works from R2008b-R2014a
 		catch
-			jClient = jFrame.fHG2Client;  % This works from R2014b and up
+			jRootPane = jFrame.fHG2Client.getWindow;  % This works from R2014b and up
 		end
 	end
 	
 	handles.text_status = com.mathworks.mwswing.MJStatusBar;
-	jClient.setStatusBar(handles.text_status);
+	jRootPane.setStatusBar(handles.text_status);
 	
 	handles.text_status.setText('<html>Please import file(s) containing data to fit.</html>');
 	end
