@@ -58,6 +58,9 @@ function FDGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to FDGUI (see VARARGIN)
 
+import javax.swing.*
+import java.awt.*
+
 handles = call.initGUI(hObject, eventdata, handles, varargin);
 
 % Update handles structure
