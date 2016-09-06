@@ -10,7 +10,7 @@ end
 
 % If user cancels action
 if strcmpi(a,'Cancel') || ~handles.xrdContainer(1).Read_Data 
-	handles.xrd.Status = [status,'Canceled.'];
+	handles.xrd.Status = [handles.xrd.Status,'Canceled.'];
 	return % interrupts function
 end
 
