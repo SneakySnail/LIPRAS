@@ -29,7 +29,7 @@ function varargout = FDGUI(varargin)
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Last Modified by GUIDE v2.5 15-Aug-2016 21:10:00
+% Last Modified by GUIDE v2.5 03-Sep-2016 10:57:37
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -88,10 +88,10 @@ handles.xrd.Status='Browsing files... ';
 
 call.importData(hObject, eventdata, handles);
 
-%%% pushbutton15
+%%% push_update
 % Executes on  'Update' button press.
-function pushbutton15_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton15 (see GCBO)
+function push_update_Callback(hObject, eventdata, handles)
+% hObject    handle to push_update (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 set(hObject,'enable','off');
@@ -431,7 +431,7 @@ if num > 0
 	set(handles.uipanel6, 'Visible','on');
 	set(handles.uipanel6.Children,'Visible','off');
 	set(handles.uipanel5,'Visible','on');
-	set(handles.pushbutton15, 'Visible','on');
+	set(handles.push_update, 'Visible','on');
 	set(handles.text7,'Visible','on');
 	set(handles.popup_function1,'Visible','on');
 	set(handles.uipanel10,'Visible','on');
@@ -467,7 +467,7 @@ else
 	set(findobj(handles.uipanel5.Children),'Enable','off','Value',0);
 	set(handles.uipanel6,'Visible','off');
 	set(handles.uipanel5,'Visible','off');
-	set(handles.pushbutton15,'Visible','off');
+	set(handles.push_update,'Visible','off');
 	set(handles.uipanel4,'Visible','off');
 end
 
@@ -851,7 +851,7 @@ popup_numpeaks_Callback(handles.popup_numpeaks, [], handles);
 call.revertPanel(handles);
 set(handles.tabgroup,'SelectedTab',handles.tab_peak);
 
-pushbutton15_Callback(handles.pushbutton15,[],handles);
+push_update_Callback(handles.push_update,[],handles);
 coeff=handles.xrd.Fcoeff;
 
 SP=handles.xrd.fit_initial{1};
@@ -1280,3 +1280,80 @@ function push_addprofile_Callback(hObject, eventdata, handles)
 handles.profiles(7).UserData = handles.profiles(7).UserData + 1;
 
 call.changeProfile(hObject, [], handles);
+
+
+% --- Executes on selection change in popup_function2.
+function popup_function2_Callback(hObject, eventdata, handles)
+% hObject    handle to popup_function2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popup_function2 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popup_function2
+
+
+% --- Executes on selection change in popup_function3.
+function popup_function3_Callback(hObject, eventdata, handles)
+% hObject    handle to popup_function3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popup_function3 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popup_function3
+
+
+% --- Executes on selection change in popup_function4.
+function popup_function4_Callback(hObject, eventdata, handles)
+% hObject    handle to popup_function4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popup_function4 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popup_function4
+
+
+% --- Executes on selection change in popup_function5.
+function popup_function5_Callback(hObject, eventdata, handles)
+% hObject    handle to popup_function5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popup_function5 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popup_function5
+
+
+% --- Executes on selection change in popup_function6.
+function popup_function6_Callback(hObject, eventdata, handles)
+% hObject    handle to popup_function6 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popup_function6 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popup_function6
+
+
+% --- Executes on button press in checkboxf.
+function checkboxf_Callback(hObject, eventdata, handles)
+% hObject    handle to checkboxf (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkboxf
+
+
+% --- Executes on button press in checkboxw.
+function checkboxw_Callback(hObject, eventdata, handles)
+% hObject    handle to checkboxw (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkboxw
+
+
+% --- Executes on button press in checkboxm.
+function checkboxm_Callback(hObject, eventdata, handles)
+% hObject    handle to checkboxm (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkboxm

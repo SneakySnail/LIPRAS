@@ -89,7 +89,7 @@ guidata(handles.figure1, handles)
 	
 	% pushbuttons
 	handles.push_newbkgd = findobj(handles.uipanel3.Children,'Tag','push_newbkgd');
-	handles.pushbutton15 = findobj(hObject.Children,'Tag','pushbutton15'); % Update button
+	handles.push_update = findobj(hObject.Children,'Tag','push_update'); % Update button
 	handles.push_nextprofile = findobj(hObject.Children,'Tag','push_nextprofile');
 	handles.push_prevprofile = findobj(hObject.Children,'Tag','push_prevprofile');
 	handles.pushbutton17 = findobj(handles.uipanel4.Children,'Tag','pushbutton17');
