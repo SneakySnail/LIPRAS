@@ -2,10 +2,14 @@
 function handles = importData(hObject, eventdata, handles)
 
 % Check if there is current data loaded
+try
 if ~isempty(handles.xrd.Fmodel)
 	a=questdlg(prompt,'Warning', 'Continue', 'Cancel', 'Continue');
 else
 	a='Yes';
+end
+catch
+	a='Cancel';	
 end
 
 % If user cancels action
@@ -26,7 +30,7 @@ set(handles.menu_save,'Enable','off');
 set(handles.axes2,'Visible','off');
 set(handles.axes2.Children,'Visible','off');
 set(handles.uipanel4.Children,'Enable','off');
-set(handles.pushbutton15,'Enable','on');
+set(handles.push_update,'Enable','on');
 
 FDGUI('uitoggletool5_OnCallback', handles.uitoggletool5, [], handles); 
 call.plotX(handles);
@@ -78,7 +82,7 @@ guidata(handles.figure1, handles)
 		tab2 = findobj(handles.profiles(i).Children,'tag','tab_peak');
 		set(tab2,'ForegroundColor',[0.8 0.8 0.8]);
 		set(panel4.Children,'Visible','off');
-		set(handles.pushbutton15,'Enable','on');
+		set(handles.push_update,'Enable','on');
 		set(handles.togglebutton_showbkgd,'enable','off');
 	end
 	
