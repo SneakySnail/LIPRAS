@@ -22,8 +22,8 @@ else
 	SP = handles.xrd.fit_initial{1,filenum};
 	vals = handles.xrd.fit_parms{filenum}; % Update results column
 	for i=1:length(vals)
-		handles.uitable1.Data{i,1} = SP(i);
-		handles.uitable1.Data{i,4} = ['<html><table border=0 width=75 bgcolor=#E5E4E2><tr><td align="right"><b>',...
+		handles.table_coeffvals.Data{i,1} = SP(i);
+		handles.table_coeffvals.Data{i,4} = ['<html><table border=0 width=75 bgcolor=#E5E4E2><tr><td align="right"><b>',...
 			num2str(vals(i),'%6G'), '</b></td></tr></table></html>'];
 	end
 end

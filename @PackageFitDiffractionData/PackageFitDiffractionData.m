@@ -525,7 +525,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
             for i=1:length(Stro.Filename) %this is the start of the for loop that executes the remainder of the 
                 Stro.Status=['Fitting Dataset ',num2str(i),' of ',num2str(length(Stro.Filename)),'... '];
                 
-                 if evalin('base','handles.radiobutton1.Value')==1
+                 if evalin('base','handles.radio_stopleastsquares.Value')==1
 					 Stro.Status=[Stro.Status,'Stopped.'];
                      break
  				end

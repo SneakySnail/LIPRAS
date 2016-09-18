@@ -4,11 +4,11 @@ function handles = plotSampleFit(handles)
 
 % Make sure all the cells with starting values are not empty
 try
-val=[handles.uitable1.Data{:,1}];
-coeff=handles.uitable1.RowName;
+val=[handles.table_coeffvals.Data{:,1}];
+coeff=handles.table_coeffvals.RowName;
 assert(~isempty(val));
 assert(~isempty(coeff));
-temp = cellfun(@isempty, handles.uitable1.Data(:, 1:3));
+temp = cellfun(@isempty, handles.table_coeffvals.Data(:, 1:3));
 assert(isempty(find(temp, 1)));
 assert(length(val)==length(coeff));
 catch
@@ -16,7 +16,7 @@ catch
 end
 
 filenum=get(handles.popup_filename,'Value');
-fitrange=str2double(get(handles.edit7,'string'));
+fitrange=str2double(get(handles.edit_fitrange,'string'));
 data=handles.xrd.getRawData(filenum,fitrange);
 x=data(1,:);
 y=data(2,:);

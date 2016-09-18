@@ -1,10 +1,10 @@
-function allowWhichConstraints(handles)
+function setAvailableConstraints(handles)
 
 set(handles.checkboxN,'Enable','off','Value',0);
 set(handles.checkboxf,'Enable','off','Value',0);
 set(handles.checkboxw,'Enable','off','Value',0);
 set(handles.checkboxm,'Enable','off','Value',0);
-handles.uipanel5.UserData=[0 0 0 0];
+handles.panel_constraints.UserData=[0 0 0 0];
 
 % pop = array of visible popup objects for functions
 pop=flipud(findobj(handles.uipanel6.Children,'visible','on','style','popupmenu'));

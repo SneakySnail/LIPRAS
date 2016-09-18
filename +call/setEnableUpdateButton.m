@@ -10,12 +10,12 @@ function isEnabled = setEnableUpdateButton(handles)
 % 
 isEnabled = false;
 set(handles.push_update, 'enable', 'off');
-set(handles.uipanel4.Children, 'enable', 'off');
+set(handles.panel_coeffs.Children, 'enable', 'off');
 % ----------------- %
 
-% If the number of peaks is empty, make uipanel4 invisible
+% If the number of peaks is empty, make panel_coeffs invisible
 if handles.popup_numpeaks.Value == 1
-	set(handles.uipanel4, 'visible', 'off');
+% 	set(handles.panel_coeffs, 'visible', 'off');
 	return
 end
 
@@ -48,7 +48,7 @@ try
 		isenabled = true;
 	else
 		% ONLY if functions AND constraints are the same 
-		set(handles.uipanel4.Children, 'enable', 'on');
+		set(handles.panel_coeffs.Children, 'enable', 'on');
 	end
 	
 catch % length of function names are not the same

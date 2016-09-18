@@ -1,6 +1,6 @@
 % --- 
 function isFilled = fillEmptyCells(handles)
-% --- Fills empty cells in uitable1 with their default values only if the
+% --- Fills empty cells in table_coeffvals with their default values only if the
 % initial peak upd.peakPositionsitions are in the table. 
 upd = call.getSavedParam(handles);
 isFilled = false;
@@ -14,14 +14,14 @@ end
 
 % Fill in table with default values if cell is empty
 for i=1:length(upd.coeff)
-	if isempty(handles.uitable1.Data{i,1})
-		handles.uitable1.Data{i,1} = SP(i);
+	if isempty(handles.table_coeffvals.Data{i,1})
+		handles.table_coeffvals.Data{i,1} = SP(i);
 	end
-	if isempty(handles.uitable1.Data{i,2})
-		handles.uitable1.Data{i,2}  =LB(i);
+	if isempty(handles.table_coeffvals.Data{i,2})
+		handles.table_coeffvals.Data{i,2}  =LB(i);
 	end
-	if isempty(handles.uitable1.Data{i,3})
-		handles.uitable1.Data{i,3} = UB(i);
+	if isempty(handles.table_coeffvals.Data{i,3})
+		handles.table_coeffvals.Data{i,3} = UB(i);
 	end
 end
 
@@ -32,4 +32,4 @@ if strcmpi(handles.uitoggletool5.State,'on')
 end
 
 
-guidata(handles.uitable1,handles)
+guidata(handles.table_coeffvals,handles)

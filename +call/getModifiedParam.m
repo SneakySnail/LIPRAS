@@ -14,7 +14,7 @@ catch
 	param.fcnNames = '';
 end
 
-param.constraints = handles.uipanel5.UserData;
+param.constraints = handles.panel_constraints.UserData;
 param.coeff = handles.xrd.getCoeff(param.fcnNames, param.constraints);
 if length(handles.xrd.PeakPositions) > length(param.fcnNames)
 	param.peakPositions = handles.xrd.PeakPositions(1:length(param.fcnNames));

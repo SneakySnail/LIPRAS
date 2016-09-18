@@ -177,19 +177,21 @@ function initialize_gui(fig_handle, handles, isreset)
 if isfield(handles, 'metricdata') && ~isreset
     return;
 end
+% 
+% handles.metricdata.density = 0;
+% handles.metricdata.volume  = 0;
+% 
+% set(handles.density, 'String', handles.metricdata.density);
+% set(handles.volume,  'String', handles.metricdata.volume);
+% set(handles.mass, 'String', 0);
+% 
+% set(handles.unitgroup, 'SelectedObject', handles.english);
+% 
+% set(handles.text4, 'String', 'lb/cu.in');
+% set(handles.text5, 'String', 'cu.in');
+% set(handles.text6, 'String', 'lb');
 
-handles.metricdata.density = 0;
-handles.metricdata.volume  = 0;
-
-set(handles.density, 'String', handles.metricdata.density);
-set(handles.volume,  'String', handles.metricdata.volume);
-set(handles.mass, 'String', 0);
-
-set(handles.unitgroup, 'SelectedObject', handles.english);
-
-set(handles.text4, 'String', 'lb/cu.in');
-set(handles.text5, 'String', 'cu.in');
-set(handles.text6, 'String', 'lb');
+assignin('base', 's1', handles)
 
 % Update handles structure
 guidata(handles.figure1, handles);
