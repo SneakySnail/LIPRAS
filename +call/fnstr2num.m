@@ -9,11 +9,11 @@ for i = 1:length(fcnNames)
 		num = [num, 2];
 	elseif strcmpi(name, 'Lorentzian')
 		num = [num, 3];
-	elseif strcmpi(name, 'PearsonVII')
+	elseif strcmpi(name, 'Pearson VII')
 		num = [num, 4];
-	elseif strcmpi(name, 'PsuedoVoigt')
+	elseif strcmpi(name, 'Psuedo Voigt')
 		num = [num, 5];
-	elseif strcmpi(name, 'AsymmetricPVII')
+	elseif strcmpi(name, 'Asymmetric Pearson VII')
 		num = [num, 6];
 	else
 		num = [num, 1];

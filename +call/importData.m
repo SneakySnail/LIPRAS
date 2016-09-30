@@ -4,8 +4,8 @@ function handles = importData(hObject, eventdata, handles)
 	catch return 
 	end
 	
-	handles.xrdContainer(7) = handles.xrd;
-	
+	handles = call.addProfile(guidata(hObject));
+
 	% Function continues from here only if there is data loaded into xrd
 	resetPanels();
 	
@@ -16,7 +16,6 @@ function handles = importData(hObject, eventdata, handles)
 	function confirm_new_dataset()
 		try a = call.overwriteExistingFit(handles);
 		catch
-			handles.xrd = PackageFitDiffractionData;
 			a = 'Yes';
 		end
 		
@@ -27,9 +26,6 @@ function handles = importData(hObject, eventdata, handles)
 	end
 	
 	function resetPanels()
-		
-		handles = call.addProfile(handles);
-		
 		for i=1:length(handles.xrd.Filename)
 			files{i} = handles.xrd.Filename{i};  %#ok<AGROW>
 		end
@@ -40,20 +36,21 @@ function handles = importData(hObject, eventdata, handles)
 				'ForegroundColor',[0 0 0]);
 		set(handles.popup_filename, 'String', files);
 		set(handles.listbox_files, 'String', files);
+		set(handles.table_results,'ColumnName',files);
 		
 		% Make axes options available based on # of files
 		numfiles = length(handles.xrd.Filename);
 		
 		if numfiles > 1 % if there was more than file loaded
-			set(handles.checkbox_superimpose,'Visible','on'); % Superimpose Raw Data
+			set(handles.checkbox_superimpose,'Visible','on', 'enable', 'on'); % Superimpose Raw Data
 			set(handles.radio_stopleastsquares, 'visible', 'on'); % Stop Least Squares
 			set(handles.push_viewall,'Visible','on'); % View All
-			handles.xrd.Status=['Imported ', num2str(numfiles),' files.'];
+			handles.xrd.Status=['Successfully imported. There are ', num2str(numfiles),' files in this dataset.'];
 		else
 			set(handles.checkbox_superimpose,'Visible','off'); % Superimpose Raw Data
 			set(handles.radio_stopleastsquares, 'visible', 'off'); % Stop Least Squares
 			set(handles.push_viewall,'Visible','off'); % View All
-			handles.xrd.Status='Imported 1 file.';
+			handles.xrd.Status='Successfully imported. There is 1 file in this dataset.';
 		end
 		
 		set(handles.text_filenum,'String',['1 of ',num2str(numfiles)]);

@@ -6,16 +6,11 @@ set(handles.checkboxw,'Enable','off','Value',0);
 set(handles.checkboxm,'Enable','off','Value',0);
 handles.panel_constraints.UserData=[0 0 0 0];
 
-% pop = array of visible popup objects for functions
-pop=flipud(findobj(handles.uipanel6.Children,'visible','on','style','popupmenu'));
-% fxns: doubles array representing current functions chosen
-if ~isempty(pop)
-	fxns = [pop.Value];
-else
-	return 
-end
+% Function names
+fcnNames = handles.table_paramselection.Data(:, 1)';
 
-if length(find(fxns>1)) > 1
+% TODO
+if length(find(strcmpi(fcnNames,'Gaussian'))) > 1
 	set(handles.checkboxN,'Enable','on');
 	set(handles.checkboxf,'Enable','on');
 	

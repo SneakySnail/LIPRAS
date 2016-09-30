@@ -1,10 +1,8 @@
 % 
-function selectPeaks(hObject, eventdata, handles)
+function selectPeaks(handles)
 
 handles.xrd.Fmodel=[];
 oldTableData = handles.table_coeffvals.Data;
-handles.table_coeffvals.Data(:, 4) = [];							% Empty results column
-handles.table_coeffvals.Data{1, 4} = [];							% In case table data was shrunk
 
 handles.xrd.plotData(get(handles.popup_filename,'Value'));
 
@@ -18,7 +16,7 @@ for i=1:length(peakTableRow)
 	handles.table_coeffvals.Data(peakTableRow(i), 1:3) = {['<html><table border=0 width=150 ', ... 
 			'bgcolor=#FFA07A><tr><td></td></tr></table></html>']};
 	
-	handles.xrd.Status=[status, 'Peak ',num2str(i),'. Right click to cancel.'];
+	handles.xrd.Status=[status, 'Peak ',num2str(i),'. Right click anywhere to cancel.'];
 	[x,~, btn]=ginput(1);
 	if btn == 3 % if the left mouse button was not pressed
 		handles.table_coeffvals.Data = oldTableData;
@@ -35,5 +33,6 @@ for i=1:length(peakTableRow)
 end
 hold off
 
-call.checktable_coeffvals(handles);
+set(handles.push_selectpeak,'string','Reselect Peak(s)');
+set(handles.push_fitdata,'enable','on');
 handles = call.plotSampleFit(handles);

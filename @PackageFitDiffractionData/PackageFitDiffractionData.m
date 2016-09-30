@@ -471,19 +471,19 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
 						coeffNames = [coeffNames, {xv}];
 						if ~constraints(2); coeffNames = [coeffNames, {f}]; end
 						
-					case 'PsuedoVoigt'
+					case 'Psuedo Voigt'
 						if ~constraints(1); coeffNames = [coeffNames, {N}]; end
 						coeffNames = [coeffNames, {xv}];
 						if ~constraints(2); coeffNames = [coeffNames, {f}]; end
 						if ~constraints(3); coeffNames = [coeffNames, {w}]; end
 						
-					case 'PearsonVII'
+					case 'Pearson VII'
 						if ~constraints(1); coeffNames = [coeffNames, {N}]; end
 						coeffNames = [coeffNames, {xv}];
 						if ~constraints(2); coeffNames = [coeffNames, {f}]; end
 						if ~constraints(4); coeffNames = [coeffNames, {m}]; end
 						
-					case 'AsymmetricPVII'
+					case 'Asymmetric Pearson VII'
 						if ~constraints(1); coeffNames=[coeffNames,{NL},{NR}]; end
 						coeffNames=[coeffNames,{xv}];
 						if ~constraints(2); coeffNames=[coeffNames,{f}]; end
@@ -531,7 +531,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
  				end
                 
             %this is the primary function
-                if size(Stro.PSfxn,1)==size(Stro.PeakPositions,1) && size(Stro.PSfxn,1)==length(Stro.fitrange)
+                if size(Stro.PSfxn,1)==size(Stro.PeakPositions,1) 
 					datasent = Stro.getRawData(i, Stro.fitrange);
 					
 					
@@ -750,7 +750,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
 					
 					for ii=1:length(fxn)
 						if coeff{k}(1) == 'N'; 
-							if strcmp(fxn{ii},'AsymmetricPVII')
+							if strcmp(fxn{ii},'Asymmetric Pearson VII')
 								NL=val(k);
 								k=k+1;
 								NR=val(k);
@@ -772,7 +772,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
 							if k<length(coeff); k=k+1; end
 						end
 						if coeff{k}(1) == 'm'; 
-							if strcmp(fxn{ii},'AsymmetricPVII')
+							if strcmp(fxn{ii},'Asymmetric Pearson VII')
 								mL=val(k);
 								k=k+1;
 								mR=val(k);
@@ -795,17 +795,17 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
 								if Stro.CuKa
 									CuKaPeak(ii,:) = (1/1.9)*N.*1./pi* (0.5.*f./((x-xvk).^2+(0.5.*f).^2));
 								end
-							case 'PearsonVII'
+							case 'Pearson VII'
 								peakfit(ii,:) = N.*2.* ((2.^(1/m)-1).^0.5) / f / (pi.^0.5) .* gamma(m) / gamma(m-0.5) .* (1+4.*(2.^(1/m)-1).*((x-xv).^2)/f.^2).^(-m);
 								if Stro.CuKa
 									CuKaPeak(ii,:)=(1/1.9)*N.*2.* ((2.^(1/m)-1).^0.5) / f / (pi.^0.5) .* gamma(m) / gamma(m-0.5) .* (1+4.*(2.^(1/m)-1).*((x-xvk).^2)/f.^2).^(-m);
 								end
-							case 'PsuedoVoigt'
+							case 'Psuedo Voigt'
 								peakfit(ii,:) = N.*((w.*(2./pi).*(1./f).*1./(1+(4.*(x-xv).^2./f.^2))) + ((1-w).*(2.*sqrt(log(2))./(sqrt(pi))).*1./f.*exp(-log(2).*4.*(x-xv).^2./f.^2)));
 								if Stro.CuKa
 									CuKaPeak(ii,:)=(1/1.9)*N.*((w.*(2./pi).*(1./f).*1./(1+(4.*(x-xvk).^2./f.^2))) + ((1-w).*(2.*sqrt(log(2))./(sqrt(pi))).*1./f.*exp(-log(2).*4.*(x-xvk).^2./f.^2)));
 								end
-							case 'AsymmetricPVII'
+							case 'Asymmetric Pearson VII'
 								peakfit(ii,:) = PackageFitDiffractionData.AsymmCutoff(xv,1,x).*NL*PackageFitDiffractionData.C4(mL)./f.*(1+4.*(2.^(1/mL)-1).*(x-xv).^2/f.^2).^(-mL) + ...
 									PackageFitDiffractionData.AsymmCutoff(xv,2,x).*NR.*PackageFitDiffractionData.C4(mR)/(f.*NR/NL.*PackageFitDiffractionData.C4(mR)/PackageFitDiffractionData.C4(mL)).*(1+4.*(2.^(1/mR)-1).*(x-xv).^2/(f.*NR/NL.*PackageFitDiffractionData.C4(mR)/PackageFitDiffractionData.C4(mL)).^2).^(-mR);
 								if Stro.CuKa

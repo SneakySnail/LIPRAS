@@ -2,8 +2,6 @@
 
 %% handles structure
 % Descriptions of each variable saved in the handles structure.
-%
-% <include>handles_structure.m</include>
 
 %% Initialization
 function varargout = FDGUI(varargin)
@@ -33,6 +31,8 @@ function varargout = FDGUI(varargin)
 % Executes just before FDGUI is made visible.
 function FDGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 	import javax.swing.*
+	import javax.swing.BorderFactory
+	import javax.swing.BorderFactory.Ethe
 	import java.awt.*
 	
 	dbstop if error
@@ -42,7 +42,7 @@ function FDGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 	% Choose default command line output for FDGUI
 	handles.output = hObject;
 	
-	handles.figure1.WindowButtonMotionFcn = @(obj, evt)FDGUI('WindowButtonMotionFcn',obj, evt,handles);
+	handles.figure1.WindowButtonMotionFcn = @(obj, evt)FDGUI('WindowButtonMotionFcn',obj, evt,guidata(obj));
 	
 	assignin('base','handles',handles)	
 	% Update handles structure
@@ -59,34 +59,31 @@ function varargout = FDGUI_OutputFcn(hObject, eventdata, handles)
 function WindowButtonMotionFcn(hObject, evt, handles)
 % 	handles.statusbarObj.setText(['Current point: ', num2str(hObject.CurrentPoint)]);
 	
-	obj = hittest(handles.figure1);
+	obj = hittest(hObject);
 	try
-		if obj ~= handles.figure1 && ~isempty(obj.TooltipString)
+		if  ~isempty(obj.TooltipString)
 			handles.statusbarObj.setText(obj.TooltipString);
-		else
+		end
+	catch
+		try
+			if strcmpi(class(obj), class(handles.axes1))
+				handles.statusbarObj.setText(['<html>Current 2&theta; value: ', num2str(obj.CurrentPoint(1, 1))])
+			else
+				handles.statusbarObj.setText(handles.xrd.Status);
+			end
+		catch
 			handles.statusbarObj.setText('');
 		end
-	catch
 	end
 	
-	try
-		% TODO
-		if strcmpi(class(obj), class(handles.axes1))
-			handles.statusbarObj.setText(['<html>Current 2&theta; value: ', num2str(obj.CurrentPoint(1, 1))])
-		else
-% 			handles.statusbarObj.setText('');
-		end
-	catch
-	end
-	
-					
+				
 %% Pushbutton callback functions
 	
 %  Executes on button press in button_browse.
 function button_browse_Callback(hObject, eventdata, handles)
-	handles.xrd.Status='Browsing files to import... ';
+	handles.xrd.Status='Browsing for dataset... ';
 	handles = call.importData(hObject, eventdata, handles);
-	
+		
 	assignin('base','handles',handles)
 	guidata(hObject, handles)
 	
@@ -135,22 +132,68 @@ function push_update_Callback(hObject, eventdata, handles)
 	catch return
 	end
 	
-	set(hObject,'enable','off');
- 	set(handles.panel_coeffs,'visible','on');
- 	set(handles.panel_coeffs.Children,'visible','on');
 	handles.xrd.Fmodel=[];
+	if strcmpi(hObject.String, 'Edit')
+		set(hObject,'string','Update');
+	else
+		set(hObject,'string','Edit');
+	end
 	
-	% Set parameters in xrd
-	param = call.getModifiedParam(handles);
-	handles.xrd.PSfxn = param.fcnNames;
-	handles.xrd.Constrains = param.constraints;
-	handles.xrd.PeakPositions = param.peakPositions;
-	set(handles.table_coeffvals,'RowName', param.coeff);
-	handles.table_coeffvals.Data = cell(length(param.coeff), 4);
-	call.fillEmptyCells(handles);
-	call.checktable_coeffvals(handles);
-	call.plotX(handles);
+	% get new parameters
+	fcnNames = handles.table_paramselection.Data(:, 1)'; % function names to use
+	assert(length(fcnNames) >= length(handles.xrd.PeakPositions));
+	
+	constraints = handles.panel_constraints.UserData; % constraints
+	coeff = handles.xrd.getCoeff(fcnNames, constraints);
+	
+		% Set parameters into xrd
+	handles.xrd.PSfxn = fcnNames;
+	handles.xrd.Constrains = constraints;
+	
+	set(handles.table_coeffvals,'RowName', coeff);
+	handles.table_coeffvals.Data = cell(length(coeff), 3);
+	
+	objs = findobj(handles.tab_peak.Children);
+	for i=1:length(objs)
+		if isprop(objs(i), 'Enable')
+			set(objs(i), 'Enable', 'off');
+		end
+	end
+	
+	set(handles.push_update,'enable','on');
+	set(handles.panel_coeffs,'visible','on');
+ 	set(handles.panel_coeffs.Children,'visible','on', 'enable', 'on');
+	set(handles.push_fitdata, 'enable', 'off');
+% 	set(handles.push_editfcns, 'visible', 'on', 'enable', 'on');
+	
 	handles.xrd.Status = [handles.xrd.Status, 'Done.'];
+	
+	try 
+		assert(length(handles.xrd.PeakPositions) == length(fcnNames));
+	catch
+		return
+	end
+	
+	[SP,LB,UB] = handles.xrd.getDefaultStartingBounds(fcnNames, handles.xrd.PeakPositions);
+	
+	% Fill in table with default values if cell is empty
+	for i=1:length(coeff)
+		if isempty(handles.table_coeffvals.Data{i,1})
+			handles.table_coeffvals.Data{i,1} = SP(i);
+		end
+		if isempty(handles.table_coeffvals.Data{i,2})
+			handles.table_coeffvals.Data{i,2}  =LB(i);
+		end
+		if isempty(handles.table_coeffvals.Data{i,3})
+			handles.table_coeffvals.Data{i,3} = UB(i);
+		end
+	end
+	
+	if strcmpi(handles.uitoggletool5.State,'on')
+		legend(handles.xrd.DisplayName,'box','off')
+	end
+	
+	call.plotX(handles);
 	
 	assignin('base','handles',handles)
 	guidata(hObject,handles)
@@ -162,10 +205,16 @@ function push_newbkgd_Callback(hObject, eventdata, handles)
 	polyorder = str2num(handles.edit_polyorder.String);
 	handles.xrd.resetBackground(numpoints,polyorder);
 	
+	set(handles.tab_peak.Children, 'visible', 'off');
+	
 	if ~isempty(handles.xrd.bkgd2th)
 		set(handles.tab_peak,'ForegroundColor',[0 0 0]);
 		handles.tabgroup.SelectedTab= handles.tab_peak;
 	end
+	
+	t12 = findobj(handles.tab_peak, 'tag', 'text12');
+	set([t12, handles.edit_numpeaks], 'visible', 'on', 'enable', 'on');
+	
 	
 	call.plotX(handles);
 	
@@ -180,27 +229,44 @@ function radio_stopleastsquares_Callback(hObject, eventdata, handles)
 function uitoggletool4_ClickedCallback(hObject, eventdata, handles)
 	
 		
-function edit_numpeaks_Callback(src, handles)
-	hObject = src.Source;
+function edit_numpeaks_Callback(hObject, evt, handles)
 	str = get(hObject, 'string');
-	if isempty(str) || isnan(str2double(str))
-		set(hObject, 'String', '1-10', ...
-				'FontAngle', 'italic', ...
-				'ForegroundColor', [0.8 0.8 0.8], ...
-				'Enable', 'inactive');
+	num = str2double(str);
+	
+	if isempty(str) || isnan(num) || num < 1
+		set(handles.tab_peak.Children, 'visible', 'off');	
+% 		set(hObject, 'String', '1-10', ...
+% 				'FontAngle', 'italic', ...
+% 				'ForegroundColor', [0.8 0.8 0.8], ...
+% 				'Enable', 'inactive');
+		t12 = findobj(handles.tab_peak, 'tag', 'text12');
+		set([t12, handles.edit_numpeaks], 'visible', 'on');
+		
 	else
-		disp('callback')
+		handles.xrd.Status=['Number of peaks set to ',num2str(num),'.'];
+		set(handles.tab_peak.Children, 'visible', 'on');
+		set(handles.push_editfcns, 'visible','off');
+		set(handles.panel_coeffs, 'visible', 'off');
+		set(handles.panel_constraints.Children, 'enable', 'off', 'value', 0);
+		set(handles.table_paramselection, ...
+				'enable', 'on', ...
+				'ColumnName', {'Peak function'}, ...
+				'Data', cell(num, 1));
+		
+		set(handles.table_paramselection, 'ColumnWidth', {250});
+			
 	end
 	
+	guidata(hObject, handles)
 	
-function edit_numpeaks_ButtonDownFcn(src, handles)
-	hObject = src.Source;
-	set(hObject, 'String', [], ...
-			'FontAngle', 'normal', ...
-			'ForegroundColor',[0 0 0], ...
-			'Enable', 'on');
-	uicontrol(hObject);
-	disp('buttondown')
+	
+% function edit_numpeaks_ButtonDownFcn(hObject, evt, handles)
+% 	set(hObject, 'String', '', ...
+% 			'FontAngle', 'normal', ...
+% 			'ForegroundColor',[0 0 0], ...
+% 			'Enable', 'on');
+% 	uicontrol(hObject);
+
 	
 	function menu_edit_Callback(hObject, eventdata, handles)
 	
@@ -217,8 +283,15 @@ function edit_lambda_Callback(hObject, eventdata, handles)
 function push_fitdata_Callback(hObject, eventdata, handles)
 	handles.xrd.Status='Fitting dataset...';
 	handles = call.fitdata(hObject, eventdata, handles);
+	
 	handles.xrd.Status = 'Fitting dataset... Done.';
 	set(handles.menu_save,'Enable','on');
+	handles.tabgroup.SelectedTab = handles.tab_results;
+	set(handles.tab_results,'ForegroundColor',[0 0 0]);
+	set(handles.tab_results.Children,'visible', 'on');
+	
+	call.fillResultsTable(handles);
+	
 	assignin('base','handles',handles)
 	guidata(hObject, handles)
 	
@@ -227,6 +300,8 @@ function push_fitdata_Callback(hObject, eventdata, handles)
 function push_prevprofile_Callback(hObject, eventdata, handles)
 	i = find(handles.uipanel3==handles.profiles, 1) - 1;
 	handles = call.changeProfile(i, handles);
+	handles.xrd.Status = ['<html>Now editing <b>Profile ', num2str(i), '.</b></html>'];
+	
 	assignin('base','handles',handles)
 	guidata(hObject,handles)
 	
@@ -235,8 +310,48 @@ function push_prevprofile_Callback(hObject, eventdata, handles)
 function push_nextprofile_Callback(hObject, eventdata, handles)
 	i = find(handles.uipanel3==handles.profiles, 1) + 1;
 	handles = call.changeProfile(i, handles);
+	handles.xrd.Status = ['<html>Now editing <b>Profile ', num2str(i), '.</b></html>'];
+	
 	assignin('base','handles',handles)
 	guidata(hObject,handles)
+	
+function btngroup_plotresults_SelectionChangedFcn(hObject, evt, handles)
+	switch hObject.SelectedObject
+		case handles.radio_peakeqn
+			set(handles.table_results, ...
+					'ColumnName', {handles.xrd.Filename{2:end}}, ...
+					'Data', handles.table_results.Data(2:end), ...
+					'ColumnFormat', {'numeric'}, ...
+					'ColumnWidth', {'auto'}, ...
+					'ColumnEditable',0);
+			
+			cla(handles.axes1)
+			
+			
+		case handles.radio_coeff
+			rlen = length(handles.xrd.Fcoeff{1});
+			set(handles.table_results, ...
+					'ColumnName', {'', handles.xrd.Filename{:}}, ...
+					'Data', [num2cell(zeros(rlen,1)), handles.table_results.Data], ...
+					'ColumnFormat', {'logical', 'numeric'}, ...
+					'ColumnWidth', {30, 'auto'}, ...
+					'ColumnEditable',[1, handles.table_results.ColumnEditable]);
+			
+			handles.table_results.Data{1, 1} = true;
+			
+			
+		otherwise
+			
+			
+		
+			
+			
+	end
+	
+	
+function table_results_CellEditCallback(hObject,evt,handles)
+	cla(handles.axes1)
+	
 	
 	
 % Executes on button press in push_viewall.
@@ -278,7 +393,7 @@ function push_selectpeak_Callback(hObject, eventdata, handles)
 	catch return
 	end
 	
-	call.selectPeaks(hObject, eventdata, handles);
+	call.selectPeaks(handles);
 	
 	handles.xrd.Status=[handles.xrd.Status, 'Done.'];
 	
@@ -313,38 +428,7 @@ function checkbox_lambda_Callback(hObject, eventdata, handles)
 	
 % Executes on button press of any checkbox in panel_constraints.
 function checkboxN_Callback(hObject, eventdata, handles)
-	% Get the values of the popups for choosing functions
-	pop = flipud(findobj(handles.uipanel6.Children, ...
-		'style', 'popupmenu', ...
-		'visible','on'));
-	fxns = [pop.Value];
-	
-	% Save constraint value in panel_constraints.UserData
-	if hObject.Value == 1
-		handles.xrd.Status=['Selected constraint ',get(hObject,'String'),'.'];
-		if strcmpi(hObject.String, 'N')
-			hObject.Parent.UserData(1) = 1;
-		elseif strcmpi(hObject.String, 'f')
-			hObject.Parent.UserData(2) = 1;
-		elseif strcmpi(hObject.String, 'w')
-			hObject.Parent.UserData(3) = 1;
-		elseif strcmpi(hObject.String,'m')
-			hObject.Parent.UserData(4) = 1;
-		end
-	else
-		handles.xrd.Status=['Deselected constraint ',get(hObject,'String'),'.'];
-		if strcmpi(hObject.String, 'N')
-			hObject.Parent.UserData(1) = 0;
-		elseif strcmpi(hObject.String, 'f')
-			hObject.Parent.UserData(2) = 0;
-		elseif strcmpi(hObject.String, 'w')
-			hObject.Parent.UserData(3) = 0;
-		elseif strcmpi(hObject.String,'m')
-			hObject.Parent.UserData(4) = 0;
-		end
-	end
-	
-	call.setEnableUpdateButton(handles);
+	call.constraintValueChanged(hObject, handles);
 	
 % Superimpose raw data.
 function checkbox_superimpose_Callback(hObject, eventdata, handles)
@@ -358,14 +442,12 @@ function checkbox_superimpose_Callback(hObject, eventdata, handles)
 		handles.xrd.plotData(filenum,'superimpose');
 		set(handles.axes2,'Visible','off');
 		set(handles.axes2.Children,'Visible','off');
-		handles.uitoggletool5.UserData=handles.uitoggletool5.State;
+% 		handles.uitoggletool5.UserData=handles.uitoggletool5.State;
 		uitoggletool5_OnCallback(handles.uitoggletool5, eventdata, handles)
 	else
 		hold off
-		call.plotx(handles);
-		if strcmpi(handles.uitoggletool5.UserData,'off')
-			uitoggletool5_OffCallback(handles.uitoggletool5, eventdata, handles)
-		end
+		call.plotX(handles);
+		
 	end
 	handles.xrd.Status='Superimposing raw data... Done.';
 	
@@ -378,6 +460,7 @@ function popup_filename_Callback(hObject, eventdata, handles)
 	filenum = get(hObject, 'Value');
 	set(handles.text_filenum,'String',[num2str(filenum),' of ',num2str(length(hObject.String))]);
 	set(hObject,'UserData',handles.table_coeffvals.Data);
+	set(handles.listbox_files,'Value',filenum);
 	
 	axes(handles.axes1)
 	% If superimpose box is checked, plot any subsequent data sets together
@@ -399,6 +482,12 @@ function popup_filename_Callback(hObject, eventdata, handles)
 	end
 	
 	guidata(hObject, handles)
+	
+function listbox_files_Callback(hObject,evt, handles)
+	if length(hObject.Value)==1
+		set(handles.popup_filename,'value',hObject.Value(1));
+		FDGUI('popup_filename_Callback',handles.popup_filename,[],guidata(hObject));
+	end
 	
 	
 % Executes on selection change in popup_functionX where X is 1-6.
@@ -422,6 +511,7 @@ function popup_function1_Callback(hObject, eventdata, handles)
 % Sets visibility of uipanel6 and panel_constraints.
 % Sets visibility of popup_functionX in uipanel6.
 % Calls popup_function1 which enables/disables panel_constraints (constraints).
+% TOREMOVE
 function popup_numpeaks_Callback(hObject, eventdata, handles)
 	call.setFuncPopupVisibility(handles);
 	
@@ -518,7 +608,7 @@ function table_coeffvals_CellEditCallback(hObject, eventdata, handles)
 	end
 	
 	% Enable/disable 'Clear' button
-	call.checktable_coeffvals(handles);
+% 	call.checktable_coeffvals(handles);
 	
 	if ~isempty(num)
 		handles.xrd.Status=[handles.table_coeffvals.ColumnName{c},...
@@ -528,13 +618,52 @@ function table_coeffvals_CellEditCallback(hObject, eventdata, handles)
 	handles = call.plotSampleFit(handles);
 	guidata(hObject,handles)
 	
-% Executes when selected cell(s) is changed in table_coeffvals.
-function table_coeffvals_CellSelectionCallback(hObject, eventdata, handles)
-	% hObject    handle to table_coeffvals (see GCBO)
-	% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
-	%	Indices: row and column indices of the cell(s) currently selecteds
-	% handles    structure with handles and user data (see GUIDATA)
-	%
+	
+	
+	
+function table_paramselection_CellEditCallback(hObject, evt, handles)
+	try
+		fcnNames = hObject.Data(:, 1)';
+	catch
+		fcnNames=hObject.Data';
+	end
+	peakHasFunc = ~cellfun(@isempty, fcnNames);
+	
+	% Enable push_update if all peaks have a fit function selected
+	if isempty(find(~peakHasFunc, 1))
+		set(handles.push_update, 'enable', 'on');
+	else
+		set(handles.push_update, 'enable', 'off');
+	end
+	
+	% if there is more than 1 peak with a function, enable N and f constraints
+	if length(find(peakHasFunc>0)) > 1
+		set(handles.checkboxN, 'Enable', 'on');
+		set(handles.checkboxf, 'Enable', 'on');
+	else
+		set(handles.checkboxN, 'Enable', 'off');
+		set(handles.checkboxf, 'Enable', 'off');
+	end
+	
+	if length(find(strcmpi(fcnNames, 'Pearson VII') | ...
+			strcmpi(fcnNames, 'Asymmetric Pearson VII'))) > 1
+		set(handles.checkboxm, 'enable', 'on');
+	else
+		set(handles.checkboxm, 'enable', 'off');
+	end
+	
+	if length(find(strcmpi(fcnNames, 'Psuedo Voigt'))) > 1
+		set(handles.checkboxw, 'enable', 'on');
+	else
+		set(handles.checkboxw, 'enable', 'off');
+	end
+	
+	
+	
+function table_paramselection_CellSelectionCallback(hObject, evt, handles)
+	set(hObject,'ForegroundColor','white');
+		
+	
 	
 	%% Toobar callback functions
 	
@@ -580,21 +709,20 @@ function menu_save_Callback(hObject, eventdata, handles)
 	handles.xrd.Status='Saving results... Done.';
 	
 	% ---
-function menu_input_Callback(hObject, eventdata, handles)
-	status='Loading input parameter file... ';
-	handles.xrd.Status=status;
+function menu_parameter_Callback(hObject, eventdata, handles)
+	handles.xrd.Status='Loading parameter file... ';
 	
 	% Check if there is already a fit
-	try call.overwriteExistingFit(handles);
+	try call.overwriteExistingFit(guidata(hObject));
 	catch return
 	end
 	
 	try 
 		call.loadParameterFile(handles);
-		
 	catch
 	end
 	
+	handles.xrd.Status='Parameter file successfully loaded.';
 	guidata(hObject, handles)
 	
 	
@@ -676,16 +804,15 @@ function tabgroup_SelectionChangedFcn(hObject, eventdata, handles)
 	% If user switches to 'Peak Selection' tab from 'Setup' tab and there is no
 	% background, issue warning
 	if hObject.SelectedTab ~= handles.tab_setup && isempty(handles.xrd.bkgd2th)
-		hObject.SelectedTab = handles.tab_setup;
+		hObject.SelectedTab = eventdata.OldValue;
 		uiwait(warndlg('Please select background points first.','No Background Points'));
 		return
 	end
 	
-	% If user switches to 'Setup' tab from 'Peak Selection' tab
-	if hObject.SelectedTab == handles.tab_setup
-% 		set(handles.panel_coeffs, 'visible', 'off');
-	elseif handles.popup_numpeaks.Value > 1
-		call.setEnableUpdateButton(handles);
+	if strcmpi(hObject.SelectedTab.Tag, handles.tab_results.Tag) && isempty(handles.xrd.Fmodel)
+		hObject.SelectedTab = eventdata.OldValue;
+		uiwait(warndlg('No results available - dataset has not yet been fitted.','No Results Available'));
+		return
 	end
 	
 	

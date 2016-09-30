@@ -8,6 +8,14 @@ function handles = addProfile(handles)
 	
 	handles = call.changeProfile(profileNum, handles);
 	
+	% Set appearance
+	tab2 = findobj(handles.profiles(profileNum),'tag','tab_peak');
+	set(tab2,'ForegroundColor',[0.8 0.8 0.8]);
+	set(panel4.Children,'Visible','off');
+	set(handles.push_update,'Enable','on');
+	set(handles.togglebutton_showbkgd,'enable','off');
+	set(handles.push_removeprofile,'enable','on');
+	set(handles.panel_range,'visible','on');
 	
 	function obj = deepCopyPanel3()
 		% Takes handles.profiles(1) and returns a deep copy. If there is an existing
@@ -76,12 +84,8 @@ function handles = addProfile(handles)
 		uitable=findobj(panel4,'Tag','table_coeffvals');
 		uitable.Data=cell(1,4);
 		
-		% Set appearance
-		tab2 = findobj(handles.profiles(profileNum),'tag','tab_peak');
-		set(tab2,'ForegroundColor',[0.8 0.8 0.8]);
-		set(panel4.Children,'Visible','off');
-		set(handles.push_update,'Enable','on');
-		set(handles.togglebutton_showbkgd,'enable','off');
+
+		
 	end
 	
 end

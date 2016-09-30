@@ -5,6 +5,8 @@ function handles = initGUI(hObject, eventdata, handles, varargin)
 	
 	handles.profiles(7) = handles.uipanel3;
 	handles.profiles(7).UserData = 0;
+	handles.xrd = PackageFitDiffractionData;
+	handles.xrdContainer(7) = handles.xrd;
 	
 	% Change the time to wait until tooltip is displayed
 	setToolTipDelay();
@@ -25,8 +27,7 @@ function handles = initGUI(hObject, eventdata, handles, varargin)
 	function  setToolTipDelay()
 		% Set tool tip time delay
 		tm = javax.swing.ToolTipManager.sharedInstance;
-		javaMethodEDT('setInitialDelay', tm, 100);
-		javaMethodEDT('setDismissDelay', tm, 10000);
+		javaMethodEDT('setInitialDelay', tm, 200);
 	end
 	
 	function createJavaStatusBar()
@@ -49,6 +50,7 @@ function handles = initGUI(hObject, eventdata, handles, varargin)
 		handles.statusbarObj = com.mathworks.mwswing.MJStatusBar;
 		jRootPane.setStatusBar(handles.statusbarObj);
 		handles.statusbarObj.setText('<html>Please import file(s) containing data to fit.</html>');
+		handles.statusbarObj.add
 		
 	end
 	

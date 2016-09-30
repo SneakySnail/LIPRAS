@@ -5,13 +5,10 @@ function param = getModifiedParam(handles)
 % param.coeff
 % param.peakPositions
 
-try 
-	popObjs =  flipud(findobj(handles.uipanel6.Children, ...
-		'visible','on','style','popupmenu'));
-	nFcn = [popObjs.Value];
-	param.fcnNames = call.num2fnstr(nFcn);
+try
+	param.fcnNames = handles.table_paramselection.Data(:, 1);
 catch
-	param.fcnNames = '';
+	param.fcnNames = handles.table_paramselection.Data;
 end
 
 param.constraints = handles.panel_constraints.UserData;
@@ -23,4 +20,4 @@ else
 end
 
 
-param.Data = cell(length(param.coeff), 4);
+param.Data = cell(length(param.coeff), 3);

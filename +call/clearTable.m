@@ -4,7 +4,7 @@ function handles = clearTable(hObject, ~, handles)
 handles.xrd.Fmodel = [];
 
 len = size(handles.table_coeffvals.Data,1);
-handles.table_coeffvals.Data = cell(len,4);
+handles.table_coeffvals.Data = cell(len,3);
 
 set(hObject.Parent.Children,'Enable','off');
 set(handles.push_selectpeak,'Enable','on', 'string', 'Select Peak(s)');

@@ -29,7 +29,7 @@
 						xv=['PackageFitDiffractionData.Ka2fromKa1(',xv,')'];
 						fstr = [fstr,'+',N, '*1/pi* (0.5*', f, '/((x-', xv, ')^2+(0.5*', f, ')^2))'];
 					end
-				case 'PearsonVII'
+				case 'Pearson VII'
 					fstr = [N, '*2*((2^(1/', m, ')-1)^0.5) /', f, '/(pi^0.5)*gamma(', m, ')/gamma(', m, ...
 						'-0.5) * (1+4*(2^(1/', m, ')-1)*((x-', xv, ')^2)/', f, '^2)^(-', m, ')'];
 					if Stro.CuKa
@@ -38,7 +38,7 @@
 						fstr = [fstr,'+',N, '*2*((2^(1/', m, ')-1)^0.5) /', f, '/(pi^0.5)*gamma(', m, ')/gamma(', m, ...
 							'-0.5) * (1+4*(2^(1/', m, ')-1)*((x-', xv, ')^2)/', f, '^2)^(-', m, ')'];
 					end
-				case 'PsuedoVoigt'
+				case 'Psuedo Voigt'
 					fstr = [N,'*((',w,'*(2/pi)*(1/',f, ')*1/(1+(4*(x-',xv,')^2/', ...
 						f,'^2))) + ((1-',w, ')*(2*sqrt(log(2))/(sqrt(pi)))*1/',f, ...
 						'*exp(-log(2)*4*(x-',xv,')^2/',f,'^2)))'];
@@ -49,7 +49,7 @@
 							f,'^2))) + ((1-',w, ')*(2*sqrt(log(2))/(sqrt(pi)))*1/',f, ...
 							'*exp(-log(2)*4*(x-',xv,')^2/',f,'^2)))'];
 					end
-				case 'AsymmetricPVII'
+				case 'Asymmetric Pearson VII'
 					fstr = ['PackageFitDiffractionData.AsymmCutoff(',xv,',1,x)*',NL,'*PackageFitDiffractionData.C4(',mL,')/',f,'*(1+4*(2^(1/',mL,')-1)*(x-',...
 						xv,')^2/',f,'^2)^(-',mL,')+PackageFitDiffractionData.AsymmCutoff(',xv,...
 						',2,x)*',NR,'*PackageFitDiffractionData.C4(',mR,')/(',f,'*',NR,'/',NL,'*PackageFitDiffractionData.C4(',mR,')/PackageFitDiffractionData.C4(',mL,'))*(1+4*(2^(1/',mR,')-1)*(x-',...

@@ -1,6 +1,6 @@
 function peakChange(o, e, handles)
 
-coeff = handles.xrd.getCoeff(handles.xrd.PSfxn, ...
+coeff = handles.xrd.getCoeff(handles.xrd.PSfxn', ...
 	handles.xrd.Constrains);
 
 peakTableRow = find(strncmp(coeff, 'x', 1));			% The row number(s) in the table for each peak position

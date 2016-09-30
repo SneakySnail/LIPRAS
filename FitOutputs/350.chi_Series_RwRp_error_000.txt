@@ -8,7 +8,7 @@ Background_points: 3.617510 3.623597 3.629684 3.632727 3.644900 3.864024 3.87011
 
 Peak Parameters
 PeakPos: 3.712 3.766
-Fxn: AsymmetricPVII Lorentzian
+Fxn: Asymmetric Pearson VII; Lorentzian
 fitrange: 0.3000
 Constraints: 0 0 0 0
 

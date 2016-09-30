@@ -91,7 +91,7 @@ for i=1:length(peakNames)
 		
 		switch coeff{k}(1)
 			case 'N'
-				if strcmpi(fxn,'AsymmetricPVII')
+				if strcmpi(fxn,'Asymmetric Pearson VII')
 					assert(length(coeff{k})>2);
 					if coeff{k}(3)=='L'
 						NL=val(k);
@@ -112,7 +112,7 @@ for i=1:length(peakNames)
 				w=val(k);
 				
 			case 'm'
-				if strcmpi(fxn,'AsymmetricPVII')
+				if strcmpi(fxn,'Asymmetric Pearson VII')
 					assert(length(coeff{k})>2);
 					if coeff{k}(3)=='L'
 						mL=val(k);
@@ -137,17 +137,17 @@ for i=1:length(peakNames)
 			if handles.xrd.CuKa
 				CuKaPeak(i,:) = (1/1.9)*N.*1./pi* (0.5.*f./((x-xvk).^2+(0.5.*f).^2));
 			end
-		case 'PearsonVII'
+		case 'Pearson VII'
 			peakfit(i,:) = N.*2.* ((2.^(1/m)-1).^0.5) / f / (pi.^0.5) .* gamma(m) / gamma(m-0.5) .* (1+4.*(2.^(1/m)-1).*((x-xv).^2)/f.^2).^(-m);
 			if handles.xrd.CuKa
 				CuKaPeak(i,:)=(1/1.9)*N.*2.* ((2.^(1/m)-1).^0.5) / f / (pi.^0.5) .* gamma(m) / gamma(m-0.5) .* (1+4.*(2.^(1/m)-1).*((x-xvk).^2)/f.^2).^(-m);
 			end
-		case 'PsuedoVoigt'
+		case 'Psuedo Voigt'
 			peakfit(i,:) = N.*((w.*(2./pi).*(1./f).*1./(1+(4.*(x-xv).^2./f.^2))) + ((1-w).*(2.*sqrt(log(2))./(sqrt(pi))).*1./f.*exp(-log(2).*4.*(x-xv).^2./f.^2)));
 			if handles.xrd.CuKa
 				CuKaPeak(i,:)=(1/1.9)*N.*((w.*(2./pi).*(1./f).*1./(1+(4.*(x-xvk).^2./f.^2))) + ((1-w).*(2.*sqrt(log(2))./(sqrt(pi))).*1./f.*exp(-log(2).*4.*(x-xvk).^2./f.^2)));
 			end
-		case 'AsymmetricPVII'
+		case 'Asymmetric Pearson VII'
 			peakfit(i,:) = PackageFitDiffractionData.AsymmCutoff(xv,1,x)'.*NL*PackageFitDiffractionData.C4(mL)./f.*(1+4.*(2.^(1/mL)-1).*(x-xv).^2/f.^2).^(-mL) + ...
 				PackageFitDiffractionData.AsymmCutoff(xv,2,x)'.*NR.*PackageFitDiffractionData.C4(mR)/(f.*NR/NL.*PackageFitDiffractionData.C4(mR)/PackageFitDiffractionData.C4(mL)).*(1+4.*(2.^(1/mR)-1).*(x-xv).^2/(f.*NR/NL.*PackageFitDiffractionData.C4(mR)/PackageFitDiffractionData.C4(mL)).^2).^(-mR);
 			if handles.xrd.CuKa

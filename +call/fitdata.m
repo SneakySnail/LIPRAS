@@ -25,11 +25,4 @@ filenum = get(handles.popup_filename, 'Value');		% The current file visible
 handles.xrd.plotFit(filenum);					  % Plot current file
 vals = handles.xrd.fit_parms{filenum};			% The fitted parameter results
 
-% Populate formatted results column in GUI table
-for i=1:length(vals) 
-	data{i,4} = ['<html><table border=0 width=75 ', ... 
-			'bgcolor=#E5E4E2><tr><td align="right"><b>',...
-			num2str(vals(i),'%6G'), '</b></td></tr></table></html>'];
-end
-
 handles.table_coeffvals.Data = data;

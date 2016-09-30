@@ -2,8 +2,6 @@
 % profile. If hObject = 'push_nextprofile', switches to next profile. 
 function handles = changeProfile(iProfile, handles)
 
-handles.xrd.Status = ['Changed to Profile ', num2str(iProfile), '.'];
-
 max = handles.profiles(7).UserData;
 handles.uipanel3.Visible = 'off';
 handles.uipanel3 = handles.profiles(iProfile);
@@ -62,7 +60,7 @@ handles.uipanel3.Visible = 'on';
 	handles.push_fitdata = findobj(hObject,'Tag','push_fitdata');
 	handles.push_default = findobj(hObject,'Tag','push_default');
 	handles.push_update = findobj(hObject,'Tag','push_update'); % Update button
-	handles.push_editfcns = findobj(hObject, 'tag', 'push_editfcns');
+% 	handles.push_editfcns = findobj(hObject, 'tag', 'push_editfcns');
 	
 	
 	% Tab 3. panel_results
@@ -77,6 +75,7 @@ handles.uipanel3.Visible = 'on';
 	handles.tabgroup=findobj(hObject,'tag','tabgroup');
 	handles.tab_setup=findobj(hObject,'tag','tab_setup');
 	handles.tab_peak=findobj(hObject,'tag','tab_peak');
+	handles.tab_results=findobj(hObject,'tag','tab_results');
 	
 	% xrd
 	handles.xrd = handles.xrdContainer(iProfile);

@@ -7,11 +7,11 @@ for i=1:length(num)
 	elseif num(i) == 3
 		names{i} = 'Lorentzian';
 	elseif num(i) == 4
-		names{i} = 'PearsonVII';
+		names{i} = 'Pearson VII';
 	elseif num(i) == 5
-		names{i} = 'PsuedoVoigt';
+		names{i} = 'Psuedo Voigt';
 	elseif num(i) == 6
-		names{i} = 'AsymmetricPVII';
+		names{i} = 'Asymmetric Pearson VII';
 	else
 		names = '';
 		return

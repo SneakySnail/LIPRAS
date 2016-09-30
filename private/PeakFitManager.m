@@ -14,7 +14,7 @@ classdef PeakFitManager < handle
 		methods
 				
 				function this = PeakFitManager
-				this.hgui = guihandles(FDGUI);
+				this.hgui = guidata(FDGUI);
 				
 				end
 				

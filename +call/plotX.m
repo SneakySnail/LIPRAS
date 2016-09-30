@@ -5,8 +5,8 @@ cla(handles.axes1)
 cla(handles.axes2)
 filenum=handles.popup_filename.Value;
 
-minR = str2double(handles.edit_min2t.String);
-maxR = str2double(handles.edit_max2t.String);
+minR = handles.xrd.Min2T;
+maxR = handles.xrd.Max2T;
 axes(handles.axes1)
 xlim([minR, maxR])
 
