@@ -32,7 +32,7 @@ function varargout = FDGUI(varargin)
 function FDGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 	import javax.swing.*
 	import javax.swing.BorderFactory
-	import javax.swing.BorderFactory.Ethe
+	//import javax.swing.BorderFactory.Ethe
 	import java.awt.*
 	
 	dbstop if error
