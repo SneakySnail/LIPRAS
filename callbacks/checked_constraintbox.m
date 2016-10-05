@@ -1,4 +1,4 @@
-function constraintValueChanged(hObject, handles)
+function checked_constraintbox(hObject, handles)
 	
 		% Save new constraint as an index from panel_constraints.UserData
 	if strcmpi(hObject.String, 'N')

@@ -1,13 +1,15 @@
 % Imports new data.
 function handles = importData(hObject, eventdata, handles)
-	try confirm_new_dataset();
-	catch return 
+	try 
+		confirm_new_dataset();
+	catch 
+		dbstop in importData.m:18
 	end
 	
-	handles = call.addProfile(guidata(hObject));
-
 	% Function continues from here only if there is data loaded into xrd
 	resetPanels();
+	
+	handles = call.addProfile(handles);
 	
 	setObjectAvailability();
 	
@@ -23,6 +25,8 @@ function handles = importData(hObject, eventdata, handles)
 			handles.xrd.Status = [handles.xrd.Status, 'Canceled: no data was loaded.'];
 			error('No data was loaded.') % interrupts function
 		end
+		
+		plotX(handles.popup_filename.Value, guidata(hObject))
 	end
 	
 	function resetPanels()

@@ -66,6 +66,8 @@ function handles = addProfile(handles)
 		% Add listener for each xrd object
 		addlistener(handles.xrdContainer(profileNum), 'Status', ...
 			'PostSet', @(o,e)listener.statusChange(o,e,handles,profileNum));
+		addlistener(handles.xrdContainer(profileNum), 'DisplayName', ...
+			'PostSet', @(o,e)listener.displayNameChange(o, e, handles));
 		
 		% Reset UserData
 		popup=findobj(handles.profiles(profileNum).Children,'style','popupmenu','visible','on');

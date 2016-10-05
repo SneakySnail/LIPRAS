@@ -27,9 +27,9 @@ end
 
 isFilled = true;
 
-if strcmpi(handles.uitoggletool5.State,'on')
-	legend(handles.xrd.DisplayName,'box','off')
-end
+% if strcmpi(handles.uitoggletool5.State,'on')
+% 	legend(handles.xrd.DisplayName,'box','off')
+% end
 
 
 guidata(handles.table_coeffvals,handles)

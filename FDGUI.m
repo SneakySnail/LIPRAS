@@ -1,8 +1,5 @@
 %% GUI for FitDiffractionData
 
-%% handles structure
-% Descriptions of each variable saved in the handles structure.
-
 %% Initialization
 function varargout = FDGUI(varargin)
 	% FDGUI MATLAB code for FDGUI.fig
@@ -24,6 +21,7 @@ function varargout = FDGUI(varargin)
 	if nargout
 		[varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
 	else
+		
 		gui_mainfcn(gui_State, varargin{:});
 	end
 	% End initialization code - DO NOT EDIT
@@ -32,11 +30,13 @@ function varargout = FDGUI(varargin)
 function FDGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 	import javax.swing.*
 	import javax.swing.BorderFactory
-	//import javax.swing.BorderFactory.Ethe
+% 	import javax.swing.BorderFactory.Ethe
 	import java.awt.*
 	
 	dbstop if error
-	
+	addpath('callbacks/')
+	addpath('test/')
+
 	handles = call.initGUI(hObject, eventdata, handles, varargin);
 	
 	% Choose default command line output for FDGUI
@@ -133,67 +133,15 @@ function push_update_Callback(hObject, eventdata, handles)
 	end
 	
 	handles.xrd.Fmodel=[];
-	if strcmpi(hObject.String, 'Edit')
-		set(hObject,'string','Update');
+	if strcmpi(hObject.String, 'Edit functions')
+		set(hObject,'string','Update bounds');
+		update_function_table(handles);
 	else
-		set(hObject,'string','Edit');
+		set(hObject,'string','Edit functions');
+		update_bounds_table(handles);
 	end
 	
-	% get new parameters
-	fcnNames = handles.table_paramselection.Data(:, 1)'; % function names to use
-	assert(length(fcnNames) >= length(handles.xrd.PeakPositions));
-	
-	constraints = handles.panel_constraints.UserData; % constraints
-	coeff = handles.xrd.getCoeff(fcnNames, constraints);
-	
-		% Set parameters into xrd
-	handles.xrd.PSfxn = fcnNames;
-	handles.xrd.Constrains = constraints;
-	
-	set(handles.table_coeffvals,'RowName', coeff);
-	handles.table_coeffvals.Data = cell(length(coeff), 3);
-	
-	objs = findobj(handles.tab_peak.Children);
-	for i=1:length(objs)
-		if isprop(objs(i), 'Enable')
-			set(objs(i), 'Enable', 'off');
-		end
-	end
-	
-	set(handles.push_update,'enable','on');
-	set(handles.panel_coeffs,'visible','on');
- 	set(handles.panel_coeffs.Children,'visible','on', 'enable', 'on');
-	set(handles.push_fitdata, 'enable', 'off');
-% 	set(handles.push_editfcns, 'visible', 'on', 'enable', 'on');
-	
-	handles.xrd.Status = [handles.xrd.Status, 'Done.'];
-	
-	try 
-		assert(length(handles.xrd.PeakPositions) == length(fcnNames));
-	catch
-		return
-	end
-	
-	[SP,LB,UB] = handles.xrd.getDefaultStartingBounds(fcnNames, handles.xrd.PeakPositions);
-	
-	% Fill in table with default values if cell is empty
-	for i=1:length(coeff)
-		if isempty(handles.table_coeffvals.Data{i,1})
-			handles.table_coeffvals.Data{i,1} = SP(i);
-		end
-		if isempty(handles.table_coeffvals.Data{i,2})
-			handles.table_coeffvals.Data{i,2}  =LB(i);
-		end
-		if isempty(handles.table_coeffvals.Data{i,3})
-			handles.table_coeffvals.Data{i,3} = UB(i);
-		end
-	end
-	
-	if strcmpi(handles.uitoggletool5.State,'on')
-		legend(handles.xrd.DisplayName,'box','off')
-	end
-	
-	call.plotX(handles);
+
 	
 	assignin('base','handles',handles)
 	guidata(hObject,handles)
@@ -216,7 +164,7 @@ function push_newbkgd_Callback(hObject, eventdata, handles)
 	set([t12, handles.edit_numpeaks], 'visible', 'on', 'enable', 'on');
 	
 	
-	call.plotX(handles);
+	plotX(handles.popup_filename.Value, handles);
 	
 % Stop Least Squares radio button.
 function radio_stopleastsquares_Callback(hObject, eventdata, handles)
@@ -292,7 +240,8 @@ function push_fitdata_Callback(hObject, eventdata, handles)
 	
 	call.fillResultsTable(handles);
 	
-	assignin('base','handles',handles)
+	FDGUI('uitoggletool5_OnCallback', handles.uitoggletool5, [], guidata(hObject));
+	assignin('base','handles',guidata(hObject))
 	guidata(hObject, handles)
 	
 	
@@ -369,15 +318,15 @@ function push_default_Callback(hObject, eventdata, handles)
 	
 	handles.xrd.Fmodel=[];
 	len = size(handles.table_coeffvals.Data,1);
-	handles.table_coeffvals.Data = cell(len,4);
+	handles.table_coeffvals.Data = cell(len,3);
 	set(hObject.Parent.Children,'Enable','off');
 	set(handles.push_selectpeak,'Enable','on', 'string', 'Select Peak(s)');
 	set(handles.table_coeffvals,'Enable','on');
 	handles.xrd.plotData(get(handles.popup_filename,'Value'));
 	
-	if strcmpi(handles.uitoggletool5.State,'on')
-		legend(handles.xrd.DisplayName,'box','off')
-	end
+% 	if strcmpi(handles.uitoggletool5.State,'on')
+% 		legend(handles.xrd.DisplayName,'box','off')
+% 	end
 	
 	set(handles.axes2,'Visible','off');
 	set(handles.axes2.Children,'Visible','off');
@@ -405,7 +354,7 @@ function togglebutton_showbkgd_Callback(hObject, eventdata, handles)
 	filenum=get(handles.popup_filename,'value');
 	
 	axes(handles.axes1)
-	call.plotx(handles);
+	plotX(handles.popup_filename.Value, handles);
 	
 	if hObject.Value
 		[pos,indX]=handles.xrd.getBackground;
@@ -428,7 +377,7 @@ function checkbox_lambda_Callback(hObject, eventdata, handles)
 	
 % Executes on button press of any checkbox in panel_constraints.
 function checkboxN_Callback(hObject, eventdata, handles)
-	call.constraintValueChanged(hObject, handles);
+	checked_constraintbox(hObject, handles);
 	
 % Superimpose raw data.
 function checkbox_superimpose_Callback(hObject, eventdata, handles)
@@ -446,7 +395,7 @@ function checkbox_superimpose_Callback(hObject, eventdata, handles)
 		uitoggletool5_OnCallback(handles.uitoggletool5, eventdata, handles)
 	else
 		hold off
-		call.plotX(handles);
+		plotX(handles.popup_filename.Value, handles);
 		
 	end
 	handles.xrd.Status='Superimposing raw data... Done.';
@@ -478,13 +427,13 @@ function popup_filename_Callback(hObject, eventdata, handles)
 		cla
 		hold off
 		handles.xrd.Status=['File changed to ',handles.xrd.Filename{filenum},'.'];
-		call.plotX(handles);
+		plotX(handles.popup_filename.Value, handles);
 	end
 	
 	guidata(hObject, handles)
 	
 function listbox_files_Callback(hObject,evt, handles)
-	if length(hObject.Value)==1
+	if length(hObject.Value) == 1
 		set(handles.popup_filename,'value',hObject.Value(1));
 		FDGUI('popup_filename_Callback',handles.popup_filename,[],guidata(hObject));
 	end
@@ -557,7 +506,7 @@ function table_coeffvals_CellEditCallback(hObject, eventdata, handles)
 		catch
 			hObject.Data{r,c} = [];
 			cla
-			call.plotx(handles);
+			plotX(handles.popup_filename.Value, handles);
 			return
 		end
 	else
@@ -571,7 +520,7 @@ function table_coeffvals_CellEditCallback(hObject, eventdata, handles)
 			' value of coefficient ',hObject.RowName{r}, ' is now empty.'];
 		call.checktable_coeffvals(handles);
 		cla
-		call.plotx(handles);
+		plotX(handles.popup_filename.Value, handles);
 		return
 		
 	else
@@ -615,7 +564,7 @@ function table_coeffvals_CellEditCallback(hObject, eventdata, handles)
 			' value of coefficient ',hObject.RowName{r}, ' was changed to ',num2str(num),'.'];
 	end
 	
-	handles = call.plotSampleFit(handles);
+	plotX(handles.popup_filename.Value, guidata(hObject));
 	guidata(hObject,handles)
 	
 	
@@ -636,32 +585,12 @@ function table_paramselection_CellEditCallback(hObject, evt, handles)
 		set(handles.push_update, 'enable', 'off');
 	end
 	
-	% if there is more than 1 peak with a function, enable N and f constraints
-	if length(find(peakHasFunc>0)) > 1
-		set(handles.checkboxN, 'Enable', 'on');
-		set(handles.checkboxf, 'Enable', 'on');
-	else
-		set(handles.checkboxN, 'Enable', 'off');
-		set(handles.checkboxf, 'Enable', 'off');
-	end
-	
-	if length(find(strcmpi(fcnNames, 'Pearson VII') | ...
-			strcmpi(fcnNames, 'Asymmetric Pearson VII'))) > 1
-		set(handles.checkboxm, 'enable', 'on');
-	else
-		set(handles.checkboxm, 'enable', 'off');
-	end
-	
-	if length(find(strcmpi(fcnNames, 'Psuedo Voigt'))) > 1
-		set(handles.checkboxw, 'enable', 'on');
-	else
-		set(handles.checkboxw, 'enable', 'off');
-	end
+	set_available_constraintbox(guidata(hObject));
 	
 	
 	
 function table_paramselection_CellSelectionCallback(hObject, evt, handles)
-	set(hObject,'ForegroundColor','white');
+	% TODO
 		
 	
 	
@@ -689,7 +618,8 @@ function uitoggletool5_ClickedCallback(hObject, eventdata, handles)
 % Turns off the legend.
 function uitoggletool5_OffCallback(hObject, eventdata, handles)
 	set(hObject,'State','off');
-	legend('hide')
+	lgd = findobj(handles.figure1, 'tag', 'legend');
+	set(lgd, 'visible', 'off');
 	
 % Turns on the legend.
 function uitoggletool5_OnCallback(hObject, eventdata, handles)
@@ -805,7 +735,7 @@ function tabgroup_SelectionChangedFcn(hObject, eventdata, handles)
 	% background, issue warning
 	if hObject.SelectedTab ~= handles.tab_setup && isempty(handles.xrd.bkgd2th)
 		hObject.SelectedTab = eventdata.OldValue;
-		uiwait(warndlg('Please select background points first.','No Background Points'));
+		uiwait(warndlg('Please edit the profile range and select background points first.'));
 		return
 	end
 	

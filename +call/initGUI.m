@@ -50,7 +50,7 @@ function handles = initGUI(hObject, eventdata, handles, varargin)
 		handles.statusbarObj = com.mathworks.mwswing.MJStatusBar;
 		jRootPane.setStatusBar(handles.statusbarObj);
 		handles.statusbarObj.setText('<html>Please import file(s) containing data to fit.</html>');
-		handles.statusbarObj.add
+% 		handles.statusbarObj.add
 		
 	end
 	

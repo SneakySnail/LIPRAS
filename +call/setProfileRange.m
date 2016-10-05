@@ -91,5 +91,5 @@ function setProfileRange(hObject, handles)
 	
 	handles.xrd.Fmodel=[];
 	
-	call.plotX(handles);
+	plotX(handles.popup_filename.Value, handles);
 	

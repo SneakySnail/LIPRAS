@@ -166,6 +166,6 @@ end
 
 dispname={datafit.DisplayName};
 handles.xrd.DisplayName=[handles.xrd.DisplayName,dispname];
-if strcmpi(handles.uitoggletool5.State,'on')
-	legend(handles.xrd.DisplayName,'box','off')
-end
+% if strcmpi(handles.uitoggletool5.State,'on')
+% 	legend(handles.xrd.DisplayName,'box','off')
+% end

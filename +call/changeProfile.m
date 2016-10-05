@@ -16,9 +16,7 @@ else handles.push_prevprofile.Enable = 'on'; end
 if iProfile == max; handles.push_nextprofile.Enable = 'off';
 else handles.push_nextprofile.Enable = 'on'; end
 
-
-
-call.plotX(handles);
+plotX(handles.popup_filename.Value, handles);
 
 call.revertPanel(handles);
 

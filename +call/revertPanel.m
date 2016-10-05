@@ -44,7 +44,7 @@ set(handles.edit_fitrange,'String',sprintf('%2.3f',handles.xrd.fitrange));
 		end
 		
 % 		call.checktable_coeffvals(handles);
-		call.setAvailableConstraints(handles);
+		set_available_constraintbox(handles);
 		
 		% Check/uncheck the constraints in panel_constraints
 		chk=flipud(handles.panel_constraints.Children);
