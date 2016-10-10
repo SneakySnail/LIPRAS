@@ -1,5 +1,5 @@
 function update_function_table(handles)
-	objs = handles.tab_peak.Children;
+	objs = findobj(handles.tab_peak.Children);
 	for i=1:length(objs)
 		if isprop(objs(i), 'enable')
 			set(objs(i), 'enable', 'on');
@@ -19,4 +19,4 @@ function update_function_table(handles)
 		hboxes(val(i)).Value = 1;
 	end
 	
-	set_available_constraintbox(guidata(handles.figure1));
+	set_available_constraintbox(handles);

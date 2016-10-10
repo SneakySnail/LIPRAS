@@ -19,13 +19,7 @@ else
 end
 
 fclose(fid);
-%
-%             try
-%                 Stro.data_fit(index,1);
-%                 Stro.data_fit = [];
-% 			catch
-% 				dbstop
-%             end
+
 Stro.two_theta = datain(1,:);
 Stro.data_fit(index,:) = datain(2,:);
 end

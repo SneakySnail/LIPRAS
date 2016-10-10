@@ -8,8 +8,8 @@ function a = overwriteExistingFit(handles)
 	
 	if ~isempty(handles.xrd.Fmodel)
 	[selectedButton, dlgShown] = uigetpref(...
-		'promptToContinue',...               % Group
-		'overwrite',...				 % Preference
+		'askToContinue',...               % Group
+		'overwriteFit',...				 % Preference
 		'Overwrite Existing Fit',...                    % Window title
 		prompt, ...
 		{'always','never';'Yes','No'},...        % Values and button strings

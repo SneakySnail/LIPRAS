@@ -47,4 +47,4 @@ function loadParameterFile(handles)
 	set(handles.push_selectpeak,'string','Reselect Peak(s)');
 	
 	
-	plotX(handles.popup_filename.Value, handles);
+	plotX(handles);

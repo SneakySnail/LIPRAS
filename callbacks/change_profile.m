@@ -1,6 +1,6 @@
 % Switches profiles. If hObject = 'push_prevprofile', switches to previous
 % profile. If hObject = 'push_nextprofile', switches to next profile. 
-function handles = changeProfile(iProfile, handles)
+function handles = change_profile(iProfile, handles)
 max = handles.profiles(7).UserData;
 handles.uipanel3.Visible = 'off';
 handles.uipanel3 = handles.profiles(iProfile);
@@ -15,7 +15,7 @@ else handles.push_prevprofile.Enable = 'on'; end
 if iProfile == max; handles.push_nextprofile.Enable = 'off';
 else handles.push_nextprofile.Enable = 'on'; end
 
-plotX(handles.popup_filename.Value, handles);
+plotX(handles);
 
 call.revertPanel(handles);
 

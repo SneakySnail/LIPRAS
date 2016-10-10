@@ -4,7 +4,7 @@ function selectPeaks(handles)
 handles.xrd.Fmodel=[];
 oldTableData = handles.table_coeffvals.Data;
 
-plotX(get(handles.popup_filename,'Value'), handles);
+plotX(handles);
 
 p = call.getSavedParam(handles);
 peakTableRow = find(strncmp(p.coeff, 'x', 1));
@@ -35,4 +35,4 @@ hold off
 
 set(handles.push_selectpeak,'string','Reselect Peak(s)');
 set(handles.push_fitdata,'enable','on');
-handles = call.plotSampleFit(handles);
+plotX(handles);

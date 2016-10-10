@@ -136,7 +136,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
 				Stro.fit_results=[];
 				Stro.fit_initial=[];
 				
-% 				Stro.plotData
+				Stro.plotData
 				
 			else
 				hasData=false;
@@ -429,8 +429,11 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
 		function coeff=getCoeff(Stro,fxn,constraints)
 			coeff='';
 			
-			if isempty(fxn)
-				return
+			if nargin < 3
+				constraints = Stro.Constrains;
+			end
+			if nargin < 2
+				fxn = Stro.PSfxn;
 			end
 			
 			if constraints(1); coeff=[coeff,{'N'}]; end
@@ -700,6 +703,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
 				dataSetf = dataSet;
 			end
 			
+			
 			for j=dataSet0:dataSetf
 				if strcmp(dataSet,'all')
 					ax(j) = subplot(floor(sqrt(size(Stro.fit_results,2))),ceil(size(Stro.fit_results,2)/floor(sqrt(size(Stro.fit_results,2)))),j);
@@ -715,19 +719,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
 					fittedPattern = fittedPattern + Stro.fit_results{j}(3+i,:)';
 				end
 				hold on
-				
-				if strcmp(dataSet,'all')
-					err = plot(x, intensity - fittedPattern - max(intensity) / 10, 'r','LineWidth',1.2);
-					
-				else
-					evalin('base','axes(handles.axes2)')
-					cla
-					err = plot(x, intensity - (fittedPattern), 'r','LineWidth',1.2); % Error
-					xlim([Stro.Min2T Stro.Max2T])
-					evalin('base', 'linkaxes([handles.axes1 handles.axes2],''x'')')
-					evalin('base','axes(handles.axes1)')
-					
-				end
 				
 				for i=1:size(Stro.PSfxn, 1)
 					peakfit = [];
@@ -811,6 +802,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
 					data(1) = plot(x,intensity,'kx','LineWidth',1,'MarkerSize',15,'DisplayName','Raw Data'); % Raw Data
 					data(2)= plot(x,back,'DisplayName','Background'); % Background
 					data(3) = plot(x,fittedPattern,'k','LineWidth',1.6,'DisplayName','Overall Fit'); % Overall Fit
+					Stro.DisplayName = {data.DisplayName};
 					
 					for jj=1:size(Stro.PSfxn,2)
 						if Stro.CuKa
@@ -821,16 +813,32 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
 						end
 					end
 					
-					xlim([Stro.Min2T Stro.Max2T])
-					ylim([0.9*min([data.YData]), 1.1*max([data.YData])]);
-					Stro.DisplayName = {data.DisplayName};
+					if strcmp(dataSet,'all')
+						err = plot(x, intensity - fittedPattern - max(intensity) / 10, 'r','LineWidth',1.2);
+					else
+						evalin('base','axes(handles.axes2)')
+						cla
+						err = plot(x, intensity - (fittedPattern), 'r','LineWidth',1.2); % Error
+ 						xlim([Stro.Min2T Stro.Max2T])
+% 						evalin('base', 'linkaxes([handles.axes1 handles.axes2],''x'')')
+						
+						evalin('base','axes(handles.axes1)')
+% 						ylim([0 1.1*max(fittedPattern)])
+% 						ylim([0.9*min([data.YData]), 1.1*max([data.YData])]);
+					end
+					
+					
+					
 					
 				end
 				if strcmp(dataSet,'all')
 					xlim([min(x) max(x)])
-					ylim([0 1.1*max(fittedPattern)])
+% 					ylim([0 1.1*max(fittedPattern)])
 				end
+				
 			end
+			
+			
 			
 			if strcmp(dataSet,'all')
 				linkaxes(ax,'xy');

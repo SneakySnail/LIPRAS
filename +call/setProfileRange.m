@@ -11,7 +11,8 @@ function setProfileRange(hObject, handles)
 	
 	% Check if there is currently a fit
 	try call.overwriteExistingFit(handles);
-	catch return 
+	catch
+		return
 	end
 	
 	inputStr = hObject.String;
@@ -91,5 +92,5 @@ function setProfileRange(hObject, handles)
 	
 	handles.xrd.Fmodel=[];
 	
-	plotX(handles.popup_filename.Value, handles);
+	plotX(handles);
 	
