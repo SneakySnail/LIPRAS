@@ -88,7 +88,7 @@ function set_profile_range(hObject, handles)
 	
 
 	set(hObject,'String',sprintf('%2.4f', inputNum));
-	set(handles.panel_bkgd, 'visible','on');
+	set(findobj(handles.panel_bkgd), 'visible','on');
 	
 	handles.xrd.Fmodel=[];
 	
