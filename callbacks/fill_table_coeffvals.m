@@ -1,5 +1,5 @@
 % --- 
-function isFilled = fillEmptyCells(handles)
+function isFilled = fill_table_coeffvals(handles)
 % --- Fills empty cells in table_coeffvals with their default values only if the
 % initial peak upd.peakPositionsitions are in the table. 
 upd = call.getSavedParam(handles);
@@ -11,6 +11,7 @@ if length(upd.peakPositions) < length(upd.fcnNames)
 end
 
 [SP,LB,UB] = handles.xrd.getDefaultStartingBounds(upd.fcnNames, upd.peakPositions);
+handles.xrd.fit_initial = {SP;UB;LB};
 
 % Fill in table with default values if cell is empty
 for i=1:length(upd.coeff)

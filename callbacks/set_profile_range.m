@@ -10,10 +10,10 @@ function set_profile_range(hObject, handles)
 
 	
 	% Check if there is currently a fit
-	try call.overwriteExistingFit(handles);
-	catch
-		return
-	end
+% 	try call.overwriteExistingFit(handles);
+% 	catch
+% 		return
+% 	end
 	
 	inputStr = hObject.String;
 	inputNum = str2double(inputStr);
@@ -76,9 +76,8 @@ function set_profile_range(hObject, handles)
 	if ~isempty(handles.xrd.PeakPositions) &&...
 			(isempty(find(min<handles.xrd.PeakPositions,1)) || ...
 			isempty(find(max>handles.xrd.PeakPositions,1)))
-		handles.xrd.PeakPositions=[];
-		set(handles.popup_numpeaks,'Value',1);
-		handles.xrd.bkgd2th=[];
+		handles.xrd = copy(handles.xrdContainer(7));
+		set(handles.edit_numpeaks, 'String', '');
 		call.revertPanel(handles);
 	end
 	

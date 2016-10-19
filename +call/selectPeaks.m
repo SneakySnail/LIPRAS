@@ -29,10 +29,11 @@ for i=1:length(peakTableRow)
 	pos=PackageFitDiffractionData.Find2theta(handles.xrd.two_theta,x);
 	plot(x, handles.xrd.data_fit(1,pos), 'r*') % 'ko'
 	
-	call.fillEmptyCells(handles);
+	fill_table_coeffvals(handles);
 end
 hold off
 
 set(handles.push_selectpeak,'string','Reselect Peak(s)');
 set(handles.push_fitdata,'enable','on');
 plotX(handles);
+plot_sample_fit(handles);

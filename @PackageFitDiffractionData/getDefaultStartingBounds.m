@@ -58,4 +58,7 @@ for i=1:length(coeff)
 				UB = [UB, 20];
 				LB = [LB, .1];
 		end
+		
+		
+		
 end

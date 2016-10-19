@@ -2,7 +2,8 @@ function update_bounds_table(handles)
 	
 	% get new parameters
 	fcnNames = handles.table_paramselection.Data(:, 1)'; % function names to use
-	assert(length(fcnNames) >= length(handles.xrd.PeakPositions));
+	numpeaks = str2double(handles.edit_numpeaks.String);
+	assert(length(fcnNames) >= length(numpeaks));
 	
 	constraints = handles.panel_constraints.UserData; % constraints
 	coeff = handles.xrd.getCoeff(fcnNames, constraints);

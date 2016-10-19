@@ -1,6 +1,6 @@
 
 % Plot an example fit using the starting values from table
-function handles = plotSampleFit(handles)
+function handles = plot_sample_fit(handles)
 
 % Make sure all the cells with starting values are not empty
 try
@@ -15,6 +15,7 @@ assert(~isempty(coeff));
 temp = cellfun(@isempty, handles.table_coeffvals.Data(:, 1:3));
 assert(isempty(find(temp, 1)));
 assert(length(val)==length(coeff));
+assert(~isempty(handles.xrd.bkgd2th));
 catch
 	return
 end

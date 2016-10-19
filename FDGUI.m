@@ -91,13 +91,13 @@ function button_browse_Callback(hObject, eventdata, handles)
 % 
 function edit_min2t_Callback(hObject, eventdata, handles)
 	handles.xrd.Status = ['<html>Editing Min2&theta;... '];
-	call.setProfileRange(hObject, handles);
+	set_profile_range(hObject, handles);
 	handles.xrd.Status=['<html>Min2&theta; was set to ', get(hObject,'String'),'.'];
 	
 % 
 function edit_max2t_Callback(hObject, eventdata, handles)
 	handles.xrd.Status = '<html>Editing Max2&theta;...';
-	call.setProfileRange(hObject, handles);
+	set_profile_range(hObject, handles);
 	handles.xrd.Status = ['<html>Max2&theta; was set to ', get(hObject,'String'),'.'];
 	
 function edit_bkgdpoints_Callback(hObject, eventdata, handles)
@@ -128,10 +128,10 @@ function push_removeprofile_Callback(hObject, eventdata, handles)
 function push_update_Callback(hObject, eventdata, handles)
 	handles.xrd.Status = 'Updating fit parameters... ';
 	% If data has already been fitted, ask to continue
-	try call.overwriteExistingFit(handles);
-	catch
-		return
-	end
+% 	try call.overwriteExistingFit(handles);
+% 	catch
+% 		return
+% 	end
 	
 	handles.xrd.Fmodel=[];
 	if strcmpi(hObject.String, 'Edit functions')
@@ -183,7 +183,7 @@ function edit_numpeaks_Callback(hObject, evt, handles)
 	num = str2double(str);
 	
 	if isempty(str) || isnan(num) || num < 1
-		set(handles.tab_peak.Children, 'visible', 'off');	
+		set(findobj(handles.tab_peak.Children), 'visible', 'off');	
 % 		set(hObject, 'String', '1-10', ...
 % 				'FontAngle', 'italic', ...
 % 				'ForegroundColor', [0.8 0.8 0.8], ...
@@ -192,17 +192,19 @@ function edit_numpeaks_Callback(hObject, evt, handles)
 		set([t12, handles.edit_numpeaks], 'visible', 'on');
 		
 	else
+		
 		handles.xrd.Status=['Number of peaks set to ',num2str(num),'.'];
-		set(handles.tab_peak.Children, 'visible', 'on');
+		set(findobj(handles.tab_peak.Children), 'visible', 'on');
 		set(handles.push_editfcns, 'visible','off');
 		set(handles.panel_coeffs, 'visible', 'off');
 		set(handles.panel_constraints.Children, 'enable', 'off', 'value', 0);
 		set(handles.table_paramselection, ...
 				'enable', 'on', ...
 				'ColumnName', {'Peak function'}, ...
+				'ColumnWidth', {250}, ...
 				'Data', cell(num, 1));
 		
-		set(handles.table_paramselection, 'ColumnWidth', {250});
+		
 		set(handles.push_update,'enable','off');
 			
 	end
@@ -331,10 +333,10 @@ function push_default_Callback(hObject, eventdata, handles)
 	status='Clearing the table... ';
 	handles.xrd.Status=status;
 	
-	try call.overwriteExistingFit(handles);
-	catch
-		return
-	end
+% 	try call.overwriteExistingFit(handles);
+% 	catch
+% 		return
+% 	end
 	
 	handles.xrd.Fmodel=[];
 	len = size(handles.table_coeffvals.Data,1);
@@ -358,10 +360,10 @@ function push_default_Callback(hObject, eventdata, handles)
 function push_selectpeak_Callback(hObject, eventdata, handles)
 	handles.xrd.Status='Selecting peak positions(s)... ';
 	
-	try call.overwriteExistingFit(handles);
-	catch
-		return
-	end
+% 	try call.overwriteExistingFit(handles);
+% 	catch
+% 		return
+% 	end
 	
 	call.selectPeaks(handles);
 	
@@ -460,32 +462,6 @@ function listbox_files_Callback(hObject,evt, handles)
 	end
 	
 	
-% Executes on selection change in popup_functionX where X is 1-6.
-% Enables/disables checkboxes in handles.panel_constraints based on what function(s)
-% are already chosen.
-function popup_function1_Callback(hObject, eventdata, handles)
-	contents = cellstr(get(hObject,'String'));
-	tag=get(hObject,'Tag');
-	selection=contents{get(hObject,'Value')};
-	
-	if get(hObject,'Value') > 1
-		handles.xrd.Status=['Function ',tag(end),' set to ', selection,'.'];
-	end
-	
-	call.setAvailableConstraints(handles);
-	
-	call.setEnableUpdateButton(handles); % enables/disables 'Update' button and panel_coeffs
-	
-	
-% Executes on selection change in popup_numpeaks.
-% Sets visibility of uipanel6 and panel_constraints.
-% Sets visibility of popup_functionX in uipanel6.
-% Calls popup_function1 which enables/disables panel_constraints (constraints).
-% TOREMOVE
-function popup_numpeaks_Callback(hObject, eventdata, handles)
-	call.setFuncPopupVisibility(handles);
-	
-	
 %% Edit box callback functions
 	
 % Profile Range edit box callback function.
@@ -516,7 +492,7 @@ function table_coeffvals_CellEditCallback(hObject, eventdata, handles)
 	%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
 	%	Error: error string when failed to convert EditData to appropriate value for Data
 	handles.xrd.Status=['Editing table...'];
-	numpeaks=get(handles.popup_numpeaks,'Value')-1;
+	numpeaks=str2double(handles.edit_numpeaks.String);
 	r=eventdata.Indices(1);
 	c=eventdata.Indices(2);
 	
@@ -661,11 +637,11 @@ function menu_parameter_Callback(hObject, eventdata, handles)
 	handles.xrd.Status='Loading parameter file... ';
 	
 	% Check if there is already a fit
-	try call.overwriteExistingFit(handles);
-	catch
-		return
-	end
-	
+% 	try call.overwriteExistingFit(handles);
+% 	catch
+% 		return
+% 	end
+% 	
 	try 
 		handles=load_parameter(handles);
 	catch
@@ -834,61 +810,6 @@ function menu_file_Callback(hObject, eventdata, handles)
 function edit_fitrange_CreateFcn(hObject, eventdata, handles)
 	
 	% Hint: edit controls usually have a white background on Windows.
-	%       See ISPC and COMPUTER.
-	if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-		set(hObject,'BackgroundColor','white');
-	end
-	
-	
-% Executes during object creation, after setting all properties.
-function popup_function1_CreateFcn(hObject, eventdata, handles)
-	
-	% Hint: popupmenu controls usually have a white background on Windows.
-	%       See ISPC and COMPUTER.
-	if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-		set(hObject,'BackgroundColor','white');
-	end
-	
-% Executes during object creation, after setting all properties.
-function popup_function2_CreateFcn(hObject, eventdata, handles)
-	
-	% Hint: popupmenu controls usually have a white background on Windows.
-	%       See ISPC and COMPUTER.
-	if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-		set(hObject,'BackgroundColor','white');
-	end
-	
-% Executes during object creation, after setting all properties.
-function popup_function3_CreateFcn(hObject, eventdata, handles)
-	
-	% Hint: popupmenu controls usually have a white background on Windows.
-	%       See ISPC and COMPUTER.
-	if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-		set(hObject,'BackgroundColor','white');
-	end
-	
-% Executes during object creation, after setting all properties.
-function popup_function4_CreateFcn(hObject, eventdata, handles)
-	
-	% Hint: popupmenu controls usually have a white background on Windows.
-	%       See ISPC and COMPUTER.
-	if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-		set(hObject,'BackgroundColor','white');
-	end
-	
-% Executes during object creation, after setting all properties.
-function popup_function5_CreateFcn(hObject, eventdata, handles)
-	
-	% Hint: popupmenu controls usually have a white background on Windows.
-	%       See ISPC and COMPUTER.
-	if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-		set(hObject,'BackgroundColor','white');
-	end
-	
-% Executes during object creation, after setting all properties.
-function popup_function6_CreateFcn(hObject, eventdata, handles)
-	
-	% Hint: popupmenu controls usually have a white background on Windows.
 	%       See ISPC and COMPUTER.
 	if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
 		set(hObject,'BackgroundColor','white');
