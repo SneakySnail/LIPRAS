@@ -4,6 +4,10 @@ function handles = plotSampleFit(handles)
 
 % Make sure all the cells with starting values are not empty
 try
+	
+	if isempty(handles.xrd.fit_initial)
+		return
+	end
 val=[handles.table_coeffvals.Data{:,1}];
 coeff=handles.table_coeffvals.RowName;
 assert(~isempty(val));

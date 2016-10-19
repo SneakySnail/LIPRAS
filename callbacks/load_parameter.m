@@ -1,4 +1,4 @@
-function loadParameterFile(handles)
+function handles = load_parameter(handles)
 	
 	if ~handles.xrd.Read_Inputs
 		handles.xrd.Status = '<html><font color="red">Error: Input file not found.';

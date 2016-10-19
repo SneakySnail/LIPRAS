@@ -667,7 +667,7 @@ function menu_parameter_Callback(hObject, eventdata, handles)
 	end
 	
 	try 
-		call.loadParameterFile(handles);
+		handles=load_parameter(handles);
 	catch
 	end
 	

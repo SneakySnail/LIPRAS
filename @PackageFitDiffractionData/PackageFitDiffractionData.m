@@ -62,35 +62,38 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
 	end
 	
 	methods
-		function Stro = PackageFitDiffractionData()
-			
+		function Stro = PackageFitDiffractionData(fname, path)
+			if nargin ==2
+				Stro.Read_Data(fname, path);
+			end
 		end
 				
-		function hasData = Read_Data(Stro)
-			[Filename, DataPath] = uigetfile({'*.csv;*.txt;*.xy;*.fxye;*.dat;*.xrdml;*.chi;*.spr','*.csv, *.txt, *.xy, *.fxye, *.dat, *.xrdml, *.chi, or *.spr'},'Select Diffraction Pattern to Fit','MultiSelect', 'on');
-			
-			if ~isequal(Filename,0)
-				hasData=true;
+		function [Stro, has_data] = Read_Data(Stro, fname, path)
+			if nargin < 3
+				error
+			end
+				
+			if ~isequal(fname,0)
+				has_data=true;
 				Stro.Fmodel=[];
 				Stro.PSfxn=[];
 				Stro.PeakPositions=[];
 				Stro.bkgd2th=[];
-				cla % was set here to clear the data for adjusting twotheta range
-				Stro.Filename=Filename;
-				Stro.DataPath=DataPath;
+				Stro.Filename=fname;
+				Stro.DataPath=path;
 				Stro.OutputPath = strcat(Stro.DataPath, '/FitOutputs/');
 				
 				if isa(Stro.Filename,'char')
 					Stro.Filename = {Stro.Filename};
 				end
 				
-				[path, baseline, ext] = fileparts( Stro.Filename{1} );
+				[~, ~, ext] = fileparts( Stro.Filename{1} );
 				if strcmp(ext,'.spr')
 					Stro.parse2D
 				else
 					for i=1:length(Stro.Filename)
 						inFile = strcat(Stro.DataPath, Stro.Filename{i});
-						[path, baseline, ext] = fileparts( inFile );
+						[~, ~, ext] = fileparts( inFile );
 						
 						if or(strcmp( ext, 'csv'),strcmp( ext, '.csv'))
 							Stro.suffix = 'csv';
@@ -139,7 +142,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
 				Stro.plotData
 				
 			else
-				hasData=false;
+				has_data=false;
 			end  % this is to prevent data loss when hitting cancel in uigetfile
 		end
 		
@@ -165,62 +168,88 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
 				Stro.original_SP=[];
 				Stro.fit_initial=[];
 				
+				fgetl(fid);
+				fgetl(fid);
+				
 				while ~feof(fid)
 					line=fgetl(fid);
 					a=strsplit(line,' ');
 					
-					if strcmp(a(1),'2theta_fit_range:');
-						Stro.Min2T = str2double(a{2});
-						Stro.Max2T = str2double(a{3});
-					elseif strcmp(a(1),'Background_order:');
-						Stro.PolyOrder= str2double(a{2});
-					elseif strcmp(a(1),'Average_Data:');
-						Stro.DataAverage = str2double(a{2});
-						Stro.averageData(Stro.DataAverage)
-					elseif strcmp(a(1),'SPR_Angle:');
-						Stro.SPR_Angle = str2double(a{2});
-					elseif strcmp(a(1),'Background_points:');
-						for i=2:length(a);
-							Stro.bkgd2th(i-1)= str2double(a{i});
-						end
-					elseif strcmp(a(1),'PeakPos:')
-						for i=2:length(a);
-							Stro.PeakPositions(i-1)= str2double(a{i});
-						end
-					elseif strcmp(a(1),'fitrange:')
-						for i=2:length(a);
-							Stro.fitrange(i-1)= str2double(a{i});
-						end
-					elseif strcmp(a(1),'Fxn:')
-						for i=2:length(a);
-							Stro.PSfxn{i-1}=a{i};
-						end
-						if length(Stro.PSfxn)~=length(Stro.PeakPositions)
-							psfxn='';
-							for i=1:length(Stro.PSfxn)
-								
-							end
-						end
-					elseif strcmp(a(1),'Constraints:')
-						for i=2:5
-							c(i-1)=str2double(a{i});
-						end
-						Stro.Constrains=c;
+					switch(a{1})
+						case '2theta_fit_range:'
+							Stro.Min2T = str2double(a{2});
+							Stro.Max2T = str2double(a{3});
+							
+						case 'Background_order:'
+							Stro.PolyOrder= str2double(a{2});
+							
+						case 'Average_Data:'
+								Stro.DataAverage = str2double(a{2});
+								Stro.averageData(Stro.DataAverage)
 						
-					elseif strcmp(a(1),'DataPath:');
-						Stro.DataPath = a(2);
-						Stro.DataPath = Stro.DataPath{1};
-					elseif strcmp(a(1),'Files:')
-						for i=2:length(a);
-							Stro.Filename{i-1}=a{i};
-						end
-					elseif strcmp(a(1),'Fit_Range');
+						case 'SPR_Angle:'
+							Stro.SPR_Angle = str2double(a{2});
+							
+						case 'Background_points:'
+							for i=2:length(a);
+								Stro.bkgd2th(i-1)= str2double(a{i});
+							end
+						case 'PeakPos:'
+							for i=2:length(a);
+								Stro.PeakPositions(i-1)= str2double(a{i});
+							end
+							
+						case 'fitrange:'
+							for i=2:length(a);
+								Stro.fitrange(i-1)= str2double(a{i});
+							end
+							
+						case 'Fxn:'
+							j = 1; i =2;
+							while i<=length(a)
+								if strcmpi(a{i}, 'Pearson') || strcmpi(a{i}, 'Psuedo')
+									Stro.PSfxn{j} = [a{i}, ' ', a{i+1}];
+									i = i+2;
+								elseif strcmpi(a{i}, 'Asymmetric') && strcmpi(a{i+1}, 'Pearson')
+									Stro.PSfxn{j} = [a{i}, ' ', a{i+1}, ' ', a{i+2}];
+									i = i+3;
+								else
+									Stro.PSfxn{j}=a{i};
+									i=i+1;
+								end
+								j = j+1;
+							end
+							if length(Stro.PSfxn)~=length(Stro.PeakPositions)
+								error
+							end
+							
+						case 'Constraints:'
+							for i=2:5
+								c(i-1)=str2double(a{i});
+							end
+							Stro.Constrains=c;
+						
+						case 'DataPath:'
+							Stro.DataPath = a(2);
+							Stro.DataPath = Stro.DataPath{1};
+							
+						case 'Files:'
+							for i=2:length(a);
+								Stro.Filename{i-1}=a{i};
+							end
+							
+						case 'Fit_Range'
 						for i=2:length(a);
 							Stro.Fit_Range(i-1)= str2double(a{i});
 						end
-					elseif strcmp(a(1),'Fit_initial');
-						break
+						
+						case 'Fit_initial'
+							break
+					
+						otherwise
+							
 					end
+							
 				end
 				
 				%This is the section that enables the read in or originial and
@@ -942,9 +971,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
 			end
 			fprintf(fid,'\nFxn:');
 			for i=1:size(Stro.PSfxn,1)
-				if i~=1
-					fprintf(fid,';');
-				end
 				for j=1:size(Stro.PSfxn,2)
 					fprintf(fid,' %s',Stro.PSfxn{j});
 				end

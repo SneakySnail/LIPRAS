@@ -78,6 +78,7 @@ function handles = initGUI(hObject, eventdata, handles, varargin)
  		set(flipud(handles.panel_setup.Children), 'Parent', handles.tab_setup);
  		set(flipud(handles.panel_parameters.Children), 'Parent', handles.tab_peak, 'Visible', 'off');
  		set(flipud(handles.panel_results.Children), 'Parent', handles.tab_results, 'visible', 'off');
+		
  		
 		
 		% UserData of profile 7 is current maximum enabled profiles
