@@ -1,5 +1,5 @@
 % 
-function selectPeaks(handles)
+function select_peaks(handles)
 
 handles.xrd.Fmodel=[];
 oldTableData = handles.table_coeffvals.Data;

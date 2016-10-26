@@ -4,10 +4,10 @@
 function varargout = FDGUI(varargin)
 	% FDGUI MATLAB code for FDGUI.fig
 	
-	% Last Modified by GUIDE v2.5 06-Sep-2016 19:41:14
+	% Last Modified by GUIDE v2.5 26-Oct-2016 09:58:53
 	
 	% Begin initialization code - DO NOT EDIT
-	gui_Singleton = 1;
+gui_Singleton = 1;
 	gui_State = struct('gui_Name',       mfilename, ...
 		'gui_Singleton',  gui_Singleton, ...
 		'gui_OpeningFcn', @FDGUI_OpeningFcn, ...
@@ -36,6 +36,11 @@ function FDGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 	dbstop if error
 	addpath('callbacks/')
 	addpath('test/')
+	addpath('dialog/')
+	
+	% if GUI already exists, close the figure and start again
+	h = findall(0, 'tag', 'figure1');
+	
 
 	handles = call.initGUI(hObject, eventdata, handles, varargin);
 	
@@ -87,7 +92,6 @@ function button_browse_Callback(hObject, eventdata, handles)
 	assignin('base','handles',handles)
 	guidata(hObject, handles)
 	
-	
 % 
 function edit_min2t_Callback(hObject, eventdata, handles)
 	handles.xrd.Status = ['<html>Editing Min2&theta;... '];
@@ -113,8 +117,6 @@ function push_addprofile_Callback(hObject, eventdata, handles)
 	guidata(hObject, handles)
 	
 
-
-
 function menu_clearfit_Callback(hObject, eventdata, handles)
 	
 	
@@ -126,7 +128,7 @@ function push_removeprofile_Callback(hObject, eventdata, handles)
 	
 % Executes on  'Update' button press.
 function push_update_Callback(hObject, eventdata, handles)
-	handles.xrd.Status = 'Updating fit parameters... ';
+	handles.xrd.Status = 'Updating fit options... ';
 	% If data has already been fitted, ask to continue
 % 	try call.overwriteExistingFit(handles);
 % 	catch
@@ -142,7 +144,7 @@ function push_update_Callback(hObject, eventdata, handles)
 		update_bounds_table(handles);
 	end
 	
-	
+	handles.xrd.Status = 'Updated fit options.';
 	assignin('base','handles',handles)
 	guidata(hObject,handles)
 	
@@ -212,15 +214,7 @@ function edit_numpeaks_Callback(hObject, evt, handles)
 	guidata(hObject, handles)
 	
 	
-% function edit_numpeaks_ButtonDownFcn(hObject, evt, handles)
-% 	set(hObject, 'String', '', ...
-% 			'FontAngle', 'normal', ...
-% 			'ForegroundColor',[0 0 0], ...
-% 			'Enable', 'on');
-% 	uicontrol(hObject);
-
-	
-	function menu_edit_Callback(hObject, eventdata, handles)
+function menu_edit_Callback(hObject, eventdata, handles)
 	
 	
 	
@@ -236,13 +230,13 @@ function push_fitdata_Callback(hObject, eventdata, handles)
 	handles.xrd.Status='Fitting dataset...';
 	handles = call.fitdata(hObject, eventdata, handles);
 	
-	handles.xrd.Status = 'Fitting dataset... Done.';
 	set(handles.menu_save,'Enable','on');
 	handles.tabgroup.SelectedTab = handles.tab_results;
 	set(handles.tab_results,'ForegroundColor',[0 0 0]);
 	set(handles.tab_results.Children,'visible', 'on');
 	
 	call.fillResultsTable(handles);
+	handles.xrd.Status = 'Fitting dataset... Done.';
 	
 	FDGUI('uitoggletool5_OnCallback', handles.uitoggletool5, [], guidata(hObject));
 	assignin('base','handles',handles)
@@ -365,7 +359,7 @@ function push_selectpeak_Callback(hObject, eventdata, handles)
 % 		return
 % 	end
 	
-	call.selectPeaks(handles);
+	select_peaks(handles);
 	
 	handles.xrd.Status=[handles.xrd.Status, 'Done.'];
 	
@@ -422,6 +416,11 @@ function checkbox_superimpose_Callback(hObject, eventdata, handles)
 		
 	end
 	handles.xrd.Status='Superimposing raw data... Done.';
+	
+function checkbox_reverse_Callback(o, e, handles)
+	handles.xrd.Status = 'Dataset order was reversed.';
+	handles = reverse_dataset_order(handles);
+	guidata(o, handles);
 	
 	
 %% Popup callback functions
@@ -634,7 +633,7 @@ function menu_save_Callback(hObject, eventdata, handles)
 	
 	% ---
 function menu_parameter_Callback(hObject, eventdata, handles)
-	handles.xrd.Status='Loading parameter file... ';
+	handles.xrd.Status='Loading options file... ';
 	
 	% Check if there is already a fit
 % 	try call.overwriteExistingFit(handles);
@@ -647,7 +646,7 @@ function menu_parameter_Callback(hObject, eventdata, handles)
 	catch
 	end
 	
-	handles.xrd.Status='Parameter file successfully loaded.';
+	handles.xrd.Status='Options file successfully loaded.';
 	guidata(hObject, handles)
 	
 	
@@ -739,6 +738,12 @@ function tabgroup_SelectionChangedFcn(hObject, eventdata, handles)
 % 		uiwait(warndlg('No results available - dataset has not yet been fitted.','No Results Available'));
 % 		return
 % 	end
+
+
+
+%% Close request functions
+function figure1_CloseRequestFcn(o, e, handles)
+	close_fig(handles);
 	
 	
 %% CreateFcns and Unused Callbacks
