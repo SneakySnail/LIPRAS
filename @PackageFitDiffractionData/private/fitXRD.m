@@ -6,7 +6,14 @@ for i=1:length(Stro.bkgd2th);
 		bkgd2thX(i)=Stro.Find2theta(data(1,:),Stro.bkgd2th(i));
 end;
 
-for i=1:length(Stro.bkgd2th); bkgdInt(i)=mean(data(2,(bkgd2thX(i)-R:bkgd2thX(i)+R))); end;
+for i=1:length(Stro.bkgd2th)
+	if bkgd2thX(i) <= 1
+		bkgd2thX(i) = 2;
+	elseif bkgd2thX(i) >= length(data)
+		bkgd2thX(i) = length(data) - 1;
+	end
+	bkgdInt(i)=mean(data(2,(bkgd2thX(i)-R:bkgd2thX(i)+R))); 
+end
 % Added by Klarissa to  get rid of centering and scaling warning
 [P, S, U] = polyfit(Stro.bkgd2th,bkgdInt,Stro.PolyOrder);
 
@@ -54,7 +61,11 @@ for i=1:size(position,1)
 				InputPSfxn=evalin('base','InputPSfxn');
 		end
 	
-		SP = Stro.fit_initial{1,filenum};
+		if Stro.recycle_results
+			SP = Stro.fit_initial{1,filenum};
+		else
+			SP = Stro.fit_initial{1};
+		end
 		UB = Stro.fit_initial{2};
 		LB = Stro.fit_initial{3};
 		
@@ -75,15 +86,15 @@ for i=1:size(position,1)
 		% END
 		
 		% FOR GUI DIFFERENCE PLOT
-		evalin('base','axes(handles.axes2)')
+		evalin('base','axes(h.axes2)')
 		cla
 		for j=1:size(position,1);
 				plot(fitdata{j}(1,:),fitdata{j}(2,:)-fittedmodel{j}(fitdata{j}(1,:))','-r');
 		end
 		xlim([Stro.Min2T Stro.Max2T])
 		
-		evalin('base', 'linkaxes([handles.axes1 handles.axes2],''x'')')
-		evalin('base','axes(handles.axes1)')
+		evalin('base', 'linkaxes([h.axes1 h.axes2],''x'')')
+		evalin('base','axes(h.axes1)')
 		% END
 		
 		% 				if strcmp(Stro.plotyn,'y')

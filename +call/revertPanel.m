@@ -1,7 +1,6 @@
 % Resets all buttons in handles.uipanel3 to the last time the 'Update' button
 % was clicked. Used in: [FDGUI.m, changeProfile.m].
 function revertPanel(handles)
-param = call.getSavedParam(handles);
 set(handles.edit_min2t,'String',sprintf('%2.4f',handles.xrd.Min2T));
 set(handles.edit_max2t,'String',sprintf('%2.4f',handles.xrd.Max2T));
 set(handles.edit_fitrange,'String',sprintf('%2.3f',handles.xrd.fitrange));

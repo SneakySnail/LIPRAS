@@ -20,8 +20,16 @@ function handles = initGUI(hObject, eventdata, handles, varargin)
 	function initAxes()
 		axes(handles.axes1)
 		hold(handles.axes1,'all');
-		xlabel('2\theta','FontSize',15);
-		ylabel('Intensity','FontSize',15);
+		
+		set(get(handles.axes1, 'Parent'), 'DefaultAxesColorOrder', ...
+				[0 0 0; % black
+				1 0 0; % red
+				1 0.4 0; % orange
+				0.2 0.2 0; % olive green
+				0 0 0.502; % navy blue
+				0.502 0 0.502; % violet
+				0 0 1; % royal blue
+				0.502 0.502 0]); % dark yellow
 	end
 	
 	function  setToolTipDelay()
@@ -79,11 +87,7 @@ function handles = initGUI(hObject, eventdata, handles, varargin)
  		set(flipud(handles.panel_parameters.Children), 'Parent', handles.tab_peak, 'Visible', 'off');
  		set(flipud(handles.panel_results.Children), 'Parent', handles.tab_results, 'visible', 'off');
 		
- 		
-		
 		% UserData of profile 7 is current maximum enabled profiles
 		handles.profiles(7).UserData = 0;
-		
-		
 	end
 end

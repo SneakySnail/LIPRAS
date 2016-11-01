@@ -25,7 +25,7 @@ function update_bounds_table(handles)
 		handles.table_coeffvals.Data = cell(length(coeff), 3);
 		
 		try
-			assert(length(handles.xrd.PeakPositions) == length(fcnNames));
+			assert(length(fcnNames) <= length(handles.xrd.PeakPositions));
 		catch
 			return
 		end

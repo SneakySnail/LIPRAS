@@ -28,6 +28,7 @@ gui_Singleton = 1;
 	
 % Executes just before FDGUI is made visible.
 function FDGUI_OpeningFcn(hObject, eventdata, handles, varargin)
+
 	import javax.swing.*
 	import javax.swing.BorderFactory
 % 	import javax.swing.BorderFactory.Ethe
@@ -37,19 +38,17 @@ function FDGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 	addpath('callbacks/')
 	addpath('test/')
 	addpath('dialog/')
-	
-	% if GUI already exists, close the figure and start again
-	h = findall(0, 'tag', 'figure1');
-	
 
 	handles = call.initGUI(hObject, eventdata, handles, varargin);
+	
+	
 	
 	% Choose default command line output for FDGUI
 	handles.output = hObject;
 	
 	handles.figure1.WindowButtonMotionFcn = @(obj, evt)FDGUI('WindowButtonMotionFcn',obj, evt,guidata(obj));
 	
-	assignin('base','handles',handles)	
+	assignin('base','h',handles)	
 	% Update handles structure
 	guidata(hObject, handles)
 	
@@ -71,8 +70,8 @@ function WindowButtonMotionFcn(hObject, evt, handles)
 		end
 	catch
 		try
-			if strcmpi(class(obj), class(handles.axes1))
-				handles.statusbarObj.setText(['<html>Current 2&theta; value: ', num2str(obj.CurrentPoint(1, 1))])
+			if strcmpi(class(obj), 'matlab.graphics.chart.primitive.Line')
+				handles.statusbarObj.setText(['<html>Current 2&theta; value: ', num2str(obj.CurrentPoint(1, 1))]);
 			else
 				handles.statusbarObj.setText(handles.xrd.Status);
 			end
@@ -89,7 +88,7 @@ function button_browse_Callback(hObject, eventdata, handles)
 	handles.xrd.Status='Browsing for dataset... ';
 	handles = import_data(handles);
 		
-	assignin('base','handles',handles)
+	assignin('base','h',handles)
 	guidata(hObject, handles)
 	
 % 
@@ -113,7 +112,7 @@ function edit_bkgdpoints_Callback(hObject, eventdata, handles)
 % Executes on button press in push_addprofile.
 function push_addprofile_Callback(hObject, eventdata, handles)
 	handles = add_profile(handles);
-	assignin('base','handles',handles)
+	assignin('base','h',handles)
 	guidata(hObject, handles)
 	
 
@@ -145,7 +144,7 @@ function push_update_Callback(hObject, eventdata, handles)
 	end
 	
 	handles.xrd.Status = 'Updated fit options.';
-	assignin('base','handles',handles)
+	assignin('base','h',handles)
 	guidata(hObject,handles)
 	
 	
@@ -194,7 +193,9 @@ function edit_numpeaks_Callback(hObject, evt, handles)
 		set([t12, handles.edit_numpeaks], 'visible', 'on');
 		
 	else
-		
+		if length(handles.xrd.PeakPositions) ~= num
+			handles.xrd.PeakPositions = [];
+		end
 		handles.xrd.Status=['Number of peaks set to ',num2str(num),'.'];
 		set(findobj(handles.tab_peak.Children), 'visible', 'on');
 		set(handles.push_editfcns, 'visible','off');
@@ -206,9 +207,7 @@ function edit_numpeaks_Callback(hObject, evt, handles)
 				'ColumnWidth', {250}, ...
 				'Data', cell(num, 1));
 		
-		
 		set(handles.push_update,'enable','off');
-			
 	end
 	
 	guidata(hObject, handles)
@@ -233,13 +232,13 @@ function push_fitdata_Callback(hObject, eventdata, handles)
 	set(handles.menu_save,'Enable','on');
 	handles.tabgroup.SelectedTab = handles.tab_results;
 	set(handles.tab_results,'ForegroundColor',[0 0 0]);
-	set(handles.tab_results.Children,'visible', 'on');
+	set(findobj(handles.tab_results.Children),'visible', 'on');
 	
 	call.fillResultsTable(handles);
 	handles.xrd.Status = 'Fitting dataset... Done.';
 	
 	FDGUI('uitoggletool5_OnCallback', handles.uitoggletool5, [], guidata(hObject));
-	assignin('base','handles',handles)
+	assignin('base','h',handles)
 	guidata(hObject, handles)
 	
 	
@@ -250,7 +249,7 @@ function push_prevprofile_Callback(hObject, eventdata, handles)
 	handles = change_profile(i, handles);
 	handles.xrd.Status = ['<html>Now editing <b>Profile ', num2str(i), '.</b></html>'];
 	
-	assignin('base','handles',handles)
+	assignin('base','h',handles)
 	guidata(hObject,handles)
 	
 	
@@ -260,7 +259,7 @@ function push_nextprofile_Callback(hObject, eventdata, handles)
 	handles = change_profile(i, handles);
 	handles.xrd.Status = ['<html>Now editing <b>Profile ', num2str(i), '.</b></html>'];
 	
-	assignin('base','handles',handles)
+	assignin('base','h',handles)
 	guidata(hObject,handles)
 	
 function btngroup_plotresults_SelectionChangedFcn(hObject, evt, handles)
@@ -381,7 +380,14 @@ function togglebutton_showbkgd_Callback(hObject, eventdata, handles)
 	
 	
 %% Checkbox callback functions
-	
+
+function checkbox_recycle_Callback(o, e, handles)
+	if get(o, 'value')
+		handles.xrd.recycle_results = 1;
+	else
+		handles.xrd.recycle_results = 0;
+	end
+
 % Executes on button press in checkbox_lambda.
 function checkbox_lambda_Callback(hObject, eventdata, handles)
 	if get(hObject,'Value')
@@ -407,6 +413,8 @@ function checkbox_superimpose_Callback(hObject, eventdata, handles)
 		handles.xrd.DisplayName = {};
 		handles.xrd.plotData(filenum,'superimpose');
 		set(handles.axes2,'Visible','off');
+		set(handles.popup_filename, 'enable', 'on');
+		set(handles.listbox_files, 'enable', 'on');
 		set(handles.axes2.Children,'Visible','off');
 % 		handles.uitoggletool5.UserData=handles.uitoggletool5.State;
 		uitoggletool5_OnCallback(handles.uitoggletool5, eventdata, handles)

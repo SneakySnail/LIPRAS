@@ -4,7 +4,6 @@ function handles = plot_sample_fit(handles)
 
 % Make sure all the cells with starting values are not empty
 try
-	
 	if isempty(handles.xrd.fit_initial)
 		return
 	end
@@ -33,6 +32,12 @@ for i=1:length(handles.xrd.bkgd2th);
 end
 
 for i=1:length(handles.xrd.bkgd2th)
+	% To solve error when out of array bounds
+	if bkgd2thX(i) <= 1
+		bkgd2thX(i) = 2;
+	elseif bkgd2thX(i) >= length(data)
+		bkgd2thX(i) = length(data) - 1;
+	end
 	bkgdInt(i)=mean(data(2,(bkgd2thX(i)-R:bkgd2thX(i)+R)));
 end
 
@@ -41,7 +46,9 @@ handles.xrd.plotData(get(handles.popup_filename,'Value'));
 [P,S,U]=polyfit(handles.xrd.bkgd2th,bkgdInt,handles.xrd.PolyOrder);
 hold on
 datafit=plot(data(1,:),polyval(P,data(1,:),S,U),':',...
-	'LineWidth',2,'Color',[0.5 0.5 0.5],'DisplayName','Background');
+	'LineWidth',2,...
+	'Color',[0.5 0.5 0.5],...
+	'DisplayName','Background');
 
 % Subtract background fit from raw data
 dataNB = data;
@@ -49,10 +56,9 @@ background=polyval(P,data(1,:),S,U);
 dataNB(2,:) = data(2,:) - background;
 
 % Use initial coefficient values to plot fit
-p = call.getSavedParam(handles);
-peakPos=p.peakPositions;
-peakNames=p.fcnNames;
-constraints=p.constraints;
+peakPos=handles.xrd.PeakPositions;
+peakNames=handles.xrd.PSfxn;
+constraints=handles.xrd.Constrains;
 k=1;
 peakfit=[];
 

@@ -2,8 +2,7 @@ function handles = fitdata(~, ~, handles)
 % hObject is push_fitdata
 
 % Get saved parameter values 
-param = call.getSavedParam(handles);
-fnames = param.fcnNames;
+fnames = handles.xrd.PSfxn;
 
 data = handles.table_coeffvals.Data;	% initial parameter values to use
 SP = []; 

@@ -25,7 +25,10 @@ function handles = reverse_dataset_order(handles)
 		handles.xrdContainer(j).fit_results = flip(handles.xrdContainer(j).fit_results);
 		
 		% Reverse fit_initial
-		handles.xrdContainer(j).fit_initial = flip(handles.xrdContainer(j).fit_initial);
+		if ~isempty(handles.xrdContainer(j).fit_initial)
+			handles.xrdContainer(j).fit_initial(1,:) = fliplr(handles.xrdContainer(j).fit_initial(1,:));
+		end
+		
 		
 		% Reverse Fmodel
 		handles.xrdContainer(j).Fmodel = flip(handles.xrdContainer(j).Fmodel);

@@ -6,8 +6,8 @@ function choice = close_fig(handles)
 	% Handle response
 	switch choice
 		case 'Yes'
-			closereq
-			evalin('base', 'clearvars handles');
+			delete(handles.figure1);
+			evalin('base', 'clearvars h');
 			
 		case 'Cancel'
 			

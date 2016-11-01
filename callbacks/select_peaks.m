@@ -6,8 +6,8 @@ oldTableData = handles.table_coeffvals.Data;
 
 plotX(handles);
 
-p = call.getSavedParam(handles);
-peakTableRow = find(strncmp(p.coeff, 'x', 1));
+coeff = handles.xrd.getCoeff(handles.xrd.PSfxn, handles.xrd.Constrains);
+peakTableRow = find(strncmp(coeff, 'x', 1));
 status='Selecting peak positions(s)... ';
 hold on
 

@@ -13,7 +13,7 @@ function handles = add_profile(handles)
 	set(tab2,'ForegroundColor',[0.8 0.8 0.8]);
 	set(panel4.Children,'Visible','off');
 	set(handles.push_update,'Enable','on');
-	set(handles.togglebutton_showbkgd,'enable','off');
+% 	set(handles.togglebutton_showbkgd,'enable','off');
 	set(handles.push_removeprofile,'enable','on');
 	set(handles.panel_range,'visible','on');
 	

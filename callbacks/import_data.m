@@ -64,7 +64,8 @@ function handles = import_data(handles, filename, path)
 		set(handles.table_results,'ColumnName',files);
 		set(handles.tabgroup, 'SelectedTab', handles.tab_setup);
 		set(findobj(handles.tab_peak.Children), 'Visible', 'off');
-		set(handles.panel_bkgd.Children, 'visible', 'off');
+		set(findobj(handles.tab_results.Children), 'Visible', 'off');
+		set(findobj(handles.tab_setup.Children), 'visible', 'on');
 		
 		set(handles.edit_min2t, 'String', sprintf('%2.4f', handles.xrd.Min2T));
 		set(handles.edit_max2t, 'String', sprintf('%2.4f', handles.xrd.Max2T));

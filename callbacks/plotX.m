@@ -12,6 +12,8 @@ else
 	handles.xrd.plotFit(get(handles.popup_filename,'Value'));
 end
 
+xlabel('2\theta','FontSize',15);
+ylabel('Intensity','FontSize',15);
 set(handles.axes1, 'XTickMode', 'auto', 'XTickLabelMode', 'auto')
 
 if strcmpi(handles.uitoggletool5.State,'on') 

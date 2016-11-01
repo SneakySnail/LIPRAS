@@ -1,0 +1,1 @@
+Possible implementation of saving user preferences into this folder in the future. 
