@@ -1,7 +1,10 @@
 % Switches profiles. If hObject = 'push_prevprofile', switches to previous
 % profile. If hObject = 'push_nextprofile', switches to next profile. 
 function handles = change_profile(iProfile, handles)
-max = handles.profiles(7).UserData;
+max = handles.guidata.numProfiles;
+max = handles.profiles(7).UserData; % DELETE
+assert(max == handles.guidata.numProfiles);
+
 handles.uipanel3.Visible = 'off';
 handles.uipanel3 = handles.profiles(iProfile);
 handles = reassign(handles);
@@ -17,9 +20,11 @@ else handles.push_nextprofile.Enable = 'on'; end
 
 plotX(handles);
 
-call.revertPanel(handles);
+reset_panel_view(handles);
 
 handles.uipanel3.Visible = 'on';
+
+guidata(handles.figure1, handles)
 
 	% Reassigns all saved handles in "handles" for each object in uipanel3 according to
 	% the correct panel parent profile.
@@ -29,6 +34,8 @@ handles.uipanel3.Visible = 'on';
 	
 	% uipanels
 	hObject = handles.uipanel3;
+	% xrd
+	handles.xrd = handles.xrdContainer(iProfile);
 
 	% Tab 1. Setup 
 	handles.panel_range = findobj(hObject, 'Tag', 'panel_range'); % range
@@ -52,12 +59,12 @@ handles.uipanel3.Visible = 'on';
 	handles.checkboxN = findobj(hObject,'Tag','checkboxN');
 	handles.edit_numpeaks = findobj(hObject,'Tag','edit_numpeaks');
 	handles.panel_coeffs = findobj(hObject,'Tag','panel_coeffs'); % table
-	handles.table_coeffvals = findobj(hObject,'Tag','table_coeffvals');
+	handles.table_fitinitial = findobj(hObject,'Tag','table_fitinitial');
 	handles.push_selectpeak = findobj(hObject,'Tag','push_selectpeak');
 	handles.push_fitdata = findobj(hObject,'Tag','push_fitdata');
 	handles.push_default = findobj(hObject,'Tag','push_default');
 	handles.push_update = findobj(hObject,'Tag','push_update'); % Update button
-% 	handles.push_editfcns = findobj(hObject, 'tag', 'push_editfcns');
+	handles.push_cancelupdate = findobj(hObject, 'tag', 'push_cancelupdate');
 	
 	
 	% Tab 3. panel_results
@@ -74,7 +81,5 @@ handles.uipanel3.Visible = 'on';
 	handles.tab_peak=findobj(hObject,'tag','tab_peak');
 	handles.tab_results=findobj(hObject,'tag','tab_results');
 	
-	% xrd
-	handles.xrd = handles.xrdContainer(iProfile);
 	end
 end

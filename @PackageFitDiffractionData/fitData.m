@@ -79,11 +79,12 @@ function fitData(Stro, position, PSfxn, SP1, UB1, LB1)
 					fclose(fid);
 				end
 				fid = fopen(filetosave,'a');
-				for j=1:length(Stro.Fcoeff{m});
+				for j=1:length(Stro.Fcoeff{m})
 					fprintf(fid, '%#.5g\t', Stro.Fmodel{i,m}.(Stro.Fcoeff{m}(j))); %write coefficient values
 				end
 				%                             GOFoutputs=[Stro.FmodelGOF{i,m}.sse Stro.FmodelGOF{i,m}.rsquare Stro.FmodelGOF{i,m}.dfe Stro.FmodelGOF{i,m}.adjrsquare Stro.FmodelGOF{i,m}.rmse];
-				fprintf(fid, '%#.5g\t',struct2array(Stro.FmodelGOF{i,m})); %write GOF values
+				a=struct2cell(Stro.FmodelGOF{i,m});
+				fprintf(fid, '%#.5g\t',[a{:}]); %write GOF values
 				for j=1:size(Stro.FmodelCI{i,m},2)
 					fprintf(fid,'%#.5g\t', Stro.FmodelCI{i,m}(1,j)); %write lower bound values
 					fprintf(fid,'%#.5g\t', Stro.FmodelCI{i,m}(2,j)); %write upper bound values

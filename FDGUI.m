@@ -39,14 +39,12 @@ function FDGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 	addpath('test/')
 	addpath('dialog/')
 
-	handles = call.initGUI(hObject, eventdata, handles, varargin);
-	
-	
+	handles = init_GUI(handles, varargin);
 	
 	% Choose default command line output for FDGUI
 	handles.output = hObject;
 	
-	handles.figure1.WindowButtonMotionFcn = @(obj, evt)FDGUI('WindowButtonMotionFcn',obj, evt,guidata(obj));
+	handles.figure1.WindowButtonMotionFcn = @(o, e)WindowButtonMotionFcn(o, e,guidata(o));
 	
 	assignin('base','h',handles)	
 	% Update handles structure
@@ -56,52 +54,7 @@ function FDGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 function varargout = FDGUI_OutputFcn(hObject, eventdata, handles)
 	% Get default command line output from handles structure
 	varargout{1} = handles.output;
-	
-	
-% If it is not empty, display the TooltipString for an object in statusbarObj even when it's
-% disabled. 
-function WindowButtonMotionFcn(hObject, evt, handles)
-% 	handles.statusbarObj.setText(['Current point: ', num2str(hObject.CurrentPoint)]);
-	
-	obj = hittest(hObject);
-	try
-		if  ~isempty(obj.TooltipString)
-			handles.statusbarObj.setText(obj.TooltipString);
-		end
-	catch
-		try
-			if strcmpi(class(obj), 'matlab.graphics.chart.primitive.Line')
-				handles.statusbarObj.setText(['<html>Current 2&theta; value: ', num2str(obj.CurrentPoint(1, 1))]);
-			else
-				handles.statusbarObj.setText(handles.xrd.Status);
-			end
-		catch
-			handles.statusbarObj.setText('');
-		end
-	end
-	
-				
-%% Pushbutton callback functions
-	
-%  Executes on button press in button_browse.
-function button_browse_Callback(hObject, eventdata, handles)
-	handles.xrd.Status='Browsing for dataset... ';
-	handles = import_data(handles);
 		
-	assignin('base','h',handles)
-	guidata(hObject, handles)
-	
-% 
-function edit_min2t_Callback(hObject, eventdata, handles)
-	handles.xrd.Status = ['<html>Editing Min2&theta;... '];
-	set_profile_range(hObject, handles);
-	handles.xrd.Status=['<html>Min2&theta; was set to ', get(hObject,'String'),'.'];
-	
-% 
-function edit_max2t_Callback(hObject, eventdata, handles)
-	handles.xrd.Status = '<html>Editing Max2&theta;...';
-	set_profile_range(hObject, handles);
-	handles.xrd.Status = ['<html>Max2&theta; was set to ', get(hObject,'String'),'.'];
 	
 function edit_bkgdpoints_Callback(hObject, eventdata, handles)
 	set(hObject, 'UserData', get(hObject,'value'));
@@ -121,32 +74,14 @@ function menu_clearfit_Callback(hObject, eventdata, handles)
 	
 % Executes on button press in push_removeprofile.
 function push_removeprofile_Callback(hObject, eventdata, handles)
-	
-	
-	
-	
-% Executes on  'Update' button press.
-function push_update_Callback(hObject, eventdata, handles)
-	handles.xrd.Status = 'Updating fit options... ';
-	% If data has already been fitted, ask to continue
-% 	try call.overwriteExistingFit(handles);
-% 	catch
-% 		return
-% 	end
-	
-	handles.xrd.Fmodel=[];
-	if strcmpi(hObject.String, 'Edit functions')
-		set(hObject,'string','Update bounds');
-		update_function_table(handles);
-	else
-		set(hObject,'string','Edit functions');
-		update_bounds_table(handles);
+	handles = remove_profile(find(handles.uipanel3==handles.profiles), handles);
+	assert(handles.profiles(7).UserData==handles.guidata.numProfiles);
+	if handles.profiles(7).UserData<=1
+		set(hObject, 'enable', 'off');
 	end
-	
-	handles.xrd.Status = 'Updated fit options.';
-	assignin('base','h',handles)
-	guidata(hObject,handles)
-	
+
+	guidata(hObject, handles)
+
 	
 % Executes on button press in push_newbkgd.
 function push_newbkgd_Callback(hObject, eventdata, handles)
@@ -159,11 +94,11 @@ function push_newbkgd_Callback(hObject, eventdata, handles)
 	if ~isempty(handles.xrd.bkgd2th)
 		set(handles.tab_peak,'ForegroundColor',[0 0 0]);
 		handles.tabgroup.SelectedTab= handles.tab_peak;
+		handles.state.hasBkgd = true;
 	end
 	
 	t12 = findobj(handles.tab_peak, 'tag', 'text12');
 	set([t12, handles.edit_numpeaks], 'visible', 'on', 'enable', 'on');
-	
 	
 	plotX(handles);
 	guidata(hObject, handles)
@@ -178,40 +113,6 @@ function radio_stopleastsquares_Callback(hObject, eventdata, handles)
 	
 function uitoggletool4_ClickedCallback(hObject, eventdata, handles)
 	
-		
-function edit_numpeaks_Callback(hObject, evt, handles)
-	str = get(hObject, 'string');
-	num = str2double(str);
-	
-	if isempty(str) || isnan(num) || num < 1
-		set(findobj(handles.tab_peak.Children), 'visible', 'off');	
-% 		set(hObject, 'String', '1-10', ...
-% 				'FontAngle', 'italic', ...
-% 				'ForegroundColor', [0.8 0.8 0.8], ...
-% 				'Enable', 'inactive');
-		t12 = findobj(handles.tab_peak, 'tag', 'text12');
-		set([t12, handles.edit_numpeaks], 'visible', 'on');
-		
-	else
-		if length(handles.xrd.PeakPositions) ~= num
-			handles.xrd.PeakPositions = [];
-		end
-		handles.xrd.Status=['Number of peaks set to ',num2str(num),'.'];
-		set(findobj(handles.tab_peak.Children), 'visible', 'on');
-		set(handles.push_editfcns, 'visible','off');
-		set(handles.panel_coeffs, 'visible', 'off');
-		set(handles.panel_constraints.Children, 'enable', 'off', 'value', 0);
-		set(handles.table_paramselection, ...
-				'enable', 'on', ...
-				'ColumnName', {'Peak function'}, ...
-				'ColumnWidth', {250}, ...
-				'Data', cell(num, 1));
-		
-		set(handles.push_update,'enable','off');
-	end
-	
-	guidata(hObject, handles)
-	
 	
 function menu_edit_Callback(hObject, eventdata, handles)
 	
@@ -223,23 +124,7 @@ function edit_lambda_Callback(hObject, eventdata, handles)
 	%        str2double(get(hObject,'String')) returns contents of edit_lambda as a double
 	lambda=str2double(get(hObject,'String'));
 	handles.xrd.lambda=lambda;
-	
-% Executes on button press in push_fitdata.
-function push_fitdata_Callback(hObject, eventdata, handles)
-	handles.xrd.Status='Fitting dataset...';
-	handles = call.fitdata(hObject, eventdata, handles);
-	
-	set(handles.menu_save,'Enable','on');
-	handles.tabgroup.SelectedTab = handles.tab_results;
-	set(handles.tab_results,'ForegroundColor',[0 0 0]);
-	set(findobj(handles.tab_results.Children),'visible', 'on');
-	
-	call.fillResultsTable(handles);
-	handles.xrd.Status = 'Fitting dataset... Done.';
-	
-	FDGUI('uitoggletool5_OnCallback', handles.uitoggletool5, [], guidata(hObject));
-	assignin('base','h',handles)
-	guidata(hObject, handles)
+
 	
 	
 % Executes on button press in push_prevprofile.
@@ -262,49 +147,7 @@ function push_nextprofile_Callback(hObject, eventdata, handles)
 	assignin('base','h',handles)
 	guidata(hObject,handles)
 	
-function btngroup_plotresults_SelectionChangedFcn(hObject, evt, handles)
-	handles.table_results.Data = {};
-	result_vals = transpose(vertcat(handles.xrd.fit_parms{:}));
-	
-	switch hObject.SelectedObject
-		case handles.radio_peakeqn
-			set(handles.listbox_files, 'enable', 'on');
-			set(handles.popup_filename, 'enable', 'on');
-			set(handles.table_results, ...
-					'Data', num2cell(result_vals), ...
-					'ColumnName', handles.xrd.Filename, ...
-					'ColumnFormat', {'numeric'}, ...
-					'ColumnWidth', {'auto'}, ...
-					'ColumnEditable', false);
-			
-			cla(handles.axes1)
-			plotX(handles);
-			
-			
-		case handles.radio_coeff
-			set(handles.listbox_files, 'enable', 'off');
-			set(handles.popup_filename, 'enable', 'off');
-			rlen = length(handles.xrd.Fcoeff{1});
-			set(handles.table_results, ...
-					'Data', num2cell([zeros(rlen,1), result_vals]), ...
-					'ColumnName', {'', handles.xrd.Filename{:}}, ...
-					'ColumnFormat', {'logical', 'numeric'}, ...
-					'ColumnWidth', {30, 'auto'}, ...
-					'ColumnEditable', [true false]);
-			
-			handles.table_results.Data{1, 1} = true;
-			
-			r = find([handles.table_results.Data{:,1}], 1); % the selected coefficient to plot
-			plot_coeffs(r, handles);
-			
-			
-		otherwise
-			
-			
-		
-			
-			
-	end
+
 	
 	
 function table_results_CellEditCallback(hObject,evt,handles)
@@ -332,11 +175,11 @@ function push_default_Callback(hObject, eventdata, handles)
 % 	end
 	
 	handles.xrd.Fmodel=[];
-	len = size(handles.table_coeffvals.Data,1);
-	handles.table_coeffvals.Data = cell(len,3);
+	len = size(handles.table_fitinitial.Data,1);
+	handles.table_fitinitial.Data = cell(len,3);
 	set(hObject.Parent.Children,'Enable','off');
 	set(handles.push_selectpeak,'Enable','on', 'string', 'Select Peak(s)');
-	set(handles.table_coeffvals,'Enable','on');
+	set(handles.table_fitinitial,'Enable','on');
 	handles.xrd.plotData(get(handles.popup_filename,'Value'));
 	
 % 	if strcmpi(handles.uitoggletool5.State,'on')
@@ -348,19 +191,7 @@ function push_default_Callback(hObject, eventdata, handles)
 	handles.xrd.Status=[status,'Done.'];
 	
 	guidata(hObject,handles)
-	
-% Executes on button press of 'Select Peak(s)'.
-function push_selectpeak_Callback(hObject, eventdata, handles)
-	handles.xrd.Status='Selecting peak positions(s)... ';
-	
-% 	try call.overwriteExistingFit(handles);
-% 	catch
-% 		return
-% 	end
-	
-	select_peaks(handles);
-	
-	handles.xrd.Status=[handles.xrd.Status, 'Done.'];
+
 	
 	
 %% Toggle Button callback functions
@@ -398,9 +229,6 @@ function checkbox_lambda_Callback(hObject, eventdata, handles)
 		handles.xrd.CuKa=false;
 	end
 	
-% Executes on button press of any checkbox in panel_constraints.
-function checkboxN_Callback(hObject, eventdata, handles)
-	checked_constraintbox(hObject, handles);
 	
 % Superimpose raw data.
 function checkbox_superimpose_Callback(hObject, eventdata, handles)
@@ -425,20 +253,17 @@ function checkbox_superimpose_Callback(hObject, eventdata, handles)
 	end
 	handles.xrd.Status='Superimposing raw data... Done.';
 	
-function checkbox_reverse_Callback(o, e, handles)
-	handles.xrd.Status = 'Dataset order was reversed.';
-	handles = reverse_dataset_order(handles);
-	guidata(o, handles);
+
 	
 	
 %% Popup callback functions
 	
 % Executes on selection change in popup_filename.
 function popup_filename_Callback(hObject, eventdata, handles)
-	% hObject.UserData: table_coeffvals values for each separate file
+	% hObject.UserData: table_fitinitial values for each separate file
 	filenum = get(hObject, 'Value');
 	set(handles.text_filenum,'String',[num2str(filenum),' of ',num2str(length(hObject.String))]);
-	set(hObject,'UserData',handles.table_coeffvals.Data);
+	set(hObject,'UserData',handles.table_fitinitial.Data);
 	set(handles.listbox_files,'Value',filenum);
 	
 	axes(handles.axes1)
@@ -490,110 +315,8 @@ function edit_polyorder_Callback(hObject, eventdata, handles)
 	
 %% uitable callback functions
 	
-% Executes when entered data in editable cell(s) in table_coeffvals.
-function table_coeffvals_CellEditCallback(hObject, eventdata, handles)
-	% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
-	%	Indices: row and column indices of the cell(s) edited
-	%	PreviousData: previous data for the cell(s) edited
-	%	EditData: string(s) entered by the user
-	%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
-	%	Error: error string when failed to convert EditData to appropriate value for Data
-	handles.xrd.Status=['Editing table...'];
-	numpeaks=str2double(handles.edit_numpeaks.String);
-	r=eventdata.Indices(1);
-	c=eventdata.Indices(2);
-	
-	if ~isa(eventdata.NewData, 'double')
-		try
-			num = str2double(eventdata.NewData);
-			hObject.Data{r, c} = num;
-		catch
-			hObject.Data{r,c} = [];
-			cla
-			plotX(handles);
-			return
-		end
-	else
-		num = eventdata.NewData;
-	end
-	
-	% If NewData is empty or was not changed
-	if isnan(num)
-		hObject.Data{r,c} = [];
-		handles.xrd.Status=[handles.table_coeffvals.ColumnName{c},...
-			' value of coefficient ',hObject.RowName{r}, ' is now empty.'];
-% 		call.checktable_coeffvals(handles);
-		cla
-		plotX(handles);		
-	else
-		
-		if strcmpi(hObject.RowName{r}(1), 'x') && c == 1
-			ipk = str2double(hObject.RowName{r}(2));
-			hObject.UserData{ipk} = num;
-		end
-		
-		% Check if SP, LB, and UB are within bounds
-		switch c
-			case 1 % If first column, SP
-				if num < hObject.Data{r,2}
-					hObject.Data{r,2} = num;
-				end
-				if num > hObject.Data{r,3}
-					hObject.Data{r,3} = num;
-				end
-			case 2 % If second column, LB
-				if num > hObject.Data{r,1}
-					hObject.Data{r,1} = num;
-				end
-				if num > hObject.Data{r,3}
-					hObject.Data{r,3} = num;
-				end
-			case 3 % If third column, UB
-				if num < hObject.Data{r,1}
-					hObject.Data{r,1} = num;
-				end
-				if num < hObject.Data{r,2}
-					hObject.Data{r,2} = num;
-				end
-		end
-	end
-	
-	% Enable/disable 'Clear' button
-% 	call.checktable_coeffvals(handles);
-	
-	if ~isempty(num)
-		handles.xrd.Status=[handles.table_coeffvals.ColumnName{c},...
-			' value of coefficient ',hObject.RowName{r}, ' was changed to ',num2str(num),'.'];
-	end
-	
-	handles = plot_sample_fit(handles);
-	
-	if find(cellfun(@isempty, handles.table_coeffvals.Data(:, 1:3)), 1)
-		set(handles.push_fitdata, 'enable', 'off');
-	else
-		set(handles.push_fitdata, 'enable', 'on');
-	end
-	guidata(hObject,handles)
-	
-	
-	
-	
-function table_paramselection_CellEditCallback(hObject, evt, handles)
-	try
-		fcnNames = hObject.Data(:, 1)';
-	catch
-		fcnNames=hObject.Data';
-	end
-	peakHasFunc = ~cellfun(@isempty, fcnNames);
-	
-	% Enable push_update if all peaks have a fit function selected
-	if isempty(find(~peakHasFunc, 1))
-		set(handles.push_update, 'enable', 'on');
-	else
-		set(handles.push_update, 'enable', 'off');
-	end
-	
-	set_available_constraintbox(handles);
+
+
 	
 	%% Toobar callback functions
 	
@@ -670,34 +393,6 @@ function menuHelp_fxns_Callback(hObject, eventdata, handles)
 	
 function edit8_Callback(hObject, eventdata, handles)
 	
-
-	
-	
-function menu_savefig_Callback(hObject, eventdata, handles)
-	profile = find(handles.uipanel3==handles.profiles,1);
-	fitOutputPath =strcat(handles.xrd.DataPath,'FitOutputs/Fit_Figure/');
-	if ~exist(fitOutputPath,'dir')
-		mkdir(fitOutputPath);
-	end
-	
-	tot=handles.text_numprofile.String(end);
-	
-	for s=1:length(handles.xrd.Filename)
-		f_new=figure;
-		a1=copyobj(handles.axes1,f_new);
-		a2=copyobj(handles.axes2,f_new);
-		
-		filename=['Profile ',num2str(profile),' of ',tot,' - ',handles.xrd.Filename{s}];
-		set(gcf,'name',filename,'numbertitle','off');
-		set(a1.Title,'String',filename);
-		saveas(gcf,[fitOutputPath,filename,'-plotFit.png'])
-		delete(gcf)
-	end
-	
-	handles.xrd.plotFit('all')
-	saveas(figure(5),strcat(fitOutputPath,'Profile ',num2str(profile), 'of ',tot,' - ',strcat('Master','-','plotFit')));
-	delete(gcf);
-	
 	
 function menu_clearall_Callback(hObject, eventdata, handles)
 	
@@ -715,13 +410,8 @@ function menu_clearall_Callback(hObject, eventdata, handles)
 	
 	
 function menu_close_Callback(hObject, eventdata, handles)
-	ans=questdlg('Are you sure you want to quit?','Warning','Yes','No','Yes');
-	if strcmp(ans,'Yes')
-		delete(gcf)
-	end
-	
-function menu_bkgdpoints_Callback(hObject, eventdata, handles)
-	
+	close_fig(handles);
+		
 	
 % Menu: File -> Save As callback function
 function Untitled_7_Callback(hObject, eventdata, handles)

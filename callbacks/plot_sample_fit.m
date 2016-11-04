@@ -7,11 +7,11 @@ try
 	if isempty(handles.xrd.fit_initial)
 		return
 	end
-val=[handles.table_coeffvals.Data{:,1}];
-coeff=handles.table_coeffvals.RowName;
+val=[handles.table_fitinitial.Data{:,1}];
+coeff=handles.table_fitinitial.RowName;
 assert(~isempty(val));
 assert(~isempty(coeff));
-temp = cellfun(@isempty, handles.table_coeffvals.Data(:, 1:3));
+temp = cellfun(@isempty, handles.table_fitinitial.Data(:, 1:3));
 assert(isempty(find(temp, 1)));
 assert(length(val)==length(coeff));
 assert(~isempty(handles.xrd.bkgd2th));
@@ -27,7 +27,7 @@ y=data(2,:);
 
 % Get background fit
 R=1;
-for i=1:length(handles.xrd.bkgd2th);
+for i=1:length(handles.xrd.bkgd2th)
 	bkgd2thX(i)=PackageFitDiffractionData.Find2theta(data(1,:),handles.xrd.bkgd2th(i));
 end
 
@@ -46,8 +46,8 @@ handles.xrd.plotData(get(handles.popup_filename,'Value'));
 [P,S,U]=polyfit(handles.xrd.bkgd2th,bkgdInt,handles.xrd.PolyOrder);
 hold on
 datafit=plot(data(1,:),polyval(P,data(1,:),S,U),':',...
-	'LineWidth',2,...
-	'Color',[0.5 0.5 0.5],...
+	'LineWidth',1,...
+	'Color',[0.2 0.2 0.2],...
 	'DisplayName','Background');
 
 % Subtract background fit from raw data
@@ -137,6 +137,7 @@ for i=1:length(peakNames)
 		end
 	end
 	
+	xvk=PackageFitDiffractionData.Ka2fromKa1(xv);
 	switch fxn
 		case 'Gaussian'
 			peakfit(i,:) = N.*((2.*sqrt(log(2)))./(sqrt(pi).*f).*exp(-4.*log(2).*((x-xv).^2./f.^2)));
@@ -167,18 +168,17 @@ for i=1:length(peakNames)
 			end
 	end
 	
-	datafit(end+1)=plot(x,peakfit(i,:)+background,':','LineWidth',2,...
+	datafit(end+1)=plot(x,peakfit(i,:)+background,'--','LineWidth',1,...
 		'DisplayName',['Peak ', num2str(i),' (',fxn,')']);
 	if handles.xrd.CuKa
 		datafit(end+1)=plot(x,CuKaPeak(i,:)+background,':','LineWidth',2,...
-			'DisplayName',['Cu-K\alpha2 (Peak ', num2str(i)]);
+			'DisplayName',['Cu-K\alpha2 (Peak ', num2str(i), ')']);
 	end
 end
 
 dispname={datafit.DisplayName};
 handles.xrd.DisplayName=[handles.xrd.DisplayName,dispname];
 
-if strcmpi(handles.uitoggletool5.State,'on')
- 	legend(handles.xrd.DisplayName)
+FDGUI('uitoggletool5_OnCallback', handles.uitoggletool5, [], handles);
 end
 

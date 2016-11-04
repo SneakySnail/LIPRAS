@@ -7,8 +7,6 @@ function set_profile_range(hObject, handles)
 		error('Profile range error')
 	end
 	
-
-	
 	% Check if there is currently a fit
 % 	try call.overwriteExistingFit(handles);
 % 	catch
@@ -76,9 +74,9 @@ function set_profile_range(hObject, handles)
 	if ~isempty(handles.xrd.PeakPositions) &&...
 			(isempty(find(min<handles.xrd.PeakPositions,1)) || ...
 			isempty(find(max>handles.xrd.PeakPositions,1)))
-		handles.xrd = copy(handles.xrdContainer(7));
+		handles.xrd.PeakPositions = [];
 		set(handles.edit_numpeaks, 'String', '');
-		call.revertPanel(handles);
+		reset_panel_view(handles);
 	end
 	
 	% Save into xrd object
@@ -86,7 +84,8 @@ function set_profile_range(hObject, handles)
 	handles.xrd.Max2T = max;
 	
 
-	set(hObject,'String',sprintf('%2.4f', inputNum));
+	set(handles.edit_min2t,'String',sprintf('%2.4f', handles.xrd.Min2T));
+	set(handles.edit_max2t,'String',sprintf('%2.4f', handles.xrd.Max2T));
 	set(findobj(handles.panel_bkgd), 'visible','on');
 	
 	handles.xrd.Fmodel=[];

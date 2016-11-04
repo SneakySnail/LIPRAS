@@ -69,10 +69,11 @@ function plotData(Stro,dataSet,colorID)
 		
 	else
 		hold off
+		
 		if isempty(Stro.bkgd2th)
-			plot(x,intensity,'-o','LineWidth',1,'MarkerSize',5, 'MarkerFaceColor', [1 1 1]);
+			plot(x,intensity,'-o','LineWidth',0.5,'MarkerSize',5, 'MarkerFaceColor', [1 1 1]);
 		else
-			plot(x,intensity,'-o','LineWidth',1,'MarkerSize',4, 'MarkerFaceColor', [0 0 0]);
+			plot(x,intensity,'-o','LineWidth',0.5,'MarkerSize',4, 'MarkerFaceColor', [0 0 0]);
 		end
 		Stro.DisplayName=Stro.Filename(dataSet);
 	end

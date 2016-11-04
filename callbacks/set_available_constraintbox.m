@@ -16,7 +16,7 @@ peakHasFunc = ~cellfun(@isempty, fcnNames);
 
 % If there is a peak without a function, disable update button
 if find(~peakHasFunc, 1)
-	set(handles.push_update, 'enable', 'off');
+% 	set(handles.push_update, 'enable', 'off');
 end
 
 

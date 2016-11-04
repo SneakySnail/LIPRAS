@@ -1,4 +1,4 @@
-function fillResultsTable(handles)
+function fill_table_results(handles)
 	set(handles.table_results,'RowName',handles.xrd.Fcoeff{1});
 	set(handles.table_results,'Data',cell(length(handles.xrd.Fcoeff{1}), length(handles.xrd.Filename)));
 	

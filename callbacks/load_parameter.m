@@ -34,13 +34,13 @@ function handles = load_parameter(handles)
 	LB=handles.xrd.fit_initial{3};
 	
 	coeff=handles.xrd.Fcoeff;
-	handles.table_coeffvals.RowName = coeff;
-	handles.table_coeffvals.Data=cell(length(coeff), 3);
+	handles.table_fitinitial.RowName = coeff;
+	handles.table_fitinitial.Data=cell(length(coeff), 3);
 	
 	for i=1:length(coeff)
-		handles.table_coeffvals.Data{i,1}=SP(i);
-		handles.table_coeffvals.Data{i,2}=LB(i);
-		handles.table_coeffvals.Data{i,3}=UB(i);
+		handles.table_fitinitial.Data{i,1}=SP(i);
+		handles.table_fitinitial.Data{i,2}=LB(i);
+		handles.table_fitinitial.Data{i,3}=UB(i);
 	end
 	
 	set(handles.panel_coeffs,'Visible','on');

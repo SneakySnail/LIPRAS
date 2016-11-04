@@ -1,6 +1,7 @@
 function handles = add_profile(handles)
 	
-	profileNum = handles.profiles(7).UserData + 1;
+	profileNum = handles.guidata.numProfiles+1;
+	handles.guidata.numProfiles = profileNum;
 	handles.profiles(7).UserData = profileNum;
 	handles.profiles(profileNum) = duplicate_uipanel3();
 	
@@ -12,7 +13,10 @@ function handles = add_profile(handles)
 	tab2 = findobj(handles.profiles(profileNum),'tag','tab_peak');
 	set(tab2,'ForegroundColor',[0.8 0.8 0.8]);
 	set(panel4.Children,'Visible','off');
-	set(handles.push_update,'Enable','on');
+	if handles.guidata.numProfiles >= 6
+		set(handles.push_addprofile, 'enable', 'off');
+	end
+
 % 	set(handles.togglebutton_showbkgd,'enable','off');
 	set(handles.push_removeprofile,'enable','on');
 	set(handles.panel_range,'visible','on');
@@ -76,12 +80,12 @@ function handles = add_profile(handles)
 		minbox = findobj(handles.profiles(profileNum),'Tag','edit_min2t');
 		maxbox = findobj(handles.profiles(profileNum),'Tag','edit_max2t');
 		
-		range = [handles.xrd.Min2T handles.xrd.Max2T];
+		range = [handles.xrdContainer(7).Min2T handles.xrdContainer(7).Max2T];
 		set(minbox,'String',num2str(range(1)));
 		set(maxbox,'String',num2str(range(2)));
 		
 		panel4=findobj(handles.profiles(profileNum),'Tag','panel_coeffs');
-		uitable=findobj(panel4,'Tag','table_coeffvals');
+		uitable=findobj(panel4,'Tag','table_fitinitial');
 		uitable.Data=cell(1,4);
 	end
 	

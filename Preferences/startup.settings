@@ -1,2 +1,5 @@
-<OutputPath> ./FitOutputs/
-
+<outputpath> ./FitOutputs/
+<savepath>
+<fitrange> 0.300
+<nBkgdPoints> 10
+<polyorder> 3

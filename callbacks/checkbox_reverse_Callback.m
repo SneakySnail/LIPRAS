@@ -1,10 +1,17 @@
-% Reverses the order of the current dataset.
+function checkbox_reverse_Callback(o, e, handles)
+	handles.xrd.Status = 'Dataset order was reversed.';
+	handles = reverse_dataset_order(handles);
+	guidata(o, handles);
+	
+	% Reverses the order of the current dataset.
 function handles = reverse_dataset_order(handles)
 	if isempty(handles.xrdContainer(7).Filename)
 		return
 	end
 	
-	numprofiles = handles.profiles(7).UserData;
+	numprofiles = handles.guidata.numProfiles;
+	numprofiles = handles.profiles(7).UserData; % delete
+	assert(numprofiles == handles.guidata.numProfiles);
 	
 	% For every profile, reverse the dataset order
 	for j=1:7
@@ -50,5 +57,4 @@ function handles = reverse_dataset_order(handles)
 	end
 	
 	plotX(handles);
-end
 

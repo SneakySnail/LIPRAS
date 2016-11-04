@@ -5,10 +5,25 @@ function [Stro, has_data] = Read_Data(Stro, fname, path)
 	
 	if ~isequal(fname,0)
 		has_data=true;
+		Stro.Filename = '';
+		Stro.DisplayName = '';
+		
+		Stro.two_theta = [];
+		Stro.data_fit = [];
+		
 		Stro.Fmodel=[];
 		Stro.PSfxn=[];
+		
+		Stro.fit_parms=[];
+		Stro.fit_parms_error=[];
+		Stro.fit_results=[];
+		Stro.fit_initial=[];
+		
 		Stro.PeakPositions=[];
 		Stro.bkgd2th=[];
+		Stro.Constrains = [0 0 0 0];
+		
+		
 		Stro.Filename=fname;
 		Stro.DataPath=path;
 		Stro.OutputPath = strcat(Stro.DataPath, '/FitOutputs/');
@@ -58,16 +73,6 @@ function [Stro, has_data] = Read_Data(Stro, fname, path)
 		Stro.Min2T = min(Stro.two_theta);
 		Stro.Max2T = max(Stro.two_theta);
 		
-		%             if ~strcmp(Stro.File_Input, 'y')
-		%                 Stro.Max2T
-		%                 disp('this')
-		% %                 Stro.setTwo_Theta_Range()
-		%             end
-		
-		Stro.fit_parms=[];
-		Stro.fit_parms_error=[];
-		Stro.fit_results=[];
-		Stro.fit_initial=[];
 		
 		Stro.plotData
 		

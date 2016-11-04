@@ -109,7 +109,7 @@ function plotFit(Stro,dataSet)
 				end
 			end
 			cla
-			data(1) = plot(x,intensity,'ko', ...
+			data(1) = plot(x,intensity,'o', ...
 				'LineWidth',1, ...
 				'MarkerSize',4, ...
 				'DisplayName','Raw Data', ...
@@ -144,9 +144,6 @@ function plotFit(Stro,dataSet)
 				% 						ylim([0 1.1*max(fittedPattern)])
 				% 						ylim([0.9*min([data.YData]), 1.1*max([data.YData])]);
 			end
-			
-			
-			
 			
 		end
 		if strcmp(dataSet,'all')
