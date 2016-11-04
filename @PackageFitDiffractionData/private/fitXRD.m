@@ -77,12 +77,12 @@ for i=1:size(position,1)
 		assignin('base','fitteddata',fitteddata)
 		cla
 		% FOR GUI, FIT
-		plot(fitdata{i}(1,:),fittedmodel{i}(fitdata{i}(1,:))'+polyval(P,fitdata{i}(1,:),S,U),'-g','LineWidth',0.5);
+		plot(fitdata{i}(1,:),fittedmodel{i}(fitdata{i}(1,:))'+polyval(P,fitdata{i}(1,:),S,U),'-','Color',[0 .5 0],'LineWidth',1.5);
 		pause(0.05);
 		%END
 		
 		% FOR GUI, DATA
-		plot(data(1,:),data(2,:),'x','MarkerSize',6,'LineWidth',1,'MarkerEdgeColor','b', 'MarkerFaceColor','auto') % CHANGES MARKER COLOR
+		plot(data(1,:),data(2,:),'o','MarkerSize',4,'LineWidth',1,'MarkerEdgeColor',[.08 .17 .55], 'MarkerFaceColor',[.08 .17 .55]) % CHANGES MARKER COLOR
 		% END
 		
 		% FOR GUI DIFFERENCE PLOT

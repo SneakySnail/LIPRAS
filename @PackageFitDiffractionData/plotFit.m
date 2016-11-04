@@ -113,30 +113,33 @@ function plotFit(Stro,dataSet)
 				'LineWidth',1, ...
 				'MarkerSize',4, ...
 				'DisplayName','Raw Data', ...
-				'MarkerFaceColor', [0 0 0]); % Raw Data
+				'MarkerFaceColor', [.08 .17 .55],'MarkerEdgeColor',[.08 .17 .55]); % Raw Data
 			data(2) = plot(x,back, '--', ...
 				'DisplayName', 'Background'); % Background
 			data(3) = plot(x,fittedPattern,'k', ...
-				'LineWidth',1, ...
-				'DisplayName','Overall Fit'); % Overall Fit
+				'LineWidth',1.5, ...
+				'DisplayName','Overall Fit','Color',[0 .5 0]); % Overall Fit
 			
+            co=[0.25 0.25 0.25;1 0 0; 0 0 1;0.4940 .1840 0.5560;.4660 0.6740 0.1880;0.6350 0.0780 0.1840; 0.75 0.75 0; 0.75 0 0.75]; % Color Order for plotting peaks underneath overall fit
+            % From https://www.mathworks.com/help/matlab/graphics_transition/why-are-plot-lines-different-colors.html
+            
 			for jj=1:size(Stro.PSfxn,2)
 				if Stro.CuKa
 					data(3+2*jj-1) = plot(x',peakfit(jj,:)+back','LineWidth',1,'DisplayName',['Cu-K\alpha1 (',num2str(jj),')']);
 					data(3+2*jj)=plot(x',CuKaPeak(jj,:)+back','LineWidth',1,'DisplayName',['Cu-K\alpha2 (',num2str(jj),')']);
 				else
-					data(3+jj) = plot(x',peakfit(jj,:)+back','LineWidth',1,'DisplayName',['Peak ',num2str(jj)]);
+					data(3+jj) = plot(x',peakfit(jj,:)+back','LineWidth',1,'DisplayName',['Peak ',num2str(jj)],'Color',co(jj,1:3));
 				end
 			end
 			
 			Stro.DisplayName = {data.DisplayName};
 			
 			if strcmp(dataSet,'all')
-				err = plot(x, intensity - fittedPattern - max(intensity) / 10, 'r','LineWidth',1.2);
+				err = plot(x, intensity - fittedPattern - max(intensity) / 10, 'r','LineWidth',1.0);
 			else
 				evalin('base','axes(h.axes2)')
 				cla
-				err = plot(x, intensity - (fittedPattern), 'r','LineWidth',1.2); % Error
+				err = plot(x, intensity - (fittedPattern), 'r','LineWidth',.50); % Error
 				xlim([Stro.Min2T Stro.Max2T])
 				% 						evalin('base', 'linkaxes([handles.axes1 handles.axes2],''x'')')
 				

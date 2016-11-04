@@ -78,7 +78,9 @@ function handles = init_GUI(handles, varargin)
 	end
 	
 	function createTabs()
-		tabnames = {'1. Setup', '2. Options', '3. Results'};
+		tabnames = {'<html><font size="11">1. Setup', ...
+			'<html><font size="11">2. Options',  ...
+			'<html><font size="11">3. Results'};
 		
 		% Creates the tabs and tab group for uipanel3.
 		handles.tabgroup = uitabgroup('Parent', handles.uipanel3, ...
