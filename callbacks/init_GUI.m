@@ -7,22 +7,16 @@ function handles = init_GUI(handles, varargin)
 	handles.profiles(7).UserData = 0; % delete
 	handles.xrd = PackageFitDiffractionData;
 	handles.xrdContainer(7) = handles.xrd;
-	handles.state = struct('hasData', false, ...
-		'hasBkgd', false, ...
-		'hasPSfxn', false, ...
-		'hasResults', false, ...
-		'hasPeakPositions', false, ...
-		'hasFitBounds',  false);
 	
-	handles.guidata = struct('PeakPositions', handles.xrd.PeakPositions, ...
-		'PSfxn', handles.xrd.PSfxn, ...
-		'numPeaks', 0, ...
-		'constraints', handles.xrd.Constrains, ...
-		'fit_initial', handles.xrd.fit_initial, ...
-		'numProfiles', 0, ...
-		'profile', [], ...
-		'xrd', handles.xrdContainer, ...
-		'coeff', {});
+	
+	handles.guidata.numProfiles = 0;
+	handles.guidata.PeakPositions = [];
+	handles.guidata.PSfxn = {};
+	handles.guidata.numPeaks = 0;
+	handles.guidata.constraints = handles.xrd.Constrains;
+	handles.guidata.fit_initial = [];
+	handles.guidata.coeff = '';
+	handles.guidata.fit_results = [];
 	
 	% Change the time to wait until tooltip is displayed
 	setToolTipDelay();
@@ -31,6 +25,7 @@ function handles = init_GUI(handles, varargin)
 	createJavaStatusBar();
 	
 	createTabs();
+	
 	
 	
 	function initAxes()
@@ -107,6 +102,6 @@ function handles = init_GUI(handles, varargin)
 		
 		% UserData of profile 7 is current maximum enabled profiles
 		handles.profiles(7).UserData = 0; % delete
-		handles.guidata.numProfiles = 0;
+		
 	end
 end

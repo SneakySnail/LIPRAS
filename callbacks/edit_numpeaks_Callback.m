@@ -22,7 +22,7 @@ function edit_numpeaks_Callback(hObject, evt, handles)
 	set(findobj(handles.tab_peak.Children), 'visible', 'on');
 	set(handles.panel_constraints.Children, 'enable', 'off', 'value', 0);
 	set(findobj(handles.panel_coeffs.Children),'enable','off');
-	if handles.state.hasFitBounds
+	if isempty(handles.guidata.fit_initial)
 		set(handles.panel_coeffs, 'visible', 'on');
 		set(handles.push_cancelupdate, 'visible', 'on', 'enable', 'on');
 	else

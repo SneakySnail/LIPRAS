@@ -11,5 +11,4 @@ function choice = close_fig(handles)
 			
 		case 'Cancel'
 			
-	
 	end

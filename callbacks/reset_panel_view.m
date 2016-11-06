@@ -68,6 +68,7 @@ function tab1(handles)
 	set(handles.menu_save,'Enable','off');
 	set(findobj(handles.axes2),'Visible','off');
 	set(handles.panel_coeffs.Children,'Enable','off');
+	set(handles.push_cancelupdate, 'visible', 'off');
 	
 	
 	
@@ -78,9 +79,13 @@ function tab2(handles)
 	set(findobj(handles.panel_profilecontrol), 'visible', 'on'); 
 	set(handles.tab_peak,'ForegroundColor',[0 0 0]);
 	set(handles.tabgroup, 'SelectedTab', handles.tab_peak);
+	set(handles.push_cancelupdate, 'visible', 'off');
+	set(handles.push_update, 'enable', 'off');
+	
 	if ~isempty(handles.xrd.PSfxn)
 		set(handles.edit_numpeaks, 'string', num2str(handles.xrd.nPeaks));
 	end
+	
 	edit_numpeaks_Callback(handles.edit_numpeaks, [], handles);
 	
 	assert(size(handles.table_paramselection.Data, 1)== handles.xrd.nPeaks);

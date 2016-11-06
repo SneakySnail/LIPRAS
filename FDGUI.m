@@ -39,6 +39,7 @@ function FDGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 	addpath('test/')
 	addpath('dialog/')
 
+	
 	handles = init_GUI(handles, varargin);
 	
 	% Choose default command line output for FDGUI
@@ -94,7 +95,6 @@ function push_newbkgd_Callback(hObject, eventdata, handles)
 	if ~isempty(handles.xrd.bkgd2th)
 		set(handles.tab_peak,'ForegroundColor',[0 0 0]);
 		handles.tabgroup.SelectedTab= handles.tab_peak;
-		handles.state.hasBkgd = true;
 	end
 	
 	t12 = findobj(handles.tab_peak, 'tag', 'text12');

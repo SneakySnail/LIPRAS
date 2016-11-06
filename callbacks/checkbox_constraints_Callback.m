@@ -41,7 +41,7 @@ function checkbox_constraints_Callback(o, ~, handles)
 	% Set xrd parameters
 	handles.xrd.Constrains = o.Parent.UserData;
 	set(findobj(handles.panel_coeffs.Children),'enable', 'off');
-	if strcmpi(isempty(handles.xrd.fit_initial))
+	if isempty(handles.xrd.fit_initial)
 		set(handles.push_cancelupdate, 'visible', 'off');
 	else
 		set(handles.push_cancelupdate, 'visible', 'on');
