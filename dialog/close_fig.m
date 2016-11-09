@@ -4,7 +4,7 @@ function choice = close_fig(handles)
 		'Confirm Quit', ...
 		'Yes','Cancel','Cancel');
 	
-	originalLnF = getappdata(handles.figure1, 'originalLnF');
+	
 	% Handle response
 	switch choice
 		case 'Yes'
@@ -15,7 +15,7 @@ function choice = close_fig(handles)
 			end
 			
 			evalin('base', 'clearvars h');
-			 javax.swing.UIManager.setLookAndFeel(originalLnF);
+			
 			
 		case 'Cancel'
 			

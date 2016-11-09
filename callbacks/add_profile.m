@@ -22,6 +22,13 @@ function handles = add_profile(handles)
 	set(handles.panel_range,'visible','on');
 	
 	function obj = duplicate_uipanel3()
+		
+		
+		
+			% 		javax.swing.UIManager.setLookAndFeel(lf);
+			% 		drawnow();
+		
+		
 		% Takes handles.profiles(1) and returns a deep copy. If there is an existing
 		% profile panel, then just reset the panel.
 		obj = copyobj(handles.profiles(7), handles.figure1);
@@ -60,6 +67,8 @@ function handles = add_profile(handles)
 				newCtrls(i).ButtonDownFcn = baseCtrls(i).ButtonDownFcn;
 			end
 		end
+		
+		
 	end
 	
 	

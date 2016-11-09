@@ -30,25 +30,28 @@ gui_Singleton = 1;
 function FDGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 
 	import javax.swing.*
-	import javax.swing.BorderFactory
-% 	import javax.swing.BorderFactory.Ethe
+	import javax.swing.UIManager.*
 	import java.awt.*
 	
 	dbstop if error
 	addpath('callbacks/')
 	addpath('test/')
-	addpath('dialog/')
+	addpath('dialog/')	
 
 	
+	
 	handles = init_GUI(handles, varargin);
+	
+	
 	
 	% Choose default command line output for FDGUI
 	handles.output = hObject;
 	
-	handles.figure1.WindowButtonMotionFcn = @(o, e)WindowButtonMotionFcn(o, e,guidata(o));
+	handles.figure1.WindowButtonMotionFcn = @(o, e)WindowButtonMotionFcn(o, e,guidata(o));	
 	
+	
+	 
 	assignin('base','h',handles);
-	
 	% Update handles structure
 	guidata(hObject, handles)
 	

@@ -1,22 +1,5 @@
 % Initialize GUI controls
 function handles = init_GUI(handles, varargin)
-	
-	% Set figure look and feel
-	originalLnF = javax.swing.UIManager.getLookAndFeel;
-	setappdata(handles.figure1, 'originalLnF', originalLnF);
-	try
-		lf = 'javax.swing.plaf.nimbus.NimbusLookAndFeel';
-		javax.swing.UIManager.setLookAndFeel(lf);
-	catch
-		try
-			lf = javax.swing.UIManager.getCrossPlatformLookAndFeelClassName();
-			javax.swing.UIManager.setLookAndFeel(lf);
-		catch
-			javax.swing.UIManager.setLookAndFeel(originalLnF);
-		end
-	end
-	drawnow();
-	
 	axes(handles.axes1)
 	hold(handles.axes1,'all');
 	
@@ -54,6 +37,8 @@ function handles = init_GUI(handles, varargin)
 	createTabs();
 	
 	
+	
+	
 	function  setToolTipDelay()
 		% Set tool tip time delay
 		tm = javax.swing.ToolTipManager.sharedInstance;
@@ -65,9 +50,7 @@ function handles = init_GUI(handles, varargin)
 		try
 			% Turn off JavaFrame obsolete warning
 			warning off MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame;
-			
 			jFrame=get(handles.figure1,'JavaFrame');
-			
 			try
 				jRootPane = jFrame.fFigureClient.getWindow;  % This works up to R2011a
 			catch
@@ -78,16 +61,14 @@ function handles = init_GUI(handles, varargin)
 				end
 			end
 			
-			setappdata(handles.figure1, 'jFrame', jFrame);
-			setappdata(handles.figure1, 'jRootPane', jRootPane);
 			
 			% left status bar
-			handles.statusbarObj = com.mathworks.mwswing.MJStatusBar;
+			handles.statusbarObj = javaObjectEDT('com.mathworks.mwswing.MJStatusBar');
 			jRootPane.setStatusBar(handles.statusbarObj);
 			handles.statusbarObj.setText('<html>Please import file(s) containing data to fit.</html>');
 			
 			% right status bar
-			handles.statusbarRight = com.mathworks.mwswing.MJStatusBar;
+			handles.statusbarRight = javaObjectEDT('com.mathworks.mwswing.MJStatusBar');
 			handles.statusbarObj.add(handles.statusbarRight, 'East');
 			handles.statusbarRight.setText('');
 			jRootPane.setStatusBarVisible(1);
