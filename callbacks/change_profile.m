@@ -20,7 +20,7 @@ else handles.push_nextprofile.Enable = 'on'; end
 
 plotX(handles);
 
-reset_panel_view(handles);
+% reset_panel_view(handles);
 
 handles.uipanel3.Visible = 'on';
 

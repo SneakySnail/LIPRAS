@@ -1,5 +1,13 @@
 % Initialize GUI controls
 function handles = init_GUI(handles, varargin)
+	
+	% Set figure look and feel
+	originalLnF = javax.swing.UIManager.getLookAndFeel;
+	setappdata(handles.figure1, 'originalLnF', originalLnF);
+	lf = 'javax.swing.plaf.nimbus.NimbusLookAndFeel';
+	% javax.swing.UIManager.getCrossPlatformLookAndFeelClassName()
+	 javax.swing.UIManager.setLookAndFeel(lf);
+	 drawnow();
 
 	initAxes();
 	
@@ -27,7 +35,6 @@ function handles = init_GUI(handles, varargin)
 	createTabs();
 	
 	
-	
 	function initAxes()
 		axes(handles.axes1)
 		hold(handles.axes1,'all');
@@ -51,31 +58,45 @@ function handles = init_GUI(handles, varargin)
 	
 	function createJavaStatusBar()
 		
-		% Turn off JavaFrame obsolete warning
-		warning off MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame;
-		
-		jFrame=get(handles.figure1,'JavaFrame');
-		
 		try
-			jRootPane = jFrame.fFigureClient.getWindow;  % This works up to R2011a
-		catch
+			% Turn off JavaFrame obsolete warning
+			warning off MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame;
+			
+			jFrame=get(handles.figure1,'JavaFrame');
+			
 			try
-				jRootPane = jFrame.fHG1Client.getWindow;  % This works from R2008b-R2014a
+				jRootPane = jFrame.fFigureClient.getWindow;  % This works up to R2011a
 			catch
-				jRootPane = jFrame.fHG2Client.getWindow;  % This works from R2014b and up
+				try
+					jRootPane = jFrame.fHG1Client.getWindow;  % This works from R2008b-R2014a
+				catch
+					jRootPane = jFrame.fHG2Client.getWindow;  % This works from R2014b and up
+				end
 			end
+			
+			setappdata(handles.figure1, 'jFrame', jFrame);
+			setappdata(handles.figure1, 'jRootPane', jRootPane);
+			
+			% left status bar
+			handles.statusbarObj = com.mathworks.mwswing.MJStatusBar;
+			jRootPane.setStatusBar(handles.statusbarObj);
+			handles.statusbarObj.setText('<html>Please import file(s) containing data to fit.</html>');
+			
+			% right status bar
+			handles.statusbarRight = com.mathworks.mwswing.MJStatusBar;
+			handles.statusbarObj.add(handles.statusbarRight, 'East');
+			handles.statusbarRight.setText('');
+			jRootPane.setStatusBarVisible(1);
+			
+		catch
+			error('Java components could not be made.')
 		end
-		
-		handles.statusbarObj = com.mathworks.mwswing.MJStatusBar;
-		jRootPane.setStatusBar(handles.statusbarObj);
-		handles.statusbarObj.setText('<html>Please import file(s) containing data to fit.</html>');
-		
 	end
 	
 	function createTabs()
-		tabnames = {'<html><font size="11">1. Setup', ...
-			'<html><font size="11">2. Options',  ...
-			'<html><font size="11">3. Results'};
+		tabnames = {'<html><font size="10.5">1. Setup', ...
+			'<html><font size="10.5">2. Options',  ...
+			'<html><font size="10.5">3. Results'};
 		
 		% Creates the tabs and tab group for uipanel3.
 		handles.tabgroup = uitabgroup('Parent', handles.uipanel3, ...

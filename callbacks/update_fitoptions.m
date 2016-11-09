@@ -2,6 +2,8 @@
 	function update_fitoptions(handles)
 		coeff = handles.xrd.getCoeff(handles.xrd.PSfxn, handles.xrd.Constrains);
 		fcnNames = handles.table_paramselection.Data(:, 1)'; 
+		handles.guidata.coeff = coeff;
+		handles.guidata.PSfxn = fcnNames;
 		
 		set(handles.table_fitinitial,'RowName', coeff);
 		handles.table_fitinitial.Data = cell(length(coeff), 3);

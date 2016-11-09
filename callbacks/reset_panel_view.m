@@ -4,8 +4,10 @@ function reset_panel_view(handles)
 	set(handles.edit_min2t,'String',sprintf('%2.4f',handles.xrd.Min2T));
 	set(handles.edit_max2t,'String',sprintf('%2.4f',handles.xrd.Max2T));
 	set(handles.edit_fitrange,'String',sprintf('%2.3f',handles.xrd.fitrange));
+	set(handles.push_cancelupdate, 'visible', 'off');
+	set(handles.push_update, 'enable', 'off');
 	
-	set(handles.panel_profilecontrol, 'visible', 'off');
+	set(handles.panel_profilecontrol, 'visible', 'on');
 	set(handles.uipanel3, 'visible', 'off');
 	
 	set(findobj(handles.tab_peak.Children), 'visible', 'off');
@@ -50,6 +52,7 @@ function tab0(handles)
 	set(handles.checkbox_reverse, 'visible', 'on');
 	set(handles.text40, 'visible', 'on');
 	set(handles.panel_rightside, 'visible', 'off');
+	set(handles.panel_profilecontrol, 'visible', 'off');
 	
 	
 	
@@ -79,8 +82,7 @@ function tab2(handles)
 	set(findobj(handles.panel_profilecontrol), 'visible', 'on'); 
 	set(handles.tab_peak,'ForegroundColor',[0 0 0]);
 	set(handles.tabgroup, 'SelectedTab', handles.tab_peak);
-	set(handles.push_cancelupdate, 'visible', 'off');
-	set(handles.push_update, 'enable', 'off');
+	
 	
 	if ~isempty(handles.xrd.PSfxn)
 		set(handles.edit_numpeaks, 'string', num2str(handles.xrd.nPeaks));

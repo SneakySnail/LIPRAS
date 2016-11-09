@@ -5,7 +5,6 @@ function button_browse_Callback(hObject, eventdata, handles)
 	handles.xrd.Status='Browsing for dataset... ';
 	handles = import_data(handles);
 	
-	reset_panel_view(handles);
 	assignin('base','h',handles)
 	guidata(hObject, handles)
 	
@@ -76,6 +75,7 @@ function button_browse_Callback(hObject, eventdata, handles)
 			set(handles.popup_filename, 'String', files);
 			set(handles.listbox_files, 'String', files);
 			set(handles.table_results,'ColumnName',files);
+			set(handles.panel_profilecontrol, 'visible', 'on');
 			set(handles.push_removeprofile, 'enable', 'off');
 %			
 			
@@ -85,7 +85,7 @@ function button_browse_Callback(hObject, eventdata, handles)
 			if numfiles > 1 % if there was more than file loaded
 				set(handles.checkbox_superimpose,'Visible','on', 'enable', 'on'); % Superimpose Raw Data
 				set(handles.radio_stopleastsquares, 'visible', 'on'); % Stop Least Squares
-				set(handles.push_viewall,'Visible','on'); % View All
+				set(handles.push_viewall,'Visible','on', 'enable', 'on'); % View All
 				handles.xrd.Status=['Imported ', num2str(numfiles),' files to this dataset.'];
 			else
 				set(handles.checkbox_superimpose,'Visible','off'); % Superimpose Raw Data
@@ -97,6 +97,8 @@ function button_browse_Callback(hObject, eventdata, handles)
 			set(handles.popup_filename, 'Value', 1);
 			
 		end
+		
+		reset_panel_view(handles);
 	
 		
 	end

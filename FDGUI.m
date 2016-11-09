@@ -47,7 +47,8 @@ function FDGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 	
 	handles.figure1.WindowButtonMotionFcn = @(o, e)WindowButtonMotionFcn(o, e,guidata(o));
 	
-	assignin('base','h',handles)	
+	assignin('base','h',handles);
+	
 	% Update handles structure
 	guidata(hObject, handles)
 	
