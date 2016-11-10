@@ -1,5 +1,5 @@
 % TODO Move to FDGUIv2_1
-function outputError(Stro,filename)
+function outputError(Stro,~)
 	if isa(Stro.Filename,'char')
 		Stro.Filename = {Stro.Filename};
 	end
@@ -37,9 +37,6 @@ function outputError(Stro,filename)
 	fprintf(fid, 'Fit parameters\n\n');
 	fprintf(fid, '2theta_fit_range: %f %f\n\n',Stro.Min2T, Stro.Max2T);
 	
-	%             if ~isempty(Stro.DataAverage)
-	%                 fprintf(fid, 'Average_Data: %f \n\n',Stro.DataAverage);
-	%             end
 	if ~isempty(Stro.SPR_Angle)
 		fprintf(fid, 'SPR_Angle: %i \n\n',Stro.SPR_Angle);
 	end
@@ -95,12 +92,10 @@ function outputError(Stro,filename)
 	fprintf(fid, '\n\nFit Errors\n');
 	
 	if strcmp( Stro.suffix, 'xrdml')
-		fprintf(fid, 'Filename \t temperature \t Rp \t Rwp'); % What is being printed on the new txt file on the rirst row (this just labels what column refers to what)
+		fprintf(fid, 'Filename\t temperature\t Rp\t Rwp\t red-chi2'); % What is being printed on the new txt file on the rirst row (this just labels what column refers to what)
 	else
-		fprintf(fid, 'Filename \t\t Rp \t Rwp'); % What is being printed on the new txt file on the rirst row (this just labels what column refers to what)
+		fprintf(fid, 'Filename\tRp\t Rwp\t red-chi2'); % What is being printed on the new txt file on the rirst row (this just labels what column refers to what)
 	end
-	
-	
 	
 	for i=1:size( Stro.data_fit, 1) %this takes the length specified above in line 30
 		obs=Stro.fit_results{i}(2,:)'; %specifies observed values
@@ -110,17 +105,21 @@ function outputError(Stro,filename)
 			calc = calc + Stro.fit_results{i}(3+j,:)';
 		end
 		fprintf(fid,'\n');
-		Rp=(sum(abs(obs-calc))./(sum(obs)))*100;                %calculates Rp
+		Rp=(sum(abs(obs-calc))./(sum(obs)))*100; %calculates Rp
 		w=(1./obs); %defines the weighing parameter for Rwp
-		Rwp=(sqrt(sum(w.*(obs-calc).^2)./sum(obs)))*100 ; %Calculate Rwp
+		Rwp=(sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
+        
+        DOF=size(obs,1)-Stro.FmodelGOF{i}.dfe; % degrees of freedom from error
+        Rexp=sqrt(DOF/sum(w.*obs.^2)); % Rexpected
+        rchi2=(Rwp/Rexp)/100; % reduced chi-squared, GOF
 		
 		if strcmp( Stro.suffix, 'xrdml')
-			[path, filename, ext] = fileparts( Stro.Filename{1} );
-			fprintf(fid, '%s \t %.0f \t %.2f \t %.2f',filename, Stro.temperature(i), Rp, Rwp);
+			[~, filename, ~] = fileparts( Stro.Filename{1} );
+			fprintf(fid, '%s\t %.0f\t %.2f\t %.2f\t %.2f',filename, Stro.temperature(i), Rp, Rwp, rchi2);
 			
 		else
-			[path, filename, ext] = fileparts( Stro.Filename{i} );
-			fprintf(fid, '%s \t %.2f \t %.2f', filename, Rp, Rwp);
+			[~, filename, ~] = fileparts( Stro.Filename{i} );
+			fprintf(fid, '%s\t%.2f\t%.2f\t%.2f', filename, Rp, Rwp, rchi2);
 		end
 		%writes the filename, Rp, and Rwp for into a text file rounding to 2 decimal places
 	end
