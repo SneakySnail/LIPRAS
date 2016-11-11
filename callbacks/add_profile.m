@@ -9,9 +9,7 @@ function handles = add_profile(handles)
 	
 	handles = change_profile(profileNum, handles);
 	
-	% Set appearance
-% 	tab2 = findobj(handles.profiles(profileNum),'tag','tab_peak');
-% 	set(tab2,'ForegroundColor',[0.8 0.8 0.8]);
+	createGUIdata();
 	
 	if handles.guidata.numProfiles >= 6
 		set(handles.push_addprofile, 'enable', 'off');
@@ -24,6 +22,27 @@ function handles = add_profile(handles)
 
 % 	set(handles.togglebutton_showbkgd,'enable','off');
 	set(handles.push_removeprofile,'enable','on', 'visible', 'on');
+	
+	
+	
+	
+	%****************************************
+	%
+	% New
+	%
+	%****************************************
+	function createGUIdata()
+		setappdata(handles.uipanel3, 'xrd', handles.xrdContainer(profileNum));
+		setappdata(handles.uipanel3, 'numPeaks', 0);
+		setappdata(handles.uipanel3, 'PSfxn', '');
+		setappdata(handles.uipanel3, 'PeakPositions', []);
+		setappdata(handles.uipanel3, 'constraints', zeros(1,4));
+		setappdata(handles.uipanel3, 'fitBounds', []);
+		setappdata(handles.uipanel3, 'coeff', '');
+		setappdata(handles.uipanel3, 'fit_results', []);
+		
+	end
+	
 	
 	function obj = duplicate_uipanel3()
 		
@@ -38,13 +57,13 @@ function handles = add_profile(handles)
 		
 		
 		% Reset userdata to 0
-		set([popup; edit; check], 'userdata', 0);
+% 		set([popup; edit; check], 'userdata', 0);
 		
 		% Assign listener when user data updates for all new popups,
 		% checkboxes, and edit boxes
-		addlistener([popup; check], 'Value', 'PreSet', @(o,e)listener.updateUserData(o,e,handles));
-		addlistener(edit, 'String', 'PreSet', @(o,e)listener.updateUserData(o,e,handles));
-		
+% 		addlistener([popup; check], 'Value', 'PreSet', @(o,e)listener.updateUserData(o,e,handles));
+% 		addlistener(edit, 'String', 'PreSet', @(o,e)listener.updateUserData(o,e,handles));
+% 		
 		baseCtrls = findobj(handles.profiles(7).Children);
 		newCtrls = findobj(obj.Children);
 		assert(length(baseCtrls) == length(newCtrls)); % Make sure they have the same number of children
@@ -78,7 +97,8 @@ function handles = add_profile(handles)
 		set(findobj(obj,'tag','panel_results'), 'parent', handles.tabpanel, 'visible', 'on', 'title','');
 		set(handles.panel_coeffs, 'visible', 'off');
 		
-		set(handles.tabpanel, 'tabtitles', {'1. Setup', '2. Options', '3. Results'}, 'tabenables', {'on','off','off'});
+		set(handles.tabpanel, 'tabtitles', {'1. Setup', '2. Options', '3. Results'}, ...
+			'tabenables', {'on','off','off'}, 'fontsize', 11, 'tabwidth', 75);
 		
 		
 	end
@@ -90,7 +110,7 @@ function handles = add_profile(handles)
 		
 		% Add listener for each xrd object
 		addlistener(handles.xrdContainer(profileNum), 'Status', ...
-			'PostSet', @(o,e)listener.statusChange(o,e,handles,profileNum));
+			'PostSet', @(o,e)statusChange(o,e,handles,profileNum));
 		
 		minbox = findobj(handles.profiles(profileNum),'Tag','edit_min2t');
 		maxbox = findobj(handles.profiles(profileNum),'Tag','edit_max2t');

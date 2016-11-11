@@ -12,6 +12,8 @@ function checkbox_constraints_Callback(o, ~, handles)
 		o.Parent.UserData(4) = ~o.Parent.UserData(4);
 	end
 	
+	setappdata(handles.uipanel3, 'constraints', o.Parent.UserData);
+	
 	if o.Value == 1 % If constraint box was checked
 		handles.xrd.Status=['Constraining coefficient ',get(o,'String'),'.'];
 		
@@ -42,11 +44,12 @@ function checkbox_constraints_Callback(o, ~, handles)
 	handles.xrd.Constrains = o.Parent.UserData;
 	set(findobj(handles.panel_coeffs.Children),'enable', 'off');
 	if isempty(handles.xrd.fit_initial)
-		set(handles.push_cancelupdate, 'visible', 'off');
+		set(handles.push_cancelupdate, 'enable', 'off');
 	else
-		set(handles.push_cancelupdate, 'visible', 'on');
+		set(handles.push_cancelupdate, 'enable', 'on');
 	end
 	
+	set(handles.push_update, 'enable', 'on'); % tTODO
 	guidata(o, handles)
 	
 	

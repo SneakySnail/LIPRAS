@@ -1,4 +1,4 @@
-function btngroup_plotresults_SelectionChangedFcn(hObject, evt, handles)
+function btns3_SelectionChangedFcn(hObject, evt, handles)
 	handles.table_results.Data = {};
 	result_vals = transpose(vertcat(handles.xrd.fit_parms{:}));
 	

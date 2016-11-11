@@ -25,11 +25,9 @@ function handles = add_profile(handles)
 	%	profiles, the current values of all the uicontrols are stored in here and
 	%	are switched back when the current profile is activated.
 	%***********************************************************************%
-	function data = addProfileData()
-		
-	p.xrd = PackageFitDiffractionData;		% object containing xrd
-	p.numprofiles = 0;				% total number of profiles 
-	p.min2t
+	function  addGUIlisteners()
+		addlistener(handles.table_paramselection, 'Data', ...
+			'PostSet', @(o,e)guidata.newPSfxn(o,e,handles.uipanel3));
 	
 		
 	end
@@ -41,7 +39,7 @@ function handles = add_profile(handles)
 		
 		% Add listener for each xrd object
 		addlistener(handles.xrdContainer(profileNum), 'Status', ...
-			'PostSet', @(o,e)listener.statusChange(o,e,handles,profileNum));
+			'PostSet', @(o,e)statusChange(o,e,handles,profileNum));
 		
 		% Reset UserData
 		popup=findobj(handles.profiles(profileNum).Children,'style','popupmenu','visible','on');

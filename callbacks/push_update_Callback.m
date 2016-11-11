@@ -21,9 +21,10 @@ function push_update_Callback(hObject, eventdata, handles)
 		% get new parameters
 		fcnNames = handles.table_paramselection.Data(:, 1)'; % function names to use
 		handles.guidata.PSfxn = fcnNames;
+		
 		numpeaks = str2double(handles.edit_numpeaks.String);
-		assert(length(fcnNames) >= length(numpeaks));
-		assert(length(handles.guidata.numPeaks == numpeaks));
+		assert(length(fcnNames) >= numpeaks);
+		assert(handles.guidata.numPeaks == numpeaks);
 		
 		constraints = handles.panel_constraints.UserData; % constraints
 		coeff = handles.xrd.getCoeff(fcnNames, constraints);
@@ -34,7 +35,7 @@ function push_update_Callback(hObject, eventdata, handles)
 		
 		if length(coeff) ~= length(handles.table_fitinitial.RowName') || ...
 				~isempty(find(~strcmp(handles.table_fitinitial.RowName', coeff), 1)) % if not the same as before
-			fitoptions_changed();
+			update_fitoptions();
 		end
 	end
 	

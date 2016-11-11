@@ -1,17 +1,17 @@
 %% GUI for FitDiffractionData
 
 %% Initialization
-function varargout = FDGUI(varargin)
+function varargout = LIPRAS(varargin)
 	% FDGUI MATLAB code for FDGUI.fig
 	
-	% Last Modified by GUIDE v2.5 26-Oct-2016 09:58:53
+	% Last Modified by GUIDE v2.5 11-Nov-2016 13:37:41
 	
 	% Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 	gui_State = struct('gui_Name',       mfilename, ...
 		'gui_Singleton',  gui_Singleton, ...
-		'gui_OpeningFcn', @FDGUI_OpeningFcn, ...
-		'gui_OutputFcn',  @FDGUI_OutputFcn, ...
+		'gui_OpeningFcn', @LIPRAS_OpeningFcn, ...
+		'gui_OutputFcn',  @LIPRAS_OutputFcn, ...
 		'gui_LayoutFcn',  [] , ...get
 		'gui_Callback',   []);
 	if nargin && ischar(varargin{1})
@@ -26,8 +26,8 @@ gui_Singleton = 1;
 	end
 	% End initialization code - DO NOT EDIT
 	
-% Executes just before FDGUI is made visible.
-function FDGUI_OpeningFcn(hObject, eventdata, handles, varargin)
+% Executes just before LIPRAS is made visible.
+function LIPRAS_OpeningFcn(hObject, eventdata, handles, varargin)
 	import javax.swing.*
 	import java.awt.*
 
@@ -50,7 +50,7 @@ function FDGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 	guidata(hObject, handles)
 	
 % Outputs from this function are returned to the command line.
-function varargout = FDGUI_OutputFcn(hObject, eventdata, handles)
+function varargout = LIPRAS_OutputFcn(hObject, eventdata, handles)
 	% Get default command line output from handles structure
 	varargout{1} = handles.output;
 		

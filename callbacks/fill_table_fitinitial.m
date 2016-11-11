@@ -32,6 +32,7 @@ function isFilled = fill_table_fitinitial(handles)
 		end
 		
 		isFilled = true;
+		setappdata(handles.uipanel3, 'fit_initial', handles.xrd.fit_initial);
 		
 		% if strcmpi(handles.uitoggletool5.State,'on')
 		% 	legend(handles.xrd.DisplayName,'box','off')

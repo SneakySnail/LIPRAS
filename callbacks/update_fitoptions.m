@@ -30,9 +30,7 @@
 			end
 		end
 		
-		set(findobj(handles.panel_coeffs), 'visible', 'on');
-		set(findobj(handles.panel_coeffs.Children), 'enable', 'on');
-		set(handles.push_cancelupdate, 'visible', 'off');
+		
 		handles.xrd.Status = [handles.xrd.Status, 'Done.'];
 		plotX(handles);
 		

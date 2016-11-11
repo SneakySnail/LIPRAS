@@ -39,19 +39,16 @@ function push_fitdata_Callback(hObject, ~, handles)
 	
 	
 	set(handles.menu_save,'Enable','on');
-% 	handles.tabgroup.SelectedTab = handles.tab_results;
-% 	set(handles.tab_results,'ForegroundColor',[0 0 0]);
-% 	set(findobj(handles.tab_results.Children),'visible', 'on');
+
+	set(handles.tabpanel, 'TabEnables', {'on', 'on', 'on'}, 'Selection', 3);
 	
 	fill_table_results(handles);
+	
 	handles.xrd.Status = 'Fitting dataset... Done.';
 	
 	FDGUI('uitoggletool5_OnCallback', handles.uitoggletool5, [], guidata(hObject));
 	set(handles.radio_stopleastsquares, 'enable', 'off', 'value', 0);
 	assignin('base','h',handles)
 	guidata(hObject, handles)
-	
-function handles = fit_data(handles)
-	% hObject is push_fitdata
-	
+
 	

@@ -5,7 +5,7 @@ function btns2_SelectionChangedFcn(hObject, eventdata, handles)
 			set(handles.panel_coeffs, 'visible', 'off');
 			
 		case handles.b2_toggle2
-			set(findobj(handles.panel_parameters), 'visible','off');
-			set(handles.panel_coeffs, 'visible', 'on');
-			
+			set(handles.panel_parameters.Children, 'visible','off');
+			set(findobj(handles.panel_coeffs), 'visible', 'on');
+			set(findobj(handles.btns2), 'visible', 'on');
 	end
