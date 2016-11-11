@@ -18,7 +18,6 @@ function handles = init_GUI(handles, varargin)
 	handles.xrd = PackageFitDiffractionData;
 	handles.xrdContainer(7) = handles.xrd;
 	
-	
 	handles.guidata.numProfiles = 0;
 	handles.guidata.PeakPositions = [];
 	handles.guidata.PSfxn = {};
@@ -29,14 +28,22 @@ function handles = init_GUI(handles, varargin)
 	handles.guidata.fit_results = [];
 	
 	% Change the time to wait until tooltip is displayed
-	setToolTipDelay();
+% 	setToolTipDelay();
 	
 	% Create the java object status bar
 	createJavaStatusBar();
 	
-	createTabs();
+%  	createTabs();
 	
 	
+	set(handles.panel_setup, 'parent', handles.profiles(7));
+	set(handles.panel_parameters,'parent', handles.profiles(7));
+	set(handles.panel_results, 'parent', handles.profiles(7));
+
+
+
+
+
 	
 	
 	function  setToolTipDelay()
@@ -78,6 +85,8 @@ function handles = init_GUI(handles, varargin)
 		end
 	end
 	
+	
+	
 	function createTabs()
 		tabnames = {'<html><font size= "4" font face="default">1. Setup', ...
 			'<html><font size= "4" font face="default">2. Options',  ...
@@ -107,7 +116,7 @@ function handles = init_GUI(handles, varargin)
 		set(flipud(handles.panel_results.Children), 'Parent', handles.tab_results, 'visible', 'off');
 		
 		% UserData of profile 7 is current maximum enabled profiles
-		handles.profiles(7).UserData = 0; % delete
+		
 		
 	end
 end

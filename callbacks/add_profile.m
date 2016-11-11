@@ -10,23 +10,22 @@ function handles = add_profile(handles)
 	handles = change_profile(profileNum, handles);
 	
 	% Set appearance
-	tab2 = findobj(handles.profiles(profileNum),'tag','tab_peak');
-	set(tab2,'ForegroundColor',[0.8 0.8 0.8]);
-	set(panel4.Children,'Visible','off');
+% 	tab2 = findobj(handles.profiles(profileNum),'tag','tab_peak');
+% 	set(tab2,'ForegroundColor',[0.8 0.8 0.8]);
+	
 	if handles.guidata.numProfiles >= 6
 		set(handles.push_addprofile, 'enable', 'off');
 	end
+	
+	if handles.guidata.numProfiles > 1
+		set(handles.push_prevprofile, 'visible','on','enable','on');
+		set(handles.push_nextprofile,'visible','on', 'enable', 'off');
+	end
 
 % 	set(handles.togglebutton_showbkgd,'enable','off');
-	set(handles.push_removeprofile,'enable','on');
-	set(handles.panel_range,'visible','on');
+	set(handles.push_removeprofile,'enable','on', 'visible', 'on');
 	
 	function obj = duplicate_uipanel3()
-		
-		
-		
-			% 		javax.swing.UIManager.setLookAndFeel(lf);
-			% 		drawnow();
 		
 		
 		% Takes handles.profiles(1) and returns a deep copy. If there is an existing
@@ -36,6 +35,7 @@ function handles = add_profile(handles)
 		popup = findobj(obj.Children, 'style', 'popupmenu');
 		edit = findobj(obj.Children, 'style', 'edit');
 		check = findobj(obj.Children, 'style', 'checkbox');
+		
 		
 		% Reset userdata to 0
 		set([popup; edit; check], 'userdata', 0);
@@ -69,6 +69,18 @@ function handles = add_profile(handles)
 		end
 		
 		
+		%********************************************************%
+		% Create tab panels
+		%********************************************************%
+		handles.tabpanel = uix.TabPanel('parent', obj, 'tag','tabpanel');
+		set(findobj(obj,'tag', 'panel_setup'), 'parent', handles.tabpanel, 'visible', 'on', 'title', '');
+		set(findobj(obj,'tag','panel_parameters'),'parent',handles.tabpanel, 'visible', 'on', 'title','');
+		set(findobj(obj,'tag','panel_results'), 'parent', handles.tabpanel, 'visible', 'on', 'title','');
+		set(handles.panel_coeffs, 'visible', 'off');
+		
+		set(handles.tabpanel, 'tabtitles', {'1. Setup', '2. Options', '3. Results'}, 'tabenables', {'on','off','off'});
+		
+		
 	end
 	
 	
@@ -79,12 +91,6 @@ function handles = add_profile(handles)
 		% Add listener for each xrd object
 		addlistener(handles.xrdContainer(profileNum), 'Status', ...
 			'PostSet', @(o,e)listener.statusChange(o,e,handles,profileNum));
-		
-		% Reset UserData
-		popup=findobj(handles.profiles(profileNum).Children,'style','popupmenu','visible','on');
-		edit=findobj(handles.profiles(profileNum).Children,'style','edit');
-		check=findobj(handles.profiles(profileNum).Children,'style','checkbox');
-		set([popup;edit;check],'userdata',0);
 		
 		minbox = findobj(handles.profiles(profileNum),'Tag','edit_min2t');
 		maxbox = findobj(handles.profiles(profileNum),'Tag','edit_max2t');

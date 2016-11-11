@@ -5,14 +5,14 @@ function reset_panel_view(handles)
 	set(handles.edit_max2t,'String',sprintf('%2.4f',handles.xrd.Max2T));
 	set(handles.edit_fitrange,'String',sprintf('%2.3f',handles.xrd.fitrange));
 	set(handles.push_cancelupdate, 'visible', 'off');
-	set(handles.push_update, 'enable', 'off');
+	set(handles.push_update, 'enable', 'off', 'visible', 'off');
 	
 	set(handles.panel_profilecontrol, 'visible', 'on');
 	set(handles.uipanel3, 'visible', 'off');
 	
-	set(findobj(handles.tab_peak.Children), 'visible', 'off');
-	set(findobj(handles.tab_results.Children), 'visible', 'off');
-	set([handles.tab_peak, handles.tab_results],'ForegroundColor',[0.8 0.8 0.8]);
+% % 	set(findobj(handles.tab_peak.Children), 'visible', 'off');
+% % 	set(findobj(handles.tab_results.Children), 'visible', 'off');
+% % 	set([handles.tab_peak, handles.tab_results],'ForegroundColor',[0.8 0.8 0.8]);
 
 	assert(handles.profiles(7).UserData == handles.guidata.numProfiles);
 	if handles.profiles(7).UserData == 0
@@ -40,6 +40,8 @@ function reset_panel_view(handles)
 		set(handles.edit_lambda,'enable','off');
 	end
 	
+	set(handles.uipanel3,'visible', 'on');
+	
 	
 	
 function tab0(handles)
@@ -60,10 +62,8 @@ function tab1(handles)
 	
 	set(handles.panel_constraints.Children,'Value',0);
 	handles.guidata.constraints = zeros(1,4);
+	set(handles.tabpanel, 'tabenables', {'on', 'off','off'}, 'selection', 1);
 	
-	set(handles.tabgroup,'SelectedTab',handles.tab_setup);
-	set(handles.uipanel3, 'visible', 'on');
-	set(findobj(handles.tab_setup.Children), 'visible', 'on');
 	
 	set(findobj(handles.panel_profilecontrol), 'visible', 'on');
 	set(handles.panel_range, 'visible','on');
@@ -80,8 +80,7 @@ function tab1(handles)
 function tab2(handles)
 	set(handles.uipanel3, 'visible', 'on');
 	set(findobj(handles.panel_profilecontrol), 'visible', 'on'); 
-	set(handles.tab_peak,'ForegroundColor',[0 0 0]);
-	set(handles.tabgroup, 'SelectedTab', handles.tab_peak);
+	set(handles.tabpanel, 'tabenables', {'on', 'on','off'}, 'selection', 2);
 	
 	
 	if ~isempty(handles.xrd.PSfxn)
@@ -108,9 +107,7 @@ function tab2(handles)
 function tab3(handles)
 	set(handles.uipanel3, 'visible', 'on');
 	set(findobj(handles.panel_profilecontrol), 'visible', 'on'); 
-	set(handles.tabgroup.Children, 'foregroundcolor',  [0 0 0]);
-	set(handles.tabgroup, 'selectedtab',handles.tab_peak);
-	set(findobj(handles.tab_results.Children), 'visible', 'on');
+	set(handles.tabpanel, 'tabenables', {'on', 'on','on'}, 'selection', 3);
 	
 	
 	

@@ -1,6 +1,7 @@
 % Switches profiles. If hObject = 'push_prevprofile', switches to previous
 % profile. If hObject = 'push_nextprofile', switches to next profile. 
 function handles = change_profile(iProfile, handles)
+	
 max = handles.guidata.numProfiles;
 max = handles.profiles(7).UserData; % DELETE
 assert(max == handles.guidata.numProfiles);
@@ -34,10 +35,14 @@ guidata(handles.figure1, handles)
 	
 	% uipanels
 	hObject = handles.uipanel3;
+	objs = findobj(handles.uipanel3);
 	% xrd
 	handles.xrd = handles.xrdContainer(iProfile);
+	
 
 	% Tab 1. Setup 
+	handles.tab_setup = findobj(hObject, 'tag', 'tab_setup');
+	handles.panel_setup = findobj(hObject, 'tag', 'panel_setup');
 	handles.panel_range = findobj(hObject, 'Tag', 'panel_range'); % range
 	handles.edit_fitrange = findobj(hObject,'Tag','edit_fitrange'); 
 	handles.edit_max2t = findobj(hObject,'Tag','edit_max2t');
@@ -50,7 +55,14 @@ guidata(handles.figure1, handles)
 	handles.edit_bkgdpoints = findobj(hObject,'Tag','edit_bkgdpoints');
 	handles.edit_polyorder = findobj(hObject,'Tag','edit_polyorder');
 	
+	handles.btns1 = findobj(hObject, 'tag', 'btns1');
+	handles.b1_toggle1 = findobj(hObject, 'tag', 'b1_toggle1');
+	handles.b1_toggle2 = findobj(hObject, 'tag', 'b1_toggle2');
+	handles.b1_toggle3= findobj(hObject, 'tag', 'b1_toggle3');
+	
 	% Tab 2. panel_parameters
+% 	handles.tab_peak = findobj(hObject, 'tag', 'tab_peak');
+	handles.panel_parameters = findobj(hObject, 'tag', 'table_parameters');
 	handles.table_paramselection = findobj(hObject, 'Tag', 'table_paramselection');
 	handles.panel_constraints = findobj(hObject,'Tag','panel_constraints'); 
 	handles.checkboxm = findobj(hObject,'Tag','checkboxm');
@@ -66,20 +78,25 @@ guidata(handles.figure1, handles)
 	handles.push_update = findobj(hObject,'Tag','push_update'); % Update button
 	handles.push_cancelupdate = findobj(hObject, 'tag', 'push_cancelupdate');
 	
+	handles.btns2 = findobj(hObject,'tag', 'btns2');
+	handles.b2_toggle1 = findobj(hObject, 'tag', 'b2_toggle1');
+	handles.b2_toggle2 = findobj(hObject, 'tag', 'b2_toggle2');
+% 	handles.b2_toggle3 = findobj(hObject, 'tag', 'b2_toggle3');
+	
 	
 	% Tab 3. panel_results
+	handles.panel_results=findobj(hObject, 'tag', 'panel_results');
 	handles.btngroup_plotresults = findobj(hObject, 'Tag', 'btngroup_plotresults');
 	handles.radio_coeff = findobj(hObject, 'Tag', 'radio_coeff');
 	handles.radio_peakeqn = findobj(hObject, 'Tag', 'radio_peakeqn');
 	handles.listbox_files = findobj(hObject, 'Tag', 'listbox_files');
 	handles.table_results = findobj(hObject, 'Tag', 'table_results');
+% 	handles.tab_results = findobj(hObject, 'tag', 'tab_results');
 	
 	
 	% tabs
-	handles.tabgroup=findobj(hObject,'tag','tabgroup');
-	handles.tab_setup=findobj(hObject,'tag','tab_setup');
-	handles.tab_peak=findobj(hObject,'tag','tab_peak');
-	handles.tab_results=findobj(hObject,'tag','tab_results');
+	handles.tabpanel=findobj(hObject,'tag','tabpanel');
+	handles.tabgroup = findobj(hObject, 'tag', 'tabgroup');
 	
 	end
 end

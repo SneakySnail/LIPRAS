@@ -5,6 +5,7 @@ function WindowButtonMotionFcn(hObject, evt, handles)
 	
 	obj = hittest(hObject);
 	try
+
 		if  ~isempty(obj.TooltipString)
 			handles.statusbarObj.setText(obj.TooltipString);
 		end

@@ -14,8 +14,8 @@ function handles = load_parameter(handles)
 	set(handles.edit_fitrange,'String',num2str(handles.xrd.fitrange));
 	
 	% tab_parameters
-	set(handles.tabgroup, 'SelectedTab', handles.tab_peak);
-	set(handles.tab_peak, 'ForegroundColor', [0 0 0]);
+% 	set(handles.tabgroup, 'SelectedTab', handles.tab_peak);
+% 	set(handles.tab_peak, 'ForegroundColor', [0 0 0]);
 	
 	set(handles.text12,'visible','on');
 	set(handles.edit_numpeaks,'visible','on','String',num2str(length(handles.xrd.PSfxn)));

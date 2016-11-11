@@ -2,13 +2,13 @@ function edit_numpeaks_Callback(hObject, evt, handles)
 	str = get(hObject, 'string');
 	num = str2double(str);
 	
-	if isempty(str) || isnan(num) || num < 1 || num > 25
+	if isempty(str) || isnan(num) || num < 1
 % 		set(findobj(handles.tab_peak.Children), 'visible', 'off');
 		% 		set(hObject, 'String', '1-10', ...
 		% 				'FontAngle', 'italic', ...
 		% 				'ForegroundColor', [0.8 0.8 0.8], ...
 		% 				'Enable', 'inactive');
-		t12 = findobj(handles.uipanel3, 'tag', 'text12');
+% 		t12 = findobj(handles.tab_peak, 'tag', 'text12');
 		set([t12, handles.edit_numpeaks], 'visible', 'on');
 		handles.guidata.numPeaks = 0;
 		return
@@ -18,11 +18,8 @@ function edit_numpeaks_Callback(hObject, evt, handles)
 	if length(handles.xrd.PeakPositions) ~= num
 		handles.guidata.PeakPositions = [];
 	end
-	
 	handles.xrd.Status=['Number of peaks set to ',num2str(num),'.'];
-	
-	set(findobj(handles.panel_parameters), 'visible', 'on');
-	
+% 	set(findobj(handles.tab_peak.Children), 'visible', 'on');
 	set(handles.panel_constraints.Children, 'enable', 'off', 'value', 0);
 	set(findobj(handles.panel_coeffs.Children),'enable','off');
 	if isempty(handles.guidata.fit_initial)

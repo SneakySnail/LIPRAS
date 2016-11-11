@@ -33,14 +33,16 @@ function FDGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 
 	addpath(genpath('callbacks'));
 	addpath(genpath('dialog'));
-	addpath('test-path/');
+	addpath(genpath('GUI Layout Toolbox'));
+	addpath('test-dont-include/');
+	addpath('scripts/');
 
 	handles = init_GUI(handles, varargin);
 	
 	% Choose default command line output for FDGUI
 	handles.output = hObject;
 	
- 	handles.figure1.WindowButtonMotionFcn = @(o, e)WindowButtonMotionFcn(o, e,guidata(o));	
+% 	handles.figure1.WindowButtonMotionFcn = @(o, e)WindowButtonMotionFcn(o, e,guidata(o));	
 	
 	
 	 
@@ -87,17 +89,15 @@ function push_newbkgd_Callback(hObject, eventdata, handles)
 	polyorder = str2num(handles.edit_polyorder.String);
 	handles.xrd.resetBackground(numpoints,polyorder);
 	
-%  	set(handles.tab_peak.Children, 'visible', 'off');
+% 	set(handles.tab_peak.Children, 'visible', 'off');
 	
 	if ~isempty(handles.xrd.bkgd2th)
-%  		set(handles.tab_peak,'ForegroundColor',[0 0 0]);
-%  		handles.tabgroup.SelectedTab= handles.tab_peak;
+% 		set(handles.tab_peak,'ForegroundColor',[0 0 0]);
+% 		handles.tabgroup.SelectedTab= handles.tab_peak;
 	end
 	
- 	t12 = findobj(handles.uipanel3, 'tag', 'text12');
+% 	t12 = findobj(handles.tab_peak, 'tag', 'text12');
 	set([t12, handles.edit_numpeaks], 'visible', 'on', 'enable', 'on');
-	handles.tabpanel.TabEnables{2}='on';
-	handles.tabpanel.Selection = 2;
 	
 	plotX(handles);
 	guidata(hObject, handles)
@@ -112,9 +112,6 @@ function radio_stopleastsquares_Callback(hObject, eventdata, handles)
 	
 function uitoggletool4_ClickedCallback(hObject, eventdata, handles)
 	
-	
-	
-function tabgroup_SelectionChangedFcn(hObject, eventdata, handles)
 	
 function menu_edit_Callback(hObject, eventdata, handles)
 	

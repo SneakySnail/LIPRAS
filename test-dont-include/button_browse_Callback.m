@@ -1,7 +1,5 @@
 %  Executes on button press in button_browse.
 function button_browse_Callback(hObject, eventdata, handles)
-	
-	
 	handles.xrd.Status='Browsing for dataset... ';
 	handles = import_data(handles);
 	
@@ -33,6 +31,13 @@ function button_browse_Callback(hObject, eventdata, handles)
 		guidata(hObject, handles)
 		
 		
+		
+		
+		
+		
+		
+		
+		
 		% Check if there is data loaded
 		function confirm_new_dataset()
 			% 		try a = call.overwriteExistingFit(handles);
@@ -44,17 +49,15 @@ function button_browse_Callback(hObject, eventdata, handles)
 			if strcmpi(a,'Cancel') || ~data_in % If user cancels action
 				handles.xrd.Status = [handles.xrd.Status, 'Canceled: no data was loaded.'];
 				error('No data was loaded.') % interrupts function
-% 				reset_panel_view(handles);
-			end
-			
-			
-			
+				reset_panel_view(handles);
+			end	
 		end
 		
-		function resetGUIData()	
+		function resetGUIData()
 			handles.xrdContainer(7) = copy(temp);
 			handles.xrd = handles.xrdContainer(7);
-			handles.uipanel3 = handles.profiles(7);
+			setappdata(handles.uipanel3, 'xrd', handles.xrdContainer(7));
+			
 			handles.profiles(7).UserData = 0; %DELETE
 			handles.guidata.numProfiles = 0;
 			
@@ -97,9 +100,8 @@ function button_browse_Callback(hObject, eventdata, handles)
 			set(handles.popup_filename, 'Value', 1);
 			
 		end
-		set(handles.panel_rightside,'visible','on');
 		
-% 		reset_panel_view(handles);
+		reset_panel_view(handles);
 	
 		
 	end
