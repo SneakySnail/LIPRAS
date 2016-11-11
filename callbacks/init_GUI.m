@@ -29,10 +29,10 @@ function handles = init_GUI(handles, varargin)
 	handles.guidata.fit_results = [];
 	
 	% Change the time to wait until tooltip is displayed
-% 	setToolTipDelay();
+	setToolTipDelay();
 	
 	% Create the java object status bar
-% 	createJavaStatusBar();
+	createJavaStatusBar();
 	
 	createTabs();
 	
@@ -42,7 +42,6 @@ function handles = init_GUI(handles, varargin)
 	function  setToolTipDelay()
 		% Set tool tip time delay
 		tm = javax.swing.ToolTipManager.sharedInstance;
-		tm = javaObjectEDT(tm);
 		javaMethodEDT('setInitialDelay', tm, 200);
 	end
 	
@@ -75,7 +74,7 @@ function handles = init_GUI(handles, varargin)
 			jRootPane.setStatusBarVisible(1);
 			
 		catch
-			errordlg('Java components could not be created.')
+			error('Java components could not be created.')
 		end
 	end
 	

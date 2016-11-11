@@ -28,21 +28,26 @@ gui_Singleton = 1;
 	
 % Executes just before FDGUI is made visible.
 function FDGUI_OpeningFcn(hObject, eventdata, handles, varargin)
+
 	import javax.swing.*
+	import javax.swing.UIManager.*
 	import java.awt.*
+	
+	dbstop if error
+	addpath('callbacks/')
+	addpath('test/')
+	addpath('dialog/')	
 
-	addpath(genpath('callbacks'));
-	addpath(genpath('dialog'));
-	addpath(genpath('GUI Layout Toolbox'));
-	addpath('test/');
-	addpath('scripts/');
-
+	
+	
 	handles = init_GUI(handles, varargin);
+	
+	
 	
 	% Choose default command line output for FDGUI
 	handles.output = hObject;
 	
-% 	handles.figure1.WindowButtonMotionFcn = @(o, e)WindowButtonMotionFcn(o, e,guidata(o));	
+	handles.figure1.WindowButtonMotionFcn = @(o, e)WindowButtonMotionFcn(o, e,guidata(o));	
 	
 	
 	 

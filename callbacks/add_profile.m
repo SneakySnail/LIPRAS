@@ -22,6 +22,9 @@ function handles = add_profile(handles)
 	set(handles.panel_range,'visible','on');
 	
 	function obj = duplicate_uipanel3()
+		
+		
+		
 			% 		javax.swing.UIManager.setLookAndFeel(lf);
 			% 		drawnow();
 		
