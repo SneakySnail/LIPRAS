@@ -70,6 +70,7 @@ guidata(handles.figure1, handles)
 	% Tab 3. panel_results
 	handles.btngroup_plotresults = findobj(hObject, 'Tag', 'btngroup_plotresults');
 	handles.radio_coeff = findobj(hObject, 'Tag', 'radio_coeff');
+    handles.radio_statistics = findobj(hObject, 'Tag', 'radio_statistics');
 	handles.radio_peakeqn = findobj(hObject, 'Tag', 'radio_peakeqn');
 	handles.listbox_files = findobj(hObject, 'Tag', 'listbox_files');
 	handles.table_results = findobj(hObject, 'Tag', 'table_results');
