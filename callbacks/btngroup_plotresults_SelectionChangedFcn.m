@@ -31,9 +31,28 @@ function btngroup_plotresults_SelectionChangedFcn(hObject, evt, handles)
 			handles.table_results.Data{1, 1} = true;
 			
 			r = find([handles.table_results.Data{:,1}], 1); % the selected coefficient to plot
-			plot_coeffs(r, handles);
+			s='NoStats';
+            plot_coeffs(r,s, handles);
 			
+        case handles.radio_statistics
+            set(handles.listbox_files, 'enable', 'off');
+			set(handles.popup_filename, 'enable', 'off');
+            			rlen = length(handles.xrd.Fcoeff{1});
+			set(handles.table_results, ...
+					'Data', num2cell([zeros(rlen,1), result_vals]), ...
+					'ColumnName', {'', handles.xrd.Filename{:}}, ...
+					'ColumnFormat', {'logical', 'numeric'}, ...
+					'ColumnWidth', {30, 'auto'}, ...
+					'ColumnEditable', [true false]);
 			
+			handles.table_results.Data{1, 1} = true;
+			
+            
+            s='Rsquare';
+            			r = 1; % the selected coefficient to plot
+
+            			plot_coeffs(r,s, handles);
+            
 		otherwise
 			
 			

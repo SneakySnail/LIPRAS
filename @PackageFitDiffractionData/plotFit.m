@@ -7,7 +7,7 @@ function plotFit(Stro,dataSet)
 	elseif strcmp(dataSet,'all')
 		dataSet0 = 1;
 		dataSetf = size(Stro.fit_results,2);
-		figure(5)
+		figure(5);
 	else
 		dataSet0 = dataSet;
 		dataSetf = dataSet;
