@@ -109,7 +109,7 @@ function outputError(Stro,~)
 		w=(1./obs); %defines the weighing parameter for Rwp
 		Rwp=(sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
         
-        DOF=size(obs,1)-Stro.FmodelGOF{i}.dfe; % degrees of freedom from error
+        DOF=Stro.FmodelGOF{i}.dfe; % degrees of freedom from error
         Rexp=sqrt(DOF/sum(w.*obs.^2)); % Rexpected
         rchi2=(Rwp/Rexp)/100; % reduced chi-squared, GOF
 		
