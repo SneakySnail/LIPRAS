@@ -6,14 +6,14 @@ cla(handles.axes2)
 filenum=handles.popup_filename.Value;
 
 if isempty(handles.xrd.Fmodel) % If there isn't a fit yet
-	handles.xrd.plotData(get(handles.popup_filename,'Value'));
+	plotData(handles, get(handles.popup_filename,'Value'));
 	try
 		handles = plot_sample_fit(handles);
 	catch
 			
 	end
 else
-	handles.xrd.plotFit(get(handles.popup_filename,'Value'));
+	plotFit(handles, get(handles.popup_filename,'Value'));
 end
 
 xlabel('2\theta','FontSize',15);

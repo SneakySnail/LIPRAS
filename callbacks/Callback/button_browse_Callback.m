@@ -4,6 +4,7 @@ function button_browse_Callback(hObject, eventdata, handles)
 	
 	handles.xrd.Status='Browsing for dataset... ';
 	handles = import_data(handles);
+	plotData(handles,handles.popup_filename.Value);
 	
 	assignin('base','h',handles)
 	guidata(hObject, handles)

@@ -102,6 +102,10 @@ function handles = add_profile(handles)
 		
 		set(handles.tabpanel, 'tabtitles', {'1. Setup', '2. Options', '3. Results'}, ...
 			'tabenables', {'on','off','off'}, 'fontsize', 11, 'tabwidth', 75);
+	
+	
+	
+	addlistener(handles.btns2, 'SelectedObject', 'PostSet', @(o,e)visible.b2_toggle_listener(o,e,guidata(e.AffectedObject)));
 		
 		
 	end

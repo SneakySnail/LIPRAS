@@ -3,9 +3,8 @@
 function WindowButtonMotionFcn(hObject, evt, handles)
 % 	handles.statusbarObj.setText(['Current point: ', num2str(hObject.CurrentPoint)]);
 	
-	obj = hittest(hObject);
 	try
-
+		obj = hittest(hObject);
 		if  ~isempty(obj.TooltipString)
 			handles.statusbarObj.setText(obj.TooltipString);
 		end

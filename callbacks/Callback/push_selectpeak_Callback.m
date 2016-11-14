@@ -9,11 +9,11 @@ function push_selectpeak_Callback(~,~,handles)
 	
 	
 	coeff = handles.xrd.getCoeff(handles.xrd.PSfxn, handles.xrd.Constrains);
-	setappdata(handles.uipanel3, 'coeff', coeff);
 	
 	peakTableRow = find(strncmp(coeff, 'x', 1));
 	status='Selecting peak positions(s)... ';
 	hold on
+	handles.xrd.PeakPositions = [];
 	
 	% ginput for x position of peaks
 	for i=1:length(peakTableRow)
@@ -36,6 +36,7 @@ function push_selectpeak_Callback(~,~,handles)
 	end
 	
 	fill_table_fitinitial(handles);
+	
 	setappdata(handles.uipanel3, 'PeakPositions', handles.xrd.PeakPositions);
 	hold off
 

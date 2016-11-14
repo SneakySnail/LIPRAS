@@ -74,7 +74,6 @@ function [Stro, has_data] = Read_Data(Stro, fname, path)
 		Stro.Max2T = max(Stro.two_theta);
 		
 		
-		Stro.plotData
 		
 	else
 		has_data=false;

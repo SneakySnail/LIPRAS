@@ -1,5 +1,6 @@
 % TODO Move to FDGUIv2_1
-function plotFit(Stro,dataSet)
+function plotFit(handles,dataSet)
+Stro = handles.xrd;
 	if nargin == 1
 		dataSet = 1;
 		dataSet0 = dataSet;

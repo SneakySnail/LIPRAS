@@ -33,6 +33,7 @@ function isFilled = fill_table_fitinitial(handles)
 		
 		isFilled = true;
 		setappdata(handles.uipanel3, 'fit_initial', handles.xrd.fit_initial);
+
 	catch
 		
 	end

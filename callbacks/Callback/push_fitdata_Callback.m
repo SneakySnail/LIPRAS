@@ -30,7 +30,7 @@ function push_fitdata_Callback(hObject, ~, handles)
 	end
 	
 	filenum = get(handles.popup_filename, 'Value');		% The current file visible
-	handles.xrd.plotFit(filenum);					  % Plot current file
+	plotFit(handles, filenum);					  % Plot current file
 	vals = handles.xrd.fit_parms{filenum};			% The fitted parameter results
 	
 	handles.table_fitinitial.Data = data;
@@ -40,13 +40,14 @@ function push_fitdata_Callback(hObject, ~, handles)
 	
 	set(handles.menu_save,'Enable','on');
 
-	set(handles.tabpanel, 'TabEnables', {'on', 'on', 'on'}, 'Selection', 3);
 	
 	fill_table_results(handles);
+
+	set(handles.tabpanel, 'TabEnables', {'on', 'on', 'on'});
+	set(handles.tab2_next, 'visible', 'on');
 	
 	handles.xrd.Status = 'Fitting dataset... Done.';
 	
-	LIPRAS('uitoggletool5_OnCallback', handles.uitoggletool5, [], guidata(hObject));
 	set(handles.radio_stopleastsquares, 'enable', 'off', 'value', 0);
 	assignin('base','h',handles)
 	guidata(hObject, handles)

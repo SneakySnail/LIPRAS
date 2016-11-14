@@ -30,7 +30,7 @@ function push_fitdata_Callback(hObject, ~, handles)
 	end
 	
 	filenum = get(handles.popup_filename, 'Value');		% The current file visible
-	handles.xrd.plotFit(filenum);					  % Plot current file
+	plotFit(handles, filenum);					  % Plot current file
 	vals = handles.xrd.fit_parms{filenum};			% The fitted parameter results
 	
 	handles.table_fitinitial.Data = data;
