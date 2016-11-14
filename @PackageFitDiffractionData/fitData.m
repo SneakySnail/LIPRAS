@@ -41,11 +41,11 @@ function fitData(Stro, position, PSfxn, SP1, UB1, LB1)
 			Stro.fitXRD(datasent, Stro.PeakPositions,i);
 			
 			if isa(Stro.Filename,'char')
-				[path, filename, ext] = fileparts( Stro.Filename );
+				[path, filename, ext] = fileparts(Stro.Filename);
 			elseif length(Stro.Filename) == 1
-				[path, filename, ext] = fileparts( Stro.Filename{1} );
+				[path, filename, ext] = fileparts(Stro.Filename{1});
 			else
-				[path, filename, ext] = fileparts( Stro.Filename{i} );
+				[path, filename, ext] = fileparts(Stro.Filename{i});
 			end
 			
 			clear path ext

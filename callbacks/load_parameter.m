@@ -19,7 +19,7 @@ function handles = load_parameter(handles)
 	
 	set(handles.text12,'visible','on');
 	set(handles.edit_numpeaks,'visible','on','String',num2str(length(handles.xrd.PSfxn)));
-	FDGUI('edit_numpeaks_Callback', handles.edit_numpeaks, [], guidata(handles.figure1));
+	LIPRAS('edit_numpeaks_Callback', handles.edit_numpeaks, [], guidata(handles.figure1));
 	
 	% load peak functions into table
 	assert(length(handles.xrd.PSfxn)==length(handles.table_paramselection.Data(:,1)));

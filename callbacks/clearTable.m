@@ -9,7 +9,7 @@ handles.table_fitinitial.Data = cell(len,3);
 set(hObject.Parent.Children,'Enable','off');
 set(handles.push_selectpeak,'Enable','on', 'string', 'Select Peak(s)');
 set(handles.table_fitinitial,'Enable','on');
-handles.xrd.plotData(get(handles.popup_filename,'Value'));
+plotData(handles,get(handles.popup_filename,'Value'));
 % 
 % if strcmpi(handles.uitoggletool5.State,'on')
 % 	legend(handles.xrd.DisplayName,'box','off')

@@ -134,8 +134,19 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
 		end
 				
 		function data = getRawData(Stro,file,fitrange)
-			datainMin = PackageFitDiffractionData.Find2theta(Stro.two_theta,Stro.Min2T);
-			datainMax = PackageFitDiffractionData.Find2theta(Stro.two_theta,Stro.Max2T);
+				mid = mean([Stro.Min2T Stro.Max2T]);
+				leftbound = mid-fitrange/2;
+				rightbound = mid+fitrange/2;
+				if leftbound < Stro.Min2T
+						leftbound = Stro.Min2T;
+				end
+				if leftbound > Stro.Max2T
+						rightbound = Stro.Max2T;
+				end
+				
+			datainMin = PackageFitDiffractionData.Find2theta(Stro.two_theta,leftbound);
+			datainMax = PackageFitDiffractionData.Find2theta(Stro.two_theta,rightbound);
+			
 			
 			data = Stro.data_fit(:,datainMin:datainMax); %Extract relevant 2theta region
 			TwT = Stro.two_theta(datainMin:datainMax); %Extract relevant 2theta region

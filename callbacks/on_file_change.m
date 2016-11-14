@@ -26,7 +26,7 @@ function popup_change(hObject, handles)
 				return
 			end
 		end
-		handles.xrd.plotData(filenum,'superimpose');
+		plotData(handles,filenum,'superimpose');
 	else
 		cla
 		hold off

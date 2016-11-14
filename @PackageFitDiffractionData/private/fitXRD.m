@@ -50,11 +50,9 @@ for i=1:size(position,1)
 		if maxr>fitrangeX; maxr=fitrangeX; end
 		fitdata{i} = dataNB(:,minr:maxr);
 		assignin('base','fitdata',fitdata) % ADDED BY GIO
-		%                 figure(3);
-		%                 plot(fitdata{filenum,i}(1,:),fitdata{filenum,i}(2,:));
 		
-		g=Stro.makeFunction(Stro.PSfxn(i,:),fitdata{i},position(i,:));
-		
+		g=Stro.makeFunction(Stro.PSfxn(i,:), fitdata{i}, position(i,:));
+		 
 		coefficients{i}=coeffnames(g);
 		len=length(coefficients{1});
 		if exist('InputPSfxn','var')==1

@@ -42,7 +42,7 @@ for i=1:length(handles.xrd.bkgd2th)
 end
 
 cla
-handles.xrd.plotData(get(handles.popup_filename,'Value'));
+plotData(handles, get(handles.popup_filename,'Value'));
 [P,S,U]=polyfit(handles.xrd.bkgd2th,bkgdInt,handles.xrd.PolyOrder);
 hold on
 datafit=plot(data(1,:),polyval(P,data(1,:),S,U),':',...
@@ -179,6 +179,6 @@ end
 dispname={datafit.DisplayName};
 handles.xrd.DisplayName=[handles.xrd.DisplayName,dispname];
 
-FDGUI('uitoggletool5_OnCallback', handles.uitoggletool5, [], handles);
+LIPRAS('uitoggletool5_OnCallback', handles.uitoggletool5, [], handles);
 end
 

@@ -1,7 +1,7 @@
 function [points,indX]=getBackground(Stro, numpoints)
 if isempty(Stro.bkgd2th)
 		Stro.Status='Choosing number of background points...';
-		Stro.plotData(1)
+% 		Stro.plotData(1)
 		
 		if nargin < 2
 				prompt = {'Number of background points:'};
@@ -28,7 +28,7 @@ if isempty(Stro.bkgd2th)
 		Stro.Status=[num2str(numpoints),' background points were selected.'];
 		
 		cla
-		Stro.plotData(1)
+% 		Stro.plotData(1)
 else
 		points(:,1) = Stro.bkgd2th;
 end

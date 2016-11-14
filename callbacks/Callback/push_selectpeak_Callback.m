@@ -3,14 +3,17 @@ function push_selectpeak_Callback(~,~,handles)
 	handles.xrd.Status='Selecting peak positions(s)... ';
 	
 	oldTableData = handles.table_fitinitial.Data;
-	handles.xrd.PSfxn = handles.table_paramselection.Data(:,1)'; %DELETE
+	fcns = getappdata(handles.table_paramselection, 'PSfxn');
+	handles.xrd.PSfxn = handles.table_paramselection.Data(:,1)';
+	
+	
 	
 	coeff = handles.xrd.getCoeff(handles.xrd.PSfxn, handles.xrd.Constrains);
-	setappdata(handles.uipanel3, 'coeff', coeff);
 	
 	peakTableRow = find(strncmp(coeff, 'x', 1));
 	status='Selecting peak positions(s)... ';
 	hold on
+	handles.xrd.PeakPositions = [];
 	
 	% ginput for x position of peaks
 	for i=1:length(peakTableRow)
@@ -30,11 +33,12 @@ function push_selectpeak_Callback(~,~,handles)
 		pos=PackageFitDiffractionData.Find2theta(handles.xrd.two_theta,x);
 		plot(x, handles.xrd.data_fit(1,pos), 'r*') % 'ko'
 		
-		fill_table_fitinitial(handles);
 	end
-	setappdata(handles.uipanel3, 'PeakPositions', handles.xrd.PeakPositions);
 	
-		hold off
+	fill_table_fitinitial(handles);
+	
+	setappdata(handles.uipanel3, 'PeakPositions', handles.xrd.PeakPositions);
+	hold off
 
 	update_fitoptions(handles);
 	set(handles.btns2, 'visible', 'on', 'selectedobject', handles.b2_toggle3);

@@ -1,18 +1,43 @@
 
-% Executes whenever the value of a uicontrol object cvhanges
-function updateUserData(o,e,handles)
+% Executes whenever the value of uipanel.ApplicationData changes.
+function updateUserData(src,e,handles)
+% Affected object can be:
+%     edit_min2t.String
+%     edit_max2t.String
+%     edit_numpeaks.String
+%     edit_fitrange.String
+%     panel_constraints.UserData
+%     table_paramselection.Data
+%     push_selectpeak.UserData
+
 hObject = e.AffectedObject;
-try 
-	switch hObject.Style
-		case 'edit'
-			val=str2double(hObject.String);
-			set(hObject, 'userdata', val);
-			
-		otherwise
-			val=hObject.Value - 1;
-			set(hObject,'userdata', val);
-			
-	end
+
+try
+		switch hObject.Tag
+				case 'edit_min2t'
+						
+						
+				case 'edit_max2t'
+						
+						
+				case 'edit_fitrange'
+						
+						
+				case 'checkboxN'
+						
+						
+				case 'checkboxf'
+						
+						
+				case 'checkboxw'
+						
+						
+				case 'checkboxm'
+						
+						
+				case 'table_
+						
+		end
 catch
-	return
+		return
 end

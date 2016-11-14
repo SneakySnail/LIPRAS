@@ -35,8 +35,6 @@ createJavaStatusBar();
 
 addControlListeners();
 
-%  	createTabs();
-
 
 set(handles.panel_setup, 'parent', handles.profiles(7));
 set(handles.panel_parameters,'parent', handles.profiles(7));
@@ -47,79 +45,49 @@ set(handles.panel_results, 'parent', handles.profiles(7));
 				addlistener(handles.edit_numpeaks, 'UserData', 'PostSet', @(o,e)guidata.numpeaks(o,e,guidata(e.AffectedObject)));
 				
 		end
+
+
+
+		function  setToolTipDelay()
+				% Set tool tip time delay
+				tm = javax.swing.ToolTipManager.sharedInstance;
+				javaMethodEDT('setInitialDelay', tm, 200);
+		end
+
+		function createJavaStatusBar()
 				
-				
-				function  setToolTipDelay()
-						% Set tool tip time delay
-						tm = javax.swing.ToolTipManager.sharedInstance;
-						javaMethodEDT('setInitialDelay', tm, 200);
-				end
-				
-				function createJavaStatusBar()
-						
+				try
+						% Turn off JavaFrame obsolete warning
+						warning off MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame;
+						jFrame=get(handles.figure1,'JavaFrame');
 						try
-								% Turn off JavaFrame obsolete warning
-								warning off MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame;
-								jFrame=get(handles.figure1,'JavaFrame');
-								try
-										jRootPane = jFrame.fFigureClient.getWindow;  % This works up to R2011a
-								catch
-										try
-												jRootPane = jFrame.fHG1Client.getWindow;  % This works from R2008b-R2014a
-										catch
-												jRootPane = jFrame.fHG2Client.getWindow;  % This works from R2014b and up
-										end
-								end
-								
-								
-								% left status bar
-								handles.statusbarObj = javaObjectEDT('com.mathworks.mwswing.MJStatusBar');
-								jRootPane.setStatusBar(handles.statusbarObj);
-								handles.statusbarObj.setText('<html>Please import file(s) containing data to fit.</html>');
-								
-								% right status bar
-								handles.statusbarRight = javaObjectEDT('com.mathworks.mwswing.MJStatusBar');
-								handles.statusbarObj.add(handles.statusbarRight, 'East');
-								handles.statusbarRight.setText('');
-								jRootPane.setStatusBarVisible(1);
-								
+								jRootPane = jFrame.fFigureClient.getWindow;  % This works up to R2011a
 						catch
-			errordlg('Java components could not be created.')
+								try
+										jRootPane = jFrame.fHG1Client.getWindow;  % This works from R2008b-R2014a
+								catch
+										jRootPane = jFrame.fHG2Client.getWindow;  % This works from R2014b and up
+								end
 						end
-				end
-				
-				
-				
-				function createTabs()
-						tabnames = {'<html><font size= "4" font face="default">1. Setup', ...
-								'<html><font size= "4" font face="default">2. Options',  ...
-								'<html><font size= "4" font face="default">3. Results'};
-						
-						% Creates the tabs and tab group for uipanel3.
-						handles.tabgroup = uitabgroup('Parent', handles.uipanel3, ...
-								'tag', 'tabgroup', ...
-								'SelectionChangedFcn', @(hObject,eventdata)FDGUI('tabgroup_SelectionChangedFcn', hObject, eventdata, guidata(hObject)));
-						handles.tab_setup = uitab(handles.tabgroup, ...
-								'Title', tabnames{1}, ...
-								'tag', 'tab_setup', ...
-								'TooltipString', 'Edit the profile range and background points.');
-						handles.tab_peak = uitab(handles.tabgroup, ...
-								'Title', tabnames{2}, ...
-								'tag', 'tab_peak', ...
-								'ForegroundColor', [0.8 0.8 0.8], ...
-								'TooltipString', 'Input the peak functions and initial bounds for the fit equation.');
-						handles.tab_results = uitab(handles.tabgroup, ...
-								'Title', tabnames{3}, ...
-								'tag', 'tab_results', ...
-								'ForegroundColor', [0.8 0.8 0.8], ...
-								'TooltipString', 'View the results of the fit.');
-						
-						set(flipud(handles.panel_setup.Children), 'Parent', handles.tab_setup);
-						set(flipud(handles.panel_parameters.Children), 'Parent', handles.tab_peak, 'Visible', 'off');
-						set(flipud(handles.panel_results.Children), 'Parent', handles.tab_results, 'visible', 'off');
-						
-						% UserData of profile 7 is current maximum enabled profiles
 						
 						
+						% left status bar
+						handles.statusbarObj = javaObjectEDT('com.mathworks.mwswing.MJStatusBar');
+						jRootPane.setStatusBar(handles.statusbarObj);
+						handles.statusbarObj.setText('<html>Please import file(s) containing data to fit.</html>');
+						
+						% right status bar
+						handles.statusbarRight = javaObjectEDT('com.mathworks.mwswing.MJStatusBar');
+						handles.statusbarObj.add(handles.statusbarRight, 'East');
+						handles.statusbarRight.setText('');
+						jRootPane.setStatusBarVisible(1);
+						
+				catch
+						errordlg('Java components could not be created.')
 				end
 		end
+
+
+
+		
+end

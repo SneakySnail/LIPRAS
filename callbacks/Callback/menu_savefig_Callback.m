@@ -19,6 +19,6 @@ function menu_savefig_Callback(hObject, eventdata, handles)
 		delete(gcf)
 	end
 	
-	handles.xrd.plotFit('all')
+	plotFit(handles, 'all');
 	saveas(figure(5),strcat(fitOutputPath,'Profile ',num2str(profile), 'of ',tot,' - ',strcat('Master','-','plotFit')));
 	delete(gcf);

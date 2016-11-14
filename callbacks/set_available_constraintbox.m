@@ -24,11 +24,9 @@ end
 
 % Enable constraints N and f if there is more than 1 fcn
 if length(find(peakHasFunc)) > 1
-	set(handles.panel_constraints, 'visible', 'on');
 	set(handles.checkboxN,'Enable','on');
 	set(handles.checkboxf,'Enable','on');
 else
-	set(handles.panel_constraints, 'visible', 'off');
 	set(handles.checkboxN,'Enable','off');
 	set(handles.checkboxf,'Enable','off');
 end

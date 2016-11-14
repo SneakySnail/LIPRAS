@@ -31,8 +31,12 @@ function btns3_SelectionChangedFcn(hObject, evt, handles)
 			handles.table_results.Data{1, 1} = true;
 			
 			r = find([handles.table_results.Data{:,1}], 1); % the selected coefficient to plot
+<<<<<<< HEAD
 			s='NoStats';
             plot_coeffs(r,s, handles);
+=======
+			plot_coeffs(r, 'NoStats', handles);
+>>>>>>> gui-layout-tool
 			
         case handles.radio_statistics
             set(handles.listbox_files, 'enable', 'off');

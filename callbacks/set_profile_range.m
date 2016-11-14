@@ -87,6 +87,7 @@ function set_profile_range(hObject, handles)
 	set(handles.edit_min2t,'String',sprintf('%2.4f', handles.xrd.Min2T));
 	set(handles.edit_max2t,'String',sprintf('%2.4f', handles.xrd.Max2T));
 	
+	set(hObject, 'userdata', str2double(hObject.String));
 	handles.xrd.Fmodel=[];
 	
 	plotX(handles);
