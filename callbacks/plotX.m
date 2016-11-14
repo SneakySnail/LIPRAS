@@ -7,7 +7,10 @@ filenum=handles.popup_filename.Value;
 
 if isempty(handles.xrd.Fmodel) % If there isn't a fit yet
 	handles.xrd.plotData(get(handles.popup_filename,'Value'));
-	handles = plot_sample_fit(handles);
+	try
+		handles = plot_sample_fit(handles);
+	catch
+	end
 else
 	handles.xrd.plotFit(get(handles.popup_filename,'Value'));
 end

@@ -1,4 +1,3 @@
-
 	function update_fitoptions(handles)
 		coeff = handles.xrd.getCoeff(handles.xrd.PSfxn, handles.xrd.Constrains);
 		fcnNames = handles.table_paramselection.Data(:, 1)'; 
@@ -30,9 +29,7 @@
 			end
 		end
 		
-		set(findobj(handles.panel_coeffs), 'visible', 'on');
-		set(findobj(handles.panel_coeffs.Children), 'enable', 'on');
-		set(handles.push_cancelupdate, 'visible', 'off');
+		
 		handles.xrd.Status = [handles.xrd.Status, 'Done.'];
 		plotX(handles);
 		
