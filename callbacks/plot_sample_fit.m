@@ -179,6 +179,6 @@ end
 dispname={datafit.DisplayName};
 handles.xrd.DisplayName=[handles.xrd.DisplayName,dispname];
 
-FDGUI('uitoggletool5_OnCallback', handles.uitoggletool5, [], handles);
+LIPRAS('uitoggletool5_OnCallback', handles.uitoggletool5, [], handles);
 end
 

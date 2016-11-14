@@ -1,5 +1,5 @@
 % This function runs when edit_numpeaks UserData changes
-function numpeaks(~, ~, handles)
+function numpeaks(src, evt, handles)
 if strcmpi(handles.edit_numpeaks.Visible, 'off')
 		return
 end

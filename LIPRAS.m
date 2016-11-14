@@ -57,6 +57,13 @@ function varargout = LIPRAS_OutputFcn(hObject, eventdata, handles)
 		
 	
 function edit_bkgdpoints_Callback(hObject, eventdata, handles)
+num = str2double(hObject.String);
+if isempty(num) || isnan(num) || ~isinteger(int8(num)) || num < 1
+		handles.xrd.Status = ['<html><font color="red"><b>Warning: ' hObject.String ' is not a valid positive integer.'];
+		set(hObject, 'string', num2str(10));
+		return
+end
+
 	set(hObject, 'UserData', get(hObject,'value'));
 	handles.xrd.Status=['Number of background points changed to ',get(hObject,'String'),'.'];
 	guidata(hObject,handles)
@@ -292,7 +299,7 @@ function popup_filename_Callback(hObject, eventdata, handles)
 function listbox_files_Callback(hObject,evt, handles)
 	if length(hObject.Value) == 1
 		set(handles.popup_filename,'value',hObject.Value(1));
-		FDGUI('popup_filename_Callback',handles.popup_filename,[],guidata(hObject));
+		LIPRAS('popup_filename_Callback',handles.popup_filename,[],guidata(hObject));
 	end
 	
 	
@@ -306,10 +313,16 @@ function edit_fitrange_Callback(hObject, eventdata, handles)
 	% Hints: get(hObject,'String') returns contents of edit_fitrange as text
 	%        str2double(get(hObject,'String')) returns contents of edit_fitrange as a double
 	handles.xrd.fitrange=str2double(get(hObject,'String'));
-	set(hObject,'UserData',get(hObject,'value'));
+	set(hObject,'UserData',str2double(get(hObject, 'string')));
 	
 % 
 function edit_polyorder_Callback(hObject, eventdata, handles)
+num = str2double(hObject.String);
+if isempty(num) || isnan(num) || ~isinteger(int8(num)) || num < 1
+		handles.xrd.Status = ['<html><font color="red"><b>Warning: ' hObject.String ' is not a valid positive integer.'];
+		set(hObject, 'string', num2str(3));
+		return
+end
 	set(hObject,'UserData',get(hObject,'value'));
 	handles.xrd.PolyOrder=str2double(hObject.String);
 	handles.xrd.Status=['Polynomial order changed to ',get(hObject,'String'),'.'];

@@ -9,6 +9,12 @@ function table_paramselection_CellEditCallback(hObject, evt, handles)
 	peakHasFunc = ~cellfun(@isempty, fcnNames);
 	
 	setappdata(handles.uipanel3, 'PSfxn', fcnNames);
+	setappdata(hObject, 'PSfxn', fcnNames);
+	
+	data.PSfxn = fcnNames;
+	for i=2:length(hObject.ColumnName)
+		data.(hObject.ColumnName{i}) = hObject.Data{:, i};	
+	end
 	
 	% Enable buttons if all peaks have a fit function selected
 	if isempty(find(~peakHasFunc, 1))
@@ -30,3 +36,4 @@ function table_paramselection_CellEditCallback(hObject, evt, handles)
 		set(handles.push_update,'enable', 'on')
 	end
 	
+guidata(hObject, handles);

@@ -24,9 +24,12 @@ function checkbox_constraints_Callback(o, ~, handles)
 	% if more than 3 functions
 	if length(handles.table_paramselection.Data(:,1))>2
 		% If constraint box was checked and fitting more than 2 peaks
+		width = handles.table_paramselection.ColumnWidth;
 		if o.Value == 1
 			oldTable = handles.table_paramselection.Data;
 			
+			width{1} = width{1} - 30;
+			width{end+1} = 30;
 			handles.table_paramselection.ColumnName{end+1} = o.String;
 			handles.table_paramselection.Data(:,end+1) = {true};
 			
@@ -35,9 +38,13 @@ function checkbox_constraints_Callback(o, ~, handles)
 			ind = find(strcmpi(cols, o.String));
 			handles.table_paramselection.ColumnName(ind) = [];
 			handles.table_paramselection.Data(:, ind) = [];
+			width{1} = width{1} + 30;
+			width = width(1:end-1);
+				
 			
 		end
-		resizeColumnWidth();
+		set(handles.table_paramselection, 'ColumnWidth', width);
+		
 	end
 	
 	% Set xrd parameters
@@ -51,22 +58,6 @@ function checkbox_constraints_Callback(o, ~, handles)
 	
 	set(handles.push_update, 'enable', 'on'); % tTODO
 	guidata(o, handles)
-	
-	
-	
-	
-	function resizeColumnWidth()
-		numcts = length(find(o.Parent.UserData));
-		
-		width = {300};
-		
-		for i=1:numcts
-			width{1} = width{1} - 30;
-			width{i+1} = 30;
-		end
-		
-		set(handles.table_paramselection, 'ColumnWidth', width);
-	end
 	
 	
 end

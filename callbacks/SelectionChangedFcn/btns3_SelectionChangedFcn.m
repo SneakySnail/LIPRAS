@@ -31,7 +31,7 @@ function btns3_SelectionChangedFcn(hObject, evt, handles)
 			handles.table_results.Data{1, 1} = true;
 			
 			r = find([handles.table_results.Data{:,1}], 1); % the selected coefficient to plot
-			plot_coeffs(r, handles);
+			plot_coeffs(r, 'NoStats', handles);
 			
 			
 		otherwise
