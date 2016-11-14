@@ -18,7 +18,7 @@ function plot_coeffs(r, s, handles)
                                 rmse(p)=handles.xrd.FmodelGOF{p}.rmse;
     end
 	axes(handles.axes1)
-	cla
+% 	cla
             if strcmp(s,'Rsquare')
    hold on             
                 	close(figure(5))
@@ -53,6 +53,7 @@ function plot_coeffs(r, s, handles)
 		'YLimMode', 'auto');
 	handles.axes1.XLabel.String = 'File Number';
     linkaxes([ax(1),ax(2),ax(3)], 'x')
+    hold off
     else
 	axes(handles.axes1)
 	cla
