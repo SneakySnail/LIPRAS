@@ -84,7 +84,7 @@ set(handles.panel_results, 'parent', handles.profiles(7));
 								jRootPane.setStatusBarVisible(1);
 								
 						catch
-								error('Java components could not be created.')
+			errordlg('Java components could not be created.')
 						end
 				end
 				

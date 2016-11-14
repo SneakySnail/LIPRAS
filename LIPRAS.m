@@ -34,6 +34,7 @@ function LIPRAS_OpeningFcn(hObject, eventdata, handles, varargin)
 	addpath(genpath('callbacks'));
 	addpath(genpath('dialog'));
 	addpath(genpath('listener'));
+	addpath(genpath('Resources'));
 	addpath('test-path/');
 
 	handles = init_GUI(handles, varargin);
@@ -155,8 +156,8 @@ function table_results_CellEditCallback(hObject,evt,handles)
 	r = evt.Indices(1);
 	[hObject.Data{:, 1}]=deal(false);
 	hObject.Data{r, 1} = true;
-	
-	plot_coeffs(r, handles);
+	s='NoStats';
+	plot_coeffs(r, s, handles);
 	guidata(hObject, handles)
 	
 	
