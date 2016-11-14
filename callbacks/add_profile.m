@@ -87,6 +87,9 @@ function handles = add_profile(handles)
 			end
 		end
 		
+		editpeak = findobj(newCtrls, 'tag', 'edit_numpeaks');
+		addlistener(editpeak, 'UserData', 'PostSet', @(o,e)guidata.numpeaks(o,e,guidata(e.AffectedObject)));
+		
 		
 		%********************************************************%
 		% Create tab panels

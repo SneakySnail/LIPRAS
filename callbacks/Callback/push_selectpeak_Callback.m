@@ -37,15 +37,14 @@ function push_selectpeak_Callback(~,~,handles)
 		hold off
 
 	update_fitoptions(handles);
-	set(findobj(handles.btns2), 'visible', 'on');
-
+	set(handles.btns2, 'visible', 'on', 'selectedobject', handles.b2_toggle3);
+	btns2_SelectionChangedFcn(handles.btns2, [], handles);
 	
-% 	set(findobj(handles.panel_coeffs.Children), 'enable', 'on');
 	set(handles.push_update, 'enable', 'off');
 	set(handles.push_cancelupdate, 'visible', 'off');
-	set(handles.b2_toggle2, 'enable', 'on');
 	set(findobj(handles.panel_coeffs.Children), 'enable', 'on');
 	set(handles.push_cancelupdate, 'visible', 'off');
+	set(handles.b2_toggle3, 'enable', 'on');
 	
 	
 	

@@ -91,14 +91,12 @@ function push_newbkgd_Callback(hObject, eventdata, handles)
 %  	set(handles.tab_peak.Children, 'visible', 'off');
 	
 	if ~isempty(handles.xrd.bkgd2th)
-		set(findobj(handles.panel_parameters.Children), 'visible', 'off');
 		t12 = findobj(handles.uipanel3, 'tag', 'text12');
 		set([t12, handles.edit_numpeaks], 'visible', 'on', 'enable', 'on');
 		handles.tabpanel.TabEnables{2}='on';
-		handles.tabpanel.Selection = 2;
+		set(handles.push_fitbkgd, 'enable', 'on');
+		set(handles.tab1_next, 'visible', 'on');
 	end
-	
- 	
 	
 	plotX(handles);
 	guidata(hObject, handles)

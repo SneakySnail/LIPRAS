@@ -46,7 +46,7 @@ function push_fitdata_Callback(hObject, ~, handles)
 	
 	handles.xrd.Status = 'Fitting dataset... Done.';
 	
-	FDGUI('uitoggletool5_OnCallback', handles.uitoggletool5, [], guidata(hObject));
+	LIPRAS('uitoggletool5_OnCallback', handles.uitoggletool5, [], guidata(hObject));
 	set(handles.radio_stopleastsquares, 'enable', 'off', 'value', 0);
 	assignin('base','h',handles)
 	guidata(hObject, handles)

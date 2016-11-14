@@ -7,24 +7,31 @@ function edit_numpeaks_Callback(hObject, evt, handles)
 	end
 	
 	if isempty(str) || isnan(num) || num < 1 || num > 25
-		set(handles.panel_parameters.Children, 'visible', 'off');
 		t12 = findobj(handles.uipanel3, 'tag', 'text12');
-		set([t12, handles.edit_numpeaks], 'visible', 'on');
  		handles.guidata.numPeaks = 0;
+		set(hObject, 'userdata', []);
 		setappdata(handles.uipanel3, 'numPeaks', 0);
 		return
 	end
 	
+% 	if num > 1
+% 			set(handles.panel_constraints, 'visible', 'on');
+% 	else
+% 			set(handles.panel_constraints, 'visible', 'off');
+% 	end
+	
+	set(hObject, 'userdata', num);
  	handles.guidata.numPeaks = num;
 	setappdata(handles.uipanel3, 'numPeaks', num);
+	
 	handles.xrd.Status=['Number of peaks set to ',num2str(num),'.'];
 	
-	set(findobj(handles.btns2), 'visible', 'on');
+% 	set(findobj(handles.btns2), 'visible', 'on');
 % 	set(handles.panel_constraints, 'visible', 'off');
-	set(handles.panel_constraints.Children, 'visible', 'on', 'enable', 'off', 'value', 0);
-	set(handles.panel_coeffs, 'visible', 'off');
-	set(handles.tab2_panel1, 'visible', 'on');
-	set(handles.table_paramselection, 'visible', 'on', ...
+% 	set(handles.panel_constraints.Children, 'visible', 'on', 'enable', 'off', 'value', 0);
+% 	set(handles.panel_coeffs, 'visible', 'off');
+% 	set(handles.tab2_panel1, 'visible', 'on');
+	set(handles.table_paramselection, ...'visible', 'on', ...
 		'enable', 'on', 'ColumnName', {'Peak function'}, ...
 		'ColumnWidth', {250}, 'Data', cell(num, 1));
 	set(handles.push_selectpeak, 'visible', 'on', 'enable', 'off');

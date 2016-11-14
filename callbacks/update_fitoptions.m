@@ -1,4 +1,3 @@
-
 	function update_fitoptions(handles)
 		coeff = handles.xrd.getCoeff(handles.xrd.PSfxn, handles.xrd.Constrains);
 		fcnNames = handles.table_paramselection.Data(:, 1)'; 
