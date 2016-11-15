@@ -2,23 +2,26 @@ Fit parameters
 
 2theta_fit_range: 3.600000 3.900000
 
-Number_of_background_points: 10
-Background_order: 3
-Background_points: 3.617510 3.623597 3.629684 3.632727 3.644900 3.864024 3.870111 3.879241 3.891414 3.894458
+Number_of_background_points: 6
+Background_order: 1
+Background_points: 3.611423 3.626640 3.650987 3.845764 3.867067 3.885328
 
 Peak Parameters
-PeakPos: 3.712 3.766
-Fxn: Asymmetric Pearson VII Lorentzian
+PeakPos: 3.709 3.778
+Fxn: Gaussian Psuedo Voigt
 fitrange: 0.3000
-Constraints: 0 1 0 0
+Constraints: 0 0 0 0
 
 Fit_initial Parameters
-N1L N1R x1 f1 m1L m1R N2 x2 f2 
-SP: 200.00 349.89 3.7119 0.10855 2.0000 2.0000 420.64 3.7658 0.059763
-UB: 1749.4 1749.4 3.7319 0.21709 20.000 20.000 2103.2 3.7858 0.11953
-LB: 0.0000 0.0000 3.6919 0.0000 0.10000 0.10000 0.0000 3.7458 0.0000
+N1 x1 f1 N2 x2 f2 w2 
+SP: 325.91 3.7091 0.10462 405.11 3.7780 0.081581 0.50000
+UB: 1629.5 3.7291 0.20924 2025.6 3.7980 0.16316 1.0000
+LB: 0.00000 3.6891 0.00000 0.00000 3.7580 0.00000 0.00000
 
 Fit Errors
-Filename 		 Rp 	 Rwp
-350 	 2.86 	 3.59
-351 	 2.36 	 2.88
+Filename	Rp	 Rwp	 red-chi2
+350	1.17	1.57	0.87
+351	1.25	1.84	1.02
+352	1.35	1.84	1.02
+353	1.31	1.94	1.07
+354	1.26	1.79	0.99
