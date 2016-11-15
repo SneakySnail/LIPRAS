@@ -43,51 +43,35 @@ function outputError(Stro,~)
 	
 	fprintf(fid, 'Number_of_background_points: %i\n',length(Stro.bkgd2th));
 	fprintf(fid, 'Background_order: %i\n', Stro.PolyOrder);
-	fprintf(fid, 'Background_points:');
-	for i=1:length(Stro.bkgd2th)
-		fprintf(fid, ' %f',Stro.bkgd2th(i));
-	end
-	fprintf(fid, '\n\nPeak Parameters\n');
+	fprintf(fid, 'Background_points: ');
+	fprintf(fid, '%f ',Stro.bkgd2th(:));
 	
-	fprintf(fid, 'PeakPos:');
-	for i=1:size(Stro.PSfxn,1) % i=profilenum
-		if i~=1
-			fprintf(fid,';');
-		end
-		for j=1:size(Stro.PSfxn,2) % j=peaknum
-			fprintf(fid,' %.3f',Stro.PeakPositions(i,j));
-		end
-	end
-	fprintf(fid,'\nFxn:');
-	for i=1:size(Stro.PSfxn,1)
-		for j=1:size(Stro.PSfxn,2)
-			fprintf(fid,' %s',Stro.PSfxn{j});
-		end
-	end
+	fprintf(fid, '\n\nPeak Parameters\n');
+	fprintf(fid, 'PeakPos: ');
+	fprintf(fid,'%.3f ',Stro.PeakPositions(:));
+	
+	fprintf(fid,'\nFxn: ');
+	fprintf(fid,'%s',Stro.PSfxn{:});
+
 	
 	if ~isempty(Stro.fitrange)
-		fprintf(fid,'\nfitrange:');
-		for i=1:size(Stro.PSfxn,1)
-			fprintf(fid,' %.4f',Stro.fitrange(i));
-		end
+		fprintf(fid,'\nfitrange: ');
+		fprintf(fid,'%.4f ', Stro.fitrange);
 	end
-	fprintf(fid,'\nConstraints:');
-	fprintf(fid, ' %d',Stro.Constrains);
+	
+	fprintf(fid,'\nConstraints: ');
+	fprintf(fid, '%d ',Stro.Constrains);
 	
 	fprintf(fid, '\n\nFit_initial Parameters\n');
-	for g=1:size(Stro.PSfxn,1);
-		% 				fprintf(fid, '\n%s', Stro.PSfxn{g});
-		for f=1:length(Stro.Fcoeff);
-			fprintf(fid, '%s ', Stro.Fcoeff{f}{:}); %write coefficient names
-		end
-		fprintf(fid, '\n%s','SP:');
-		fprintf(fid,' %#.5g',(Stro.fit_initial{1,1}));
-		fprintf(fid, '\n%s','UB:');
-		fprintf(fid,' %#.5g',(Stro.fit_initial{2,1}));
-		fprintf(fid, '\n%s','LB:');
-		fprintf(fid,' %#.5g',(Stro.fit_initial{3,1}));
-		
-	end
+	% 				fprintf(fid, '\n%s', Stro.PSfxn{g});
+	fprintf(fid, '%s ', Stro.Fcoeff{f}{:}); %write coefficient names
+	fprintf(fid, '\n%s','SP:');
+	fprintf(fid,' %#.5g',(Stro.fit_initial{1,1}));
+	fprintf(fid, '\n%s','UB:');
+	fprintf(fid,' %#.5g',(Stro.fit_initial{2,1}));
+	fprintf(fid, '\n%s','LB:');
+	fprintf(fid,' %#.5g',(Stro.fit_initial{3,1}));
+	
 	
 	fprintf(fid, '\n\nFit Errors\n');
 	
