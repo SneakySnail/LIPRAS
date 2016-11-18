@@ -8,10 +8,6 @@ y = data(2,:);
 if nargin < 3
 	position = Stro.PeakPositions;
 	fcn = Stro.PSfxn;
-% elseif nargin < 2
-% 	fcn = Stro.PSfxn;
-% 	return
-
 elseif length(fcn) < length(position)
 	position = position(1:length(fcn));
 end
@@ -58,8 +54,6 @@ for i=1:length(coeff)
 				SP = [SP, 2];
 				UB = [UB, 20];
 				LB = [LB, .1];
-		end
-		
-		
+        end
 		
 end

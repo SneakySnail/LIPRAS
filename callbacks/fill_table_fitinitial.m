@@ -5,7 +5,7 @@ function isFilled = fill_table_fitinitial(handles)
 isFilled = false;
 % If not enough peak peakPositions for each function
 
-if length(handles.xrd.PeakPositions) < length(handles.xrd.PSfxn)
+if length(handles.guidata.PeakPositions) < length(handles.guidata.PSfxn)
     return
 end
 try
@@ -13,13 +13,14 @@ try
 catch
     return
 end
-coeff = handles.xrd.getCoeff(handles.xrd.PSfxn, handles.xrd.Constrains);
-set(handles.table_fitinitial, 'data', cell(length(coeff), 3));
+
+coeff = handles.xrd.getCoeff(handles.guidata.PSfxn, handles.guidata.constraints);
+
 
 try
     assert(length(coeff) == size(handles.table_fitinitial.Data, 1));
     
-    handles.xrd.fit_initial = {SP;UB;LB};
+%     handles.guidata.fit_initial = {SP;UB;LB};
     
     % Fill in table with default values if cell is empty
     for i=1:length(coeff)
@@ -41,5 +42,6 @@ catch
     
 end
 
+handles.xrd.fit_initial = handles.guidata.fit_initial;
 
 guidata(handles.table_fitinitial,handles)

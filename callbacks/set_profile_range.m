@@ -82,10 +82,14 @@ function set_profile_range(hObject, handles)
 	% Save into xrd object
 	handles.xrd.Min2T = min;
 	handles.xrd.Max2T = max;
-	
 
-	set(handles.edit_min2t,'String',sprintf('%2.4f', handles.xrd.Min2T));
-	set(handles.edit_max2t,'String',sprintf('%2.4f', handles.xrd.Max2T));
+	set(handles.edit_min2t,'String',sprintf('%2.4f',min));
+	set(handles.edit_max2t,'String',sprintf('%2.4f', max));
+    
+    % The default fit range automatically updates from the profile range
+    % difference
+    set(handles.edit_fitrange, 'string', sprintf('%2.4f', max-min));
+    handles.xrd.fitrange = max-min;
 	
 	set(hObject, 'userdata', str2double(hObject.String));
 	handles.xrd.Fmodel=[];

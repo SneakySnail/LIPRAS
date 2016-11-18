@@ -9,6 +9,7 @@ fcns = getappdata(handles.table_paramselection, 'PSfxn');
 coeff = handles.xrd.getCoeff(handles.guidata.PSfxn, handles.guidata.constraints);
 peakTableRow = find(strncmp(coeff, 'x', 1));
 
+
 hold on
 % ginput for x position of peaks
 for i=1:length(peakTableRow)
@@ -32,13 +33,15 @@ for i=1:length(peakTableRow)
     
 end
 
-handles.xrd.PeakPositions = x;
+handles.guidata.PeakPositions = x;
+% handles.xrd.PeakPositions = x;
+handles = update_fitoptions(handles);
 fill_table_fitinitial(handles);
 
-setappdata(handles.uipanel3, 'PeakPositions', handles.xrd.PeakPositions);
+setappdata(handles.uipanel3, 'PeakPositions', handles.guidata.PeakPositions);
 hold off
 
-update_fitoptions(handles);
+
 
 
 set(handles.push_update, 'enable', 'off', 'visible', 'on');

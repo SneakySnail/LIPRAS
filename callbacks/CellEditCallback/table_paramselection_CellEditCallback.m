@@ -1,6 +1,7 @@
+% better name is table_fcnNames
 function table_paramselection_CellEditCallback(hObject, evt, handles)
 	set_available_constraintbox(handles);
-	
+	fcnNames = handles.guidata.PSfxn;
 	try
 		fcnNames = hObject.Data(:, 1)';
 	catch

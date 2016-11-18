@@ -40,6 +40,7 @@ set(handles.tab2_next, 'visible', 'on');
 
 set(handles.radio_stopleastsquares, 'enable', 'off', 'value', 0);
 plotX(handles);
+set(handles.push_viewall, 'enable', 'on', 'visible', 'on');
 
 handles.xrd.Status = 'Fitting dataset... Done.';
 assignin('base','handles',handles)

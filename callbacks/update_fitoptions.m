@@ -1,36 +1,27 @@
-% Sets up table_fitinitial to have the updated coefficients of the new
+% This function sets the table_fitinitial in the GUI to have the coefficients for the new
 % user-inputted function names. 
-% It also fills in the starting values for
-% the bounds. 
-function update_fitoptions(handles)
-coeff = handles.xrd.getCoeff(handles.xrd.PSfxn, handles.xrd.Constrains);
-fcnNames = handles.table_paramselection.Data(:, 1)';
+% It also saves handles.guidata into handles.xrd
+% 
+%Better name is update_table_fitinitial_properties
+function handles = update_fitoptions(handles)
+coeff = handles.xrd.getCoeff(handles.guidata.PSfxn, handles.guidata.constraints);
+fcnNames = handles.guidata.PSfxn;
 
-set(handles.table_fitinitial,'RowName', coeff);
-handles.table_fitinitial.Data = cell(length(coeff), 3);
+set(handles.table_fitinitial, 'data', cell(length(coeff), 3), 'RowName', coeff);
 handles.xrd.Fmodel=[];
 
 try
-        assert(length(fcnNames) <= length(handles.xrd.PeakPositions));
+        assert(length(fcnNames) == length(handles.guidata.PeakPositions));
 catch
         return
 end
 
-[SP,LB,UB] = handles.xrd.getDefaultStartingBounds(fcnNames, handles.xrd.PeakPositions);
+[SP,LB,UB] = handles.xrd.getDefaultStartingBounds(fcnNames, handles.guidata.PeakPositions);
 
-% Fill in table with default values if cell is empty
-for i=1:length(coeff)
-        if isempty(handles.table_fitinitial.Data{i,1})
-                handles.table_fitinitial.Data{i,1} = SP(i);
-        end
-        if isempty(handles.table_fitinitial.Data{i,2})
-                handles.table_fitinitial.Data{i,2}  =LB(i);
-        end
-        if isempty(handles.table_fitinitial.Data{i,3})
-                handles.table_fitinitial.Data{i,3} = UB(i);
-        end
-end
-
+handles.guidata.fit_initial = {SP;LB;UB};
+handles.guidata.coeff = coeff;
+handles.xrd.PSfxn = handles.guidata.PSfxn;
+handles.xrd.PeakPositions = handles.guidata.PeakPositions;
 
 handles.xrd.Status = [handles.xrd.Status, 'Done.'];
 plotX(handles);
