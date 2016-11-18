@@ -11,6 +11,7 @@ if nargin < 3
 % elseif nargin < 2
 % 	fcn = Stro.PSfxn;
 % 	return
+
 elseif length(fcn) < length(position)
 	position = position(1:length(fcn));
 end

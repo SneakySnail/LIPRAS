@@ -4,9 +4,9 @@ if strcmpi(handles.edit_numpeaks.Visible, 'off')
 		return
 end
 
-set(handles.btns2, 'visible', 'on');
 set(handles.panel_constraints, 'visible', 'off');
 set(handles.tab2_panel1, 'visible', 'off');
+set(handles.panel_kalpha2, 'visible', 'off');
 
 num = handles.edit_numpeaks.UserData;
 if isempty(num)

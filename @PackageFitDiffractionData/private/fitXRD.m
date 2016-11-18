@@ -84,15 +84,15 @@ for i=1:size(position,1)
 		% END
 		
 		% FOR GUI DIFFERENCE PLOT
-		evalin('base','axes(h.axes2)')
+		evalin('base','axes(handles.axes2)')
 		cla
 		for j=1:size(position,1);
 				plot(fitdata{j}(1,:),fitdata{j}(2,:)-fittedmodel{j}(fitdata{j}(1,:))','-r');
 		end
 		xlim([Stro.Min2T Stro.Max2T])
 		
-		evalin('base', 'linkaxes([h.axes1 h.axes2],''x'')')
-		evalin('base','axes(h.axes1)')
+		evalin('base', 'linkaxes([handles.axes1 handles.axes2],''x'')')
+		evalin('base','axes(handles.axes1)')
 		% END
 		
 		% 				if strcmp(Stro.plotyn,'y')

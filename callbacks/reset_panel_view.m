@@ -4,7 +4,6 @@ function reset_panel_view(handles)
 	set(handles.edit_min2t,'String',sprintf('%2.4f',handles.xrd.Min2T));
 	set(handles.edit_max2t,'String',sprintf('%2.4f',handles.xrd.Max2T));
 	set(handles.edit_fitrange,'String',sprintf('%2.3f',handles.xrd.fitrange));
-	set(handles.push_cancelupdate, 'visible', 'off');
 	set(handles.push_update, 'enable', 'off', 'visible', 'off');
 	
 	set(handles.panel_profilecontrol, 'visible', 'on');
@@ -71,7 +70,7 @@ function tab1(handles)
 	set(handles.menu_save,'Enable','off');
 	set(findobj(handles.axes2),'Visible','off');
 	set(handles.panel_coeffs.Children,'Enable','off');
-	set(handles.push_cancelupdate, 'visible', 'off');
+	
 	
 	
 	

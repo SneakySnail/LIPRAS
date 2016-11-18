@@ -9,6 +9,7 @@ fcns = getappdata(handles.table_paramselection, 'PSfxn');
 coeff = handles.xrd.getCoeff(handles.guidata.PSfxn, handles.guidata.constraints);
 peakTableRow = find(strncmp(coeff, 'x', 1));
 
+
 hold on
 % ginput for x position of peaks
 for i=1:length(peakTableRow)

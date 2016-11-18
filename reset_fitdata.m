@@ -23,6 +23,5 @@ setappdata(handles.table_paramselection, 'PSfxn', {});
 setappdata(handles.table_paramselection, 'coeff', {});
 handles.tabpanel.TabEnables{3} = 'off';
 handles.tabpanel.Selection = 2;
-handles.btns2.SelectedObject = handles.b2_toggle1;
 
 plotX(handles);

@@ -1,5 +1,3 @@
-%% GUI for FitDiffractionData
-
 %% Initialization
 function varargout = LIPRAS(varargin)
 % FDGUI MATLAB code for FDGUI.fig
@@ -44,7 +42,7 @@ handles.output = hObject;
 
 handles.figure1.WindowButtonMotionFcn = @(o, e)WindowButtonMotionFcn(o, e,guidata(o));
 
-assignin('base','h',handles);
+assignin('base','handles',handles);
 % Update handles structure
 guidata(hObject, handles)
 
@@ -56,7 +54,7 @@ varargout{1} = handles.output;
 
 function edit_bkgdpoints_Callback(hObject, eventdata, handles)
 num = str2double(hObject.String);
-if isempty(num) || isnan(num) || ~isinteger(int8(num)) || num < 1
+if isempty(num) || isnan(num) || ~isinteger(int8(num)) || num < 1 || num > 30
 		handles.xrd.Status = ['<html><font color="red"><b>Warning: ' hObject.String ' is not a valid positive integer.'];
 		set(hObject, 'string', num2str(10));
 		return
@@ -71,7 +69,7 @@ guidata(hObject,handles)
 % Executes on button press in push_addprofile.
 function push_addprofile_Callback(hObject, eventdata, handles)
 handles = add_profile(handles);
-assignin('base','h',handles)
+assignin('base','handles',handles)
 guidata(hObject, handles)
 
 
@@ -95,12 +93,14 @@ numpoints = str2num(handles.edit_bkgdpoints.String);
 polyorder = str2num(handles.edit_polyorder.String);
 handles.xrd.resetBackground(numpoints,polyorder);
 
-%  	set(handles.tab_peak.Children, 'visible', 'off');
+
 
 if ~isempty(handles.xrd.bkgd2th)
+         	set(handles.panel_parameters.Children, 'visible', 'off');
 		t12 = findobj(handles.uipanel3, 'tag', 'text12');
 		set([t12, handles.edit_numpeaks], 'visible', 'on', 'enable', 'on');
-		handles.tabpanel.TabEnables{2}='on';
+		
+                handles.tabpanel.TabEnables{2}='on';
 		set(handles.push_fitbkgd, 'enable', 'on');
 		set(handles.tab1_next, 'visible', 'on');
 end
@@ -142,7 +142,7 @@ if i<1; i=1; end
 handles = change_profile(i, handles);
 handles.xrd.Status = ['<html>Now editing <b>Profile ', num2str(i), '.</b></html>'];
 
-assignin('base','h',handles)
+assignin('base','handles',handles)
 guidata(hObject,handles)
 
 
@@ -152,7 +152,7 @@ i = find(handles.uipanel3==handles.profiles, 1) + 1;
 handles = change_profile(i, handles);
 handles.xrd.Status = ['<html>Now editing <b>Profile ', num2str(i), '.</b></html>'];
 
-assignin('base','h',handles)
+assignin('base','handles',handles)
 guidata(hObject,handles)
 
 

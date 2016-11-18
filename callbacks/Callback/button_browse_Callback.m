@@ -6,7 +6,7 @@ function button_browse_Callback(hObject, eventdata, handles)
 	handles = import_data(handles);
 	plotData(handles,handles.popup_filename.Value);
 	
-	assignin('base','h',handles)
+	assignin('base','handles',handles)
 	guidata(hObject, handles)
 	
 	

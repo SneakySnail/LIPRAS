@@ -37,20 +37,19 @@ set(handles.panel_setup, 'parent', handles.profiles(7));
 set(handles.panel_parameters,'parent', handles.profiles(7));
 set(handles.panel_results, 'parent', handles.profiles(7));
 
-% TODO
-% ax2height = handles.axes2.Position(4);
-% outer1 = handles.axes1.OuterPosition;
-% 
-% % set(handles.axes1, 'Units', 'normalized', 'OuterPosition', 
-% handles.axes1.OuterPosition(1) = 0;
-% handles.axes1.Position(4) = handles.axes1.Position(4)+ax2height;
-% handles.axes2.OuterPosition = handles.axes2.Position;
+ax2height = handles.axes2.Position(4);
+outer1 = handles.axes1.OuterPosition;
+
+set(handles.axes1, 'Units', 'normalized', 'OuterPosition', 
+handles.axes1.OuterPosition(1) = 0;
+handles.axes1.Position(4) = handles.axes1.Position(4)+ax2height;
+handles.axes2.OuterPosition = handles.axes2.Position;
 
 		function addControlListeners()
 				addlistener(handles.edit_numpeaks, 'UserData', 'PostSet', @(o,e)guidata.numpeaks(o,e,guidata(e.AffectedObject)));
                 
                 % This listener will resize axes1 when axes2 becomes visible
-% 				addlistener(handles.axes2, 'Visible', 'PostSet', @(o,e)visible.resizeAxes1ToFitAxes2Axes1ToFitAxes2(o,e,guidata(e.AffectedObject)));
+				addlistener(handles.axes2, 'Visible', 'PostSet', @(o,e)visible.resizeAxes1ToFitAxes2Axes1ToFitAxes2(o,e,guidata(e.AffectedObject)));
 		end
 
 

@@ -6,7 +6,6 @@ function table_fitinitial_CellEditCallback(hObject, eventdata, handles)
 	%	EditData: string(s) entered by the user
 	%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
 	%	Error: error string when failed to convert EditData to appropriate value for Data
-	handles.xrd.Status=['Editing table...'];
 	numpeaks=str2double(handles.edit_numpeaks.String);
 	r=eventdata.Indices(1);
 	c=eventdata.Indices(2);
@@ -66,8 +65,6 @@ function table_fitinitial_CellEditCallback(hObject, eventdata, handles)
 		end
 	end
 	
-	% Enable/disable 'Clear' button
-% 	call.checktable_coeffvals(handles);
 	
 	if ~isempty(num)
 		handles.xrd.Status=[handles.table_fitinitial.ColumnName{c},...

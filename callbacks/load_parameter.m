@@ -11,15 +11,15 @@ function handles = load_parameter(handles)
 	% tab_setup
 	set(handles.edit_min2t,'String',sprintf('%2.4f',handles.xrd.Min2T));
 	set(handles.edit_max2t,'String',sprintf('%2.4f',handles.xrd.Max2T));
-	set(handles.edit_fitrange,'String',num2str(handles.xrd.fitrange));
 	
 	% tab_parameters
-% 	set(handles.tabgroup, 'SelectedTab', handles.tab_peak);
-% 	set(handles.tab_peak, 'ForegroundColor', [0 0 0]);
+        set(handles.tabpanel, 'Selection', 2);
+        set(handles.tabpanel, 'TabEnables', {'on', 'on', 'off'});
+        set(handles.edit_fitrange,'String',num2str(handles.xrd.fitrange));
 	
 	set(handles.text12,'visible','on');
 	set(handles.edit_numpeaks,'visible','on','String',num2str(length(handles.xrd.PSfxn)));
-	LIPRAS('edit_numpeaks_Callback', handles.edit_numpeaks, [], guidata(handles.figure1));
+	edit_numpeaks_Callback(handles.edit_numpeaks, [], handles);
 	
 	% load peak functions into table
 	assert(length(handles.xrd.PSfxn)==length(handles.table_paramselection.Data(:,1)));

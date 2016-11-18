@@ -11,6 +11,7 @@ function table_paramselection_CellEditCallback(hObject, evt, handles)
 	
 	setappdata(handles.uipanel3, 'PSfxn', fcnNames);
 	setappdata(hObject, 'PSfxn', fcnNames);
+    handles.guidata.PSfxn = fcnNames;
 	
 	
 	data.PSfxn = fcnNames;
@@ -29,12 +30,6 @@ function table_paramselection_CellEditCallback(hObject, evt, handles)
 		set(handles.push_selectpeak, 'enable', 'off');
 	end
 	
-	switch isempty(getappdata(handles.uipanel3, 'fit_initial'))
-		case 1
-			set(handles.push_cancelupdate, 'visible', 'off');
-		case 0
-			set(handles.push_cancelupdate, 'visible', 'on');
-	end
 	
 	if ~isempty(getappdata(handles.uipanel3, 'PeakPositions'))
 		set(handles.push_update,'enable', 'on')

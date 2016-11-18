@@ -12,9 +12,7 @@ function choice = close_fig(handles)
 				delete(handles.figure1);
 			catch
 				delete(gcf);
-			end
-			
-			evalin('base', 'clearvars h');
+            end
 			
 			
 		case 'Cancel'
