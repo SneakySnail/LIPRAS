@@ -71,7 +71,7 @@ for i=1:size(position,1)
     % FOR GUI DIFFERENCE PLOT
     evalin('base','axes(handles.axes2)')
     cla
-    for j=1:size(position,1);
+    for j=1:size(position,1)
         plot(fitdata{j}(1,:),fitdata{j}(2,:)-fittedmodel{j}(fitdata{j}(1,:))','-r');
     end
     xlim([Stro.Min2T Stro.Max2T])

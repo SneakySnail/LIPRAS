@@ -20,7 +20,9 @@ end
 % Function continues from here only if there is data loaded into xrd
 resetGUIData();
 
-% guidata(handles.figure1, handles)
+resizeAxes1ForErrorPlot(handles);
+
+guidata(handles.figure1, handles)
 
 %% Helper functions
 % Check if there is data loaded
@@ -41,9 +43,14 @@ resetGUIData();
     function resetGUIData()
         handles.xrdContainer(7) = copy(temp);
         handles.xrd = handles.xrdContainer(7);
-        handles.uipanel3 = handles.profiles(7);
-        handles.profiles(7).UserData = 0; %DELETE
-        handles.guidata.numProfiles = 0;
+        
+        if isfield(handles, 'profiles')
+            handles.uipanel3 = handles.profiles(7);
+        else
+            handles.profiles(7) = handles.uipanel3;
+        end
+        
+        handles = resetGuiData(handles);
         
         for i=1:6
             handles = remove_profile(i, handles);

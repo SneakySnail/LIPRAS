@@ -111,6 +111,8 @@ for j=dataSet0:dataSetf
             end
         end
         cla
+        
+        
         data(1) = plot(x,intensity,'o', ...
             'LineWidth',1, ...
             'MarkerSize',4, ...
@@ -139,20 +141,17 @@ for j=dataSet0:dataSetf
         if strcmp(dataSet,'all')
             err = plot(x, intensity - fittedPattern - max(intensity) / 10, 'r','LineWidth',1.0);
         else
-            evalin('base','axes(handles.axes2)')
+            axes(handles.axes2)
             cla
             err = plot(x, intensity - (fittedPattern), 'r','LineWidth',.50); % Error
             xlim([Stro.Min2T Stro.Max2T])
             
-            evalin('base','axes(handles.axes1)')
-            % 						ylim([0 1.1*max(fittedPattern)])
-            % 						ylim([0.9*min([data.YData]), 1.1*max([data.YData])]);
+            axes(handles.axes1)
         end
         
     end
     if strcmp(dataSet,'all')
         xlim([min(x) max(x)])
-        % 					ylim([0 1.1*max(fittedPattern)])
     end
     
 end
@@ -162,5 +161,6 @@ if strcmp(dataSet,'all')
 end
 
 ylim([0.9*min([data.YData]), 1.1*max([data.YData])]);
+
 
 end

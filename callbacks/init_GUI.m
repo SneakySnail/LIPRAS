@@ -39,15 +39,9 @@ outer1 = handles.axes1.OuterPosition;
         handles.profiles(7).UserData = 0; % delete
         handles.xrd = PackageFitDiffractionData;
         handles.xrdContainer(7) = handles.xrd;
-        
-        handles.guidata.numProfiles = 0;
-        handles.guidata.PeakPositions = [];
-        handles.guidata.PSfxn = {};
-        handles.guidata.numPeaks = 0;
-        handles.guidata.constraints = zeros(1,5);
-        handles.guidata.fit_initial = [];
-        handles.guidata.coeff = '';
-        handles.guidata.fit_results = [];
+                
+        % guidata contains relevant parameters for each profile
+        handles = resetGuiData(handles);
         
         handles.panel_constraints.UserData = zeros(1,5);
     end

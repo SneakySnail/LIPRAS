@@ -7,20 +7,20 @@ function varargout = LIPRAS(varargin)
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
-		'gui_Singleton',  gui_Singleton, ...
-		'gui_OpeningFcn', @LIPRAS_OpeningFcn, ...
-		'gui_OutputFcn',  @LIPRAS_OutputFcn, ...
-		'gui_LayoutFcn',  [] , ...get
-		'gui_Callback',   []);
+    'gui_Singleton',  gui_Singleton, ...
+    'gui_OpeningFcn', @LIPRAS_OpeningFcn, ...
+    'gui_OutputFcn',  @LIPRAS_OutputFcn, ...
+    'gui_LayoutFcn',  [] , ...get
+    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
-		gui_State.gui_Callback = str2func(varargin{1});
+    gui_State.gui_Callback = str2func(varargin{1});
 end
 
 if nargout
-		[varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+    [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
 else
-		
-		gui_mainfcn(gui_State, varargin{:});
+    
+    gui_mainfcn(gui_State, varargin{:});
 end
 % End initialization code - DO NOT EDIT
 
@@ -29,7 +29,6 @@ function LIPRAS_OpeningFcn(hObject, eventdata, handles, varargin)
 import javax.swing.*
 import java.awt.*
 
-rootpath = fileparts(
 addpath(genpath('callbacks'));
 addpath(genpath('dialog'));
 addpath(genpath('listener'));
@@ -38,12 +37,10 @@ addpath('test-path/');
 
 handles = init_GUI(handles, varargin);
 
-handles.figure1.WindowButtonMotionFcn = @(o,e)WindowButtonMotionFcn(o,e,guidata(o));
-
 % Choose default command line output for FDGUI
 handles.output = hObject;
 
-
+handles.figure1.WindowButtonMotionFcn = @(o, e)WindowButtonMotionFcn(o, e,guidata(o));
 
 assignin('base','handles',handles);
 % Update handles structure
@@ -58,9 +55,9 @@ varargout{1} = handles.output;
 function edit_bkgdpoints_Callback(hObject, eventdata, handles)
 num = str2double(hObject.String);
 if isempty(num) || isnan(num) || ~isinteger(int8(num)) || num < 1 || num > 30
-		handles.xrd.Status = ['<html><font color="red"><b>Warning: ' hObject.String ' is not a valid positive integer.'];
-		set(hObject, 'string', num2str(10));
-		return
+    handles.xrd.Status = ['<html><font color="red"><b>Warning: ' hObject.String ' is not a valid positive integer.'];
+    set(hObject, 'string', num2str(10));
+    return
 end
 
 num = int8(num);
@@ -84,7 +81,7 @@ function push_removeprofile_Callback(hObject, eventdata, handles)
 handles = remove_profile(find(handles.uipanel3==handles.profiles), handles);
 assert(handles.profiles(7).UserData==handles.guidata.numProfiles);
 if handles.profiles(7).UserData<=1
-		set(hObject, 'enable', 'off');
+    set(hObject, 'enable', 'off');
 end
 
 guidata(hObject, handles)
@@ -94,22 +91,31 @@ guidata(hObject, handles)
 function push_newbkgd_Callback(hObject, eventdata, handles)
 numpoints = str2num(handles.edit_bkgdpoints.String);
 polyorder = str2num(handles.edit_polyorder.String);
+cp = handles.guidata.currentProfile;
+
 handles.xrd.resetBackground(numpoints,polyorder);
 
-
+if handles.guidata.numPeaks(cp) == 0
+    set(handles.panel_parameters.Children, 'visible', 'off');
+    t12 = findobj(handles.uipanel3, 'tag', 'text12');
+    set([t12, handles.edit_numpeaks], 'visible', 'on', 'enable', 'on');
+end
 
 if ~isempty(handles.xrd.bkgd2th)
-         	set(handles.panel_parameters.Children, 'visible', 'off');
-		t12 = findobj(handles.uipanel3, 'tag', 'text12');
-		set([t12, handles.edit_numpeaks], 'visible', 'on', 'enable', 'on');
-		
-                handles.tabpanel.TabEnables{2}='on';
-		set(handles.push_fitbkgd, 'enable', 'on');
-		set(handles.tab1_next, 'visible', 'on');
+    handles.tabpanel.TabEnables{2}='on';
+    set(handles.push_fitbkgd, 'enable', 'on');
+    set(handles.tab1_next, 'visible', 'on');
 end
 
 plotX(handles);
 guidata(hObject, handles)
+
+% Stop Least Squares radio button.
+function radio_stopleastsquares_Callback(hObject, eventdata, handles)
+% hObject    handle to radio_stopleastsquares (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% Hint: get(hObject,'Value') returns toggle state of radio_stopleastsquares
 
 
 function uitoggletool4_ClickedCallback(hObject, eventdata, handles)
@@ -206,19 +212,19 @@ guidata(hObject,handles)
 
 function checkbox_recycle_Callback(o, e, handles)
 if get(o, 'value')
-		handles.xrd.recycle_results = 1;
+    handles.xrd.recycle_results = 1;
 else
-		handles.xrd.recycle_results = 0;
+    handles.xrd.recycle_results = 0;
 end
 
 % Executes on button press in checkbox_lambda.
 function checkbox_lambda_Callback(hObject, eventdata, handles)
 if get(hObject,'Value')
-		set(handles.edit_lambda,'Enable','on');
-		handles.xrd.CuKa=true;
+    set(handles.edit_lambda,'Enable','on');
+    handles.xrd.CuKa=true;
 else
-		set(handles.edit_lambda,'Enable','off');
-		handles.xrd.CuKa=false;
+    set(handles.edit_lambda,'Enable','off');
+    handles.xrd.CuKa=false;
 end
 
 
@@ -230,18 +236,18 @@ filenum=get(handles.popup_filename,'Value');
 cla
 % If box is checked, turn on hold in axes1
 if get(hObject,'Value')
-		handles.xrd.DisplayName = {};
-		plotData(handles, filenum,'superimpose');
-		set(handles.axes2,'Visible','off');
-		set(handles.popup_filename, 'enable', 'on');
-		set(handles.listbox_files, 'enable', 'on');
-		set(handles.axes2.Children,'Visible','off');
-		% 		handles.uitoggletool5.UserData=handles.uitoggletool5.State;
-		uitoggletool5_OnCallback(handles.uitoggletool5, eventdata, handles)
+    handles.xrd.DisplayName = {};
+    plotData(handles, filenum,'superimpose');
+    set(handles.axes2,'Visible','off');
+    set(handles.popup_filename, 'enable', 'on');
+    set(handles.listbox_files, 'enable', 'on');
+    set(handles.axes2.Children,'Visible','off');
+    % 		handles.uitoggletool5.UserData=handles.uitoggletool5.State;
+    uitoggletool5_OnCallback(handles.uitoggletool5, eventdata, handles)
 else
-		hold off
-		plotX(handles);
-		
+    hold off
+    plotX(handles);
+    
 end
 handles.xrd.Status='Superimposing raw data... Done.';
 
@@ -261,28 +267,28 @@ set(handles.listbox_files,'Value',filenum);
 axes(handles.axes1)
 % If superimpose box is checked, plot any subsequent data sets together
 if get(handles.checkbox_superimpose,'Value')==1
-		% If there is only one dataset plotted
-		if length(handles.xrd.DisplayName)==1
-				% If the same dataset is chosen
-				if strcmp(handles.xrd.Filename(filenum),handles.xrd.DisplayName)
-						% Do nothing and exit out of the function
-						return
-				end
-		end
-		plotData(handles, filenum,'superimpose');
+    % If there is only one dataset plotted
+    if length(handles.xrd.DisplayName)==1
+        % If the same dataset is chosen
+        if strcmp(handles.xrd.Filename(filenum),handles.xrd.DisplayName)
+            % Do nothing and exit out of the function
+            return
+        end
+    end
+    plotData(handles, filenum,'superimpose');
 else
-		cla
-		hold off
-		handles.xrd.Status=['File changed to ',handles.xrd.Filename{filenum},'.'];
-		plotX(handles);
+    cla
+    hold off
+    handles.xrd.Status=['File changed to ',handles.xrd.Filename{filenum},'.'];
+    plotX(handles);
 end
 
 guidata(hObject, handles)
 
 function listbox_files_Callback(hObject,evt, handles)
 if length(hObject.Value) == 1
-		set(handles.popup_filename,'value',hObject.Value(1));
-		LIPRAS('popup_filename_Callback',handles.popup_filename,[],guidata(hObject));
+    set(handles.popup_filename,'value',hObject.Value(1));
+    LIPRAS('popup_filename_Callback',handles.popup_filename,[],guidata(hObject));
 end
 
 
@@ -297,9 +303,9 @@ function edit_fitrange_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of edit_fitrange as a double
 num = str2double(get(hObject, 'string'));
 if isempty(num) || isnan(num) || num <= 0
-		handles.xrd.Status = ['<html><font color="red"><b>Warning: ' hObject.String ' is not a valid fit range. Please enter a floating point number greater than 0.'];
-		set(hObject, 'string', sprintf('%2.4f', handles.xrd.fitrange));
-		return
+    handles.xrd.Status = ['<html><font color="red"><b>Warning: ' hObject.String ' is not a valid fit range. Please enter a floating point number greater than 0.'];
+    set(hObject, 'string', sprintf('%2.4f', handles.xrd.fitrange));
+    return
 end
 handles.xrd.fitrange=str2double(get(hObject,'String'));
 set(hObject,'string', sprintf('%2.4f', handles.xrd.fitrange), 'UserData',handles.xrd.fitrange);
@@ -309,9 +315,9 @@ handles.xrd.Status = 'Fit range was updated.';
 function edit_polyorder_Callback(hObject, eventdata, handles)
 num = str2double(hObject.String);
 if isempty(num) || isnan(num) || ~isinteger(int8(num)) || num < 1
-		handles.xrd.Status = ['<html><font color="red"><b>Warning: ' hObject.String ' is not a valid positive integer.'];
-		set(hObject, 'string', num2str(3));
-		return
+    handles.xrd.Status = ['<html><font color="red"><b>Warning: ' hObject.String ' is not a valid positive integer.'];
+    set(hObject, 'string', num2str(3));
+    return
 end
 num = int8(num);
 set(hObject, 'string', num2str(num), 'UserData', num);
@@ -338,11 +344,11 @@ function uitoggletool5_ClickedCallback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 if strcmpi(hObject.State,'on')
-		handles.xrd.Status='Legend was turned on.';
-		uitoggletool5_OnCallback(hObject, eventdata, handles)
+    handles.xrd.Status='Legend was turned on.';
+    uitoggletool5_OnCallback(hObject, eventdata, handles)
 else
-		handles.xrd.Status='Legend was turned off.';
-		uitoggletool5_OffCallback(hObject, eventdata, handles)
+    handles.xrd.Status='Legend was turned off.';
+    uitoggletool5_OffCallback(hObject, eventdata, handles)
 end
 
 % Turns off the legend.
@@ -379,7 +385,7 @@ handles.xrd.Status='Loading options file... ';
 % 	end
 %
 try
-		handles=load_parameter(handles);
+    handles=load_parameter(handles);
 catch
 end
 
@@ -405,13 +411,13 @@ function menu_clearall_Callback(hObject, eventdata, handles)
 % If there is data loaded, confirm
 ans=questdlg('This will reset the figure and your data will be lost.','Warning','Continue','Cancel','Cancel');
 if strcmp(ans,'Continue')
-		handles.xrd = PackageFitDiffractionData;
-		handles.xrdContainer = handles.xrd;
-		set(handles.panel_rightside,'Visible','off');
-		set(handles.edit8,...
-				'String', 'Upload new file(s)...',...
-				'FontAngle', 'italic',...
-				'ForegroundColor', [0.5 0.5 0.5]);
+    handles.xrd = PackageFitDiffractionData;
+    handles.xrdContainer = handles.xrd;
+    set(handles.panel_rightside,'Visible','off');
+    set(handles.edit8,...
+        'String', 'Upload new file(s)...',...
+        'FontAngle', 'italic',...
+        'ForegroundColor', [0.5 0.5 0.5]);
 end
 
 
@@ -445,19 +451,19 @@ function edit_min2t_CreateFcn(hObject, eventdata, handles)
 % Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-		set(hObject,'BackgroundColor','white');
+    set(hObject,'BackgroundColor','white');
 end
 
 % --- Executes during object creation, after setting all properties.
 function edit_max2t_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-		set(hObject,'BackgroundColor','white');
+    set(hObject,'BackgroundColor','white');
 end
 
 % Hint: popupmenu controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-		set(hObject,'BackgroundColor','white');
+    set(hObject,'BackgroundColor','white');
 end
 
 % --- Executes during object creation, after setting all properties.
@@ -466,7 +472,7 @@ function edit_bkgdpoints_CreateFcn(hObject, eventdata, handles)
 % Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-		set(hObject,'BackgroundColor','white');
+    set(hObject,'BackgroundColor','white');
 end
 
 % Executes during object creation, after setting all properties.
@@ -475,7 +481,7 @@ function edit_polyorder_CreateFcn(hObject, eventdata, handles)
 % Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-		set(hObject,'BackgroundColor','white');
+    set(hObject,'BackgroundColor','white');
 end
 
 
@@ -485,7 +491,7 @@ handles.n=1;
 % Hint: popupmenu controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-		set(hObject,'BackgroundColor','white');
+    set(hObject,'BackgroundColor','white');
 end
 
 % Executes during object creation, after setting all properties.
@@ -494,7 +500,7 @@ function popup_numpeaks_CreateFcn(hObject, eventdata, handles)
 % Hint: popupmenu controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-		set(hObject,'BackgroundColor','white');
+    set(hObject,'BackgroundColor','white');
 end
 
 function menu_file_Callback(hObject, eventdata, handles)
@@ -505,7 +511,7 @@ function edit_fitrange_CreateFcn(hObject, eventdata, handles)
 % Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-		set(hObject,'BackgroundColor','white');
+    set(hObject,'BackgroundColor','white');
 end
 
 
@@ -525,7 +531,7 @@ function edit8_CreateFcn(hObject, eventdata, handles)
 % Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-		set(hObject,'BackgroundColor','white');
+    set(hObject,'BackgroundColor','white');
 end
 
 
@@ -537,7 +543,7 @@ function edit_lambda_CreateFcn(hObject, eventdata, handles)
 % Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-		set(hObject,'BackgroundColor','white');
+    set(hObject,'BackgroundColor','white');
 end
 
 

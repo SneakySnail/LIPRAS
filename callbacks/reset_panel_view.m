@@ -58,9 +58,9 @@ set(handles.panel_profilecontrol, 'visible', 'off');
 
 
 function tab1(handles)
-
+cp = handles.guidata.currentProfile;
 set(handles.panel_constraints.Children,'Value',0);
-handles.guidata.constraints = zeros(1,5);
+handles.guidata.constraints{cp} = zeros(1,5);
 set(handles.tabpanel, 'tabenables', {'on', 'off','off'}, 'selection', 1);
 
 

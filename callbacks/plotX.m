@@ -1,11 +1,14 @@
 function plotX(handles)
-
 set(findobj(handles.axes2), 'visible', 'off');
 cla(handles.axes1)
 cla(handles.axes2)
-filenum=handles.popup_filename.Value;
 
-if isempty(handles.xrd.Fmodel) % If there isn't a fit yet
+resizeAxes1ForErrorPlot(handles);
+
+filenum=handles.popup_filename.Value;
+cp = handles.guidata.currentProfile;
+
+if ~handles.guidata.fitted{cp} % If there isn't a fit yet
 	plotData(handles, filenum);
 	try
 		handles = plot_sample_fit(handles);

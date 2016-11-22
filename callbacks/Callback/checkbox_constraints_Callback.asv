@@ -15,6 +15,12 @@ end
 
 currentProfile = handles.guidata.currentProfile;
 
+if handles.guidata.numPeaks <= 2
+    handles.guidata.constraints{currentProfile} = o.Parent.UserData;
+else
+    
+    e
+
 if o.Value == 1 % If constraint box was checked
     handles.xrd.Status=['Constraining coefficient ',get(o,'String'),'.'];
     
@@ -22,8 +28,8 @@ else % constraint box was unchecked
     handles.xrd.Status=['Deselected constraint ',get(o,'String'),'.'];
 end
 
-% if more than 3 functions, resize the column to fit checkboxes
-if handles.guidata.numPeaks > 2
+% if more than 3 functions
+if length(handles.table_paramselection.Data(:,1))>2
     % If constraint box was checked and fitting more than 2 peaks
     width = handles.table_paramselection.ColumnWidth;
     
@@ -47,17 +53,14 @@ if handles.guidata.numPeaks > 2
     
 end
 
-if handles.guidata.numPeaks <= 2
-    handles.guidata.constraints{currentProfile} = o.Parent.UserData;
-else
-    handles.guidata.constraints{currentProfile} = getConsMatrix(handles);
-end
-
 % Set xrd parameters
-handles.xrd.Constrains = handles.guidata.constraints;
-
+handles.xrd.Constrains = o.Parent.UserData;
 set(handles.panel_coeffs.Children,'enable', 'off');
+
 set(handles.push_update, 'enable', 'on'); % tTODO
 
 assignin('base', 'handles', handles);
 guidata(o, handles)
+
+
+end

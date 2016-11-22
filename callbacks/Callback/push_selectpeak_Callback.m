@@ -2,11 +2,14 @@
 function push_selectpeak_Callback(hObject,~,handles)
 handles.xrd.Status='Selecting peak positions(s)... ';
 
+plotData(handles, handles.popup_filename.Value);
 handles.xrd.Fmodel=[];
 oldTableData = handles.table_fitinitial.Data;
 fcns = getappdata(handles.table_paramselection, 'PSfxn');
 
-coeff = handles.xrd.getCoeff(handles.guidata.PSfxn,handles.guidata.constraints);
+cp = handles.guidata.currentProfile;
+
+coeff = handles.xrd.getCoeff(handles.guidata.PSfxn{cp},handles.guidata.constraints{cp});
 peakTableRow = find(strncmp(coeff, 'x', 1));
 
 
@@ -33,24 +36,19 @@ for i=1:length(peakTableRow)
     
 end
 
-handles.guidata.PeakPositions = x;
-% handles.xrd.PeakPositions = x;
+handles.guidata.PeakPositions{handles.guidata.currentProfile} = x;
 handles = update_fitoptions(handles);
 fill_table_fitinitial(handles);
-
-setappdata(handles.uipanel3, 'PeakPositions', handles.guidata.PeakPositions);
 hold off
 
+plotX(handles);
 
-
-
-set(handles.push_update, 'enable', 'off', 'visible', 'on');
+set(handles.push_update, 'enable', 'off');
 set(handles.panel_coeffs, 'visible', 'on');
-set(findobj(handles.panel_coeffs.Children), 'enable', 'on');
+set(handles.panel_coeffs.Children, 'enable', 'on');
 set(hObject, 'string', '<html><b>Reselect Peak(s)');
 
 handles.xrd.Status=['The peak positions were selected.'];
-
 
 
 

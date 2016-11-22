@@ -47,10 +47,11 @@ else
 end
 
 % Save into handles.guidata
-handles.guidata.constraints = handles.panel_constraints.UserData;
+cp = handles.guidata.currentProfile;
+handles.guidata.constraints{cp} = handles.panel_constraints.UserData;
 
 try
-    handles.guidata.coeff = handles.xrd.getCoeff(fcnNames, handles.guidata.constraints);
+    handles.guidata.coeff{cp} = handles.xrd.getCoeff(fcnNames, handles.guidata.constraints{cp});
 catch
-   handles.guidata.coeff = [];
+   handles.guidata.coeff{cp} = [];
 end

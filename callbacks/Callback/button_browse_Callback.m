@@ -4,6 +4,7 @@ function button_browse_Callback(hObject, eventdata, handles)
 	handles = import_data(handles);
 	
     if handles.xrdContainer(7).hasData
+        handles.guidata.Filename = handles.xrd.Filename;
         handles.xrd.Status = 'Imported new dataset.';
     else
         handles.xrd.Status = '';

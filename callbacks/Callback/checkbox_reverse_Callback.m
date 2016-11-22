@@ -10,8 +10,6 @@ function handles = reverse_dataset_order(handles)
 	end
 	
 	numprofiles = handles.guidata.numProfiles;
-	numprofiles = handles.profiles(7).UserData; % delete
-	assert(numprofiles == handles.guidata.numProfiles);
 	
 	% For every profile, reverse the dataset order
 	for j=1:7

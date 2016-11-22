@@ -3,8 +3,6 @@ function handles = remove_profile(ipeak, handles)
 	%   Detailed explanation goes here
 	
 	num = handles.guidata.numProfiles;
-	num = handles.profiles(7).UserData;
-	assert(num == handles.guidata.numProfiles);
 	
 	for j=num+1:6
 		if ~isempty(handles.xrdContainer(j).Filename)

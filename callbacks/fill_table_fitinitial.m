@@ -4,18 +4,17 @@ function isFilled = fill_table_fitinitial(handles)
 % initial peak peakPositionsitions are in the table.
 isFilled = false;
 % If not enough peak peakPositions for each function
-
-if length(handles.guidata.PeakPositions) < length(handles.guidata.PSfxn)
+cp = handles.guidata.currentProfile;
+if length(handles.guidata.PeakPositions{cp}) < length(handles.guidata.PSfxn{cp})
     return
 end
 try
-    [SP,LB,UB] = handles.xrd.getDefaultStartingBounds(handles.guidata.PSfxn, handles.guidata.PeakPositions);
+    [SP,LB,UB] = handles.xrd.getDefaultStartingBounds(handles.guidata.PSfxn{cp}, handles.guidata.PeakPositions{cp});
 catch
     return
 end
 
-coeff = handles.xrd.getCoeff(handles.guidata.PSfxn, handles.guidata.constraints);
-
+coeff = handles.xrd.getCoeff(handles.guidata.PSfxn{cp}, handles.guidata.constraints{cp});
 
 try
     assert(length(coeff) == size(handles.table_fitinitial.Data, 1));
@@ -35,13 +34,11 @@ try
         end
     end
     
-    isFilled = true;
-    setappdata(handles.uipanel3, 'fit_initial', handles.xrd.fit_initial);
-    
+    isFilled = true;    
 catch
     
 end
 
-handles.xrd.fit_initial = handles.guidata.fit_initial;
+handles.xrd.fit_initial = handles.guidata.fit_initial{cp};
 
 guidata(handles.table_fitinitial,handles)

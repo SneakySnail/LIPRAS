@@ -1,4 +1,4 @@
-%% GUI
+%% Initialization
 function varargout = LIPRAS(varargin)
 % FDGUI MATLAB code for FDGUI.fig
 
@@ -24,24 +24,23 @@ else
 end
 % End initialization code - DO NOT EDIT
 
-%% Initialization
 % Executes just before LIPRAS is made visible.
 function LIPRAS_OpeningFcn(hObject, eventdata, handles, varargin)
 import javax.swing.*
 import java.awt.*
 
-rootpath = strrep(which(mfilename),[mfilename '.m'],'');
-addpath(genpath([rootpath 'callbacks']));
-addpath(genpath([rootpath 'dialog']));
-addpath(genpath([rootpath 'listener']));
-addpath(genpath([rootpath 'Resources']));
+addpath(genpath('callbacks'));
+addpath(genpath('dialog'));
+addpath(genpath('listener'));
+addpath(genpath('Resources'));
+addpath('test-path/');
 
 handles = init_GUI(handles, varargin);
 
-handles.figure1.WindowButtonMotionFcn = @(o,e)WindowButtonMotionFcn(o,e,guidata(o));
-
 % Choose default command line output for FDGUI
 handles.output = hObject;
+
+handles.figure1.WindowButtonMotionFcn = @(o, e)WindowButtonMotionFcn(o, e,guidata(o));
 
 assignin('base','handles',handles);
 % Update handles structure
@@ -51,6 +50,7 @@ guidata(hObject, handles)
 function varargout = LIPRAS_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
+
 
 function edit_bkgdpoints_Callback(hObject, eventdata, handles)
 num = str2double(hObject.String);
@@ -91,31 +91,45 @@ guidata(hObject, handles)
 function push_newbkgd_Callback(hObject, eventdata, handles)
 numpoints = str2num(handles.edit_bkgdpoints.String);
 polyorder = str2num(handles.edit_polyorder.String);
+cp = handles.guidata.currentProfile;
+
 handles.xrd.resetBackground(numpoints,polyorder);
 
-
-
-if ~isempty(handles.xrd.bkgd2th)
+if handles.guidata.numPeaks(cp) == 0
     set(handles.panel_parameters.Children, 'visible', 'off');
     t12 = findobj(handles.uipanel3, 'tag', 'text12');
     set([t12, handles.edit_numpeaks], 'visible', 'on', 'enable', 'on');
-    
+end
+
+if ~isempty(handles.xrd.bkgd2th)
     handles.tabpanel.TabEnables{2}='on';
     set(handles.push_fitbkgd, 'enable', 'on');
     set(handles.tab1_next, 'visible', 'on');
+else
+    handles.tabpanel.TabEnables{2} = 'off';
+    set(handles.push_fitbkgd, 'enable', 'off');
+    set(handles.tab1_next, 'visible', 'off');
 end
 
 plotX(handles);
 guidata(hObject, handles)
 
+% Stop Least Squares radio button.
+function radio_stopleastsquares_Callback(hObject, eventdata, handles)
+% hObject    handle to radio_stopleastsquares (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% Hint: get(hObject,'Value') returns toggle state of radio_stopleastsquares
+
 
 function uitoggletool4_ClickedCallback(hObject, eventdata, handles)
 
 
+
 function tabgroup_SelectionChangedFcn(hObject, eventdata, handles)
 
-
 function menu_edit_Callback(hObject, eventdata, handles)
+
 
 
 function edit_lambda_Callback(hObject, eventdata, handles)
@@ -124,6 +138,7 @@ function edit_lambda_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of edit_lambda as a double
 lambda=str2double(get(hObject,'String'));
 handles.xrd.lambda=lambda;
+
 
 
 % Executes on button press in push_prevprofile.
@@ -250,13 +265,10 @@ function popup_filename_Callback(hObject, eventdata, handles)
 % hObject.UserData: table_fitinitial values for each separate file
 filenum = get(hObject, 'Value');
 set(handles.text_filenum,'String',[num2str(filenum),' of ',num2str(length(hObject.String))]);
-
 set(hObject,'UserData',handles.table_fitinitial.Data);
 set(handles.listbox_files,'Value',filenum);
 
-max = length(hObject.String);
 axes(handles.axes1)
-
 % If superimpose box is checked, plot any subsequent data sets together
 if get(handles.checkbox_superimpose,'Value')==1
     % If there is only one dataset plotted
@@ -275,7 +287,6 @@ else
     plotX(handles);
 end
 
-title(handles.axes1, [handles.xrd.Filename{filenum} ' (' num2str(filenum) ' of ' num2str(max) ')']);
 guidata(hObject, handles)
 
 function listbox_files_Callback(hObject,evt, handles)
@@ -353,7 +364,7 @@ set(lgd, 'visible', 'off');
 % Turns on the legend.
 function uitoggletool5_OnCallback(hObject, eventdata, handles)
 set(hObject,'State','on');
-legend(handles.xrd.DisplayName,'Box','off')
+legend(handles.axes1, handles.xrd.DisplayName,'Box','off')
 
 %% Menu callback functions
 

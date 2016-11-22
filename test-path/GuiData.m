@@ -1,17 +1,44 @@
-classdef ProfileData < handle
+% Contains the data for each profile as it is updated in the GUI. It is completely independent from the
+% PackageFitDiffractionData class.
+classdef GuiData < handle
 	properties
-		min2t;
-		max2t;
-        
+		nProfiles = 0;
+        iProfile;
+        Filename;
 		
 	end
 	
 	properties (SetObservable)
 		
-	end
-	
+    end
+    
+    properties (Hidden)
+        ProfileData;
+    end
+    
+    properties (Dependent)
+        Min2t;
+        Max2t;
+        PolyOrder;
+        bModel; % background model name
+        nBkgdPoints;
+        
+        nPeaks;
+        PeakPositions;
+        lambda;
+        PSfxn;
+        Constraints;
+        fitrange;
+        fit_initial;
+    end
+    
+    
 	methods
-		
+        function this = GuiData
+            
+        end
+        
+        
 	end
 	
 end

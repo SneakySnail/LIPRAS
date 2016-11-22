@@ -29,7 +29,6 @@ function table_fitinitial_CellEditCallback(hObject, eventdata, handles)
 		hObject.Data{r,c} = [];
 		handles.xrd.Status=[handles.table_fitinitial.ColumnName{c},...
 			' value of coefficient ',hObject.RowName{r}, ' is now empty.'];
-% 		call.checktable_coeffvals(handles);
 		cla
 		plotX(handles);		
 	else
@@ -69,13 +68,13 @@ function table_fitinitial_CellEditCallback(hObject, eventdata, handles)
 	if ~isempty(num)
 		handles.xrd.Status=[handles.table_fitinitial.ColumnName{c},...
 			' value of coefficient ',hObject.RowName{r}, ' was changed to ',num2str(num),'.'];
-	end
+    end
 	
-	handles = plot_sample_fit(handles);
-	
-	if find(cellfun(@isempty, handles.table_fitinitial.Data(:, 1:3)), 1)
-		set(handles.push_fitdata, 'enable', 'off');
-	else
+    plotX(handles);
+    	emptyCell = find(cellfun(@isempty, handles.table_fitinitial.Data(:, 1:3)), 1);
+	if isempty(emptyCell)
 		set(handles.push_fitdata, 'enable', 'on');
+	else
+		set(handles.push_fitdata, 'enable', 'off');
 	end
 	guidata(hObject,handles)

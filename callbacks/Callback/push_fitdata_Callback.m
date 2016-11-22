@@ -4,13 +4,12 @@ function push_fitdata_Callback(hObject, ~, handles)
 handles.xrd.Status='Fitting dataset...';
 set(handles.radio_stopleastsquares, 'enable', 'on');
 
-fnames = handles.guidata.PSfxn;
+cp = handles.guidata.currentProfile;
+fnames = handles.guidata.PSfxn{cp};
 handles.xrd.PSfxn = fnames;
 
 data = handles.table_fitinitial.Data;	% initial parameter values to use
-SP = [];
-UB = [];
-LB = [];
+SP = [];UB = [];LB = [];
 
 % Save table_coeffvals into SP, LB, and UB variables
 for i = 1 : length(handles.table_fitinitial.RowName)
@@ -19,31 +18,55 @@ for i = 1 : length(handles.table_fitinitial.RowName)
     UB(i) = data{i,3};
 end
 
-axes(handles.axes1)
 peakpos = handles.xrd.PeakPositions;			% Initial peak positions guess
-handles.xrd.fitData(peakpos, fnames, SP, UB, LB);	% Function - fit data
+try
+    if isempty(handles.xrd.Fmodel)
+        handles.guidata.fitted{cp} = true; % temporarily set to true
+        set(handles.axes1, 'visible', 'off');
+        resizeAxes1ForErrorPlot(handles);
+    end
+    
+    set(handles.axes1, 'visible','on');
+    handles.xrd.fitData(peakpos, fnames, SP, UB, LB);	% Function - fit data
+    
+    if isempty(handles.xrd.Fmodel)
+        handles.guidata.fitted{cp} = false;
+    end
+    
+    plotX(handles);
 
+catch
+    handles.guidata.fitted{cp} = false;
+end
+
+if ~handles.guidata.fitted{cp}
+    uiwait(errordlg('<html><font color="red">There was a problem with fitting your dataset. Please try again.'))
+    return
+end
 
 filenum = get(handles.popup_filename, 'Value');		% The current file visible
-plotFit(handles, filenum);					  % Plot current file
 vals = handles.xrd.fit_parms{filenum};			% The fitted parameter results
 
 handles.table_fitinitial.Data = data;
 guidata(handles.figure1, handles)
 
-set(handles.menu_save,'Enable','on');
-
 fill_table_results(handles);
 
+
+set_btn_availability(hObject, handles);
+handles.xrd.Status = 'Fitting dataset... Done.';
+
+
+
+function set_btn_availability(hObject, handles)
+set(handles.menu_save,'Enable','on');
 set(handles.tabpanel, 'TabEnables', {'on', 'on', 'on'});
 set(handles.tab2_next, 'visible', 'on');
-
 set(handles.radio_stopleastsquares, 'enable', 'off', 'value', 0);
-plotX(handles);
 set(handles.push_viewall, 'enable', 'on', 'visible', 'on');
 
-handles.xrd.Status = 'Fitting dataset... Done.';
 assignin('base','handles',handles)
 guidata(hObject, handles)
+
 
 

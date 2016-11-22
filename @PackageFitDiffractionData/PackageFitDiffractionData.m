@@ -60,7 +60,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
             end
         end
         
-        %% hasData(Stro)
         function a = hasData(Stro)
             if ~isempty(Stro.data_fit)
                 a = true;

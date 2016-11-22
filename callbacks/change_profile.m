@@ -3,11 +3,10 @@
 function handles = change_profile(iProfile, handles)
 	
 max = handles.guidata.numProfiles;
-max = handles.profiles(7).UserData; % DELETE
-assert(max == handles.guidata.numProfiles);
 
 handles.uipanel3.Visible = 'off';
 handles.uipanel3 = handles.profiles(iProfile);
+handles.guidata.currentProfile = iProfile;
 handles = reassign(handles);
 
 set(handles.text_numprofile, 'string',...
