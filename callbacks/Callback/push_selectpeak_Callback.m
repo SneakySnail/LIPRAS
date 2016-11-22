@@ -6,7 +6,7 @@ handles.xrd.Fmodel=[];
 oldTableData = handles.table_fitinitial.Data;
 fcns = getappdata(handles.table_paramselection, 'PSfxn');
 
-coeff = handles.xrd.getCoeff(handles.guidata.PSfxn,handles.guidata.constraints);
+coeff = handles.xrd.getCoeff(handles.guidata.PSfxn, handles.guidata.constraints);
 peakTableRow = find(strncmp(coeff, 'x', 1));
 
 

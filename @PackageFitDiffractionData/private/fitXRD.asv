@@ -27,7 +27,9 @@ function fitXRD(Stro, data, position, filenum)
 % FOR GUI, BACKGROUND
 hold on
 plot(data(1,:),polyval(P,data(1,:),S,U),'k-') %to check okay
-
+[bkgd2th, bkgd2thX] = Stro.getBkgdPoints;
+bkgdInt=mean(data(2,(bkgd2thX-R:bkgd2thX+R)));
+plot(Stro.bkgd2th,bkgdInt,'ro','MarkerSize',6,'LineWidth',1.5, 'MarkerFaceColor','auto');
 %END
 
 % Make new matrix with NB ("no background")

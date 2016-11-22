@@ -21,7 +21,7 @@ function [Stro, has_data] = Read_Data(Stro, fname, path)
 		
 		Stro.PeakPositions=[];
 		Stro.bkgd2th=[];
-		Stro.Constrains = zeros(1,5);
+		Stro.Constrains = [0 0 0 0];
 		
 		
 		Stro.Filename=fname;
@@ -72,7 +72,9 @@ function [Stro, has_data] = Read_Data(Stro, fname, path)
 		
 		Stro.Min2T = min(Stro.two_theta);
 		Stro.Max2T = max(Stro.two_theta);
-        
+		
+		
+		
 	else
 		has_data=false;
 	end  % this is to prevent data loss when hitting cancel in uigetfile

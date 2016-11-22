@@ -34,14 +34,16 @@ controlProfilePanel(handles);
 
 
 %****************************************
+%
 % New
+%
 %****************************************
         function createGUIdata()
                 setappdata(handles.uipanel3, 'xrd', handles.xrdContainer(profileNum));
                 setappdata(handles.uipanel3, 'numPeaks', 0);
                 setappdata(handles.uipanel3, 'PSfxn', '');
                 setappdata(handles.uipanel3, 'PeakPositions', []);
-                setappdata(handles.uipanel3, 'constraints', zeros(1,5));
+                setappdata(handles.uipanel3, 'constraints', zeros(1,4));
                 setappdata(handles.uipanel3, 'fitBounds', []);
                 setappdata(handles.uipanel3, 'coeff', '');
                 setappdata(handles.uipanel3, 'fit_results', []);
