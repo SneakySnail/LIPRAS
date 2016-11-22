@@ -13,6 +13,8 @@ handles = reassign(handles);
 set(handles.text_numprofile, 'string',...
 	['Profile ',num2str(iProfile), ' of ', num2str(max)]);
 
+
+
 if iProfile == 1
 	handles.push_prevprofile.Enable = 'off';	
 else
@@ -33,6 +35,7 @@ handles.uipanel3.Visible = 'on';
 
 guidata(handles.figure1, handles)
 
+%% HELPER FUNCTIONS
 	% Reassigns all saved handles in "handles" for each object in uipanel3 according to
 	% the correct panel parent profile.
 	function handles = reassign(handles)

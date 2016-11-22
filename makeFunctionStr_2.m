@@ -1,25 +1,4 @@
-function g = makeFunction(Stro,Fxn)
-% Function for each profile
-% Fxn - cell array of function names per peak
-% data - data to fit
-% position - numeric array of peak positions
-
-numpeaks = length(Fxn);
-coeff = Stro.getCoeff(Fxn, Stro.Constrains);
-strFxn = '';
-
-for i=1:numpeaks
-    strFxn = [strFxn, makeFunctionStr(Fxn{i}, i, Stro.Constrains)];
-    if i~= numpeaks; strFxn = [strFxn,'+']; end
-end
-
-g = fittype(strFxn, 'coefficients', coeff, 'independent','x');
-
-
-
-
-
-function fstr = makeFunctionStr(fxn, peakNum, Constraint)
+function fstr = makeFunctionStr_2(fxn, peakNum, Constraint)
 N = ['N' num2str(peakNum)];
 xv = ['x' num2str(peakNum)];
 f = ['f' num2str(peakNum)];
@@ -45,18 +24,18 @@ end
 switch fxn
     case 'Gaussian'
         fstr = [N,'*((2*sqrt(log(2)))/(sqrt(pi)*', f, ')*exp(-4*log(2)*((x-', xv, ')^2/', f, '^2)))'];
-        if Stro.CuKa
-            N=['((1/1.9)*',N,')'];
-            xv=['PackageFitDiffractionData.Ka2fromKa1(',xv,')'];
-            fstr = [fstr,'+',N,'*((2*sqrt(log(2)))/(sqrt(pi)*', f, ')*exp(-4*log(2)*((x-', xv, ')^2/', f, '^2)))'];
-        end
+        % 					if Stro.CuKa
+        % 						N=['((1/1.9)*',N,')'];
+        % 						xv=['PackageFitDiffractionData.Ka2fromKa1(',xv,')'];
+        % 						fstr = [fstr,'+',N,'*((2*sqrt(log(2)))/(sqrt(pi)*', f, ')*exp(-4*log(2)*((x-', xv, ')^2/', f, '^2)))'];
+        % 					end
     case 'Lorentzian'
         fstr = [N, '*1/pi* (0.5*', f, '/((x-', xv, ')^2+(0.5*', f, ')^2))'];
-        if Stro.CuKa
-            N=['((1/1.9)*',N,')'];
-            xv=['PackageFitDiffractionData.Ka2fromKa1(',xv,')'];
-            fstr = [fstr,'+',N, '*1/pi* (0.5*', f, '/((x-', xv, ')^2+(0.5*', f, ')^2))'];
-        end
+        % 					if Stro.CuKa
+        % 						N=['((1/1.9)*',N,')'];
+        % 						xv=['PackageFitDiffractionData.Ka2fromKa1(',xv,')'];
+        % 						fstr = [fstr,'+',N, '*1/pi* (0.5*', f, '/((x-', xv, ')^2+(0.5*', f, ')^2))'];
+        % 					end
     case 'Pearson VII'
         fstr = [N, '*2*((2^(1/', m, ')-1)^0.5) /', f, '/(pi^0.5)*gamma(', m, ')/gamma(', m, ...
             '-0.5) * (1+4*(2^(1/', m, ')-1)*((x-', xv, ')^2)/', f, '^2)^(-', m, ')'];
@@ -92,4 +71,5 @@ switch fxn
         % 					end
     otherwise
         error('Function was not found.')
+end
 end

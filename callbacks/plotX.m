@@ -6,16 +6,17 @@ cla(handles.axes2)
 filenum=handles.popup_filename.Value;
 
 if isempty(handles.xrd.Fmodel) % If there isn't a fit yet
-	plotData(handles, get(handles.popup_filename,'Value'));
+	plotData(handles, filenum);
 	try
 		handles = plot_sample_fit(handles);
 	catch
 			
 	end
 else
-	plotFit(handles, get(handles.popup_filename,'Value'));
+	plotFit(handles, filenum);
 end
 
-xlabel('2\theta','FontSize',15);
-ylabel('Intensity','FontSize',15);
+xlabel('2\theta','FontSize',11);
+ylabel('Intensity','FontSize',11);
 set(handles.axes1, 'XTickMode', 'auto', 'XTickLabelMode', 'auto')
+title(handles.axes1, [handles.xrd.Filename{filenum} ' (' num2str(filenum) ' of ' num2str(length(handles.xrd.Filename)) ')']);

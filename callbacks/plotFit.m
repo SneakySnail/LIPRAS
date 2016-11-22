@@ -39,12 +39,13 @@ for j=dataSet0:dataSetf
         k=1;
         
         if Stro.Constrains(1); N=val(k); NL=val(k); NR=val(k); k=k+1; end
-        if Stro.Constrains(2); f=val(k); k=k+1; end
-        if Stro.Constrains(3); w=val(k); k=k+1; end
-        if Stro.Constrains(4); m=val(k); mL=m; mR=m; k=k+1; end
+        if Stro.Constrains(2); x=val(k); k=k+1; end
+        if Stro.Constrains(3); f=val(k); k=k+1; end
+        if Stro.Constrains(4); w=val(k); k=k+1; end
+        if Stro.Constrains(5); m=val(k); mL=m; mR=m; k=k+1; end
         
         for ii=1:length(fxn)
-            if coeff{k}(1) == 'N';
+            if coeff{k}(1) == 'N'
                 if strcmp(fxn{ii},'Asymmetric Pearson VII')
                     NL=val(k);
                     k=k+1;
@@ -66,7 +67,7 @@ for j=dataSet0:dataSetf
             if coeff{k}(1) == 'w'; w=val(k);
                 if k<length(coeff); k=k+1; end
             end
-            if coeff{k}(1) == 'm';
+            if coeff{k}(1) == 'm'
                 if strcmp(fxn{ii},'Asymmetric Pearson VII')
                     mL=val(k);
                     k=k+1;
