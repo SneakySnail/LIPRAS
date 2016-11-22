@@ -10,4 +10,3 @@ hold on
 plot(pos,handles.xrd.data_fit(filenum,indX),'r*');
 
 % TODO plot the background fit
-plotX(handles);
