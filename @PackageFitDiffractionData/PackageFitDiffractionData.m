@@ -39,7 +39,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
         azim = [0:15:345];
         binID = [1:1:24];
         lambda = 1.5405980;
-        CuKa=false;
+        CuKa=0;
         level = 0.95;
         OutputPath = 'FitOutputs/';
         SPR_Chi % TODO to be implemented in GUI in the future

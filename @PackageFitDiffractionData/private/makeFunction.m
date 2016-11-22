@@ -9,7 +9,7 @@ coeff = Stro.getCoeff(Fxn, Stro.Constrains);
 strFxn = '';
 
 for i=1:numpeaks
-    strFxn = [strFxn, makeFunctionStr(Fxn{i}, i, Stro.Constrains)];
+    strFxn = [strFxn, makeFunctionStr(Stro, Fxn{i}, i, Stro.Constrains)];
     if i~= numpeaks; strFxn = [strFxn,'+']; end
 end
 
@@ -19,7 +19,7 @@ g = fittype(strFxn, 'coefficients', coeff, 'independent','x');
 
 
 
-function fstr = makeFunctionStr(fxn, peakNum, Constraint)
+function fstr = makeFunctionStr(Stro, fxn, peakNum, Constraint)
 N = ['N' num2str(peakNum)];
 xv = ['x' num2str(peakNum)];
 f = ['f' num2str(peakNum)];

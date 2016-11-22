@@ -66,7 +66,7 @@ function fitData(Stro, position, PSfxn, SP1, UB1, LB1)
 					fid = fopen(filetosave,'w');
 					fprintf(fid, 'This is an output file from a MATLAB routine.\n');
 					fprintf(fid, strcat('The following peaks are all of the type: ', Stro.PSfxn{:}, '\n'));
-					for j=1:length(Stro.Fcoeff{m});
+					for j=1:length(Stro.Fcoeff{m})
 						fprintf(fid, '%s\t', char(Stro.Fcoeff{m}(j))); %write coefficient names
 					end
 					p=fieldnames(Stro.FmodelGOF{i})';
