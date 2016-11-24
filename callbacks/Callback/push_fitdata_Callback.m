@@ -27,8 +27,9 @@ try
     end
     
     set(handles.axes1, 'visible','on');
-    handles.xrd.fitData(peakpos, fnames, SP, UB, LB);	% Function - fit data
     
+    handles.xrd.fitData(peakpos, fnames, SP, UB, LB,handles);	% Function - fit data
+
     if isempty(handles.xrd.Fmodel)
         handles.guidata.fitted{cp} = false;
     end

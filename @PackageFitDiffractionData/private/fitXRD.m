@@ -1,5 +1,5 @@
-function fitXRD(Stro, data, position, filenum)
-
+function fitXRD(Stro, data, position, filenum,handles)
+position=position(1);
 [P, S, U] = PackageFitDiffractionData.fitBkgd(data, Stro.bkgd2th,Stro.PolyOrder);
 
 % FOR GUI, BACKGROUND
@@ -25,20 +25,20 @@ fitteddata(3,:)=polyval(P,data(1,:),S,U);
 fitrangeX=length(dataNB(1,:));
 
 % ITERATE PEAK FITTING PER PROFILE
-for i=1:size(position,1)
+
     % Add CuKa if statement here
-    avg = mean(position(i,:)); % average of all peaks
-    positionX(i) = PackageFitDiffractionData.Find2theta(dataNB(1,:),avg); % index into dataNB array
-    minr=positionX(i)-floor(fitrangeX(i)/2);
+    avg = mean(position(1,:)); % average of all peaks
+    positionX(1) = PackageFitDiffractionData.Find2theta(dataNB(1,:),avg); % index into dataNB array
+    minr=positionX(1)-floor(fitrangeX(1)/2);
     if minr<1; minr=1; end
-    maxr=positionX(i)+ceil(fitrangeX(i)/2);
+    maxr=positionX(1)+ceil(fitrangeX(1)/2);
     if maxr>fitrangeX; maxr=fitrangeX; end
-    fitdata{i} = dataNB(:,minr:maxr);
+    fitdata{1} = dataNB(:,minr:maxr);
     assignin('base','fitdata',fitdata) % ADDED BY GIO
     
-    g=Stro.makeFunction(Stro.PSfxn(i,:));
+    g=Stro.makeFunction(Stro.PSfxn(1,:));
     
-    coefficients{i}=coeffnames(g);
+    coefficients{1}=coeffnames(g);
     len=length(coefficients{1});
     if exist('InputPSfxn','var')==1
         InputPSfxn=evalin('base','InputPSfxn');
@@ -51,16 +51,16 @@ for i=1:size(position,1)
     end
     UB = Stro.fit_initial{2};
     LB = Stro.fit_initial{3};
-    
+    disp(SP)
     s = fitoptions('Method','NonlinearLeastSquares','StartPoint',SP,'Lower',LB,'Upper',UB);
-    [fittedmodel{i},fittedmodelGOF{i}]=fit(fitdata{i}(1,:)',fitdata{i}(2,:)',g,s);
-    fittedmodelCI{i} = confint(fittedmodel{i}, Stro.level);
+    [fittedmodel{1},fittedmodelGOF{1}]=fit(fitdata{1}(1,:)',fitdata{1}(2,:)',g,s);
+    fittedmodelCI{1} = confint(fittedmodel{1}, Stro.level);
     % store fitted data, aligned appropriately in the column
-    fitteddata(i+3,minr:maxr)=fittedmodel{i}(fitdata{i}(1,:));
+    fitteddata(1+3,minr:maxr)=fittedmodel{1}(fitdata{1}(1,:));
     assignin('base','fitteddata',fitteddata)
     cla
     % FOR GUI, FIT
-    plot(fitdata{i}(1,:),fittedmodel{i}(fitdata{i}(1,:))'+polyval(P,fitdata{i}(1,:),S,U),'-','Color',[0 .5 0],'LineWidth',1.5);
+    plot(fitdata{1}(1,:),fittedmodel{1}(fitdata{1}(1,:))'+polyval(P,fitdata{1}(1,:),S,U),'-','Color',[0 .5 0],'LineWidth',1.5);
     pause(0.05);
     %END
     
@@ -69,22 +69,16 @@ for i=1:size(position,1)
     % END
     
     % FOR GUI DIFFERENCE PLOT
-    evalin('base','axes(handles.axes2)')
+    axes(handles.axes2) % this is slow, consider moving outside loop
     cla
     for j=1:size(position,1)
         plot(fitdata{j}(1,:),fitdata{j}(2,:)-fittedmodel{j}(fitdata{j}(1,:))','-r');
     end
     xlim([Stro.Min2T Stro.Max2T])
     
-    evalin('base', 'linkaxes([handles.axes1 handles.axes2],''x'')')
-    evalin('base','axes(handles.axes1)')
-    % END
-    
-    % 				if strcmp(Stro.plotyn,'y')
-    % 					plot(fitdata{i}(1,:),fittedmodel{i}(fitdata{i}(1,:))'+polyval(P,fitdata{i}(1,:)),'-g');
-    % 					pause(0.05);
-    % 				end
-end
+   linkaxes([handles.axes1 handles.axes2],'x')
+   axes(handles.axes1) % this is slow, consider moving outside of loop
+
 
 Stro.Fdata = fitteddata;
 Stro.Fcoeff = coefficients;

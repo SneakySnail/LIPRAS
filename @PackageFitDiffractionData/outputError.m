@@ -1,5 +1,5 @@
 % TODO Move to FDGUIv2_1
-function outputError(Stro,~)
+function outputError(Stro,Profile)
 	if isa(Stro.Filename,'char')
 		Stro.Filename = {Stro.Filename};
 	end
@@ -32,7 +32,7 @@ function outputError(Stro,~)
 			iprefix = '0';
 		end
 	end
-	fid=fopen(strcat(outFilePrefix,strcat(iprefix,num2str(index)),'.txt'),'w'); %the name of the file it will write containing the statistics of the fit
+	fid=fopen(strcat(outFilePrefix,strcat(iprefix,num2str(index)),'_Profile_',Profile,'.txt'),'w'); %the name of the file it will write containing the statistics of the fit
 	
 	fprintf(fid, 'Fit parameters\n\n');
 	fprintf(fid, '2theta_fit_range: %f %f\n\n',Stro.Min2T, Stro.Max2T);

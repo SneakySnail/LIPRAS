@@ -1,4 +1,0 @@
-This is an output file from a MATLAB routine.
-The following peaks are all of the type:Asymmetric Pearson VIIPsuedo Voigt
-N1L	N1R	x1	f1	m1L	m1R	N2	x2	f2	w2	sse	rsquare	dfe	adjrsquare	rmse	LowCI:N1L	UppCI:N1L	LowCI:N1R	UppCI:N1R	LowCI:x1	UppCI:x1	LowCI:f1	UppCI:f1	LowCI:m1L	UppCI:m1L	LowCI:m1R	UppCI:m1R	LowCI:N2	UppCI:N2	LowCI:x2	UppCI:x2	LowCI:f2	UppCI:f2	LowCI:w2	UppCI:w2	
-56.853	49.432	3.7239	0.052519	19.996	2.1520	205.39	3.7650	0.031453	0.60486	1.7006e+05	0.99896	86.000	0.99885	44.468	43.856	69.850	-2.2810	101.14	3.7202	3.7275	0.044851	0.060186	-91.701	131.69	-5.4863	9.7903	171.74	239.03	3.7646	3.7654	0.030030	0.032875	0.48745	0.72227	

@@ -1,10 +1,10 @@
-function fitData(Stro, position, PSfxn, SP1, UB1, LB1)
+function fitData(Stro, position, PSfxn, SP1, UB1, LB1,handles)
 	Stro.getBackground();
 	Stro.fit_results={};
 	Stro.fit_parms={};
 	Stro.fit_parms_error={};
 	
-	Stro.PeakPositions = position;
+% 	Stro.PeakPositions = position;
 	Stro.PSfxn = PSfxn;
 	
 	if nargin > 3
@@ -37,62 +37,52 @@ function fitData(Stro, position, PSfxn, SP1, UB1, LB1)
 		if size(Stro.PSfxn,1)==size(Stro.PeakPositions,1)
 			datasent = Stro.getRawData(i, Stro.fitrange);
 			
-			
-			Stro.fitXRD(datasent, Stro.PeakPositions,i);
-			
-			if isa(Stro.Filename,'char')
-				[path, filename, ext] = fileparts(Stro.Filename);
-			elseif length(Stro.Filename) == 1
-				[path, filename, ext] = fileparts(Stro.Filename{1});
-			else
-				[path, filename, ext] = fileparts(Stro.Filename{i});
-			end
-			
-			clear path ext
-			
-			for m=1:size(Stro.PSfxn,1)
-				fitOutputPath = strcat(Stro.OutputPath,'FitData/');
-				if ~exist(fitOutputPath,'dir')
+			Stro.fitXRD(datasent, Stro.PeakPositions,i,handles);
+
+        % Master File, writes all Fmodel results into one file    
+            fitOutputPath = strcat(Stro.OutputPath,'FitData/');
+
+                        if ~exist(fitOutputPath,'dir')
 					mkdir(fitOutputPath);
-				end
+                        end
 				
-				if isempty(Stro.SPR_Angle)
-					filetosave=strcat(fitOutputPath,Stro.Filename{1},'Master','_peak',num2str(m),'.Fmodel');
-				else
-					filetosave=strcat(fitOutputPath,Stro.Filename{1},'_Angle_',num2str(Stro.SPR_Angle),'_Master','_peak',num2str(m),'.Fmodel');
-				end
-				
+                    if isempty(Stro.SPR_Angle)
+					filetosave=strcat(fitOutputPath,strrep(Stro.Filename{1},'.','_'),'_Master','_peak',num2str(1),'_Profile_',num2str(handles.guidata.currentProfile),'.Fmodel');
+                    else
+					filetosave=strcat(fitOutputPath,strrep(Stro.Filename{1},'.','_'),'_Angle_',num2str(Stro.SPR_Angle),'_Master','_peak',num2str(1),'_Profile_',num2str(handles.guidata.currentProfile),'.Fmodel');
+                    end
+				            
 				if i==1  %only if first file to open (master loop); print file header
 					fid = fopen(filetosave,'w');
 					fprintf(fid, 'This is an output file from a MATLAB routine.\n');
 					fprintf(fid, strcat('The following peaks are all of the type: ', Stro.PSfxn{:}, '\n'));
-					for j=1:length(Stro.Fcoeff{m})
-						fprintf(fid, '%s\t', char(Stro.Fcoeff{m}(j))); %write coefficient names
+					for j=1:length(Stro.Fcoeff{1})
+						fprintf(fid, '%s\t', char(Stro.Fcoeff{1}(j))); %write coefficient names
 					end
 					p=fieldnames(Stro.FmodelGOF{i})';
 					fprintf(fid, '%s\t',p{:}); %write GOF names
-					for j=1:size(Stro.FmodelCI{i,m},2)
-						fprintf(fid, '%s\t', strcat('LowCI:',char(Stro.Fcoeff{m}(j)))); %write LB names
-						fprintf(fid, '%s\t', strcat('UppCI:',char(Stro.Fcoeff{m}(j)))); %write UB names
+					for j=1:size(Stro.FmodelCI{i,1},2)
+						fprintf(fid, '%s\t', strcat('LowCI:',char(Stro.Fcoeff{1}(j)))); %write LB names
+						fprintf(fid, '%s\t', strcat('UppCI:',char(Stro.Fcoeff{1}(j)))); %write UB names
 					end
 					fprintf(fid, '\n');
 					fclose(fid);
 				end
 				fid = fopen(filetosave,'a');
-				for j=1:length(Stro.Fcoeff{m})
-					fprintf(fid, '%#.5g\t', Stro.Fmodel{i,m}.(Stro.Fcoeff{m}(j))); %write coefficient values
+				for j=1:length(Stro.Fcoeff{1})
+					fprintf(fid, '%#.5g\t', Stro.Fmodel{i,1}.(Stro.Fcoeff{1}(j))); %write coefficient values
 				end
 				%                             GOFoutputs=[Stro.FmodelGOF{i,m}.sse Stro.FmodelGOF{i,m}.rsquare Stro.FmodelGOF{i,m}.dfe Stro.FmodelGOF{i,m}.adjrsquare Stro.FmodelGOF{i,m}.rmse];
-				a=struct2cell(Stro.FmodelGOF{i,m});
+				a=struct2cell(Stro.FmodelGOF{i,1});
 				fprintf(fid, '%#.5g\t',[a{:}]); %write GOF values
-				for j=1:size(Stro.FmodelCI{i,m},2)
-					fprintf(fid,'%#.5g\t', Stro.FmodelCI{i,m}(1,j)); %write lower bound values
-					fprintf(fid,'%#.5g\t', Stro.FmodelCI{i,m}(2,j)); %write upper bound values
+				for j=1:size(Stro.FmodelCI{i,1},2)
+					fprintf(fid,'%#.5g\t', Stro.FmodelCI{i,1}(1,j)); %write lower bound values
+					fprintf(fid,'%#.5g\t', Stro.FmodelCI{i,1}(2,j)); %write upper bound values
 				end
 				fprintf(fid, '\n');
 				fclose(fid);
-			end
-			
+	% End of Master File		
+			 
 		else  %else statement for primary function
 			error('Number of inputs are not consistent. Program not executed')
 		end   %end of if fxn executing primary program
@@ -111,4 +101,27 @@ function fitData(Stro, position, PSfxn, SP1, UB1, LB1)
 	end
 	
 	Stro.Status = 'Fitting dataset... Done.';
+
+    % Writes Fmodel and Fdata, after the fitting has been completed
+    for g=1:length(Stro.Filename)    	
+        
+                if isa(Stro.Filename,'char')
+				[~, filename, ~] = fileparts(Stro.Filename);
+                elseif length(Stro.Filename) == 1
+				[~, filename, ~] = fileparts(Stro.Filename{1});
+                else
+				[~, filename, ~] = fileparts(Stro.Filename{g});
+            end
+            
+            % Writes individual Fdata
+           Stro.SaveFitData(strcat(fitOutputPath,filename,'_Profile_',num2str(handles.guidata.currentProfile),'_',num2str(arb(g)),'.Fdata'),Stro.fit_results{g});
+
+Fmodel=Stro.Fmodel(g);
+Fcoeff=Stro.Fcoeff(1);
+FmodelGOF=Stro.FmodelGOF(g);
+FmodelCI=Stro.FmodelCI(g);
+    % Writes individual Fmodel
+Stro.SaveFitValues(strcat(fitOutputPath,filename,'_Profile_',num2str(handles.guidata.currentProfile),'_',num2str(arb(g)),'.Fmodel'),Stro.PSfxn,Fmodel,Fcoeff,FmodelGOF,FmodelCI);
+
+    end
 end

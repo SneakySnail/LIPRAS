@@ -270,7 +270,80 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
             lambda2 = 1.544426; %Ka2
             position2 = 180 / pi * (2*asin(lambda2/lambda1*sin(pi / 180 * (position1/2))));
         end
-        
+        function [x]=SaveFitData(filename,dataMatrix)
+            %
+            % function [x]=SaveFitData(filename,dataMatrix)
+            % JJones, 23 Nov 2007
+            %
+
+            if nargin~=2 %number of required input arguments
+                error('Incorrect number of arguments')
+                x=0; %means unsuccessful
+            else    
+                fid = fopen(filename,'w');
+                fprintf(fid, 'This is an output file from a MATLAB routine.\n');
+                fprintf(fid, 'All single peak data (column 3+) does not include background intensity.\n');
+                fprintf(fid, '2theta \t IntMeas \t BkgdFit \t Peak1 \t Peak2 \t Etc...\n');
+                dataformat = '%f\n'; 
+                for i=1:(size(dataMatrix,1)-1);
+                    dataformat = strcat('%f\t',dataformat);
+                end
+                fprintf(fid, dataformat, dataMatrix);
+                fclose(fid);
+                x=1; %means successful
+            end
+        end
+        function [x]=SaveFitValues(filename,PSfxn,Fmodel,Fcoeff,FmodelGOF,FmodelCI)
+            % function 
+            %      [x]=SaveFitValues(filename,PSfxn,Fmodel,Fcoeff,FmodelGOF,FmodelCI)
+            %
+            % JJones, 23 Nov 2007
+            %
+
+            if nargin~=6 %number of required input arguments
+                error('Incorrect number of arguments')
+                x=0; %means unsuccessful
+            else
+                fid = fopen(filename,'w');
+                
+                fprintf(fid, 'This is an output file from a MATLAB routine.\n');
+                for i=1:1 % Modified by GIO on 11-23-2016
+                    if i==1; test=0; else test=strcmp(PSfxn{i},PSfxn{i-1}); end
+                    %write coefficient names
+                    if or(i==1,test==0);
+                        fprintf(fid, strcat('The following peaks are all of the type:', PSfxn{i}, '\n'));
+                        %first output fitted values
+                        for j=1:length(Fcoeff{i});
+                            fprintf(fid, '%s\t', char(Fcoeff{i}(j))); %write coefficient names
+                        end
+                        %second output GOF values
+                        
+                        fprintf(fid, 'sse \t rsquare \t dfe \t adjrsquare \t rmse \t'); %write GOF names
+                        %third output Confidence Intervals (CI)
+                        for j=1:size(FmodelCI{i},2)
+                            fprintf(fid, '%s\t', strcat('LowCI:',char(Fcoeff{i}(j)))); %write LB names
+                            fprintf(fid, '%s\t', strcat('UppCI:',char(Fcoeff{i}(j)))); %write UB names
+                        end
+                        fprintf(fid, '\n');
+                    end
+                    %write coefficient values
+                    for j=1:length(Fcoeff{i});
+                        fprintf(fid, '%f\t', Fmodel{i}.(Fcoeff{i}(j))); %write coefficient values
+                    end
+                    
+                    GOFoutputs=[FmodelGOF{i}.sse FmodelGOF{i}.rsquare FmodelGOF{i}.dfe FmodelGOF{i}.adjrsquare FmodelGOF{i}.rmse];
+                    fprintf(fid, '%f\t%f\t%f\t%f\t%f\t',GOFoutputs); %write GOF values
+                    for j=1:size(FmodelCI{i},2)
+                        fprintf(fid, '%f\t', FmodelCI{i}(1,j)); %write lower bound values
+                        fprintf(fid, '%f\t', FmodelCI{i}(2,j)); %write upper bound values
+                    end
+                    fprintf(fid, '\n');
+                end
+                fclose(fid);
+                x=1; %means successful
+            end
+            
+        end
         function [Y] = AsymmCutoff(x, side, xdata)
             
             numPts=length(xdata);
