@@ -10,15 +10,15 @@ function outputError(Stro,Profile)
 	
 	if length(Stro.Filename) == 1
 		if isempty(Stro.SPR_Angle)
-			outFilePrefix = strcat(Stro.OutputPath,Stro.Filename{1},'_RwRp_error_');
+			outFilePrefix = strcat(Stro.OutputPath,'Fit_Parameters_',strrep(Stro.Filename{1},'.','_'));
 		else
-			outFilePrefix = strcat(Stro.OutputPath,Stro.Filename{1},'_RwRp_error_Angle_',num2str(Stro.SPR_Angle),'_');
+			outFilePrefix = strcat(Stro.OutputPath,'Fit_Parameters_',strrep(Stro.Filename{1},'.','_'),'_Angle_',num2str(Stro.SPR_Angle),'_');
 		end
 	else
 		if isempty(Stro.SPR_Angle)
-			outFilePrefix = strcat(Stro.OutputPath,Stro.Filename{1},'_Series_RwRp_error_');
+			outFilePrefix = strcat(Stro.OutputPath,'Fit_Parameters_',strrep(Stro.Filename{1},'.','_'),'_Series_');
 		else
-			outFilePrefix = strcat(Stro.OutputPath,Stro.Filename{1},'_Series_RwRp_error_Angle_',num2str(Stro.SPR_Angle),'_');
+			outFilePrefix = strcat(Stro.OutputPath,'Fit_Parameters_',strrep(Stro.Filename{1},'.','_'),'_Series_Angle_',num2str(Stro.SPR_Angle),'_');
 		end
 	end
 	
@@ -32,7 +32,7 @@ function outputError(Stro,Profile)
 			iprefix = '0';
 		end
 	end
-	fid=fopen(strcat(outFilePrefix,strcat(iprefix,num2str(index)),'_Profile_',Profile,'.txt'),'w'); %the name of the file it will write containing the statistics of the fit
+	fid=fopen(strcat(outFilePrefix,strcat(iprefix,num2str(index)),'_Profile_',num2str(Profile),'.txt'),'w'); %the name of the file it will write containing the statistics of the fit
 	
 	fprintf(fid, 'Fit parameters\n\n');
 	fprintf(fid, '2theta_fit_range: %f %f\n\n',Stro.Min2T, Stro.Max2T);

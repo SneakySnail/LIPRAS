@@ -375,7 +375,7 @@ import_data(handles);
 
 function menu_save_Callback(hObject, eventdata, handles)
 handles.xrd.Status='Saving results...';
-handles.xrd.outputError;
+outputError(handles.xrd,handles.guidata.currentProfile);
 handles.xrd.Status='Saving results... Done.';
 
 % ---
