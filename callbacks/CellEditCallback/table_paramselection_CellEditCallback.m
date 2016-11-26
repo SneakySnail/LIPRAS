@@ -19,7 +19,6 @@ guidata(hObject, handles);
 
 
     function getFcnData()
-        
         try
             fcnNames = hObject.Data(:, 1)';
         catch

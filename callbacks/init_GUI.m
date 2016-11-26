@@ -24,15 +24,6 @@ set(handles.panel_setup, 'parent', handles.profiles(7));
 set(handles.panel_parameters,'parent', handles.profiles(7));
 set(handles.panel_results, 'parent', handles.profiles(7));
 
-% TODO
-ax2height = handles.axes2.Position(4);
-outer1 = handles.axes1.OuterPosition;
-
-% set(handles.axes1, 'Units', 'normalized', 'OuterPosition',
-% handles.axes1.OuterPosition(1) = 0;
-% handles.axes1.Position(4) = handles.axes1.Position(4)+ax2height;
-% handles.axes2.OuterPosition = handles.axes2.Position;
-
 %% helper functions
     function createUserData()
         handles.profiles(7) = handles.uipanel3;

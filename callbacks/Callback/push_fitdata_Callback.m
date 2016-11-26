@@ -6,55 +6,53 @@ set(handles.radio_stopleastsquares, 'enable', 'on');
 
 cp = handles.guidata.currentProfile;
 fnames = handles.guidata.PSfxn{cp};
+peakpos = handles.guidata.PeakPositions{cp};
+fitinit = handles.guidata.fit_initial{cp};
+constraints = handles.guidata.constraints{cp};
+
 handles.xrd.PSfxn = fnames;
+handles.xrd.fit_initial = fitinit;
+handles.xrd.PeakPositions = peakpos;
+handles.xrd.Constrains = constraints;
 
-data = handles.table_fitinitial.Data;	% initial parameter values to use
-SP = [];UB = [];LB = [];
+SP = fitinit{1};
+UB = fitinit{2};
+LB = fitinit{3};
 
-% Save table_coeffvals into SP, LB, and UB variables
-for i = 1 : length(handles.table_fitinitial.RowName)
-    SP(i) = data{i,1};
-    LB(i) = data{i,2};
-    UB(i) = data{i,3};
-end
-
-peakpos = handles.xrd.PeakPositions;			% Initial peak positions guess
 try
-    if isempty(handles.xrd.Fmodel)
-        handles.guidata.fitted{cp} = true; % temporarily set to true
-        set(handles.axes1, 'visible', 'off');
-        resizeAxes1ForErrorPlot(handles);
-    end
+    resizeAxes1ForErrorPlot(handles, 'fit');
+    handles.xrd.fitData(peakpos, fnames, SP, UB, LB, handles);	% Function - fit data
+    handles = guidata(hObject);
     
-    set(handles.axes1, 'visible','on');
-    
-    handles.xrd.fitData(peakpos, fnames, SP, UB, LB,handles);	% Function - fit data
-
     if isempty(handles.xrd.Fmodel)
-        handles.guidata.fitted{cp} = false;
+        handles.guidata.fitted{cp} = false; 
+    else
+        handles.guidata.fitted{cp} = true;
     end
     
     plotX(handles);
-
-catch
-    handles.guidata.fitted{cp} = false;
+    
+catch ME
+    
+    resizeAxes1ForErrorPlot(handles);
+    
+    rethrow(ME)
 end
 
 if ~handles.guidata.fitted{cp}
-    uiwait(errordlg('<html><font color="red">There was a problem with fitting your dataset. Please try again.'))
+    uiwait(errordlg('There was a problem with fitting your dataset. Please try again.'))
     return
 end
 
 filenum = get(handles.popup_filename, 'Value');		% The current file visible
 vals = handles.xrd.fit_parms{filenum};			% The fitted parameter results
 
-handles.table_fitinitial.Data = data;
 guidata(handles.figure1, handles)
 
 fill_table_results(handles);
 
-
 set_btn_availability(hObject, handles);
+
 handles.xrd.Status = 'Fitting dataset... Done.';
 
 

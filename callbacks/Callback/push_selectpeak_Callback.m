@@ -1,55 +1,57 @@
 % Executes on button press of 'Select Peak(s)'.
 function push_selectpeak_Callback(hObject,~,handles)
-handles.xrd.Status='Selecting peak positions(s)... ';
+handles.xrd.Status='Selecting peak position(s)... ';
 
 plotData(handles, handles.popup_filename.Value);
-handles.xrd.Fmodel=[];
+
 oldTableData = handles.table_fitinitial.Data;
-fcns = getappdata(handles.table_paramselection, 'PSfxn');
-
 cp = handles.guidata.currentProfile;
+fcns = handles.guidata.PSfxn{cp};
+constraints = handles.guidata.constraints{cp};
 
-coeff = handles.xrd.getCoeff(handles.guidata.PSfxn{cp},handles.guidata.constraints{cp});
+coeff = handles.xrd.getCoeff(fcns, constraints);
 peakTableRow = find(strncmp(coeff, 'x', 1));
-
+handles = update_fitoptions(handles);
 
 hold on
 % ginput for x position of peaks
 for i=1:length(peakTableRow)
     handles.table_fitinitial.Data(peakTableRow(i), 1:3) = {['<html><table border=0 width=150 ', ...
-        'bgcolor=#FFA07A><tr><td></td></tr></table></html>']};
+        'bgcolor=#FFA07A><tr><td></td></tr></html>']};
     
-    handles.xrd.Status=['Selection peak ',num2str(i),'. Right click anywhere to cancel.'];
-    [x(i),~, btn]=ginput(1);
-    if btn == 3 % if the left mouse button was not pressed
+    handles.xrd.Status=['Selecting peak ',num2str(i),' (' fcns{i} '). Press the Esc key or right click to cancel.'];
+    [x(i), ~, btn] = ginput(1);
+    if btn == 1
+        handles.table_fitinitial.Data{peakTableRow(i),1} = x(i);
+        handles.table_fitinitial.Data(peakTableRow(i),2:3)  = {[], []};
+        
+        pos=PackageFitDiffractionData.Find2theta(handles.xrd.two_theta,x(i));
+        plot(x(i), handles.xrd.data_fit(1,pos), 'r*') % 'ko'
+        
+    else % if the left mouse button was not pressed
         handles.table_fitinitial.Data = oldTableData;
         hold off
         plotX(handles);
         return
     end
     
-    handles.table_fitinitial.Data{peakTableRow(i),1} = x(i);
-    handles.table_fitinitial.Data(peakTableRow(i),2:3)  = {[], []};
-    
-    pos=PackageFitDiffractionData.Find2theta(handles.xrd.two_theta,x(i));
-    plot(x(i), handles.xrd.data_fit(1,pos), 'r*') % 'ko'
-    
+   
 end
 
-handles.guidata.PeakPositions{handles.guidata.currentProfile} = x;
-handles = update_fitoptions(handles);
+handles.guidata.PeakPositions{cp} = x;
 fill_table_fitinitial(handles);
+handles = guidata(hObject);
 hold off
 
-plotX(handles);
+plotX(handles, 'sample');
 
-set(handles.push_update, 'enable', 'off');
+
 set(handles.panel_coeffs, 'visible', 'on');
 set(handles.panel_coeffs.Children, 'enable', 'on');
-set(hObject, 'string', '<html><b>Reselect Peak(s)');
 
-handles.xrd.Status=['The peak positions were selected.'];
 
+assignin('base', 'handles', handles);
+guidata(hObject, handles);
 
 
 

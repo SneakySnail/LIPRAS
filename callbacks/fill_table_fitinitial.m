@@ -9,18 +9,20 @@ if length(handles.guidata.PeakPositions{cp}) < length(handles.guidata.PSfxn{cp})
     return
 end
 try
-    [SP,LB,UB] = handles.xrd.getDefaultStartingBounds(handles.guidata.PSfxn{cp}, handles.guidata.PeakPositions{cp});
-catch
+    peakpos = handles.guidata.PeakPositions{cp};
+    fcns = handles.guidata.PSfxn{cp};
+    cons = handles.guidata.constraints{cp};
+    
+    [SP,LB,UB] = handles.xrd.getDefaultStartingBounds(fcns, peakpos, cons);
+catch 
     return
 end
 
-coeff = handles.xrd.getCoeff(handles.guidata.PSfxn{cp}, handles.guidata.constraints{cp});
+coeff = handles.xrd.getCoeff(fcns, cons);
 
 try
     assert(length(coeff) == size(handles.table_fitinitial.Data, 1));
-    
-%     handles.guidata.fit_initial = {SP;UB;LB};
-    
+        
     % Fill in table with default values if cell is empty
     for i=1:length(coeff)
         if isempty(handles.table_fitinitial.Data{i,1})
@@ -39,6 +41,8 @@ catch
     
 end
 
-handles.xrd.fit_initial = handles.guidata.fit_initial{cp};
+data = handles.table_fitinitial.Data;
+handles.guidata.fit_initial{cp} = {[data{:,1}]; [data{:,2}]; [data{:,3}]};
 
-guidata(handles.table_fitinitial,handles)
+assignin('base', 'handles', handles);
+guidata(handles.figure1,handles)

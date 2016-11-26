@@ -4,7 +4,6 @@ function reset_panel_view(handles)
 set(handles.edit_min2t,'String',sprintf('%2.4f',handles.xrd.Min2T));
 set(handles.edit_max2t,'String',sprintf('%2.4f',handles.xrd.Max2T));
 set(handles.edit_fitrange,'String',sprintf('%2.3f',handles.xrd.fitrange));
-set(handles.push_update, 'enable', 'off', 'visible', 'off');
 
 set(handles.panel_profilecontrol, 'visible', 'on');
 set(handles.uipanel3, 'visible', 'off');

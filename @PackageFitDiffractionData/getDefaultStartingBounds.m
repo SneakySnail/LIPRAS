@@ -1,18 +1,27 @@
-function [SP, LB, UB] = getDefaultStartingBounds(Stro, fcn, position)
+function [SP, LB, UB] = getDefaultStartingBounds(Stro, fcn, position, constraints)
 
 SP = []; UB = []; LB = [];
 data = Stro.getRawData(1, Stro.fitrange);
 x = data(1,:);
 y = data(2,:);
 
+if nargin < 4
+    constraints = Stro.Constrains;
+end
+
 if nargin < 3
 	position = Stro.PeakPositions;
+end
+
+if nargin < 2
 	fcn = Stro.PSfxn;
-elseif length(fcn) < length(position)
+end 
+
+if length(fcn) < length(position)
 	position = position(1:length(fcn));
 end
 
-coeff = Stro.getCoeff(fcn, Stro.Constrains);
+coeff = Stro.getCoeff(fcn, constraints);
 
 for i=1:length(coeff)
 		cname = coeff{i};
@@ -34,12 +43,10 @@ for i=1:length(coeff)
 				UB = [UB, 5*ni];
 				LB = [LB, 0];
 				
-				
 		elseif cname(1) == 'x'
 				SP = [SP, pos];
 				UB = [UB, pos+.02];
 				LB = [LB, pos-.02];
-				
 				
 		elseif cname(1) == 'f'
 				SP = [SP, fi];

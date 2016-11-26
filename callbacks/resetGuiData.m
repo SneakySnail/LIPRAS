@@ -17,6 +17,9 @@ if nargin > 2
             case 'fit_initial'
                 handles.guidata.fit_initial{profileNum} = [];
                 
+            case 'fitrange'
+                handles.guidata.fitrange{profileNum} = [];
+                
             case 'coeff'
                 handles.guidata.coeff{profileNum} = '';
                 
@@ -50,6 +53,7 @@ if nargin > 1
     handles.guidata.numPeaks(profileNum) = 0;
     handles.guidata.constraints{profileNum} = zeros(1,5);
     handles.guidata.fit_initial{profileNum} = [];
+    handles.guidata.fitrange{profileNum} = [];
     handles.guidata.coeff{profileNum} = '';
     handles.guidata.fitted{profileNum} = false;
 else
@@ -58,6 +62,7 @@ else
     handles.guidata.numPeaks = 0;
     handles.guidata.constraints = {[]};
     handles.guidata.fit_initial = {[]};
+    handles.guidata.fitrange = [];
     handles.guidata.coeff = {''};
     handles.guidata.fitted = {false};
 end

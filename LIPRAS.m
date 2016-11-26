@@ -114,17 +114,8 @@ end
 plotX(handles);
 guidata(hObject, handles)
 
-% Stop Least Squares radio button.
-function radio_stopleastsquares_Callback(hObject, eventdata, handles)
-% hObject    handle to radio_stopleastsquares (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-% Hint: get(hObject,'Value') returns toggle state of radio_stopleastsquares
-
 
 function uitoggletool4_ClickedCallback(hObject, eventdata, handles)
-
-
 
 function tabgroup_SelectionChangedFcn(hObject, eventdata, handles)
 
@@ -300,18 +291,15 @@ end
 
 % Profile Range edit box callback function.
 function edit_fitrange_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_fitrange (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-% Hints: get(hObject,'String') returns contents of edit_fitrange as text
-%        str2double(get(hObject,'String')) returns contents of edit_fitrange as a double
 num = str2double(get(hObject, 'string'));
 if isempty(num) || isnan(num) || num <= 0
     handles.xrd.Status = ['<html><font color="red"><b>Warning: ' hObject.String ' is not a valid fit range. Please enter a floating point number greater than 0.'];
     set(hObject, 'string', sprintf('%2.4f', handles.xrd.fitrange));
     return
 end
-handles.xrd.fitrange=str2double(get(hObject,'String'));
+
+handles.xrd.fitrange = num;
+handles.guidata.fitrange = num;
 set(hObject,'string', sprintf('%2.4f', handles.xrd.fitrange), 'UserData',handles.xrd.fitrange);
 handles.xrd.Status = 'Fit range was updated.';
 

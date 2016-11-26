@@ -31,6 +31,7 @@ num = int8(num);
 % Set user data
 set(hObject, 'userdata', num, 'string', num2str(num));
 handles.guidata.numPeaks(cp) = num;
+handles.guidata.constraints{cp} = zeros(num, 5);
 
 % set uicontrol visibility
 set([handles.tab2_panel1, handles.panel_constraints, handles.panel_kalpha2], 'visible', 'on');
@@ -48,6 +49,7 @@ set(hObject,'enable', 'on');
 %************************************************
 
 handles.xrd.Status=['Number of peaks was set to ',num2str(num),'.'];
+assignin('base', 'handles', handles);
 guidata(hObject, handles)
 
 

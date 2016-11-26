@@ -12,9 +12,9 @@ inputNum = str2double(inputStr);
 min = str2double(get(handles.edit_min2t, 'String'));
 max = str2double(get(handles.edit_max2t, 'String'));
 
-% Check if valid number
+% Check if a valid number
 if isnan(inputNum)
-    handles.xrd.Status = ['Error: ', inputStr, ' is not a valid number.'];
+    handles.xrd.Status = ['<html><font color="red">Error: ', inputStr, ' is not a valid number.'];
     if strcmpi(lim, 'min')
         set(hObject, 'String', sprintf('%2.4f', handles.xrd.Min2T));
     else
@@ -23,11 +23,8 @@ if isnan(inputNum)
     return
 end
 
-% Check if within valid range
-if inputNum < handles.xrd.two_theta(1) || inputNum > handles.xrd.two_theta(end)
-    msg=['Warning: ',lim, '2t value is not within bounds.'];
-    handles.xrd.Status=[handles.xrd.Status, msg];
-    
+% Check if within valid range 
+if inputNum < handles.xrd.two_theta(1) || inputNum > handles.xrd.two_theta(end)    
     if strcmpi(lim, 'min')
         inputNum = handles.xrd.two_theta(1);
         min = inputNum;
@@ -35,7 +32,7 @@ if inputNum < handles.xrd.two_theta(1) || inputNum > handles.xrd.two_theta(end)
         inputNum = handles.xrd.two_theta(end);
         max = inputNum;
     end
-    
+    handles.xrd.Status=['<html><font color="red">' inputStr ' is not within bounds.'];
 end
 
 % Check to make sure max > min
@@ -46,6 +43,7 @@ if min >= max
     end
     handles.xrd.Max2T = max;
     set(handles.edit_max2t,'String',sprintf('%2.4f',max));
+%     handles.xrd.Status=['<thml><font color="red">' inputStr ' must be 
 end
 
 % Check to make sure min < max
@@ -85,6 +83,7 @@ set(handles.edit_max2t,'String',sprintf('%2.4f', max));
 % difference
 set(handles.edit_fitrange, 'string', sprintf('%2.4f', max-min));
 handles.xrd.fitrange = max-min;
+handles.guidata.fitrange = handles.xrd.fitrange;
 
 set(hObject, 'userdata', str2double(hObject.String));
 handles.xrd.Fmodel=[];

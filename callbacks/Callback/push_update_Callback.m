@@ -2,38 +2,34 @@
 function push_update_Callback(hObject, eventdata, handles)
 handles.xrd.Status = 'Updating fit options... ';
 
-handles.xrd.Fmodel=[];
-
 edit_initial_bounds();
 
 fill_table_fitinitial(handles);
 
+handles = guidata(hObject);
+
 set_btn_clickable();
 
-plotX(handles);
+plotX(handles, 'sample');
 
 handles.xrd.Status = 'Fit options updated.';
 assignin('base','handles',handles)
 guidata(hObject,handles)
 
     function edit_initial_bounds()
+        cp = handles.guidata.currentProfile;
         % get new parameters
-        fcnNames = handles.table_paramselection.Data(:, 1)'; % function names to use
-        handles.guidata.PSfxn{handles.guidata.currentProfile} = fcnNames;
+        fcnNames = handles.guidata.PSfxn{cp};
+        numpeaks = handles.guidata.numPeaks(cp);
+        constraints = handles.guidata.constraints{cp};
         
-        numpeaks = str2double(handles.edit_numpeaks.String);
-        
-        constraints = handles.panel_constraints.UserData; % constraints
-        coeff = handles.xrd.getCoeff(fcnNames, handles.guidata.constraints{handles.guidata.currentProfile});
+        coeff = handles.xrd.getCoeff(fcnNames, constraints);
         
         % Set parameters into xrd
         handles.xrd.PSfxn = fcnNames;
         handles.xrd.Constrains = constraints;
+        handles = update_fitoptions(handles);
         
-        if length(coeff) ~= length(handles.table_fitinitial.RowName') || ...
-                ~isempty(find(~strcmp(handles.table_fitinitial.RowName', coeff), 1)) % if not the same as before
-            handles = update_fitoptions(handles);
-        end
     end
 
 

@@ -13,7 +13,7 @@ elseif strcmpi(o.String,'m')
     o.Parent.UserData(5) = ~o.Parent.UserData(5);
 end
 
-currentProfile = handles.guidata.currentProfile;
+handles = guidata(o);
 
 if o.Value == 1 % If constraint box was checked
     handles.xrd.Status=['Constraining coefficient ',get(o,'String'),'.'];
@@ -47,17 +47,10 @@ if handles.guidata.numPeaks > 2
     
 end
 
-if handles.guidata.numPeaks <= 2
-    handles.guidata.constraints{currentProfile} = o.Parent.UserData;
-else
-    handles.guidata.constraints{currentProfile} = getConsMatrix(handles);
-end
-
-% Set xrd parameters
-handles.xrd.Constrains = handles.guidata.constraints;
+cp = handles.guidata.currentProfile;
+handles.guidata.constraints{cp} = getConsMatrix(handles);
 
 set(handles.panel_coeffs.Children,'enable', 'off');
-set(handles.push_update, 'enable', 'on'); % tTODO
 
 assignin('base', 'handles', handles);
 guidata(o, handles)
