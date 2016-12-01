@@ -1,11 +1,11 @@
 function fitXRD(Stro, data, position, filenum,handles)
 position=position(1);
 [P, S, U] = PackageFitDiffractionData.fitBkgd(data, Stro.bkgd2th, Stro.PolyOrder);
-handles.plotdata='yes';
+
 % FOR GUI, BACKGROUND
 hold on
 bkgdArray = polyval(P,data(1,:),S,U);
-if strcmp(handles.plotdata,'yes')
+if handles.noplotfit.Value==1
 
 plot(data(1,:),bkgdArray,'k-') %to check okay
 end
@@ -58,7 +58,7 @@ fittedmodelCI{1} = confint(fittedmodel{1}, Stro.level);
 fitteddata(1+3,minr:maxr)=fittedmodel{1}(fitdata{1}(1,:));
 assignin('base','fitteddata',fitteddata)
 
-if strcmp(handles.plotdata,'yes')
+if handles.noplotfit.Value==1
     cla
 % FOR GUI, FIT
 plot(fitdata{1}(1,:),fittedmodel{1}(fitdata{1}(1,:))'+bkgdArray(minr:maxr),'-','Color',[0 .5 0],'LineWidth',1.5);
