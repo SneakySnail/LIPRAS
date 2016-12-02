@@ -72,6 +72,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
         end
         
         function coeff = getCoeff(Stro, fxn, constraints)
+            coeff='';
                            
             if nargin < 2
                 fxn = Stro.PSfxn;
