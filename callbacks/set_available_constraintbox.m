@@ -51,8 +51,9 @@ try
     handles.guidata.coeff{cp} = handles.xrd.getCoeff(fcnNames, handles.guidata.constraints{cp});
 catch ME
     
-   handles.guidata.coeff{cp} = [];
+   
    [info,index] = dbstack('-completenames', 1);
    uiwait(errordlg(['Error in ' info(1).file ' line ' num2str(info(1).line) ': ' ME.message]))
+   handles.guidata.coeff{cp} = [];
    
 end
