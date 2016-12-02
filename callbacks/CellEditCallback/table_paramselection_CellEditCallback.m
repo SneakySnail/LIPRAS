@@ -1,5 +1,7 @@
 % better name is table_fcnNames
 function table_paramselection_CellEditCallback(hObject, evt, handles)
+set_available_constraintbox(handles);
+
 cp = handles.guidata.currentProfile;
 
 getFcnData();
@@ -8,7 +10,7 @@ if evt.Indices(2) > 1
     getConsData();
 end
 
-set_available_constraintbox(handles);
+
 
 set(handles.panel_coeffs.Children, 'enable', 'off');
 

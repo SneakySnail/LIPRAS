@@ -7,9 +7,13 @@ set(handles.checkboxf,'Enable','off');
 set(handles.checkboxw,'Enable','off');
 set(handles.checkboxm,'Enable','off');
 
-
+try
 fcnNames = handles.guidata.PSfxn{cp};
 peakHasFunc = ~cellfun(@isempty, fcnNames);
+catch
+   return 
+end
+
 
 % If there is a peak without a function, disable update button
 if find(~peakHasFunc, 1)
@@ -53,7 +57,7 @@ catch ME
     
    
    [info,index] = dbstack('-completenames', 1);
-   uiwait(errordlg(['Error in ' info(1).file ' line ' num2str(info(1).line) ': ' ME.message]))
+   errordlg(['Error in ' info(1).file ' line ' num2str(info(1).line) ': ' ME.message])
    handles.guidata.coeff{cp} = [];
    
 end

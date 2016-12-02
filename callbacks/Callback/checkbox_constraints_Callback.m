@@ -14,6 +14,9 @@ elseif strcmpi(o.String,'m')
 end
 
 handles = guidata(o);
+cp = handles.guidata.currentProfile;
+handles.guidata.constraints{cp} = getConsMatrix(handles);
+
 
 if o.Value == 1 % If constraint box was checked
     handles.xrd.Status=['Constraining coefficient ',get(o,'String'),'.'];
@@ -46,9 +49,6 @@ if handles.guidata.numPeaks > 2
     set(handles.table_paramselection, 'ColumnWidth', width);
     
 end
-
-cp = handles.guidata.currentProfile;
-handles.guidata.constraints{cp} = getConsMatrix(handles);
 
 set(handles.panel_coeffs.Children,'enable', 'off');
 
