@@ -1,10 +1,9 @@
-
 % Reads and loads a file containing fit parameters into the current profile.
 function isLoaded = Read_Inputs(Stro)
 	Stro.Status='Reading options file... ';
 	[filename, pathName]  = uigetfile({'*.txt;','*.txt'},'Select Input File','MultiSelect', 'off');
 	if isequal(filename,0)
-		isLoaded=false;
+		isLoaded = false;
 		Stro.Status=[Stro.Status,'Options file not found. '];
 		return
 	else
@@ -14,12 +13,13 @@ function isLoaded = Read_Inputs(Stro)
 		% reset these variables so that the new entries are the only
 		% entries and not the newly replaced+old
 		
-		Stro.PSfxn=[];
-		Stro.bkgd2th=[];
-		Stro.fitrange=[];
-		Stro.PeakPositions=[];
-		Stro.original_SP=[];
-		Stro.fit_initial=[];
+		Stro.PSfxn         = [];
+		Stro.bkgd2th       = [];
+		Stro.fitrange      = [];
+		Stro.PeakPositions = [];
+		Stro.original_SP   = [];
+		Stro.fit_initial   = [];
+        Stro.Constrains    = zeros(1,5);
 		
 		fgetl(fid);
 		fgetl(fid);
