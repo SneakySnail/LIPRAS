@@ -31,20 +31,17 @@ for i=1:length(peakTableRow)
     else % if the left mouse button was not pressed
         handles.table_fitinitial.Data = oldTableData;
         hold off
-        plotX(handles);
+        plotX(handles, 'data');
         return
     end
-    
-   
 end
 
 handles.guidata.PeakPositions{cp} = x;
-fill_table_fitinitial(handles);
+fill_table_fitinitial(handles); 
 handles = guidata(hObject);
+
 hold off
-
-plotX(handles, 'sample');
-
+plotX(handles, 'data');
 
 set(handles.panel_coeffs, 'visible', 'on');
 set(handles.panel_coeffs.Children, 'enable', 'on');

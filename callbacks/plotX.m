@@ -20,6 +20,7 @@ else
     switch type
         case 'data' 
             plotData(handles);
+            handles = plot_sample_fit(handles);
             
         case 'fit'
             plotFit(handles);

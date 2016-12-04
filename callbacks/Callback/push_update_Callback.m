@@ -10,7 +10,7 @@ handles = guidata(hObject);
 
 set_btn_clickable();
 
-plotX(handles, 'sample');
+plotX(handles, 'data');
 
 handles.xrd.Status = 'Fit options updated.';
 assignin('base','handles',handles)

@@ -39,6 +39,10 @@ set(handles.table_paramselection, ...'visible', 'on', ...
         'enable', 'on', 'ColumnName', {'Peak function'}, ...
         'ColumnWidth', {250}, 'Data', cell(num, 1));
 set(handles.panel_coeffs.Children, 'enable', 'off');
+set(handles.push_selectpeak, 'enable', 'off');
+set(handles.push_update, 'enable', 'off');
+
+
 
 %************************************************
 % Fixes bug where focus remains on edit field
@@ -48,7 +52,6 @@ drawnow;
 set(hObject,'enable', 'on');
 %************************************************
 
-handles.xrd.Status=['Number of peaks was set to ',num2str(num),'.'];
 assignin('base', 'handles', handles);
 guidata(hObject, handles)
 

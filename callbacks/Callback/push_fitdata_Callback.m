@@ -30,11 +30,13 @@ try
         handles.guidata.fitted{cp} = true;
     end
     
-    plotX(handles);
+    plotX(handles, 'fit');
     
 catch ME
     
-    resizeAxes1ForErrorPlot(handles);
+    resizeAxes1ForErrorPlot(handles, 'data');
+    
+    plotX(handles, 'data');
     
     rethrow(ME)
 end
