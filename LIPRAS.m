@@ -36,7 +36,7 @@ addpath(genpath('Resources'));
 addpath('test-path/');
 
 handles = init_GUI(handles, varargin);
-
+handles.plotdata='yes';
 % Choose default command line output for FDGUI
 handles.output = hObject;
 
