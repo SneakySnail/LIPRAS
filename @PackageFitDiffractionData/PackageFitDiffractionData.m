@@ -72,7 +72,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
         end
         
         function coeff = getCoeff(Stro, fxn, constraints)
-            coeff='';
                            
             if nargin < 2
                 fxn = Stro.PSfxn;
@@ -83,11 +82,12 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
                 constraints = Stro.Constrains;
             end
                         
-            if constraints(1); coeff=[coeff,{'N'}]; end
-            if constraints(2); coeff=[coeff,{'x'}]; end
-            if constraints(3); coeff=[coeff,{'f'}]; end
-            if constraints(4); coeff=[coeff,{'w'}]; end
-            if constraints(5); coeff=[coeff,{'m'}]; end
+            coeff='';
+            if find(constraints(:,1),1); coeff=[coeff,{'N'}]; end
+            if find(constraints(:,2),1); coeff=[coeff,{'x'}]; end
+            if find(constraints(:,3),1); coeff=[coeff,{'f'}]; end
+            if find(constraints(:,4),1); coeff=[coeff,{'w'}]; end
+            if find(constraints(:,5),1); coeff=[coeff,{'m'}]; end
             
             for i=1:length(fxn)
                 coeffNames = '';
@@ -103,37 +103,36 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
                 
                 switch fxn{i}
                     case 'Gaussian'
-                        if ~constraints(1); coeffNames = [coeffNames, {N}]; end
-                        if ~constraints(2); coeffNames = [coeffNames, {xv}]; end
-                        if ~constraints(3); coeffNames = [coeffNames, {f}]; end
+                        if ~constraints(i,1); coeffNames = [coeffNames, {N}]; end
+                        if ~constraints(i,2); coeffNames = [coeffNames, {xv}]; end
+                        if ~constraints(i,3); coeffNames = [coeffNames, {f}]; end
                         
                     case 'Lorentzian'
-                        if ~constraints(1); coeffNames = [coeffNames, {N}]; end
-                        if ~constraints(2); coeffNames = [coeffNames, {xv}]; end
-                        if ~constraints(3); coeffNames = [coeffNames, {f}]; end
+                        if ~constraints(i,1); coeffNames = [coeffNames, {N}]; end
+                        if ~constraints(i,2); coeffNames = [coeffNames, {xv}]; end
+                        if ~constraints(i,3); coeffNames = [coeffNames, {f}]; end
                         
                     case 'Psuedo Voigt'
-                        if ~constraints(1); coeffNames = [coeffNames, {N}]; end
-                        if ~constraints(2); coeffNames = [coeffNames, {xv}]; end
-                        if ~constraints(3); coeffNames = [coeffNames, {f}]; end
-                        if ~constraints(4); coeffNames = [coeffNames, {w}]; end
+                        if ~constraints(i,1); coeffNames = [coeffNames, {N}]; end
+                        if ~constraints(i,2); coeffNames = [coeffNames, {xv}]; end
+                        if ~constraints(i,3); coeffNames = [coeffNames, {f}]; end
+                        if ~constraints(i,4); coeffNames = [coeffNames, {w}]; end
                         
                     case 'Pearson VII'
-                        if ~constraints(1); coeffNames = [coeffNames, {N}]; end
-                        if ~constraints(2); coeffNames = [coeffNames, {xv}]; end
-                        if ~constraints(3); coeffNames = [coeffNames, {f}]; end
-                        if ~constraints(5); coeffNames = [coeffNames, {m}]; end
+                        if ~constraints(i,1); coeffNames = [coeffNames, {N}]; end
+                        if ~constraints(i,2); coeffNames = [coeffNames, {xv}]; end
+                        if ~constraints(i,3); coeffNames = [coeffNames, {f}]; end
+                        if ~constraints(i,5); coeffNames = [coeffNames, {m}]; end
                         
                     case 'Asymmetric Pearson VII'
-                        if ~constraints(1); coeffNames=[coeffNames,{NL},{NR}]; end
-                        if ~constraints(2); coeffNames = [coeffNames, {xv}]; end
-                        if ~constraints(3); coeffNames=[coeffNames,{f}]; end
-                        if ~constraints(5); coeffNames=[coeffNames,{mL},{mR}];end
+                        if ~constraints(i,1); coeffNames=[coeffNames,{NL},{NR}]; end
+                        if ~constraints(i,2); coeffNames = [coeffNames, {xv}]; end
+                        if ~constraints(i,3); coeffNames=[coeffNames,{f}]; end
+                        if ~constraints(i,5); coeffNames=[coeffNames,{mL},{mR}];end
                 end
                 coeff=[coeff,coeffNames];
                 
             end
-            
         end
         
         % Returns the background points and their indices.

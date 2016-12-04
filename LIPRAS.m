@@ -32,8 +32,8 @@ import java.awt.*
 addpath(genpath('callbacks'));
 addpath(genpath('dialog'));
 addpath(genpath('listener'));
-addpath(genpath('Resources'));
-addpath('test-path/');
+% addpath(genpath('Resources'));
+% addpath('test-path/');
 
 handles = init_GUI(handles, varargin);
 

@@ -2,3 +2,5 @@ Preferences/**
 FitOutputs/**
 test-dont-include/**
 test-path/**
+*.fig
+
