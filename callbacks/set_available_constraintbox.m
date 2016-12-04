@@ -51,7 +51,7 @@ handles.guidata.constraints{cp} = handles.panel_constraints.UserData;
 
 try
     handles.guidata.coeff{cp} = handles.xrd.getCoeff(fcnNames, handles.guidata.constraints{cp});
-catch ME
+catch 
    
    
 end

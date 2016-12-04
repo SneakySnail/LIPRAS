@@ -15,7 +15,6 @@ end
 
 handles = guidata(o);
 cp = handles.guidata.currentProfile;
-handles.guidata.constraints{cp} = getConsMatrix(handles);
 
 
 if o.Value == 1 % If constraint box was checked
@@ -50,6 +49,7 @@ if handles.guidata.numPeaks > 2
     
 end
 
+handles.guidata.constraints{cp} = getConsMatrix(handles);
 set(handles.panel_coeffs.Children,'enable', 'off');
 
 assignin('base', 'handles', handles);
