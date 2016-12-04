@@ -17,8 +17,10 @@ if nargin < 2
 	fcn = Stro.PSfxn;
 end 
 
-if find(constraints(:,2), 1)
+xIsConstrained = ~isempty(find(constraints(:,2), 1));
+if xIsConstrained
     nPeaks = length(find(~constraints(:,2))) + 1;
+    xConstrainedIndices = find(constraints(:,2));
 else
     nPeaks = length(fcn);
 end
@@ -31,12 +33,7 @@ coeff = Stro.getCoeff(fcn, constraints);
 
 for i=1:length(coeff)
 		cname = coeff{i};
-		if length(cname) > 1 % If not a constrained coeff
-				num=str2double(cname(2));
-				pos=position(num);
-		else % If it is a constrained coeff
-				pos=position(1); % TODO - How to implement?
-		end
+        pos = getPeakPosition(cname, position, constraints(:,2));
 		
 		posX = Stro.Find2theta(x, pos);
 		xl = Stro.Find2theta(x, pos-0.05);
@@ -70,3 +67,29 @@ for i=1:length(coeff)
         end
 		
 end
+
+
+
+function position = getPeakPosition(thisCoeff, peakPositions, xConstraints)
+% If not a constrained coeff
+if length(thisCoeff) > 1 
+    peakIndex = str2double(thisCoeff(2));
+    xIsConstrained = ~isempty(find(xConstraints, 1));
+    thisPeakHasConstrainedX = ~isempty(find(find(xConstraints)==peakIndex, 1));
+    uniqueXIndices = find(~xConstraints); % indices of x coefficient not constrained
+    
+    if xIsConstrained && thisPeakHasConstrainedX
+        position = peakPositions(1);
+        
+    elseif xIsConstrained
+        position = peakPositions(find(uniqueXIndices == peakIndex,1)+1);
+        
+    else
+        position = peakPositions(peakIndex);
+    end
+else % If it is a constrained coefficient
+    
+    position = peakPositions(1);
+end
+
+

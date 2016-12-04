@@ -38,7 +38,7 @@ if length(find(strcmpi(fcnNames, 'Pearson VII'))) + ...
 else
 	set(handles.checkboxm,'Enable','off');
 end
-	
+
 % Enable constraint w for Psuedo Voigt fcn
 if length(find(strcmpi(fcnNames, 'Psuedo Voigt'))) > 1
 	set(handles.checkboxw,'Enable','on');
@@ -53,5 +53,5 @@ try
     handles.guidata.coeff{cp} = handles.xrd.getCoeff(fcnNames, handles.guidata.constraints{cp});
 catch 
    
-   
+
 end
