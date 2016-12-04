@@ -25,6 +25,8 @@ end
 
 % Check if within valid range 
 if inputNum < handles.xrd.two_theta(1) || inputNum > handles.xrd.two_theta(end)    
+    msg=['Warning: ',lim, '2t value is not within bounds.'];
+    handles.xrd.Status=[handles.xrd.Status, msg];
     if strcmpi(lim, 'min')
         inputNum = handles.xrd.two_theta(1);
         min = inputNum;

@@ -1,9 +1,3 @@
+FitOutputs/**
+Preferences/**
 
-.DS_Store
-
-*.txt
-
-*.chi
-
-test-dont-include/
-*.Fmodel

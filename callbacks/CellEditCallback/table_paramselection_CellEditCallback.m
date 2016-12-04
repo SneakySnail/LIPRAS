@@ -1,8 +1,9 @@
 % better name is table_fcnNames
 function table_paramselection_CellEditCallback(hObject, evt, handles)
-set_available_constraintbox(handles);
-
 cp = handles.guidata.currentProfile;
+
+% Update guidata.PSfxn{cp} 
+handles.guidata.PSfxn{cp} = hObject.Data(:, 1)';
 
 getFcnData();
 
@@ -10,8 +11,9 @@ if evt.Indices(2) > 1
     getConsData();
 end
 
-
 set(handles.panel_coeffs.Children, 'enable', 'off');
+
+set_available_constraintbox(handles);
 
 assignin('base', 'handles', handles)
 guidata(hObject, handles);
@@ -19,16 +21,9 @@ guidata(hObject, handles);
 
 
     function getFcnData()
-        try
-            fcnNames = hObject.Data(:, 1)';
-        catch
-            fcnNames=hObject.Data';
-        end
+        fcnNames = handles.guidata.PSfxn{cp};
         peakHasFunc = ~cellfun(@isempty, fcnNames);
         
-        handles.guidata.PSfxn{cp} = fcnNames;
-        
-        data.PSfxn = fcnNames;
         for i=2:length(hObject.ColumnName)
             data.(hObject.ColumnName{i}) = hObject.Data{:, i};
         end

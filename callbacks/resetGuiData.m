@@ -2,8 +2,20 @@ function handles = resetGuiData(handles, cp, varargin)
 if nargin > 2
     for i=1:length(varargin)
         switch lower(varargin{i})
+            case 'range2t'
+                handles.guidata.range2t{profileNum} = [];
+                
+            case 'backgroundmodel'
+                handles.guidata.BackgroundModel{profileNum} = '';
+                
+            case 'backgroundcoeffs'
+                handles.guidata.nBackgroundCoeffs{profileNum} = [];
+                
+            case 'backgroundpoints'
+                handles.guidata.BackgroundPoints{profileNum} = [];
+            
             case 'peakpositions'
-                handles.guidata.PeakPositions = [];
+                handles.guidata.PeakPositions{profileNum} = [];
                 
             case 'psfxn'
                 handles.guidata.PSfxn{profileNum} = '';

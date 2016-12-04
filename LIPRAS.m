@@ -32,8 +32,8 @@ import java.awt.*
 addpath(genpath('callbacks'));
 addpath(genpath('dialog'));
 addpath(genpath('listener'));
-addpath(genpath('Resources'));
-addpath('test-path/');
+% addpath(genpath('Resources'));
+% addpath('test-path/');
 
 handles = init_GUI(handles, varargin);
 handles.plotdata='yes';
@@ -476,6 +476,10 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+function noplotfit_Callback(hObject,eventdata,handles)
+
+handles.noplotfit=get(hObject,'Value');
+
 
 % Executes during object creation, after setting all properties.
 function popup_filename_CreateFcn(hObject, eventdata, handles)
@@ -537,5 +541,7 @@ function edit_lambda_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
 
 

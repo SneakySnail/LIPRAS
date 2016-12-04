@@ -3,9 +3,16 @@ function isFilled = fill_table_fitinitial(handles)
 % --- Fills empty cells in table_coeffvals with their default values only if the
 % initial peak peakPositionsitions are in the table.
 isFilled = false;
+
+if find(handles.guidata.constraints{1}(:,2), 1)
+    nPeaks = length(find(~handles.guidata.constraints{1}(:,2))) + 1;
+else
+    nPeaks = length(handles.guidata.PSfxn{cp});
+end
+
 % If not enough peak peakPositions for each function
 cp = handles.guidata.currentProfile;
-if length(handles.guidata.PeakPositions{cp}) < length(handles.guidata.PSfxn{cp})
+if length(handles.guidata.PeakPositions{cp}) < nPeaks
     return
 end
 try

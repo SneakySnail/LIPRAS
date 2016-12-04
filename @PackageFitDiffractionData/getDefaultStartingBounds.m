@@ -17,9 +17,15 @@ if nargin < 2
 	fcn = Stro.PSfxn;
 end 
 
-if length(fcn) < length(position)
-	position = position(1:length(fcn));
+if find(constraints(:,2), 1)
+    nPeaks = length(find(~constraints(:,2))) + 1;
+else
+    nPeaks = length(fcn);
 end
+
+% if nPeaks < length(position)
+% 	position = position(1:length(fcn));
+% end
 
 coeff = Stro.getCoeff(fcn, constraints);
 
@@ -29,7 +35,7 @@ for i=1:length(coeff)
 				num=str2double(cname(2));
 				pos=position(num);
 		else % If it is a constrained coeff
-				pos=position(1);
+				pos=position(1); % TODO - How to implement?
 		end
 		
 		posX = Stro.Find2theta(x, pos);

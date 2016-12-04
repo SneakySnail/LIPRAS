@@ -133,7 +133,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
                 coeff=[coeff,coeffNames];
                 
             end
-            
         end
         
         % Returns the background points and their indices.
