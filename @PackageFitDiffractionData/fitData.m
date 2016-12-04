@@ -24,6 +24,8 @@ arb = 1:1:size(Stro.data_fit,1); %here
 
 % Arbgridsum=arb;
 % datasum=data;
+g=Stro.makeFunction(Stro.PSfxn);
+
 
 for i=1:length(Stro.Filename) %this is the start of the for loop that executes the remainder of the
     Stro.Status=['Fitting ', Stro.Filename{1},': Dataset ',num2str(i),' of ',num2str(length(Stro.Filename)),'... '];
@@ -37,7 +39,7 @@ for i=1:length(Stro.Filename) %this is the start of the for loop that executes t
     if size(Stro.PSfxn,1)==size(Stro.PeakPositions,1)
         datasent = Stro.getRawData(i, Stro.fitrange);
         
-        Stro.fitXRD(datasent, Stro.PeakPositions, i, handles);
+        Stro.fitXRD(datasent, Stro.PeakPositions, i, handles,g);
         
         % Master File, writes all Fmodel results into one file
         fitOutputPath = strcat(Stro.OutputPath,'FitData/');

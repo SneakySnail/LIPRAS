@@ -1,7 +1,7 @@
-function fitXRD(Stro, data, position, filenum,handles)
+function fitXRD(Stro, data, position, filenum,handles,g)
 position=position(1);
 [P, S, U] = PackageFitDiffractionData.fitBkgd(data, Stro.bkgd2th, Stro.PolyOrder);
-handles.plotdata='yes';
+handles.plotdata='no';
 % FOR GUI, BACKGROUND
 hold on
 bkgdArray = polyval(P,data(1,:),S,U);
@@ -38,7 +38,6 @@ if maxr>fitrangeX; maxr=fitrangeX; end
 fitdata{1} = dataNB(:,minr:maxr);
 assignin('base','fitdata',fitdata) % ADDED BY GIO
 
-g=Stro.makeFunction(Stro.PSfxn);
 
 coefficients{1}=coeffnames(g);
 len=length(coefficients{1});
