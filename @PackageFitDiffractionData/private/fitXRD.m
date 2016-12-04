@@ -5,7 +5,11 @@ position=position(1);
 % FOR GUI, BACKGROUND
 hold on
 bkgdArray = polyval(P,data(1,:),S,U);
+% handles.noplotfit.Value=0;
+if handles.noplotfit.Value==1
+
 plot(data(1,:),bkgdArray,'k-') %to check okay
+end
 
 %END
 
@@ -54,7 +58,9 @@ fittedmodelCI{1} = confint(fittedmodel{1}, Stro.level);
 % store fitted data, aligned appropriately in the column
 fitteddata(1+3,minr:maxr)=fittedmodel{1}(fitdata{1}(1,:));
 assignin('base','fitteddata',fitteddata)
-cla
+
+if handles.noplotfit.Value==1
+    cla
 % FOR GUI, FIT
 plot(fitdata{1}(1,:),fittedmodel{1}(fitdata{1}(1,:))'+bkgdArray(minr:maxr),'-','Color',[0 .5 0],'LineWidth',1.5);
 pause(0.05);
@@ -74,7 +80,7 @@ xlim([Stro.Min2T Stro.Max2T])
 
 linkaxes([handles.axes1 handles.axes2],'x')
 axes(handles.axes1) % this is slow, consider moving outside of loop
-
+end
 
 Stro.Fdata = fitteddata;
 Stro.Fcoeff = coefficients;

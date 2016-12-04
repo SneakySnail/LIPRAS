@@ -1,9 +1,4 @@
-
-.DS_Store
-
-*.txt
-
-*.chi
-
-test-dont-include/
-*.Fmodel
+Preferences/**
+FitOutputs/**
+test-dont-include/**
+test-path/**

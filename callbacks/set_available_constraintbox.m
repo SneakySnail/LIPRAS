@@ -1,4 +1,5 @@
 function set_available_constraintbox(handles)
+cp = handles.guidata.currentProfile;
 
 set(handles.checkboxN,'Enable','off');
 set(handles.checkboxx,'Enable','off');
@@ -6,16 +7,17 @@ set(handles.checkboxf,'Enable','off');
 set(handles.checkboxw,'Enable','off');
 set(handles.checkboxm,'Enable','off');
 
-cp = handles.guidata.currentProfile;
-% Function names
+try
 fcnNames = handles.guidata.PSfxn{cp};
 peakHasFunc = ~cellfun(@isempty, fcnNames);
+catch
+   return 
+end
 
 % If there is a peak without a function, disable update button
 if find(~peakHasFunc, 1)
  	set(handles.push_update, 'enable', 'off');
 	set(handles.push_selectpeak, 'enable', 'off');
-
 end
 
 % Enable constraints N, x, and f if there is more than 1 fcn
@@ -45,11 +47,13 @@ else
 end
 
 % Save into handles.guidata
-cp = handles.guidata.currentProfile;
 handles.guidata.constraints{cp} = handles.panel_constraints.UserData;
 
 try
     handles.guidata.coeff{cp} = handles.xrd.getCoeff(fcnNames, handles.guidata.constraints{cp});
 catch ME
-   uiwait(errordlg(['ERROR in set_available_constraintbox.m: ' ME.message]))
+   
+   [info,index] = dbstack('-completenames', 1);
+   errordlg(['Error in ' info(1).file ' line ' num2str(info(1).line) ': ' ME.message])
+   handles.guidata.coeff{cp} = [];
 end
