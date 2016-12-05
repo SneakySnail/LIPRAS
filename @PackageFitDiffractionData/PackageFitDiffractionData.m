@@ -84,7 +84,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
                         
             coeff='';
             if find(constraints(:,1),1); coeff=[coeff,{'N'}]; end
-            if find(constraints(:,2),1); coeff=[coeff,{'x'}]; end
+            if find(constraints(:,2),1); coeff=[coeff,{'xv'}]; end
             if find(constraints(:,3),1); coeff=[coeff,{'f'}]; end
             if find(constraints(:,4),1); coeff=[coeff,{'w'}]; end
             if find(constraints(:,5),1); coeff=[coeff,{'m'}]; end

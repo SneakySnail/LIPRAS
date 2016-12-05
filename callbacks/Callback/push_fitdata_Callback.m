@@ -42,7 +42,7 @@ catch ME
 end
 
 if ~handles.guidata.fitted{cp}
-    (errordlg('There was a problem with fitting your dataset. Please try again.')
+    errordlg('There was a problem with fitting your dataset. Please try again.')
     return
 end
 
