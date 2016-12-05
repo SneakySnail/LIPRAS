@@ -37,11 +37,9 @@ if minr<1; minr=1; end
 maxr=positionX(1)+ceil(fitrangeX(1)/2);
 if maxr>fitrangeX; maxr=fitrangeX; end
 fitdata{1} = dataNB(:,minr:maxr);
-assignin('base','fitdata',fitdata) % ADDED BY GIO
 
 
 coefficients{1}=coeffnames(g);
-len=length(coefficients{1});
 
 if Stro.recycle_results
     SP = Stro.fit_initial{1,filenum};
@@ -72,9 +70,9 @@ plot(data(1,:),data(2,:),'o','MarkerSize',4,'LineWidth',1,'MarkerEdgeColor',[.08
 % FOR GUI DIFFERENCE PLOT
 axes(handles.axes2) % this is slow, consider moving outside loop
 cla
-for j=1:size(position,1)
-    plot(fitdata{j}(1,:),fitdata{j}(2,:)-fittedmodel{j}(fitdata{j}(1,:))','-r');
-end
+        plot(fitteddata(1,:),fitteddata(2,:)-(fitteddata(3,:)+fitteddata(4,:)),'-r')
+%     plot(fitdata{1}(1,:),fitdata{1}(2,:)-fittedmodel{1}(fitdata{1}(1,:))','-r');
+
 xlim([Stro.Min2T Stro.Max2T])
 
 linkaxes([handles.axes1 handles.axes2],'x')
