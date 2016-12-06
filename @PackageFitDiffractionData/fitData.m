@@ -1,4 +1,4 @@
-function fitData(Stro, position, PSfxn, SP1, UB1, LB1, handles)
+function fitData(Stro, ~, ~, ~, ~, ~, handles)
 Stro.getBackground();
 Stro.fit_results={};
 Stro.fit_parms={};
