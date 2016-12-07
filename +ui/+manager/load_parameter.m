@@ -5,9 +5,9 @@ cp = handles.guidata.currentProfile;
 try
     fid = getParameterFileId();
 catch ME
-    handles.xrd.Status = ['<html><font color="red">' ...
-        'Parameters file not found. '];
-    rethrow(ME)
+    handles.xrd.Status = 'Parameter file not found. ';
+    %     rethrow(ME)
+    return
 end
 
 try
@@ -154,7 +154,7 @@ ui.adapter.state.fitReady(handles);
                                       {pVal.lb}; ...
                                       {pVal.ub}];
     handles.guidata.fitrange{cp} = pVal.fitrange;
-    handles.guidata.coeff{cp} = pVal.coeff';
+    handles.guidata.coeff{cp} = pVal.coeff;
     
     end
 

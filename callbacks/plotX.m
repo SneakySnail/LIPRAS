@@ -109,9 +109,9 @@ cp = handles.guidata.currentProfile;
 % Make sure all the cells with starting values are not empty
 try
     SP = handles.guidata.fit_initial{cp}{1};
-    coeff=handles.table_fitinitial.RowName;
+    coeff=handles.table_fitinitial.RowName';
     assert(~isempty(coeff));
-    assert(isempty(find(~strcmpi(coeff, handles.guidata.coeff{cp}'), 1)));
+    assert(isempty(find(~strcmpi(coeff, handles.guidata.coeff{cp}), 1)));
     assert(~isempty(SP));
     
     temp = cellfun(@isempty, handles.table_fitinitial.Data(:, 1:3));

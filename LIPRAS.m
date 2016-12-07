@@ -281,10 +281,10 @@ end
 guidata(hObject, handles)
 
 function listbox_files_Callback(hObject,evt, handles)
-if length(hObject.Value) == 1
-    set(handles.popup_filename,'value',hObject.Value(1));
-    LIPRAS('popup_filename_Callback',handles.popup_filename,[],guidata(hObject));
-end
+set(handles.popup_filename,'value',hObject.Value(1));
+
+LIPRAS('popup_filename_Callback',handles.popup_filename,[],guidata(hObject));
+
 
 
 %% Edit box callback functions
