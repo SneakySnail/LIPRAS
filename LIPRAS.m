@@ -377,8 +377,11 @@ handles.xrd.Status='Loading options file... ';
 % 	end
 %
 try
-    handles=load_parameter(handles);
-catch
+    handles=ui.manager.load_parameter(handles);
+catch ME
+    ME.stack(1)
+    
+    ME.message
 end
 
 handles.xrd.Status='Options file successfully loaded.';

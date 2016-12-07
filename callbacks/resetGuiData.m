@@ -59,6 +59,8 @@ guidata(handles.figure1, handles);
 
 
 function handles = resetProfileData(handles, profileNum)
+handles.panel_constraints.UserData = zeros(1,5);
+
 if nargin > 1
     handles.guidata.PeakPositions{profileNum} = [];
     handles.guidata.PSfxn{profileNum} = '';

@@ -24,7 +24,7 @@ else % constraint box was unchecked
     handles.xrd.Status=['Deselected constraint ',get(o,'String'),'.'];
 end
 
-% if more than 3 functions, resize the column to fit checkboxes
+% if more than 3 peak functions, resize the column to fit checkboxes
 if handles.guidata.numPeaks > 2
     % If constraint box was checked and fitting more than 2 peaks
     width = handles.table_paramselection.ColumnWidth;

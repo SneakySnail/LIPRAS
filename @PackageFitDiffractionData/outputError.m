@@ -54,7 +54,7 @@ function outputError(Stro,Profile)
 		if i~=1
 			fprintf(fid,';');
 		end
-		for j=1:size(Stro.PSfxn,2) % j=peaknum
+		for j=1:size(Stro.PeakPositions,2) % j=peaknum
 			fprintf(fid,' %.3f',Stro.PeakPositions(i,j));
 		end
 	end

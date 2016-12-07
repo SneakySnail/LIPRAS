@@ -18,6 +18,8 @@ createJavaStatusBar();
 
 createUserData();
 
+handles = resetGuiData(handles);
+
 addControlListeners();
 
 set(handles.panel_setup, 'parent', handles.profiles(7));
@@ -30,11 +32,7 @@ set(handles.panel_results, 'parent', handles.profiles(7));
         handles.profiles(7).UserData = 0; % delete
         handles.xrd = PackageFitDiffractionData;
         handles.xrdContainer(7) = handles.xrd;
-                
-        % guidata contains relevant parameters for each profile
-        handles = resetGuiData(handles);
         
-        handles.panel_constraints.UserData = zeros(1,5);
     end
 
     function addControlListeners()
