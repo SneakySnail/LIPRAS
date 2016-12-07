@@ -382,6 +382,8 @@ catch ME
     ME.stack(1)
     
     ME.message
+    
+    keyboard
 end
 
 handles.xrd.Status='Options file successfully loaded.';
@@ -426,7 +428,12 @@ function Untitled_7_Callback(hObject, eventdata, handles)
 % Menu option callback to Import Workspace.
 function Untitled_9_Callback(hObject, eventdata, handles)
 
-%% Custom helper functions
+
+% Plots the background points selected.
+function push_fitbkgd_Callback(~, ~, handles)
+
+ui.manager.plotBackgroundFit(handles);
+
 
 
 

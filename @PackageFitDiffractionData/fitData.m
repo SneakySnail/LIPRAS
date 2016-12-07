@@ -4,13 +4,6 @@ Stro.fit_results={};
 Stro.fit_parms={};
 Stro.fit_parms_error={};
 
-% 	Stro.PeakPositions = position;
-% Stro.PSfxn = PSfxn;
-% 
-% if nargin > 3
-%     Stro.fit_initial = {SP1;UB1;LB1};
-% end
-
 datainMin = PackageFitDiffractionData.Find2theta(Stro.two_theta,Stro.Min2T);
 datainMax = PackageFitDiffractionData.Find2theta(Stro.two_theta,Stro.Max2T);
 
@@ -37,7 +30,7 @@ for i=1:length(Stro.Filename) %this is the start of the for loop that executes t
     
     %this is the primary function
     if size(Stro.PSfxn,1)==size(Stro.PeakPositions,1)
-        datasent = Stro.getRawData(i, Stro.fitrange);
+        datasent = Stro.getRangedData(i, Stro.fitrange);
         
         Stro.fitXRD(datasent, Stro.PeakPositions, i, handles,g);
         

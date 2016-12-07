@@ -1,5 +1,8 @@
 % Plot an example fit using the starting values from table
 function handles = plot_sample_fit(handles)
+dbstack
+keyboard
+
 cp = handles.guidata.currentProfile;
 
 % Make sure all the cells with starting values are not empty
@@ -20,7 +23,7 @@ end
 
 filenum=get(handles.popup_filename,'Value');
 fitrange=str2double(get(handles.edit_fitrange,'string'));
-data=handles.xrd.getRawData(filenum,fitrange);
+data = handles.xrd.getRangedData(filenum,fitrange);
 bkgd2th = handles.xrd.getBkgdPoints();
 
 % Get background fit

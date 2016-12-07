@@ -6,7 +6,7 @@ position=position(1);
 hold on
 bkgdArray = polyval(P,data(1,:),S,U);
 % handles.noplotfit.Value=0;
-if handles.noplotfit.Value==1
+if handles.noplotfit.Value == 1
 
 plot(data(1,:),bkgdArray,'k-') %to check okay
 end

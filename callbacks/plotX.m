@@ -46,6 +46,8 @@ LIPRAS('uitoggletool5_OnCallback', handles.uitoggletool5, [], handles);
 % TODO Move to FDGUIv2_1
 function plotFit(handles)
 resizeAxes1ForErrorPlot(handles, 'fit');
+cla(handles.axes1)
+
 Stro = handles.xrd;
 cp = handles.guidata.currentProfile;
 ifile = handles.popup_filename.Value;
@@ -95,10 +97,10 @@ end
 Stro.DisplayName = {data.DisplayName};
 
 err = plot(handles.axes2, x2th, intensity - (fittedPattern), 'r','LineWidth',.50); % Error
-xlim([Stro.Min2T Stro.Max2T])
 
 axes(handles.axes1)
 
+xlim([Stro.Min2T Stro.Max2T])
 ylim([0.9*min([data.YData]), 1.1*max([data.YData])]);
 
 % Plot an example fit using the starting values from table
@@ -124,7 +126,7 @@ end
 
 filenum=get(handles.popup_filename,'Value');
 fitrange=str2double(get(handles.edit_fitrange,'string'));
-data=handles.xrd.getRawData(filenum,fitrange);
+data=handles.xrd.getRangedData(filenum,fitrange);
 bkgd2th = handles.xrd.getBkgdPoints();
 
 % Get background fit

@@ -8,9 +8,11 @@ handles = setEnabledComponents(handles);
 
 handles = setComponentValues(handles);
 
-
 assignin('base', 'handles', handles);
 
+% ============================================== %
+% 
+% ============================================== % 
 function handles = setEnabledComponents(handles)
 set(handles.checkboxN,'Enable','off');
 set(handles.checkboxx,'Enable','off');

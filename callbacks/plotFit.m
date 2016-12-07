@@ -1,5 +1,7 @@
 % TODO Move to FDGUIv2_1
 function plotFit(handles,dataSet)
+dbstack
+
 Stro = handles.xrd;
 if nargin == 1
     dataSet = 1;

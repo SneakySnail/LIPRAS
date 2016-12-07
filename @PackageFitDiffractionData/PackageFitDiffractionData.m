@@ -54,318 +54,327 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
     
     methods
         function Stro = PackageFitDiffractionData(fname, path)
-            if nargin ==2
-                Stro.Read_Data(fname, path);
-            end
+        if nargin ==2
+            Stro.Read_Data(fname, path);
+        end
         end
         
         function a = hasData(Stro)
-            if ~isempty(Stro.data_fit)
-                a = true;
-            else
-                a = false;
-            end
+        if ~isempty(Stro.data_fit)
+            a = true;
+        else
+            a = false;
+        end
         end
         
         function npeaks = nPeaks(Stro)
-            npeaks = length(Stro.PSfxn);
+        npeaks = length(Stro.PSfxn);
         end
         
         function coeff = getCoeff(Stro, fxn, constraints)
-                           
-            if nargin < 2
-                fxn = Stro.PSfxn;
-                constraints = Stro.Constrains;
-            end
+        
+        if nargin < 2
+            fxn = Stro.PSfxn;
+            constraints = Stro.Constrains;
+        end
+        
+        if nargin < 3
+            constraints = Stro.Constrains;
+        end
+        
+        coeff='';
+        if find(constraints(:,1),1); coeff=[coeff,{'N'}]; end
+        if find(constraints(:,2),1); coeff=[coeff,{'x'}]; end
+        if find(constraints(:,3),1); coeff=[coeff,{'f'}]; end
+        if find(constraints(:,4),1); coeff=[coeff,{'w'}]; end
+        if find(constraints(:,5),1); coeff=[coeff,{'m'}]; end
+        
+        for i=1:length(fxn)
+            coeffNames = '';
+            N = ['N' num2str(i)];
+            xv = ['x' num2str(i)];
+            f = ['f' num2str(i)];
+            m = ['m' num2str(i)];
+            w = ['w' num2str(i)];
+            NL=['N',num2str(i),'L'];
+            mL=['m',num2str(i),'L'];
+            NR=['N',num2str(i),'R'];
+            mR=['m',num2str(i),'R'];
             
-            if nargin < 3
-                constraints = Stro.Constrains;
+            switch fxn{i}
+                case 'Gaussian'
+                    if ~constraints(i,1); coeffNames = [coeffNames, {N}]; end
+                    if ~constraints(i,2); coeffNames = [coeffNames, {xv}]; end
+                    if ~constraints(i,3); coeffNames = [coeffNames, {f}]; end
+                    
+                case 'Lorentzian'
+                    if ~constraints(i,1); coeffNames = [coeffNames, {N}]; end
+                    if ~constraints(i,2); coeffNames = [coeffNames, {xv}]; end
+                    if ~constraints(i,3); coeffNames = [coeffNames, {f}]; end
+                    
+                case 'Psuedo Voigt'
+                    if ~constraints(i,1); coeffNames = [coeffNames, {N}]; end
+                    if ~constraints(i,2); coeffNames = [coeffNames, {xv}]; end
+                    if ~constraints(i,3); coeffNames = [coeffNames, {f}]; end
+                    if ~constraints(i,4); coeffNames = [coeffNames, {w}]; end
+                    
+                case 'Pearson VII'
+                    if ~constraints(i,1); coeffNames = [coeffNames, {N}]; end
+                    if ~constraints(i,2); coeffNames = [coeffNames, {xv}]; end
+                    if ~constraints(i,3); coeffNames = [coeffNames, {f}]; end
+                    if ~constraints(i,5); coeffNames = [coeffNames, {m}]; end
+                    
+                case 'Asymmetric Pearson VII'
+                    if ~constraints(i,1); coeffNames=[coeffNames,{NL},{NR}]; end
+                    if ~constraints(i,2); coeffNames = [coeffNames, {xv}]; end
+                    if ~constraints(i,3); coeffNames=[coeffNames,{f}]; end
+                    if ~constraints(i,5); coeffNames=[coeffNames,{mL},{mR}];end
             end
-                        
-            coeff='';
-            if find(constraints(:,1),1); coeff=[coeff,{'N'}]; end
-            if find(constraints(:,2),1); coeff=[coeff,{'x'}]; end
-            if find(constraints(:,3),1); coeff=[coeff,{'f'}]; end
-            if find(constraints(:,4),1); coeff=[coeff,{'w'}]; end
-            if find(constraints(:,5),1); coeff=[coeff,{'m'}]; end
+            coeff=[coeff,coeffNames];
             
-            for i=1:length(fxn)
-                coeffNames = '';
-                N = ['N' num2str(i)];
-                xv = ['x' num2str(i)];
-                f = ['f' num2str(i)];
-                m = ['m' num2str(i)];
-                w = ['w' num2str(i)];
-                NL=['N',num2str(i),'L'];
-                mL=['m',num2str(i),'L'];
-                NR=['N',num2str(i),'R'];
-                mR=['m',num2str(i),'R'];
-                
-                switch fxn{i}
-                    case 'Gaussian'
-                        if ~constraints(i,1); coeffNames = [coeffNames, {N}]; end
-                        if ~constraints(i,2); coeffNames = [coeffNames, {xv}]; end
-                        if ~constraints(i,3); coeffNames = [coeffNames, {f}]; end
-                        
-                    case 'Lorentzian'
-                        if ~constraints(i,1); coeffNames = [coeffNames, {N}]; end
-                        if ~constraints(i,2); coeffNames = [coeffNames, {xv}]; end
-                        if ~constraints(i,3); coeffNames = [coeffNames, {f}]; end
-                        
-                    case 'Psuedo Voigt'
-                        if ~constraints(i,1); coeffNames = [coeffNames, {N}]; end
-                        if ~constraints(i,2); coeffNames = [coeffNames, {xv}]; end
-                        if ~constraints(i,3); coeffNames = [coeffNames, {f}]; end
-                        if ~constraints(i,4); coeffNames = [coeffNames, {w}]; end
-                        
-                    case 'Pearson VII'
-                        if ~constraints(i,1); coeffNames = [coeffNames, {N}]; end
-                        if ~constraints(i,2); coeffNames = [coeffNames, {xv}]; end
-                        if ~constraints(i,3); coeffNames = [coeffNames, {f}]; end
-                        if ~constraints(i,5); coeffNames = [coeffNames, {m}]; end
-                        
-                    case 'Asymmetric Pearson VII'
-                        if ~constraints(i,1); coeffNames=[coeffNames,{NL},{NR}]; end
-                        if ~constraints(i,2); coeffNames = [coeffNames, {xv}]; end
-                        if ~constraints(i,3); coeffNames=[coeffNames,{f}]; end
-                        if ~constraints(i,5); coeffNames=[coeffNames,{mL},{mR}];end
-                end
-                coeff=[coeff,coeffNames];
-                
-            end
+        end
         end
         
         % Returns the background points and their indices.
         function [pts, ptsIndex] = getBkgdPoints(Stro)
-            if isempty(Stro.bkgd2th)
-                pts = [];
-                ptsIndex = [];
-                return
-            end
-            
-            pts = Stro.bkgd2th;
-            
-            if nargout>1
-               for i=1:length(pts)
-                   ptsIndex(i) = PackageFitDiffractionData.Find2theta(Stro.two_theta, pts(i)); 
-               end
-            end
+        if isempty(Stro.bkgd2th)
+            pts = [];
+            ptsIndex = [];
+            return
         end
         
-        function data = getRawData(Stro,file,fitrange)
-            mid = mean([Stro.Min2T Stro.Max2T]);
-            leftbound = mid-fitrange/2;
-            rightbound = mid+fitrange/2;
-            if leftbound < Stro.Min2T
-                leftbound = Stro.Min2T;
+        pts = Stro.bkgd2th;
+        data = Stro.getRangedData();
+        
+        if nargout>1
+            for i=1:length(pts)
+                ptsIndex(i) = PackageFitDiffractionData.Find2theta(data(1,:), pts(i));
             end
-            if leftbound > Stro.Max2T
-                rightbound = Stro.Max2T;
+        end
+        end
+        
+        function data = getRangedData(Stro,file,fitrange)
+        if nargin < 3
+            fitrange = Stro.fitrange;
+        end
+        
+        if nargin < 2
+            file = 1;
+        end
+        
+        mid = mean([Stro.Min2T Stro.Max2T]);
+        leftbound = mid-fitrange/2;
+        rightbound = mid+fitrange/2;
+        if leftbound < Stro.Min2T
+            leftbound = Stro.Min2T;
+        end
+        if leftbound > Stro.Max2T
+            rightbound = Stro.Max2T;
+        end
+        
+        datainMin = PackageFitDiffractionData.Find2theta(Stro.two_theta,leftbound);
+        datainMax = PackageFitDiffractionData.Find2theta(Stro.two_theta,rightbound);
+        
+        
+        data = Stro.data_fit(:,datainMin:datainMax); %Extract relevant 2theta region
+        TwT = Stro.two_theta(datainMin:datainMax); %Extract relevant 2theta region
+        
+        %create arbitrary axis for plotting of data
+        arb = 1:1:size(Stro.data_fit,1); %here
+        
+        TwTgridsum=TwT;
+        Arbgridsum=arb;
+        fitrange2T = fitrange;
+        
+        datasent = [TwT' data(file,:)']';
+        for ii=1:size(Stro.PeakPositions,1) %Change to number of steps (instead of 2theta)
+            p = mean(Stro.PeakPositions(ii,:));
+            fitrangeL = PackageFitDiffractionData.Find2theta(datasent(1,:),p-fitrange2T(ii)/2);
+            fitrangeH = PackageFitDiffractionData.Find2theta(datasent(1,:),p+fitrange2T(ii)/2);
+            drangeH = fitrangeH-PackageFitDiffractionData.Find2theta(datasent(1,:),p);
+            drangeL = PackageFitDiffractionData.Find2theta(datasent(1,:),p)-fitrangeL;
+            if drangeL > drangeH
+                fitrange(ii) = drangeH * 2;
+            elseif drangeH > drangeL
+                fitrange(ii) = drangeL * 2;
+            else
+                fitrange(ii) = fitrangeH-fitrangeL;
             end
-            
-            datainMin = PackageFitDiffractionData.Find2theta(Stro.two_theta,leftbound);
-            datainMax = PackageFitDiffractionData.Find2theta(Stro.two_theta,rightbound);
-            
-            
-            data = Stro.data_fit(:,datainMin:datainMax); %Extract relevant 2theta region
-            TwT = Stro.two_theta(datainMin:datainMax); %Extract relevant 2theta region
-            
-            %create arbitrary axis for plotting of data
-            arb = 1:1:size(Stro.data_fit,1); %here
-            
-            TwTgridsum=TwT;
-            Arbgridsum=arb;
-            fitrange2T = fitrange;
-            
-            datasent = [TwT' data(file,:)']';
-            for ii=1:size(Stro.PeakPositions,1) %Change to number of steps (instead of 2theta)
-                p = mean(Stro.PeakPositions(ii,:));
-                fitrangeL = PackageFitDiffractionData.Find2theta(datasent(1,:),p-fitrange2T(ii)/2);
-                fitrangeH = PackageFitDiffractionData.Find2theta(datasent(1,:),p+fitrange2T(ii)/2);
-                drangeH = fitrangeH-PackageFitDiffractionData.Find2theta(datasent(1,:),p);
-                drangeL = PackageFitDiffractionData.Find2theta(datasent(1,:),p)-fitrangeL;
-                if drangeL > drangeH
-                    fitrange(ii) = drangeH * 2;
-                elseif drangeH > drangeL
-                    fitrange(ii) = drangeL * 2;
-                else
-                    fitrange(ii) = fitrangeH-fitrangeL;
-                end
-            end
-            % 			Stro.fitrange = fitrange;
-            data = datasent;
+        end
+        % 			Stro.fitrange = fitrange;
+        data = datasent;
         end
         
     end
     
     methods(Static)
         function [P, S, U] = fitBkgd(data, bkgd2th, polyorder)
-            % BACKGROUND FITTING
-            R = 1; %in points each direction for the background averaging, must be integer
-            for i=1:length(bkgd2th)
-                bkgd2thX(i)=PackageFitDiffractionData.Find2theta(data(1,:),bkgd2th(i));
-            end;
-            
-            for i=1:length(bkgd2th)
-                if bkgd2thX(i) <= 1
-                    bkgd2thX(i) = 2;
-                elseif bkgd2thX(i) >= length(data)
-                    bkgd2thX(i) = length(data) - 1;
-                end
-                bkgdInt(i)=mean(data(2,(bkgd2thX(i)-R:bkgd2thX(i)+R)));
+        % BACKGROUND FITTING
+        R = 1; %in points each direction for the background averaging, must be integer
+        for i=1:length(bkgd2th)
+            bkgd2thX(i)=PackageFitDiffractionData.Find2theta(data(1,:),bkgd2th(i));
+        end;
+        
+        for i=1:length(bkgd2th)
+            if bkgd2thX(i) <= 1
+                bkgd2thX(i) = 2;
+            elseif bkgd2thX(i) >= length(data)
+                bkgd2thX(i) = length(data) - 1;
             end
-            % Added by Klarissa to  get rid of centering and scaling warning
-            [P, S, U] = polyfit(bkgd2th,bkgdInt, polyorder);
-            
-          hold on
-%           plot(bkgd2th,bkgdInt,'ro','MarkerSize',6,'LineWidth',1.5, 'MarkerFaceColor','auto');
-          hold off
-            
+            bkgdInt(i)=mean(data(2,(bkgd2thX(i)-R:bkgd2thX(i)+R)));
+        end
+        % Added by Klarissa to  get rid of centering and scaling warning
+        [P, S, U] = polyfit(bkgd2th,bkgdInt, polyorder);
+        
+        hold on
+        %           plot(bkgd2th,bkgdInt,'ro','MarkerSize',6,'LineWidth',1.5, 'MarkerFaceColor','auto');
+        hold off
+        
         end
         
         
         function Exceptions(number)
-            if number == 0
-                disp('Please enter the initial and final file numbers')
-            elseif number == 1
-                disp('The fileformat you have entered is not supported.')
-                disp('This program can read csv, txt, xy, fxye, dat, xrdml, chi, and spr files')
-            elseif number == 2
-                disp('File to read is not defined')
-            end
+        if number == 0
+            disp('Please enter the initial and final file numbers')
+        elseif number == 1
+            disp('The fileformat you have entered is not supported.')
+            disp('This program can read csv, txt, xy, fxye, dat, xrdml, chi, and spr files')
+        elseif number == 2
+            disp('File to read is not defined')
+        end
         end
         
         function [c4] = C4(m)
-            c4=2*((2^(1/m)-1)^0.5)/(pi^0.5)*gamma(m)/gamma(m-0.5);
+        c4=2*((2^(1/m)-1)^0.5)/(pi^0.5)*gamma(m)/gamma(m-0.5);
         end
         
         function arrayposition=Find2theta(data,value2theta)
-            % function arrayposition=Find2theta(data,value2theta)
-            % Finds the nearest position in a vector
-            % MUST be a single array of 2theta values only (most common error)
-            
-            if nargin~=2
-                error('Incorrect number of arguments')
-                arrayposition=0;
+        % function arrayposition=Find2theta(data,value2theta)
+        % Finds the nearest position in a vector
+        % MUST be a single array of 2theta values only (most common error)
+        
+        if nargin~=2
+            error('Incorrect number of arguments')
+            arrayposition=0;
+        else
+            test = find(data >= value2theta);
+            if isempty(test);
+                arrayposition = length(data)-1;
             else
-                test = find(data >= value2theta);
-                if isempty(test);
-                    arrayposition = length(data)-1;
+                arrayposition = test(1);
+            end
+        end
+        end
+        
+        function position2=Ka2fromKa1(position1)
+        if nargin==0
+            error('Incorrect number of arguments')
+        elseif ~isreal(position1)
+            warning('Imaginary parts of INPUT ignored')
+            position1 = real(position1);
+        end
+        
+        lambda1 = 1.540598; %Ka1
+        lambda2 = 1.544426; %Ka2
+        position2 = 180 / pi * (2*asin(lambda2/lambda1*sin(pi / 180 * (position1/2))));
+        end
+        function [x]=SaveFitData(filename,dataMatrix)
+        %
+        % function [x]=SaveFitData(filename,dataMatrix)
+        % JJones, 23 Nov 2007
+        %
+        
+        if nargin~=2 %number of required input arguments
+            error('Incorrect number of arguments')
+            x=0; %means unsuccessful
+        else
+            fid = fopen(filename,'w');
+            fprintf(fid, 'This is an output file from a MATLAB routine.\n');
+            fprintf(fid, 'All single peak data (column 3+) does not include background intensity.\n');
+            fprintf(fid, '2theta \t IntMeas \t BkgdFit \t Peak1 \t Peak2 \t Etc...\n');
+            dataformat = '%f\n';
+            for i=1:(size(dataMatrix,1)-1);
+                dataformat = strcat('%f\t',dataformat);
+            end
+            fprintf(fid, dataformat, dataMatrix);
+            fclose(fid);
+            x=1; %means successful
+        end
+        end
+        function [x]=SaveFitValues(filename,PSfxn,Fmodel,Fcoeff,FmodelGOF,FmodelCI)
+        % function
+        %      [x]=SaveFitValues(filename,PSfxn,Fmodel,Fcoeff,FmodelGOF,FmodelCI)
+        %
+        % JJones, 23 Nov 2007
+        %
+        
+        if nargin~=6 %number of required input arguments
+            error('Incorrect number of arguments')
+            x=0; %means unsuccessful
+        else
+            fid = fopen(filename,'w');
+            
+            fprintf(fid, 'This is an output file from a MATLAB routine.\n');
+            for i=1:1 % Modified by GIO on 11-23-2016
+                if i==1; test=0; else test=strcmp(PSfxn{i},PSfxn{i-1}); end
+                %write coefficient names
+                if or(i==1,test==0);
+                    fprintf(fid, strcat('The following peaks are all of the type:', PSfxn{i}, '\n'));
+                    %first output fitted values
+                    for j=1:length(Fcoeff{i});
+                        fprintf(fid, '%s\t', char(Fcoeff{i}(j))); %write coefficient names
+                    end
+                    %second output GOF values
+                    
+                    fprintf(fid, 'sse \t rsquare \t dfe \t adjrsquare \t rmse \t'); %write GOF names
+                    %third output Confidence Intervals (CI)
+                    for j=1:size(FmodelCI{i},2)
+                        fprintf(fid, '%s\t', strcat('LowCI:',char(Fcoeff{i}(j)))); %write LB names
+                        fprintf(fid, '%s\t', strcat('UppCI:',char(Fcoeff{i}(j)))); %write UB names
+                    end
+                    fprintf(fid, '\n');
+                end
+                %write coefficient values
+                for j=1:length(Fcoeff{i});
+                    fprintf(fid, '%f\t', Fmodel{i}.(Fcoeff{i}(j))); %write coefficient values
+                end
+                
+                GOFoutputs=[FmodelGOF{i}.sse FmodelGOF{i}.rsquare FmodelGOF{i}.dfe FmodelGOF{i}.adjrsquare FmodelGOF{i}.rmse];
+                fprintf(fid, '%f\t%f\t%f\t%f\t%f\t',GOFoutputs); %write GOF values
+                for j=1:size(FmodelCI{i},2)
+                    fprintf(fid, '%f\t', FmodelCI{i}(1,j)); %write lower bound values
+                    fprintf(fid, '%f\t', FmodelCI{i}(2,j)); %write upper bound values
+                end
+                fprintf(fid, '\n');
+            end
+            fclose(fid);
+            x=1; %means successful
+        end
+        
+        end
+        function [Y] = AsymmCutoff(x, side, xdata)
+        
+        numPts=length(xdata);
+        
+        if side == 1
+            for i=1:numPts;
+                if xdata(i) < x;
+                    step(i)=1;
                 else
-                    arrayposition = test(1);
+                    step(i)=0;
+                end
+            end
+        elseif side == 2
+            for i=1:numPts;
+                if xdata(i) < x;
+                    step(i)=0;
+                else
+                    step(i)=1;
                 end
             end
         end
         
-        function position2=Ka2fromKa1(position1)
-            if nargin==0
-                error('Incorrect number of arguments')
-            elseif ~isreal(position1)
-                warning('Imaginary parts of INPUT ignored')
-                position1 = real(position1);
-            end
-            
-            lambda1 = 1.540598; %Ka1
-            lambda2 = 1.544426; %Ka2
-            position2 = 180 / pi * (2*asin(lambda2/lambda1*sin(pi / 180 * (position1/2))));
-        end
-        function [x]=SaveFitData(filename,dataMatrix)
-            %
-            % function [x]=SaveFitData(filename,dataMatrix)
-            % JJones, 23 Nov 2007
-            %
-
-            if nargin~=2 %number of required input arguments
-                error('Incorrect number of arguments')
-                x=0; %means unsuccessful
-            else    
-                fid = fopen(filename,'w');
-                fprintf(fid, 'This is an output file from a MATLAB routine.\n');
-                fprintf(fid, 'All single peak data (column 3+) does not include background intensity.\n');
-                fprintf(fid, '2theta \t IntMeas \t BkgdFit \t Peak1 \t Peak2 \t Etc...\n');
-                dataformat = '%f\n'; 
-                for i=1:(size(dataMatrix,1)-1);
-                    dataformat = strcat('%f\t',dataformat);
-                end
-                fprintf(fid, dataformat, dataMatrix);
-                fclose(fid);
-                x=1; %means successful
-            end
-        end
-        function [x]=SaveFitValues(filename,PSfxn,Fmodel,Fcoeff,FmodelGOF,FmodelCI)
-            % function 
-            %      [x]=SaveFitValues(filename,PSfxn,Fmodel,Fcoeff,FmodelGOF,FmodelCI)
-            %
-            % JJones, 23 Nov 2007
-            %
-
-            if nargin~=6 %number of required input arguments
-                error('Incorrect number of arguments')
-                x=0; %means unsuccessful
-            else
-                fid = fopen(filename,'w');
-                
-                fprintf(fid, 'This is an output file from a MATLAB routine.\n');
-                for i=1:1 % Modified by GIO on 11-23-2016
-                    if i==1; test=0; else test=strcmp(PSfxn{i},PSfxn{i-1}); end
-                    %write coefficient names
-                    if or(i==1,test==0);
-                        fprintf(fid, strcat('The following peaks are all of the type:', PSfxn{i}, '\n'));
-                        %first output fitted values
-                        for j=1:length(Fcoeff{i});
-                            fprintf(fid, '%s\t', char(Fcoeff{i}(j))); %write coefficient names
-                        end
-                        %second output GOF values
-                        
-                        fprintf(fid, 'sse \t rsquare \t dfe \t adjrsquare \t rmse \t'); %write GOF names
-                        %third output Confidence Intervals (CI)
-                        for j=1:size(FmodelCI{i},2)
-                            fprintf(fid, '%s\t', strcat('LowCI:',char(Fcoeff{i}(j)))); %write LB names
-                            fprintf(fid, '%s\t', strcat('UppCI:',char(Fcoeff{i}(j)))); %write UB names
-                        end
-                        fprintf(fid, '\n');
-                    end
-                    %write coefficient values
-                    for j=1:length(Fcoeff{i});
-                        fprintf(fid, '%f\t', Fmodel{i}.(Fcoeff{i}(j))); %write coefficient values
-                    end
-                    
-                    GOFoutputs=[FmodelGOF{i}.sse FmodelGOF{i}.rsquare FmodelGOF{i}.dfe FmodelGOF{i}.adjrsquare FmodelGOF{i}.rmse];
-                    fprintf(fid, '%f\t%f\t%f\t%f\t%f\t',GOFoutputs); %write GOF values
-                    for j=1:size(FmodelCI{i},2)
-                        fprintf(fid, '%f\t', FmodelCI{i}(1,j)); %write lower bound values
-                        fprintf(fid, '%f\t', FmodelCI{i}(2,j)); %write upper bound values
-                    end
-                    fprintf(fid, '\n');
-                end
-                fclose(fid);
-                x=1; %means successful
-            end
-            
-        end
-        function [Y] = AsymmCutoff(x, side, xdata)
-            
-            numPts=length(xdata);
-            
-            if side == 1
-                for i=1:numPts;
-                    if xdata(i) < x;
-                        step(i)=1;
-                    else
-                        step(i)=0;
-                    end
-                end
-            elseif side == 2
-                for i=1:numPts;
-                    if xdata(i) < x;
-                        step(i)=0;
-                    else
-                        step(i)=1;
-                    end
-                end
-            end
-            
-            Y=step';
+        Y=step';
         end
         
     end

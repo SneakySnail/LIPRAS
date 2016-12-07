@@ -1,7 +1,7 @@
 function [SP, LB, UB] = getDefaultStartingBounds(Stro, fcn, position, constraints)
 
 SP = []; UB = []; LB = [];
-data = Stro.getRawData(1, Stro.fitrange);
+data = Stro.getRangedData(1, Stro.fitrange);
 x = data(1,:);
 y = data(2,:);
 

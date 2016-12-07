@@ -1,5 +1,7 @@
 % TODO Move to FDGUIv2_1
 function plotData(handles,dataSet,colorID)
+dbstack
+
 Stro = handles.xrd;
 if nargin<3
     colorID='none';
