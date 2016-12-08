@@ -11,7 +11,7 @@ numfiles = length(vals);
 filenames = handles.xrd.Filename;
 assert(numfiles == length(filenames));
 
-if strcmp(s,'NoStats')==0
+if strcmp(s,'NoStats')==0 % plots the statistics of all the fits, when 'Fit Statistics' is selected
         for p=1:length(vals)
                 rsquared(p)=handles.xrd.FmodelGOF{p}.rsquare;
                 adjrsquared(p)=handles.xrd.FmodelGOF{p}.adjrsquare;
@@ -25,19 +25,14 @@ if strcmp(s,'NoStats')==0
                 Rexp(p)=sqrt(DOF/sum(w.*obs.^2)); % Rexpected
                 Rchi2(p)=(Rwp/Rexp)/100; % reduced chi-squared, GOF
                 
-                
-                
         end
         axes(handles.axes1)
-        cla
+        
         if strcmp(s,'Rsquare')
                 close(figure(5))
                 figure(5)
-                disp('1')
                 hold on
                 for j=1:6
-                        disp(j)
-                        %      			ax(j) = subplot(floor(sqrt(size(handles.xrd.fit_results,2))),ceil(size(handles.xrd.fit_results,2)/floor(sqrt(size(handles.xrd.fit_results,2)))),j);
                         ax(j)=subplot(2,3,j);
                 end
                 plot(ax(1),1:numfiles, rsquared, '-ob', ...
@@ -93,9 +88,6 @@ if strcmp(s,'NoStats')==0
         handles.axes1.XLabel.String = 'File Number';
         linkaxes([ax(1),ax(2),ax(3),ax(4),ax(5),ax(6)], 'x')
         xlim([1 numfiles])
-        
-        
-        
         
         hold off
 else
