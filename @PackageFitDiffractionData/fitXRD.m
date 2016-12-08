@@ -27,15 +27,20 @@ fitteddata=data;
 fitteddata(3,:)=bkgdArray;
 
 % Size of array to fit
-fitrangeX=length(dataNB(1,:));
+% fitrangeX=length(dataNB(1,:));
+% 
+% % Add CuKa if statement here
+% avg = mean(position(1,:)); % average of all peaks
+% positionX(1) = PackageFitDiffractionData.Find2theta(dataNB(1,:),avg); % index into dataNB array
+% 
+% minr=positionX(1)-floor(fitrangeX(1)/2);
+% if minr<1; minr=1; end
+% maxr=positionX(1)+ceil(fitrangeX(1)/2);
+% if maxr>fitrangeX; maxr=fitrangeX; end
 
-% Add CuKa if statement here
-avg = mean(position(1,:)); % average of all peaks
-positionX(1) = PackageFitDiffractionData.Find2theta(dataNB(1,:),avg); % index into dataNB array
-minr=positionX(1)-floor(fitrangeX(1)/2);
-if minr<1; minr=1; end
-maxr=positionX(1)+ceil(fitrangeX(1)/2);
-if maxr>fitrangeX; maxr=fitrangeX; end
+minr=1;
+maxr=size(data,2);
+
 fitdata{1} = dataNB(:,minr:maxr);
 
 
@@ -51,9 +56,12 @@ UB = Stro.fit_initial{3};
 
 s = fitoptions('Method','NonlinearLeastSquares','StartPoint',SP,'Lower',LB,'Upper',UB);
 [fittedmodel{1},fittedmodelGOF{1}]=fit(fitdata{1}(1,:)',fitdata{1}(2,:)',g,s);
+
 fittedmodelCI{1} = confint(fittedmodel{1}, Stro.level);
+
 % store fitted data, aligned appropriately in the column
-fitteddata(1+3,minr:maxr)=fittedmodel{1}(fitdata{1}(1,:));
+fitteddata(4,minr:maxr)=fittedmodel{1}(fitdata{1}(1,:));
+
 assignin('base','fitteddata',fitteddata)
 
 if handles.noplotfit.Value==1
