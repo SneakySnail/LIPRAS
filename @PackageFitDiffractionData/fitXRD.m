@@ -23,26 +23,57 @@ dataNB(2,:) = data(2,:) - bkgdArray;
 %     column 4 = Overall fit w/o background
 %     column 5 = 1st peak w/o background...
 %     column 6+ = next peak w/o background..., etc.
-fitteddata=data;
-fitteddata(3,:)=bkgdArray;
+
 
 % Size of array to fit
-% fitrangeX=length(dataNB(1,:));
-% 
-% % Add CuKa if statement here
+fitrangeX=length(dataNB(1,:));
+
+
+dataMin = PackageFitDiffractionData.Find2theta(data(1,:),Stro.Min2T); % shapes the data matrix supplied to fit
+dataMax = PackageFitDiffractionData.Find2theta(data(1,:),Stro.Max2T); % shapes data matrix suppled to fit
+
+% Add CuKa if statement here
+fitrange=Stro.fitrange;
+        mid = mean([Stro.Min2T Stro.Max2T]);
+        leftbound = mid-fitrange/2;
+        rightbound = mid+fitrange/2;
+        if leftbound < Stro.Min2T
+            leftbound = Stro.Min2T;
+        end
+        if leftbound > Stro.Max2T
+            rightbound = Stro.Max2T;
+        end
+        minr = PackageFitDiffractionData.Find2theta(data(1,:),leftbound);
+        maxr = PackageFitDiffractionData.Find2theta(data(1,:),rightbound);
+%         
 % avg = mean(position(1,:)); % average of all peaks
 % positionX(1) = PackageFitDiffractionData.Find2theta(dataNB(1,:),avg); % index into dataNB array
-% 
 % minr=positionX(1)-floor(fitrangeX(1)/2);
 % if minr<1; minr=1; end
 % maxr=positionX(1)+ceil(fitrangeX(1)/2);
 % if maxr>fitrangeX; maxr=fitrangeX; end
 
-minr=1;
-maxr=size(data,2);
+a=1;
+if minr<dataMin; 
+    disp('minr_true')
+    minr=dataMin; 
+end
 
+if maxr>dataMax; 
+      disp('maxr_true')
+    maxr=dataMax; 
+end
+
+dataMin = PackageFitDiffractionData.Find2theta(Stro.two_theta,Stro.Min2T); % to generate data within user selected fit range
+dataMax = PackageFitDiffractionData.Find2theta(Stro.two_theta,Stro.Max2T); % same as above
+
+datafit=Stro.data_fit(:,dataMin:dataMax);
 fitdata{1} = dataNB(:,minr:maxr);
 
+
+fitteddata=data(:,minr:maxr);
+
+fitteddata(3,:)=bkgdArray(:,minr:maxr);
 
 coefficients{1}=coeffnames(g);
 
@@ -53,15 +84,17 @@ else
 end
 LB = Stro.fit_initial{2};
 UB = Stro.fit_initial{3};
-
-s = fitoptions('Method','NonlinearLeastSquares','StartPoint',SP,'Lower',LB,'Upper',UB);
+Weight=1./abs(fitdata{1}(1,:));
+% Weight(:)=1;
+s = fitoptions('Method','NonlinearLeastSquares','StartPoint',SP,'Lower',LB,'Upper',UB,'Weight',Weight);
 [fittedmodel{1},fittedmodelGOF{1}]=fit(fitdata{1}(1,:)',fitdata{1}(2,:)',g,s);
-
 fittedmodelCI{1} = confint(fittedmodel{1}, Stro.level);
-
 % store fitted data, aligned appropriately in the column
-fitteddata(4,minr:maxr)=fittedmodel{1}(fitdata{1}(1,:));
-
+fdata=data;
+fdata(3,:)=bkgdArray;
+fdata(4,:)=fittedmodel{1}(data(1,:));
+fitteddata(1+3,minr:maxr)=fittedmodel{1}(fitdata{1}(1,:));
+fitteddata=fdata;
 assignin('base','fitteddata',fitteddata)
 
 if handles.noplotfit.Value==1
@@ -86,6 +119,10 @@ xlim([Stro.Min2T Stro.Max2T])
 linkaxes([handles.axes1 handles.axes2],'x')
 axes(handles.axes1) % this is slow, consider moving outside of loop
 end
+
+%Save this matrix to save the fit cutoff fit, to plot later
+sfitdata(1,:)=fitdata{1}(1,:);
+sfitdata(2,:)=fittedmodel{1}(fitdata{1}(1,:))'+bkgdArray(minr:maxr);
 
 Stro.Fdata = fitteddata;
 Stro.Fcoeff = coefficients;
