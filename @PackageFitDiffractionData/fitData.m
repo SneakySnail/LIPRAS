@@ -95,6 +95,9 @@ for i=1:length(Stro.Filename) %this is the start of the for loop that executes t
     
 end
 
+linkaxes([handles.axes1 handles.axes2],'x')
+axes(handles.axes1) % this is slow, consider moving outside of loop
+
 Stro.Status = 'Fitting dataset... Done.';
 
 % Writes Fmodel and Fdata, after the fitting has been completed

@@ -5,11 +5,12 @@ function handles = plotBackgroundFit( handles )
 
 plotBkPoints(handles);
 
+plotBkFit(handles);
 
 
 
 
-function plotBkPoints(handles) % plots points and BkgFit
+function plotBkPoints(handles)
 
 [points, idx] = handles.xrd.getBkgdPoints();
 
@@ -19,11 +20,14 @@ data = handles.xrd.getRangedData(iFile);
 [P, S, U] = PackageFitDiffractionData.fitBkgd(data, handles.xrd.bkgd2th, handles.xrd.PolyOrder);
 bkgdArray = polyval(P,data(1,:),S,U);
 
-cla(handles.axes1)
-
 hold on
-plot(handles.axes1,data(1,:),data(2,:),'-o','LineWidth',0.5,'MarkerSize',4, 'MarkerFaceColor', [0 0 0])
-plot(handles.axes1, points, data(2,idx), 'rd', 'markersize', 5, ...
-    'markeredgecolor', 'r', 'markerfacecolor','r');
-plot(handles.axes1,data(1,:),bkgdArray,'--')
 
+plot(handles.axes1, points, data(2,idx), 'rd', 'markersize', 10, ...
+    'markeredgecolor', 'r', 'markerfacecolor','r');
+plot(handles.axes1,points,bkgdArray,'
+
+
+function plotBkFit(handles)
+polyorder = handles.xrd.PolyOrder;
+
+% [P, S, U] = handles.xrd.fitBkgd(polyorder,  
