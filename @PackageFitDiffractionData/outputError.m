@@ -10,7 +10,7 @@ function outputError(Stro,Profile)
 	
 	if length(Stro.Filename) == 1
 		if isempty(Stro.SPR_Angle)
-			outFilePrefix = strcat(Stro.OutputPath,'Fit_Parameters_',strrep(Stro.Filename{1},'.','_'));
+			outFilePrefix = strcat(Stro.OutputPath,'Fit_Parameters_',strrep(Stro.Filename{1},'.','_'),'_');
 		else
 			outFilePrefix = strcat(Stro.OutputPath,'Fit_Parameters_',strrep(Stro.Filename{1},'.','_'),'_Angle_',num2str(Stro.SPR_Angle),'_');
 		end
@@ -24,7 +24,7 @@ function outputError(Stro,Profile)
 	
 	index = 0;
 	iprefix = '00';
-	while exist(strcat(outFilePrefix,strcat(iprefix,num2str(index)),'.txt'),'file') == 2
+	while exist(strcat(outFilePrefix,strcat(iprefix,num2str(index)),'_Profile_',num2str(Profile),'.txt'),'file') == 2
 		index = index + 1;
 		if index > 100
 			iprefix = '';
