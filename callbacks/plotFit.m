@@ -52,7 +52,7 @@ for j=dataSet0:dataSetf
               
                 for v=1:length(Stro.Fcoeff{1})              
                 var_coef=strcat(Stro.Fcoeff{1}(v),'=',num2str(Stro.fit_parms{j}(v)));
-                eval(var_coef{1});
+                evalc(var_coef{1});
                 end
     hold on
     x=Stro.fit_results{j}(1,:); 
