@@ -20,6 +20,7 @@ arb = 1:1:size(Stro.data_fit,1); %here
 g=Stro.makeFunction(Stro.PSfxn);
 
 
+
 for i=1:length(Stro.Filename) %this is the start of the for loop that executes the remainder of the
     Stro.Status=['Fitting ', Stro.Filename{1},': Dataset ',num2str(i),' of ',num2str(length(Stro.Filename)),'... '];
     
@@ -100,6 +101,7 @@ axes(handles.axes1) % this is slow, consider moving outside of loop
 
 Stro.Status = 'Fitting dataset... Done.';
 
+
 % Writes Fmodel and Fdata, after the fitting has been completed
 for g=1:length(Stro.Filename)
     
@@ -120,5 +122,6 @@ for g=1:length(Stro.Filename)
     FmodelCI=Stro.FmodelCI(g);
     % Writes individual Fmodel
     Stro.SaveFitValues(strcat(fitOutputPath,filename,'_Profile_',num2str(handles.guidata.currentProfile),'_',num2str(arb(g)),'.Fmodel'),Stro.PSfxn,Fmodel,Fcoeff,FmodelGOF,FmodelCI);
+    
     
 end
