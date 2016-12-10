@@ -49,16 +49,28 @@ for j=dataSet0:dataSetf
         for ii=1:length(fxn) 
             
               peaks(ii,:)={makeFunctionStr(Stro, fxn{ii}, ii, Stro.Constrains(ii,:))};
+   if Stro.CuKa
+       spleaks=strsplit(peaks{ii},'+seperate+');
+       peaks(ii,1)=spleaks(1);
+       peaks(ii,2)=spleaks(2);
+   
+   end
               
+           % Makes variables of the coefficients involved in the fit   
                 for v=1:length(Stro.Fcoeff{1})              
                 var_coef=strcat(Stro.Fcoeff{1}(v),'=',num2str(Stro.fit_parms{j}(v)));
                 evalc(var_coef{1});
                 end
-    hold on
-    x=Stro.fit_results{j}(1,:); 
+        hold on
+         x=Stro.fit_results{j}(1,:); 
+         
             for bn=1:length(x)
                 xv=x(bn);
-                epeaksYY(ii,bn)=eval(peaks{ii});
+                epeaksYY(ii,bn)=eval(peaks{ii,1});
+                if Stro.CuKa
+                    epeaksY_Cu(ii,bn)=eval(peaks{ii,2});
+                end
+                
             end
              epeaksY=epeaksYY;
         
@@ -86,12 +98,25 @@ for j=dataSet0:dataSetf
             0.75 0.75 0; ...
             0.75 0 0.75]; % Color Order for plotting peaks underneath overall fit
         % From https://www.mathworks.com/help/matlab/graphics_transition/why-are-plot-lines-different-colors.html
+        
+        %this needs a back becaause the colors will eventually run out,
+        %perhaps we need to add more?
     
         for jj=1:size(Stro.PSfxn,2)
              if Stro.CuKa
-                 
+                 try
+                plot(x,epeaksY(jj,:)+back','LineWidth',1,'DisplayName',['Peak ',num2str(jj)],'Color',co(1+(jj-1)*2,1:3)) 
+                plot(x,epeaksY_Cu(jj,:)+back','LineWidth',1,'DisplayName',['Peak ',num2str(jj)],'Color',co(2+(jj-1)*2,1:3))
+                 catch % hopefully this fixes the issue of running out of colors in co
+                plot(x,epeaksY(jj,:)+back','LineWidth',1,'DisplayName',['Peak ',num2str(jj)]) 
+                plot(x,epeaksY_Cu(jj,:)+back','LineWidth',1,'DisplayName',['Peak ',num2str(jj)])
+                 end
              else
+                 try
             plot(x,epeaksY(jj,:)+back','LineWidth',1,'DisplayName',['Peak ',num2str(jj)],'Color',co(jj,1:3))
+                 catch
+            plot(x,epeaksY(jj,:)+back','LineWidth',1,'DisplayName',['Peak ',num2str(jj)])         
+                 end
              end
         end
 
@@ -148,14 +173,14 @@ switch fxn
         if Stro.CuKa
             N=['((1/1.9)*',N,')'];
             xv=['PackageFitDiffractionData.Ka2fromKa1(',xv,')'];
-            fstr = [fstr,'+',N,'*((2*sqrt(log(2)))/(sqrt(pi)*', f, ')*exp(-4*log(2)*((xv-', xv, ')^2/', f, '^2)))'];
+            fstr = [fstr,'+seperate+',N,'*((2*sqrt(log(2)))/(sqrt(pi)*', f, ')*exp(-4*log(2)*((xv-', xv, ')^2/', f, '^2)))'];
         end
     case 'Lorentzian'
         fstr = [N, '*1/pi* (0.5*', f, '/((xv-', xv, ')^2+(0.5*', f, ')^2))'];
         if Stro.CuKa
             N=['((1/1.9)*',N,')'];
             xv=['PackageFitDiffractionData.Ka2fromKa1(',xv,')'];
-            fstr = [fstr,'+',N, '*1/pi* (0.5*', f, '/((xv-', xv, ')^2+(0.5*', f, ')^2))'];
+            fstr = [fstr,'+seperate+',N, '*1/pi* (0.5*', f, '/((xv-', xv, ')^2+(0.5*', f, ')^2))'];
         end
     case 'Pearson VII'
         fstr = [N, '*2*((2^(1/', m, ')-1)^0.5) /', f, '/(pi^0.5)*gamma(', m, ')/gamma(', m, ...
@@ -163,7 +188,7 @@ switch fxn
         if Stro.CuKa
             N=['((1/1.9)*',N,')'];
             xv=['PackageFitDiffractionData.Ka2fromKa1(',xv,')'];
-            fstr = [fstr,'+',N, '*2*((2^(1/', m, ')-1)^0.5) /', f, '/(pi^0.5)*gamma(', m, ')/gamma(', m, ...
+            fstr = [fstr,'+seperate+',N, '*2*((2^(1/', m, ')-1)^0.5) /', f, '/(pi^0.5)*gamma(', m, ')/gamma(', m, ...
                 '-0.5) * (1+4*(2^(1/', m, ')-1)*((xv-', xv, ')^2)/', f, '^2)^(-', m, ')'];
         end
     case 'Pseudo Voigt'
@@ -173,7 +198,7 @@ switch fxn
         if Stro.CuKa
             N=['((1/1.9)*',N,')'];
             xv=['PackageFitDiffractionData.Ka2fromKa1(',xv,')'];
-            fstr = [fstr,'+',N,'*((',w,'*(2/pi)*(1/',f, ')*1/(1+(4*(xv-',xv,')^2/', ...
+            fstr = [fstr,'+seperate+',N,'*((',w,'*(2/pi)*(1/',f, ')*1/(1+(4*(xv-',xv,')^2/', ...
                 f,'^2))) + ((1-',w, ')*(2*sqrt(log(2))/(sqrt(pi)))*1/',f, ...
                 '*exp(-log(2)*4*(xv-',xv,')^2/',f,'^2)))'];
         end
@@ -185,7 +210,7 @@ switch fxn
         if Stro.CuKa
             NR=['((1/1.9)*',NR,')']; NL=['((1/1.9)*', NL,')'];
             xv=['PackageFitDiffractionData.Ka2fromKa1(',xv,')'];
-            fstr = [fstr,'+','PackageFitDiffractionData.AsymmCutoff(',xv,',1,xv)*',NL,'*PackageFitDiffractionData.C4(',mL,')/',f,'*(1+4*(2^(1/',mL,')-1)*(xv-',...
+            fstr = [fstr,'+seperate+','PackageFitDiffractionData.AsymmCutoff(',xv,',1,xv)*',NL,'*PackageFitDiffractionData.C4(',mL,')/',f,'*(1+4*(2^(1/',mL,')-1)*(xv-',...
                 xv,')^2/',f,'^2)^(-',mL,')+PackageFitDiffractionData.AsymmCutoff(',xv,...
                 ',2,xv)*',NR,'*PackageFitDiffractionData.C4(',mR,')/(',f,'*',NR,'/',NL,'*PackageFitDiffractionData.C4(',mR,')/PackageFitDiffractionData.C4(',mL,'))*(1+4*(2^(1/',mR,')-1)*(xv-',...
                 xv,')^2/(',f,'*',NR,'/',NL,'*PackageFitDiffractionData.C4(',mR,')/PackageFitDiffractionData.C4(',mL,'))^2)^(-',mR,')'];
