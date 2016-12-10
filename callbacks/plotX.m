@@ -257,7 +257,7 @@ for i=1:handles.guidata.numPeaks
             if handles.xrd.CuKa
                 CuKaPeak(i,:)=(1/1.9)*N.*2.* ((2.^(1/m)-1).^0.5) / f / (pi.^0.5) .* gamma(m) / gamma(m-0.5) .* (1+4.*(2.^(1/m)-1).*((x2th-xvk).^2)/f.^2).^(-m);
             end
-        case 'Psuedo Voigt'
+        case 'Pseudo Voigt'
             peakArray(i,:) = N.*((w.*(2./pi).*(1./f).*1./(1+(4.*(x2th-xv).^2./f.^2))) + ((1-w).*(2.*sqrt(log(2))./(sqrt(pi))).*1./f.*exp(-log(2).*4.*(x2th-xv).^2./f.^2)));
             if handles.xrd.CuKa
                 CuKaPeak(i,:)=(1/1.9)*N.*((w.*(2./pi).*(1./f).*1./(1+(4.*(x2th-xvk).^2./f.^2))) + ((1-w).*(2.*sqrt(log(2))./(sqrt(pi))).*1./f.*exp(-log(2).*4.*(x2th-xvk).^2./f.^2)));

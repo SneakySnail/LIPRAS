@@ -112,7 +112,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
                     if ~constraints(i,2); coeffNames = [coeffNames, {xv}]; end
                     if ~constraints(i,3); coeffNames = [coeffNames, {f}]; end
                     
-                case 'Psuedo Voigt'
+                case 'Pseudo Voigt'
                     if ~constraints(i,1); coeffNames = [coeffNames, {N}]; end
                     if ~constraints(i,2); coeffNames = [coeffNames, {xv}]; end
                     if ~constraints(i,3); coeffNames = [coeffNames, {f}]; end

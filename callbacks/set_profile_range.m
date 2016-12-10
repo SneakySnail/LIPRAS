@@ -90,4 +90,4 @@ handles.guidata.fitrange = handles.xrd.fitrange;
 set(hObject, 'userdata', str2double(hObject.String));
 handles.xrd.Fmodel=[];
 
-plotX(handles);
+plotX(handles,'data');

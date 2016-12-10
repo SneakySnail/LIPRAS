@@ -48,8 +48,8 @@ else
 	set(handles.checkboxm,'Enable','off');
 end
 
-% Enable constraint w for Psuedo Voigt fcn
-if length(find(strcmpi(fcnNames, 'Psuedo Voigt'))) > 1
+% Enable constraint w for Pseudo Voigt fcn
+if length(find(strcmpi(fcnNames, 'Pseudo Voigt'))) > 1
 	set(handles.checkboxw,'Enable','on');
 else
 	set(handles.checkboxw,'Enable','off');

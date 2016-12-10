@@ -98,7 +98,7 @@ for j=dataSet0:dataSetf
                     if Stro.CuKa
                         CuKaPeak(ii,:)=(1/1.9)*N.*2.* ((2.^(1/m)-1).^0.5) / f / (pi.^0.5) .* gamma(m) / gamma(m-0.5) .* (1+4.*(2.^(1/m)-1).*((x-xvk).^2)/f.^2).^(-m);
                     end
-                case 'Psuedo Voigt'
+                case 'Pseudo Voigt'
                     peakfit(ii,:) = N.*((w.*(2./pi).*(1./f).*1./(1+(4.*(x-xv).^2./f.^2))) + ((1-w).*(2.*sqrt(log(2))./(sqrt(pi))).*1./f.*exp(-log(2).*4.*(x-xv).^2./f.^2)));
                     if Stro.CuKa
                         CuKaPeak(ii,:)=(1/1.9)*N.*((w.*(2./pi).*(1./f).*1./(1+(4.*(x-xvk).^2./f.^2))) + ((1-w).*(2.*sqrt(log(2))./(sqrt(pi))).*1./f.*exp(-log(2).*4.*(x-xvk).^2./f.^2)));
