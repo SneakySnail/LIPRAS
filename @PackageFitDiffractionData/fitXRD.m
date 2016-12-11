@@ -1,10 +1,25 @@
 function fitXRD(Stro, data, position, filenum,handles,g)
 position=position(1);
+
+if handles.popup_bkgdmodel.Value==1
 [P, S, U] = PackageFitDiffractionData.fitBkgd(data, Stro.bkgd2th, Stro.PolyOrder);
+bkgdArray = polyval(P,data(1,:),S,U);
+else
+  
+  [points, idx]=handles.xrd.getBkgdPoints();
+  bkgx=points;
+  bkgx=[data(1,1),bkgx,data(1,end)];
+  bkgy(1,:)=data(2,idx);
+  bkgy=[data(2,1),bkgy,data(2,end)];
+  order=2;
+yy=spapi(order,bkgx,bkgy);
+bkgdArray = fnval(yy,data(1,:));
+end
+
 
 % FOR GUI, BACKGROUND
 hold on
-bkgdArray = polyval(P,data(1,:),S,U);
+
 % handles.noplotfit.Value=0;
 if handles.noplotfit.Value == 1
 
