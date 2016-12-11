@@ -16,13 +16,23 @@ if isempty(Stro.bkgd2th)
 		points = []; indX = [];
 		for i=1:numpoints
 				Stro.Status=['Choosing ',num2str(numpoints),' background points... Point ',num2str(i),'.'];
-				[x,~, key]=ginput(1);
-				if key ~= 1
-					Stro.Status = 'Canceled.';
-					return
-				end
+    [x,~, key]=ginput(1);
+                 if key==27
+                        return
+                    elseif key ~= 1
+                   k=654564465645645; % I'll be impressed if someone hits this key, dont think it exists
+                        while k~=1
+                    k = waitforbuttonpress; % press any key to continue
+                        end
+                [x,~, key]=ginput(1);             
+                else
+                points(i,1)=x;            
+                end
+                if key==27
+                    return
+                end               
 				points(i,1)=x;
-				pos = PackageFitDiffractionData.Find2theta(Stro.two_theta,x);
+                pos = PackageFitDiffractionData.Find2theta(Stro.two_theta,x);
 				plot(x, Stro.data_fit(1,pos), 'r*') % 'ko'
 		end
 		Stro.Status=[num2str(numpoints),' background points were selected.'];

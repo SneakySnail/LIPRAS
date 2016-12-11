@@ -21,6 +21,22 @@ for i=1:length(peakTableRow)
     
     handles.xrd.Status=['Selecting peak ',num2str(i),' (' fcns{i} '). Press the Esc key or right click to cancel.'];
     [x(i), ~, btn] = ginput(1);
+                if btn==27
+                        return
+                    elseif btn ~= 1
+                   k=654564465645645; % I'll be impressed if someone hits this key, dont think it exists
+                        while k~=1
+                    k = waitforbuttonpress; % press any key to continue
+                        end
+                [x(i),~, btn]=ginput(1);             
+                else
+%                 points(i,1)=x;            
+                end
+                if btn==27
+                    return
+                end               
+% 				points(i,1)=x;
+
     if btn == 1
         handles.table_fitinitial.Data{peakTableRow(i),1} = x(i);
         handles.table_fitinitial.Data(peakTableRow(i),2:3)  = {[], []};
