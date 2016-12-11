@@ -54,7 +54,7 @@ varargout{1} = handles.output;
 
 function edit_bkgdpoints_Callback(hObject, eventdata, handles)
 num = str2double(hObject.String);
-if isempty(num) || isnan(num) || ~isinteger(int8(num)) || num < 1 || num > 30
+if isempty(num) || isnan(num) || ~isinteger(int8(num)) || num < 1 || num > 2500
     handles.xrd.Status = ['<html><font color="red"><b>Warning: ' hObject.String ' is not a valid positive integer.'];
     set(hObject, 'string', num2str(10));
     return
