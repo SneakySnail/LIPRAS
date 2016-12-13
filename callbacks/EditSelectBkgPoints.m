@@ -4,17 +4,18 @@ twotheta=handles.xrd.two_theta(1,(PackageFitDiffractionData.Find2theta(handles.x
 intensity=handles.xrd.data_fit(1,(PackageFitDiffractionData.Find2theta(handles.xrd.two_theta(1,:),handles.xrd.Min2T):PackageFitDiffractionData.Find2theta(handles.xrd.two_theta(1,:),handles.xrd.Max2T)))';
 
 if nargin<2
-    close
-    plot(twotheta,intensity)
-    [points, pos]=Add_bkgpoints(twotheta, intensity);
+%     close
+cla
+    plot(handles.axes1,twotheta,intensity)
+    [points, pos]=Add_bkgpoints(handles,twotheta, intensity);
 %  assignin('base','points',points)
 %  assignin('base','pos',pos)
 elseif strcmp(Mode,'Append')
-    [points, pos]=Append_bkgpoints(twotheta,intensity,points,pos);
+    [points, pos]=Append_bkgpoints(handles,twotheta,intensity,points,pos);
 %  assignin('base','points',points)
 %  assignin('base','pos',pos)
 elseif strcmp(Mode,'Delete')
-    [points, pos]=Delete_bkgpoints(twotheta, intensity,points,pos);
+    [points, pos]=Delete_bkgpoints(handles,twotheta, intensity,points,pos);
 %  assignin('base','points',points)
 %  assignin('base','pos',pos)
 else
@@ -26,19 +27,17 @@ end
 
 end
 
-function varargout =Add_bkgpoints(varargin)
+function varargout =Add_bkgpoints(handles,twotheta,intensity)
 
-if nargin==2
-    twotheta=varargin{1};
-    intensity=varargin{2};
-end
 
-close
-    plot(twotheta,intensity)
+% close
+    plot(handles.axes1,twotheta,intensity)
     N=1E4;
    
     for i=1:N
-    [x,~, key]=ginput(1);                 
+    [x,~, key]=ginput(1);
+        %add if statement that if handles.checkbox_add.Value==1 then return
+        %and start append
                  if key==27
                         break
                     elseif key ~= 1
@@ -56,7 +55,7 @@ close
                 hold on
 				points(i,1)=x;
 				pos(i) = FindValue(twotheta,x);
-				plot(x, intensity(pos(i),1), 'r*') % 'ko'               
+				plot(handles.axes1,x, intensity(pos(i),1), 'r*') % 'ko'               
     end
         points=sort(points);
         pos=sort(pos);
@@ -72,12 +71,12 @@ close
     
 end
 
-function varargout= Append_bkgpoints(twotheta, intensity, points, pos)
+function varargout= Append_bkgpoints(handles,twotheta, intensity, points, pos)
 N=1E4;
-close
+% close
 hold on
-plot(twotheta,intensity)
-plot(twotheta(pos(:,1),:),intensity(pos(:,1),:), 'r*')
+plot(handles.axes1,twotheta,intensity)
+plot(handles.axes1,twotheta(pos(:,1),:),intensity(pos(:,1),:), 'r*')
 hold off
   for i=1:N
     [x,~, key]=ginput(1);                 
@@ -100,7 +99,7 @@ hold off
 
 				apos(i,1) = FindValue(twotheta,x);
                 sapos(i)=apos(i,1);
-				plot(x, intensity(sapos(i),1), 'r*') % 'ko'
+				plot(handles.axes1,x, intensity(sapos(i),1), 'r*') % 'ko'
   end
   
   if exist('apoints','var')==0 % if cancel is selected from the start
@@ -123,12 +122,12 @@ hold off
 
 end
 
-function varargout=Delete_bkgpoints(twotheta, intensity, points,pos)
+function varargout=Delete_bkgpoints(handles,twotheta, intensity, points,pos)
 N=1E4;
-close
+% close
 hold on
-plot(twotheta,intensity)
-plot(twotheta(pos(:,1),:),intensity(pos(:,1),:), 'r*')
+plot(handles.axes1,twotheta,intensity)
+plot(handles.axes1,twotheta(pos(:,1),:),intensity(pos(:,1),:), 'r*')
 hold off
     for i=1:N
     [x,~, key]=ginput(1);                 
@@ -152,8 +151,8 @@ hold off
                 points(dpos)=[];
                 pos(dpos)=[];
                 cla
-                plot(twotheta,intensity)
-				plot(points, intensity(pos,1), 'r*') % 'ko'
+                plot(handles.axes1,twotheta,intensity)
+				plot(handles.axes1,points, intensity(pos,1), 'r*') % 'ko'
     end
     if nargout == 1
         varargout{1} = [points pos];

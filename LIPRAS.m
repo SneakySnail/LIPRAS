@@ -93,6 +93,28 @@ numpoints = str2num(handles.edit_bkgdpoints.String);
 polyorder = str2num(handles.edit_polyorder.String);
 cp = handles.guidata.currentProfile;
 
+% [points, pos]=EditSelectBkgPoints(handles);
+% handles.points=points;
+% handles.pos=pos;
+% 
+% if isempty(handles.points) % incase of error or reset?
+%     [points, pos]=EditSelectBkgPoints(handles);
+% handles.points=points;
+% handles.pos=pos;
+% elseif exist(handles.points,'var')==0 % if its being called for the first time
+%     [points, pos]=EditSelectBkgPoints(handles);
+% handles.points=points;
+% handles.pos=pos;    
+% elseif handles.checkbox_add.Value==1
+%     [points, pos]=EditSelectBkgPoints(handles,points,pos,'Append');
+% handles.points=points;
+% handles.pos=pos;
+% elseif handles.checkbox_delete.Value==1
+%     [points, pos]=EditSelectBkgPoints(handles,points,pos,'Delete');
+% handles.points=points;
+% handles.pos=pos;
+% end
+
 handles.xrd.resetBackground(numpoints,polyorder);
 
 if handles.guidata.numPeaks(cp) == 0
