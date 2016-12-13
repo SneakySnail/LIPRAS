@@ -41,7 +41,7 @@ for i=1:length(peakTableRow)
         handles.table_fitinitial.Data{peakTableRow(i),1} = x(i);
         handles.table_fitinitial.Data(peakTableRow(i),2:3)  = {[], []};
         
-        pos=PackageFitDiffractionData.Find2theta(handles.xrd.two_theta,x(i));
+        pos=FindValue(handles.xrd.two_theta,x(i));
         plot(x(i), handles.xrd.data_fit(1,pos), 'r*') % 'ko'
         
     else % if the left mouse button was not pressed

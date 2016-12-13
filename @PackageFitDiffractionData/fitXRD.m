@@ -2,12 +2,15 @@ function fitXRD(Stro, data, position, filenum,handles,g)
 position=position(1);
 
 if handles.popup_bkgdmodel.Value==1
-[P, S, U] = PackageFitDiffractionData.fitBkgd(data, Stro.bkgd2th, Stro.PolyOrder);
+[P, S, U] = polyfit(handles.xrd.bkgd2th,data(2,handles.pos)', handles.xrd.PolyOrder);
 bkgdArray = polyval(P,data(1,:),S,U);
 else
   
-  [points, idx]=handles.xrd.getBkgdPoints();
-  bkgx=points;
+    
+  points=handles.points;
+  pos=handles.pos;
+  idx=pos;
+  bkgx=points';
   bkgx=[data(1,1),bkgx,data(1,end)];
   bkgy(1,:)=data(2,idx);
   bkgy=[data(2,1),bkgy,data(2,end)];

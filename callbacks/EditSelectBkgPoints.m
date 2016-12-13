@@ -4,20 +4,18 @@ twotheta=handles.xrd.two_theta(1,(PackageFitDiffractionData.Find2theta(handles.x
 intensity=handles.xrd.data_fit(1,(PackageFitDiffractionData.Find2theta(handles.xrd.two_theta(1,:),handles.xrd.Min2T):PackageFitDiffractionData.Find2theta(handles.xrd.two_theta(1,:),handles.xrd.Max2T)))';
 
 if nargin<2
-%     close
+
 cla
-    plot(handles.axes1,twotheta,intensity)
+plotX(handles)
+
     [points, pos]=Add_bkgpoints(handles,twotheta, intensity);
-%  assignin('base','points',points)
-%  assignin('base','pos',pos)
+
 elseif strcmp(Mode,'Append')
     [points, pos]=Append_bkgpoints(handles,twotheta,intensity,points,pos);
-%  assignin('base','points',points)
-%  assignin('base','pos',pos)
+
 elseif strcmp(Mode,'Delete')
     [points, pos]=Delete_bkgpoints(handles,twotheta, intensity,points,pos);
-%  assignin('base','points',points)
-%  assignin('base','pos',pos)
+
 else
 disp('Invalid Mode')
 end
@@ -29,22 +27,21 @@ end
 
 function varargout =Add_bkgpoints(handles,twotheta,intensity)
 
-
-% close
-    plot(handles.axes1,twotheta,intensity)
     N=1E4;
    
     for i=1:N
     [x,~, key]=ginput(1);
-        %add if statement that if handles.checkbox_add.Value==1 then return
-        %and start append
+
                  if key==27
                         break
                     elseif key ~= 1
                    k=654564465645645; % I'll be impressed if someone hits this key, dont think it exists
                         while k~=1
                     k = waitforbuttonpress; % press any key to continue
+                    a=1;
+                                    if handles.radiobutton15_delete.Value==1; break;end % incase some clicks the add or delete half way
                         end
+                                    if handles.radiobutton15_delete.Value==1; break;end % incase some clicks the add or delete half way
                 [x,~, key]=ginput(1);            
                 else
                 points(i,1)=x;            
@@ -73,11 +70,12 @@ end
 
 function varargout= Append_bkgpoints(handles,twotheta, intensity, points, pos)
 N=1E4;
-% close
+
+plotX(handles)
 hold on
-plot(handles.axes1,twotheta,intensity)
 plot(handles.axes1,twotheta(pos(:,1),:),intensity(pos(:,1),:), 'r*')
 hold off
+
   for i=1:N
     [x,~, key]=ginput(1);                 
                  if key==27
@@ -86,7 +84,9 @@ hold off
                    k=654564465645645; % I'll be impressed if someone hits this key, dont think it exists
                         while k~=1
                     k = waitforbuttonpress; % press any key to continue
+                                    if handles.radiobutton15_delete.Value==1; break;end
                         end
+                                    if handles.radiobutton15_delete.Value==1; break;end
                 [x,~, key]=ginput(1);            
                 else
                 apoints(i,1)=x;            
@@ -124,9 +124,9 @@ end
 
 function varargout=Delete_bkgpoints(handles,twotheta, intensity, points,pos)
 N=1E4;
-% close
+
+plotX(handles)
 hold on
-plot(handles.axes1,twotheta,intensity)
 plot(handles.axes1,twotheta(pos(:,1),:),intensity(pos(:,1),:), 'r*')
 hold off
     for i=1:N
@@ -137,7 +137,9 @@ hold off
                    k=654564465645645; % I'll be impressed if someone hits this key, dont think it exists
                         while k~=1
                     k = waitforbuttonpress; % press any key to continue
+                                    if handles.radiobutton14_add.Value==1; break;end % incase some clicks the add or delete half way
                         end
+                                    if handles.radiobutton14_add.Value==1; break;end % incase some clicks the add or delete half way                                 
                 [x,~, key]=ginput(1);            
                 else
                 dpoints(i,1)=x;            
@@ -151,8 +153,10 @@ hold off
                 points(dpos)=[];
                 pos(dpos)=[];
                 cla
-                plot(handles.axes1,twotheta,intensity)
+                plotX(handles)
+                hold on
 				plot(handles.axes1,points, intensity(pos,1), 'r*') % 'ko'
+                hold off
     end
     if nargout == 1
         varargout{1} = [points pos];

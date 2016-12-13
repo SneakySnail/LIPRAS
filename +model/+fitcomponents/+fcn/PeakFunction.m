@@ -19,7 +19,7 @@ classdef PeakFunction
         Gaussian        ('Gaussian')
         Lorentzian      ('Lorentzian')
         PearsonVII      ('Pearson VII')
-        PseudoVoigt     ('Pseudo Voigt')
+        PseudoVoigt     ('Pseudo-Voigt')
     end
     
 

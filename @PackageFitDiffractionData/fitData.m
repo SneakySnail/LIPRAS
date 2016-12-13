@@ -1,5 +1,5 @@
 function fitData(Stro, ~, ~, ~, ~, ~, handles)
-Stro.getBackground();
+% Stro.getBackground();
 Stro.fit_results={};
 Stro.fit_parms={};
 Stro.fit_parms_error={};

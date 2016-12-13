@@ -27,7 +27,7 @@ data = handles.xrd.getRangedData(filenum,fitrange);
 bkgd2th = handles.xrd.getBkgdPoints();
 
 % Get background fit
-[P,S,U]=PackageFitDiffractionData.fitBkgd(data, bkgd2th, handles.xrd.PolyOrder);
+[P, S, U] = polyfit(handles.xrd.bkgd2th,data(2,handles.pos)', handles.xrd.PolyOrder);
 
 % Subtract background fit from raw data
 background=polyval(P,data(1,:),S,U);
@@ -159,7 +159,7 @@ for i=1:handles.guidata.numPeaks
             if handles.xrd.CuKa
                 CuKaPeak(i,:)=(1/1.9)*N.*2.* ((2.^(1/m)-1).^0.5) / f / (pi.^0.5) .* gamma(m) / gamma(m-0.5) .* (1+4.*(2.^(1/m)-1).*((x2th-xvk).^2)/f.^2).^(-m);
             end
-        case 'Pseudo Voigt'
+        case 'Pseudo-Voigt'
             peakArray(i,:) = N.*((w.*(2./pi).*(1./f).*1./(1+(4.*(x2th-xv).^2./f.^2))) + ((1-w).*(2.*sqrt(log(2))./(sqrt(pi))).*1./f.*exp(-log(2).*4.*(x2th-xv).^2./f.^2)));
             if handles.xrd.CuKa
                 CuKaPeak(i,:)=(1/1.9)*N.*((w.*(2./pi).*(1./f).*1./(1+(4.*(x2th-xvk).^2./f.^2))) + ((1-w).*(2.*sqrt(log(2))./(sqrt(pi))).*1./f.*exp(-log(2).*4.*(x2th-xvk).^2./f.^2)));

@@ -112,7 +112,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
                     if ~constraints(i,2); coeffNames = [coeffNames, {xv}]; end
                     if ~constraints(i,3); coeffNames = [coeffNames, {f}]; end
                     
-                case 'Pseudo Voigt'
+                case 'Pseudo-Voigt'
                     if ~constraints(i,1); coeffNames = [coeffNames, {N}]; end
                     if ~constraints(i,2); coeffNames = [coeffNames, {xv}]; end
                     if ~constraints(i,3); coeffNames = [coeffNames, {f}]; end
@@ -212,27 +212,27 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
     methods(Static)
         function [P, S, U] = fitBkgd(data, bkgd2th, polyorder)
         % BACKGROUND FITTING
-        R = 1; %in points each direction for the background averaging, must be integer
-        for i=1:length(bkgd2th)
-            bkgd2thX(i)=PackageFitDiffractionData.Find2theta(data(1,:),bkgd2th(i));
-        end;
-        
-        for i=1:length(bkgd2th)
-            if bkgd2thX(i) <= 1
-                bkgd2thX(i) = 2;
-            elseif bkgd2thX(i) >= length(data)
-                bkgd2thX(i) = length(data) - 1;
-            end
-            bkgdInt(i)=mean(data(2,(bkgd2thX(i)-R:bkgd2thX(i)+R)));
-        end
+%         R = 1; %in points each direction for the background averaging, must be integer
+%         for i=1:length(bkgd2th)
+%             bkgd2thX(i)=PackageFitDiffractionData.Find2theta(data(1,:),bkgd2th(i));
+%         end;
+%         
+%         for i=1:length(bkgd2th)
+%             if bkgd2thX(i) <= 1
+%                 bkgd2thX(i) = 2;
+%             elseif bkgd2thX(i) >= length(data)
+%                 bkgd2thX(i) = length(data) - 1;
+%             end
+%             bkgdInt(i)=mean(data(2,(bkgd2thX(i)-R:bkgd2thX(i)+R)));
+%         end
         % Added by Klarissa to  get rid of centering and scaling warning
-        [P, S, U] = polyfit(bkgd2th,bkgdInt, polyorder);
+%         [P, S, U] = polyfit(bkgd2th,bkgdInt, polyorder);
+%         
+%         hold on
+%         %           plot(bkgd2th,bkgdInt,'ro','MarkerSize',6,'LineWidth',1.5, 'MarkerFaceColor','auto');
+%         hold off
         
-        hold on
-        %           plot(bkgd2th,bkgdInt,'ro','MarkerSize',6,'LineWidth',1.5, 'MarkerFaceColor','auto');
-        hold off
-        
-        end
+        end % this will be deleted, obselete, too simple, in future perhaps re-work to only call polyfit or spline once, then pull from it?
         
         
         function Exceptions(number)

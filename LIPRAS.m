@@ -93,29 +93,34 @@ numpoints = str2num(handles.edit_bkgdpoints.String);
 polyorder = str2num(handles.edit_polyorder.String);
 cp = handles.guidata.currentProfile;
 
-% [points, pos]=EditSelectBkgPoints(handles);
-% handles.points=points;
-% handles.pos=pos;
-% 
-% if isempty(handles.points) % incase of error or reset?
-%     [points, pos]=EditSelectBkgPoints(handles);
-% handles.points=points;
-% handles.pos=pos;
-% elseif exist(handles.points,'var')==0 % if its being called for the first time
-%     [points, pos]=EditSelectBkgPoints(handles);
-% handles.points=points;
-% handles.pos=pos;    
-% elseif handles.checkbox_add.Value==1
-%     [points, pos]=EditSelectBkgPoints(handles,points,pos,'Append');
-% handles.points=points;
-% handles.pos=pos;
-% elseif handles.checkbox_delete.Value==1
-%     [points, pos]=EditSelectBkgPoints(handles,points,pos,'Delete');
-% handles.points=points;
-% handles.pos=pos;
-% end
+try 
+    points=handles.points;
+    pos=handles.pos;
+end
 
-handles.xrd.resetBackground(numpoints,polyorder);
+if  exist('points','var')==0 % if its being called for the first time
+    [points, pos]=EditSelectBkgPoints(handles);
+handles.points=points;
+handles.pos=pos;
+elseif isempty(handles.points) % incase of all points deleted using delete or reset
+    [points, pos]=EditSelectBkgPoints(handles);
+handles.points=points;
+handles.pos=pos;    
+elseif handles.radiobutton14_add.Value==1 % activated the add feature
+    [points, pos]=EditSelectBkgPoints(handles,points,pos,'Append');
+handles.points=points;
+handles.pos=pos;
+elseif handles.radiobutton15_delete.Value==1 % activated the delete
+    [points, pos]=EditSelectBkgPoints(handles,points,pos,'Delete');
+handles.points=points;
+handles.pos=pos;
+end
+
+if and(handles.radiobutton15_delete.Value==0,handles.radiobutton14_add==0)
+else
+    handles.xrd.bkgd2th=points;
+end
+% handles.xrd.resetBackground(numpoints,polyorder);
 
 if handles.guidata.numPeaks(cp) == 0
     set(handles.panel_parameters.Children, 'visible', 'off');
@@ -575,5 +580,20 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
+function radiobutton14_add_Callback(hObject, eventdata, handles)
+set(handles.radiobutton14_add,'Value',1)
 
+if and(get(handles.radiobutton14_add,'Value')==0,get(handles.radiobutton15_delete,'Value')==0)
+set(handles.radiobutton14_add,'Value',1)
+elseif get(handles.radiobutton15_delete,'Value')==1
+    set(handles.radiobutton15_delete,'Value',0)
+end
 
+function radiobutton15_delete_Callback(hObject, eventdata, handles)
+set(handles.radiobutton15_delete,'Value',1)
+
+if and(get(handles.radiobutton14_add,'Value')==0,get(handles.radiobutton15_delete,'Value')==0)
+set(handles.radiobutton15_delete,'Value',1)
+elseif get(handles.radiobutton14_add,'Value')==1
+    set(handles.radiobutton14_add,'Value',0)
+end
