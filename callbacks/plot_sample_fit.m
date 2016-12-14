@@ -26,11 +26,22 @@ fitrange=str2double(get(handles.edit_fitrange,'string'));
 data = handles.xrd.getRangedData(filenum,fitrange);
 bkgd2th = handles.xrd.getBkgdPoints();
 
-% Get background fit
-[P, S, U] = polyfit(handles.xrd.bkgd2th,data(2,handles.pos)', handles.xrd.PolyOrder);
+% Should match that of plotX
+if handles.popup_bkgdmodel.Value==1
+[bkgArray, S, U]=handles.xrd.fitBkgd(data,handles.points{wprof}, data(2,handles.pos{wprof}), handles.xrd.PolyOrder,bkgModel);
 
-% Subtract background fit from raw data
-background=polyval(P,data(1,:),S,U);
+else
+    % A bit silly, bkgx and bkgy need the end points, otherwise, the final
+    % function wont evaluate the last points and it will lead to a value of
+    % zero...
+  bkgx=points';
+  bkgx=[data(1,1),bkgx,data(1,end)];
+  bkgy(1,:)=data(2,idx);
+  bkgy=[data(2,1),bkgy,data(2,end)];
+  order=2;
+yy=spapi(order,bkgx,bkgy);
+bkgdArray = fnval(yy,data(1,:));
+end
 
 % Use initial coefficient values to plot fit
 peakPos=handles.guidata.PeakPositions{cp};
@@ -38,7 +49,7 @@ peakNames=handles.guidata.PSfxn{cp};
 constraints=handles.guidata.constraints{cp};
 
 hold on
-datafit=plot(data(1,:),background,':',...
+datafit=plot(data(1,:),bkgArray,':',...
     'LineWidth',1,...
     'Color',[0.2 0.2 0.2],...
     'DisplayName','Background');
@@ -48,10 +59,10 @@ x2th=data(1,:);
 [peakArray, CuKaPeak] = calculatePeakResults(handles, x2th, SP);
 
 for i=1:handles.guidata.numPeaks
-    datafit(end+1)=plot(x2th,peakArray(i,:)+background,'--','LineWidth',1,...
+    datafit(end+1)=plot(x2th,peakArray(i,:)+bkgArray,'--','LineWidth',1,...
         'DisplayName',['Peak ', num2str(i),' (',peakNames{i},')']);
     if handles.xrd.CuKa
-        datafit(end+1)=plot(x2th,CuKaPeak(i,:)+background,':','LineWidth',2,...
+        datafit(end+1)=plot(x2th,CuKaPeak(i,:)+bkgArray,':','LineWidth',2,...
             'DisplayName',['Cu-K\alpha2 (Peak ', num2str(i), ')']);
     end
 end

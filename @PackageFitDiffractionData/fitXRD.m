@@ -1,24 +1,20 @@
 function fitXRD(Stro, data, position, filenum,handles,g)
 position=position(1);
 
+% Get Background
+wprof=handles.guidata.currentProfile;
+bkgModel=handles.popup_bkgdmodel.Value;
 if handles.popup_bkgdmodel.Value==1
-[P, S, U] = polyfit(handles.xrd.bkgd2th,data(2,handles.pos)', handles.xrd.PolyOrder);
-bkgdArray = polyval(P,data(1,:),S,U);
+[bkgArray, S, U]=handles.xrd.fitBkgd(data,handles.points{wprof}, data(2,handles.pos{wprof}), handles.xrd.PolyOrder,bkgModel);
 else
-  
-    
-  points=handles.points;
-  pos=handles.pos;
-  idx=pos;
-  bkgx=points';
-  bkgx=[data(1,1),bkgx,data(1,end)];
-  bkgy(1,:)=data(2,idx);
-  bkgy=[data(2,1),bkgy,data(2,end)];
+    % A bit silly, bkgx and bkgy need the end points, otherwise, the final
+    % function wont evaluate the last points and it will lead to a value of
+    % zero...
+  bkgx=handles.points{wprof}';
+  bkgy(1,:)=data(2,handles.pos{wprof});
   order=2;
-yy=spapi(order,bkgx,bkgy);
-bkgdArray = fnval(yy,data(1,:));
+[bkgArray]=handles.xrd.fitBkgd(data,bkgx, bkgy, handles.xrd.PolyOrder,bkgModel);
 end
-
 
 % FOR GUI, BACKGROUND
 hold on
@@ -26,14 +22,14 @@ hold on
 % handles.noplotfit.Value=0;
 if handles.noplotfit.Value == 1
 
-plot(data(1,:),bkgdArray,'k-') %to check okay
+plot(data(1,:),bkgArray,'k-') %to check okay
 end
 
 %END
 
 % Make new matrix with NB ("no background")
 dataNB = data;
-dataNB(2,:) = data(2,:) - bkgdArray;
+dataNB(2,:) = data(2,:) - bkgArray;
 % Stro.fit_results{i}
 %     column 1 = 2theta
 %     column 2 = raw data
@@ -91,7 +87,7 @@ fitdata{1} = dataNB(:,minr:maxr);
 
 fitteddata=data(:,minr:maxr);
 
-fitteddata(3,:)=bkgdArray(:,minr:maxr);
+fitteddata(3,:)=bkgArray(:,minr:maxr);
 
 coefficients{1}=coeffnames(g);
 
@@ -109,7 +105,7 @@ s = fitoptions('Method','NonlinearLeastSquares','StartPoint',SP,'Lower',LB,'Uppe
 fittedmodelCI{1} = confint(fittedmodel{1}, Stro.level);
 % store fitted data, aligned appropriately in the column
 fdata=data;
-fdata(3,:)=bkgdArray;
+fdata(3,:)=bkgArray;
 fdata(4,:)=fittedmodel{1}(data(1,:));
 fitteddata(1+3,minr:maxr)=fittedmodel{1}(fitdata{1}(1,:));
 fitteddata=fdata;
@@ -118,7 +114,7 @@ assignin('base','fitteddata',fitteddata)
 if handles.noplotfit.Value==1
     cla
 % FOR GUI, FIT
-plot(fitdata{1}(1,:),fittedmodel{1}(fitdata{1}(1,:))'+bkgdArray(minr:maxr),'-','Color',[0 .5 0],'LineWidth',1.5);
+plot(fitdata{1}(1,:),fittedmodel{1}(fitdata{1}(1,:))'+bkgArray(minr:maxr),'-','Color',[0 .5 0],'LineWidth',1.5);
 pause(0.05);
 %END
 
@@ -140,7 +136,7 @@ end
 
 %Save this matrix to save the fit cutoff fit, to plot later
 sfitdata(1,:)=fitdata{1}(1,:);
-sfitdata(2,:)=fittedmodel{1}(fitdata{1}(1,:))'+bkgdArray(minr:maxr);
+sfitdata(2,:)=fittedmodel{1}(fitdata{1}(1,:))'+bkgArray(minr:maxr);
 
 Stro.Fdata = fitteddata;
 Stro.Fcoeff = coefficients;

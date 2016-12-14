@@ -210,29 +210,34 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
     end
     
     methods(Static)
-        function [P, S, U] = fitBkgd(data, bkgd2th, polyorder)
-        % BACKGROUND FITTING
-%         R = 1; %in points each direction for the background averaging, must be integer
-%         for i=1:length(bkgd2th)
-%             bkgd2thX(i)=PackageFitDiffractionData.Find2theta(data(1,:),bkgd2th(i));
-%         end;
-%         
-%         for i=1:length(bkgd2th)
-%             if bkgd2thX(i) <= 1
-%                 bkgd2thX(i) = 2;
-%             elseif bkgd2thX(i) >= length(data)
-%                 bkgd2thX(i) = length(data) - 1;
-%             end
-%             bkgdInt(i)=mean(data(2,(bkgd2thX(i)-R:bkgd2thX(i)+R)));
-%         end
-        % Added by Klarissa to  get rid of centering and scaling warning
-%         [P, S, U] = polyfit(bkgd2th,bkgdInt, polyorder);
-%         
-%         hold on
-%         %           plot(bkgd2th,bkgdInt,'ro','MarkerSize',6,'LineWidth',1.5, 'MarkerFaceColor','auto');
-%         hold off
-        
-        end % this will be deleted, obselete, too simple, in future perhaps re-work to only call polyfit or spline once, then pull from it?
+        function varargout = fitBkgd(data,bkgd2th,bkgdint, polyorder,bkgModel)
+            
+  if bkgModel==1 %PolyModel
+[P, S, U] = polyfit(bkgd2th,bkgdint', polyorder);
+bkgdArray = polyval(P,data(1,:),S,U);
+  else % Spline BkgModel
+      
+  bkgx=bkgd2th;
+  bkgx=[data(1,1),bkgx,data(1,end)];
+  bkgy(1,:)=bkgdint;
+  bkgy=[data(2,1),bkgy,data(2,end)];
+  order=2;
+yy=spapi(order,bkgx,bkgy);
+bkgdArray = fnval(yy,data(1,:));
+
+  end
+     if nargout==1;
+  varargout{1}=bkgdArray;
+     elseif nargout==2
+  varargout{1}=bkgdArray;
+  varargout{2}=S;
+     elseif nargout==3;
+  varargout{1}=bkgdArray;
+  varargout{2}=S;
+  varargout{3}=U;
+     end
+
+        end 
         
         
         function Exceptions(number)
