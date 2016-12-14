@@ -51,30 +51,13 @@ function varargout = LIPRAS_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
-
-function edit_bkgdpoints_Callback(hObject, eventdata, handles)
-num = str2double(hObject.String);
-if isempty(num) || isnan(num) || ~isinteger(int8(num)) || num < 1 || num > 2500
-    handles.xrd.Status = ['<html><font color="red"><b>Warning: ' hObject.String ' is not a valid positive integer.'];
-    set(hObject, 'string', num2str(10));
-    return
-end
-
-num = int8(num);
-set(hObject, 'string', num2str(num), 'UserData', num);
-handles.xrd.Status=['Number of background points changed to ',get(hObject,'String'),'.'];
-guidata(hObject,handles)
-
-
 % Executes on button press in push_addprofile.
 function push_addprofile_Callback(hObject, eventdata, handles)
 handles = add_profile(handles);
 assignin('base','handles',handles)
 guidata(hObject, handles)
 
-
 function menu_clearfit_Callback(hObject, eventdata, handles)
-
 
 % Executes on button press in push_removeprofile.
 function push_removeprofile_Callback(hObject, eventdata, handles)
@@ -89,7 +72,6 @@ guidata(hObject, handles)
 
 % Executes on button press in push_newbkgd.
 function push_newbkgd_Callback(hObject, eventdata, handles)
-numpoints = str2num(handles.edit_bkgdpoints.String);
 polyorder = str2num(handles.edit_polyorder.String);
 cp = handles.guidata.currentProfile;
 
@@ -122,6 +104,9 @@ else
     handles.xrd.bkgd2th=points; % this is here to activate the FitBackground button
 end
 % handles.xrd.resetBackground(numpoints,polyorder);
+end
+% Lets assign 2th points to bkgd2th in each xrdContainer
+handles.xrdContainer(1,wprof).bkgd2th=handles.points{wprof};
 
 if handles.guidata.numPeaks(cp) == 0
     set(handles.panel_parameters.Children, 'visible', 'off');
@@ -139,10 +124,9 @@ else
     set(handles.tab1_next, 'visible', 'off');
 end
 
-end
 
-% Lets assign 2th points to bkgd2th in each xrdContainer
-handles.xrdContainer(1,wprof).bkgd2th=handles.points{wprof};
+
+
 plotX(handles);
 guidata(hObject, handles)
 
