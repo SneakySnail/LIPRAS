@@ -60,10 +60,7 @@ classdef GetCoeffTest < matlab.unittest.TestCase
 %         function testDoubleFcnNoConstraints(testCase, numFcn)
 %         constraints = zeros(1,5); % test without constraints
 %         expectedResult = {};
-        
-        
-        
-        end
+%         end
         
     end
     
