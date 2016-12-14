@@ -79,7 +79,7 @@ ui.adapter.state.fitReady(handles);
             case 'Fxn:'
                 j = 1; i =2;
                 while i<=length(a)
-                    if strcmpi(a{i}, 'Pearson') || strcmpi(a{i}, 'Psuedo')
+                    if strcmpi(a{i}, 'Pearson') || strcmpi(a{i}, 'Pseudo')
                         param.fxn{j} = [a{i}, ' ', a{i+1}];
                         i = i+2;
                     elseif strcmpi(a{i}, 'Asymmetric') && strcmpi(a{i+1}, 'Pearson')

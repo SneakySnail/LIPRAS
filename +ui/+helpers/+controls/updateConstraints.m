@@ -26,7 +26,6 @@ peakHasFunc = ~cellfun(@isempty, fcnNames);
 catch ex
    error(ex.Message)
    
-   
 end
 
 % Enable constraints N, x, and f if there is more than 1 fcn

@@ -1,4 +1,6 @@
+
 function plotX(handles, type)
+
 set(findobj(handles.axes2), 'visible', 'off');
 cla(handles.axes1)
 cla(handles.axes2)
