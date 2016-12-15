@@ -1,5 +1,5 @@
 function handles = add_profile(handles)
-
+import model.state.*
 profileNum = handles.guidata.numProfiles+1;
 handles.guidata.numProfiles = profileNum;
 handles.profiles(7).UserData = profileNum;

@@ -26,6 +26,7 @@ classdef CurrentFitParameters_g
         BackgroundModel
         PolyOrder
         BackgroundPoints
+        BackgroundPointsIdx
         PeakPositions
         FcnNames
         Constraints
@@ -40,6 +41,7 @@ classdef CurrentFitParameters_g
         BackgroundModel_
         PolyOrder_
         BackgroundPoints_
+        BackgroundPointsIdx_
         PeakPositions_
         FcnNames_
         Constraints_
@@ -87,13 +89,16 @@ classdef CurrentFitParameters_g
         
         % Selected 2theta points to use for the background fit.
         function value = get.BackgroundPoints(obj)
-        xrd = obj.hg.xrd;
-        value = xrd.bkgd2th;
+        value = obj.BackgroundPoints_;
+        end
+        
+        function value = get.BackgroundPointsIdx(obj)
+        value = obj.BackgroundPointsIdx_;
         end
         
         % Selected 2theta points to use for the initial peak positions.
         function value = get.PeakPositions(obj)
-        value = obj.hg.guidata.PeakPositions{obj.id}; %TODO replace guidata
+        value = obj.PeakPositions_; %TODO replace guidata
         end
         
         % Cell array of the fit function names.
@@ -111,7 +116,7 @@ classdef CurrentFitParameters_g
         %   columns - N, x, f, w, m
         %   rows    - Peak number
         function value = get.Constraints(obj)
-        value = obj.hg.guidata.constraints{obj.id};
+        value = obj.Constraints_;
         
         end
         
@@ -167,6 +172,12 @@ classdef CurrentFitParameters_g
         
         function obj = set.BackgroundPoints(obj, value)
         obj.BackgroundPoints_ = value;
+        obj.hg.xrd.bkgd2th = value;
+        % Note - No uicontrol to update
+        end
+        
+        function obj = set.BackgroundPointsIdx(obj, value)
+        obj.BackgroundPointsIdx_ = value;
         % Note - No uicontrol to update
         end
         
