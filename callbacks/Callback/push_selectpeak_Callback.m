@@ -2,7 +2,7 @@
 function push_selectpeak_Callback(hObject,~,handles)
 handles.xrd.Status='Selecting peak position(s)... ';
 
-plotData(handles, handles.popup_filename.Value);
+plotX(handles, 'data');
 
 oldTableData = handles.table_fitinitial.Data;
 cp = handles.guidata.currentProfile;

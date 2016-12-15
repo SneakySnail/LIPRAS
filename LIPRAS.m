@@ -217,7 +217,7 @@ handles.table_fitinitial.Data = cell(len,3);
 set(hObject.Parent.Children,'Enable','off');
 set(handles.push_selectpeak,'Enable','on', 'string', 'Select Peak(s)');
 set(handles.table_fitinitial,'Enable','on');
-plotData(handles, get(handles.popup_filename,'Value'));
+plotX(handles, 'Data');
 
 % 	if strcmpi(handles.uitoggletool5.State,'on')
 % 		legend(handles.xrd.DisplayName,'box','off')
@@ -264,7 +264,7 @@ cla
 % If box is checked, turn on hold in axes1
 if get(hObject,'Value')
     handles.xrd.DisplayName = {};
-    plotData(handles, filenum,'superimpose');
+    plotX(handles, 'Data');
     set(handles.axes2,'Visible','off');
     set(handles.popup_filename, 'enable', 'on');
     set(handles.listbox_files, 'enable', 'on');
@@ -302,7 +302,7 @@ if get(handles.checkbox_superimpose,'Value')==1
             return
         end
     end
-    plotData(handles, filenum,'superimpose');
+    plotX(handles, 'Data');
 else
     cla
     hold off
