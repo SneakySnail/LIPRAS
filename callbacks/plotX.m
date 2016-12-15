@@ -1,11 +1,10 @@
 % ------------------------------------------------------
-%
-% ------------------------------------------------------
+
+% 
 function plotX(handles, type)
 
 set(findobj(handles.axes2), 'visible', 'off');
-cla(handles.axes1)
-cla(handles.axes2)
+
 
 filenum=handles.popup_filename.Value;
 cp = handles.guidata.currentProfile;
@@ -50,8 +49,8 @@ title(handles.axes1, [handles.xrd.Filename{filenum} ' (' num2str(filenum) ' of '
 LIPRAS('uitoggletool5_OnCallback', handles.uitoggletool5, [], handles);
 
 % ------------------------------------------------------
-%
-% ------------------------------------------------------
+
+% 
 function plotFit(handles)
 resizeAxes1ForErrorPlot(handles, 'fit');
 cla(handles.axes1)
@@ -112,9 +111,11 @@ xlim([Stro.Min2T Stro.Max2T])
 ylim([0.9*min([data.YData]), 1.1*max([data.YData])]);
 
 % ------------------------------------------------------
-% Plot an example fit using the starting values from table
-% ------------------------------------------------------
+
+% Plot an example fit using the starting values from table.
 function handles = plot_sample_fit(handles)
+cla(handles.axes1)
+
 resizeAxes1ForErrorPlot(handles, 'data');
 cp = handles.guidata.currentProfile;
 
@@ -184,7 +185,6 @@ handles.xrd.DisplayName=[handles.xrd.DisplayName, dispname];
 
 % ------------------------------------------------------
 % Calculates the result of the fit and returns an array.
-% ------------------------------------------------------
 function [peakArray, CuKaPeak] = calculatePeakResults(handles, x2th, coeff, coeffvals, fcns, constraints)
 coeffIndex=1;
 
@@ -300,6 +300,7 @@ end
 function plotData(handles)
 Stro = handles.xrd;
 dataSet = handles.popup_filename.Value;
+cla(handles.axes1)
 
 x = Stro.two_theta;
 c=find(Stro.Min2T <= Stro.two_theta & Stro.Max2T >= Stro.two_theta);
@@ -321,15 +322,24 @@ Stro.DisplayName=Stro.Filename(dataSet);
 ylim([0.9*ymin,1.1*ymax])
 xlim([Stro.Min2T, Stro.Max2T])
 
+
 % ------------------------------------------------------
 % Like plotData, except turns on hold to enable multiple
 %    data to be plotted.
-% ------------------------------------------------------
 function plotSuperimposed(handles)
+
 Stro = handles.xrd;
+
 dataSet = handles.popup_filename.Value;
 
+x = Stro.two_theta;
+
+c = find(Stro.Min2T <= Stro.two_theta & Stro.Max2T >= Stro.two_theta);
+
+intensity = Stro.data_fit(dataSet, :);
+
 hold on
+
 ind=find(strcmp(Stro.DisplayName,Stro.Filename(dataSet)));
 
 if isempty(ind)

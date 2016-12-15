@@ -36,7 +36,6 @@ set(handles.panel_results, 'parent', handles.profiles(7));
     end
 
     function addControlListeners()
-        addlistener(handles.edit_numpeaks, 'UserData', 'PostSet', @(o,e)guidata.numpeaks(o,e,guidata(e.AffectedObject)));
         addlistener(handles.xrdContainer(7), 'Status', ...
             'PostSet', @(o,e)statusChange(o,e,handles,7));
         % This listener will resize axes1 when axes2 becomes visible

@@ -264,7 +264,7 @@ cla
 % If box is checked, turn on hold in axes1
 if get(hObject,'Value')
     handles.xrd.DisplayName = {};
-    plotX(handles, 'Data');
+    plotX(handles, 'superimpose');
     set(handles.axes2,'Visible','off');
     set(handles.popup_filename, 'enable', 'on');
     set(handles.listbox_files, 'enable', 'on');
@@ -302,7 +302,7 @@ if get(handles.checkbox_superimpose,'Value')==1
             return
         end
     end
-    plotX(handles, 'Data');
+    plotX(handles, 'superimpose');
 else
     cla
     hold off
