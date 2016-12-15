@@ -5,7 +5,7 @@ handles.xrd.Status='Selecting peak position(s)... ';
 plotX(handles, 'data');
 
 oldTableData = handles.table_fitinitial.Data;
-cp = handles.guidata.currentProfile;
+cp = handles.guidata.curentProfile;
 fcns = handles.guidata.PSfxn{cp};
 constraints = handles.guidata.constraints{cp};
 

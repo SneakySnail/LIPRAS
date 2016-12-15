@@ -199,7 +199,7 @@ guidata(hObject, handles)
 
 % Executes on button press in push_viewall.
 function push_viewall_Callback(hObject, eventdata, handles)
-plotFit(handles, 'all');
+plotX(handles, 'allfits');
 
 % Executes on button press in push_default.
 function push_default_Callback(hObject, eventdata, handles)

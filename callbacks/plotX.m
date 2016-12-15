@@ -1,4 +1,4 @@
-%  
+%
 function plotX(handles, type)
 
 set(findobj(handles.axes2), 'visible', 'off');
@@ -20,46 +20,45 @@ else
         case 'data'
             plotData(handles);
             handles = plot_sample_fit(handles);
+            resizeAxes1ForErrorPlot(handles, 'data');
             
         case 'superimpose'
             plotSuperimposed(handles);
+            resizeAxes1ForErrorPlot(handles, 'data');
             
         case 'fit'
             cla(handles.axes1)
             plotFit(handles);
             plotFitError(handles);
+            resizeAxes1ForErrorPlot(handles, 'fit');
             
         case 'sample'
             plotData(handles);
             handles = plot_sample_fit(handles);
+            resizeAxes1ForErrorPlot(handles, 'data');
             
         case 'allfits'
             plotAllFits(handles);
             
         case 'error'
             plotFitError(handles);
+            resizeAxes1ForErrorPlot(handles, 'fit');
+            
+        case 'coeff' %TODO 
+            
+            
+        case 'stats' %TODO
+            
             
         otherwise
-            plotX(handles);
+            
     end
 end
 
-filenum=handles.popup_filename.Value;
-
-xlabel('2\theta','FontSize',11);
-ylabel('Intensity','FontSize',11);
-set(handles.axes1, 'XTickMode', 'auto', 'XTickLabelMode', 'auto')
-title(handles.axes1, [handles.xrd.Filename{filenum} ' (' num2str(filenum) ' of ' ...
-    num2str(length(handles.xrd.Filename)) ')']);
-
-LIPRAS('uitoggletool5_OnCallback', handles.uitoggletool5, [], handles);
-
-xlim(gca, [handles.xrd.Min2T handles.xrd.Max2T])
+% ==============================================================================
 
 
-% ------------------------------------------------------
-
-% 
+%
 function plotFit(handles, ifile)
 Stro = handles.xrd;
 cp = handles.guidata.currentProfile;
@@ -108,7 +107,7 @@ co=[0.25 0.25 0.25; ...
     .4660 0.6740 0.1880; ...
     0.6350 0.0780 0.1840; ...
     0.75 0.75 0; ...
-    0.75 0 0.75]; 
+    0.75 0 0.75];
 % From https://www.mathworks.com/help/matlab/graphics_transition/why-are-plot-lines-different-colors.html
 
 for jj=1:size(Stro.PSfxn,2)
@@ -128,11 +127,21 @@ for jj=1:size(Stro.PSfxn,2)
 end
 
 Stro.DisplayName = {data.DisplayName};
+filenum=handles.popup_filename.Value;
 
+xlabel(gca, '2\theta','FontSize',11);
+ylabel(gca, 'Intensity','FontSize',11);
+
+set(gca, 'XTickMode', 'auto', 'XTickLabelMode', 'auto');
+
+title(gca, [handles.xrd.Filename{filenum} ' (' num2str(filenum) ' of ' ...
+    num2str(length(handles.xrd.Filename)) ')']);
+
+xlim(gca, [handles.xrd.Min2T handles.xrd.Max2T]);
 ylim([0.9*min([data.YData]), 1.1*max([data.YData])]);
+% ==============================================================================
 
-% ------------------------------------------------------
-% 
+%
 function plotFitError(handles, ifile)
 if nargin <= 1
     ifile = handles.popup_filename.Value;
@@ -150,16 +159,13 @@ for i=1:length(Stro.PSfxn(:,1))
 end
 
 err = plot(handles.axes2, x2th, intensity - (fittedPattern), 'r','LineWidth',.50); % Error
-resizeAxes1ForErrorPlot(handles, 'fit');
+xlim(gca, [handles.xrd.Min2T handles.xrd.Max2T])
+% ==============================================================================
 
 
-
-
-% ------------------------------------------------------
 
 % Plot an example fit using the starting values from table.
 function handles = plot_sample_fit(handles)
-resizeAxes1ForErrorPlot(handles, 'data');
 cp = handles.guidata.currentProfile;
 
 % Make sure all the cells with starting values are not empty
@@ -224,9 +230,19 @@ end
 
 dispname={datafit.DisplayName};
 handles.xrd.DisplayName=[handles.xrd.DisplayName, dispname];
+xlim(gca, [handles.xrd.Min2T handles.xrd.Max2T])
 
+filenum=handles.popup_filename.Value;
 
-% ------------------------------------------------------
+xlabel('2\theta','FontSize',11);
+ylabel('Intensity','FontSize',11);
+
+set(handles.axes1, 'XTickMode', 'auto', 'XTickLabelMode', 'auto');
+
+title(handles.axes1, [handles.xrd.Filename{filenum} ' (' num2str(filenum) ' of ' ...
+    num2str(length(handles.xrd.Filename)) ')']);
+% ==============================================================================
+
 % Calculates the result of the fit and returns an array.
 function [peakArray, CuKaPeak] = calculatePeakResults(handles, x2th, coeff, coeffvals, fcns, constraints)
 coeffIndex=1;
@@ -306,9 +322,11 @@ for i=1:handles.guidata.numPeaks
     xvk=PackageFitDiffractionData.Ka2fromKa1(xv);
     switch fcns{i}
         case 'Gaussian'
-            peakArray(i,:) = N.*((2.*sqrt(log(2)))./(sqrt(pi).*f).*exp(-4.*log(2).*((x2th-xv).^2./f.^2)));
+            peakArray(i,:) = N.*((2.*sqrt(log(2)))./(sqrt(pi).*f).*exp(-4.*log(2).* ...
+                ((x2th-xv).^2./f.^2)));
             if handles.xrd.CuKa
-                CuKaPeak(i,:)=(1/1.9)*N.*((2.*sqrt(log(2)))./(sqrt(pi).*f).*exp(-4.*log(2).*((x2th-xvk).^2./f.^2)));
+                CuKaPeak(i,:)=(1/1.9)*N.*((2.*sqrt(log(2)))./(sqrt(pi).*f).*exp(-4.* ...
+                    log(2).*((x2th-xvk).^2./f.^2)));
             end
         case 'Lorentzian'
             peakArray(i,:) = N.*1./pi* (0.5.*f./((x2th-xv).^2+(0.5.*f).^2));
@@ -316,30 +334,41 @@ for i=1:handles.guidata.numPeaks
                 CuKaPeak(i,:) = (1/1.9)*N.*1./pi* (0.5.*f./((x2th-xvk).^2+(0.5.*f).^2));
             end
         case 'Pearson VII'
-            peakArray(i,:) = N.*2.* ((2.^(1/m)-1).^0.5) / f / (pi.^0.5) .* gamma(m) / gamma(m-0.5) .* (1+4.*(2.^(1/m)-1).*((x2th-xv).^2)/f.^2).^(-m);
+            peakArray(i,:) = N.*2.* ((2.^(1/m)-1).^0.5) / f / (pi.^0.5) .* gamma(m) / ...
+                gamma(m-0.5) .* (1+4.*(2.^(1/m)-1).*((x2th-xv).^2)/f.^2).^(-m);
             if handles.xrd.CuKa
-                CuKaPeak(i,:)=(1/1.9)*N.*2.* ((2.^(1/m)-1).^0.5) / f / (pi.^0.5) .* gamma(m) / gamma(m-0.5) .* (1+4.*(2.^(1/m)-1).*((x2th-xvk).^2)/f.^2).^(-m);
+                CuKaPeak(i,:)=(1/1.9)*N.*2.* ((2.^(1/m)-1).^0.5) / f / (pi.^0.5) .* ...
+                    gamma(m) / gamma(m-0.5) .* (1+4.*(2.^(1/m)-1).*((x2th-xvk).^2)/f.^2).^(-m);
             end
         case 'Pseudo-Voigt'
-            peakArray(i,:) = N.*((w.*(2./pi).*(1./f).*1./(1+(4.*(x2th-xv).^2./f.^2))) + ((1-w).*(2.*sqrt(log(2))./(sqrt(pi))).*1./f.*exp(-log(2).*4.*(x2th-xv).^2./f.^2)));
+            peakArray(i,:) = N.*((w.*(2./pi).*(1./f).*1./(1+(4.*(x2th-xv).^2./f.^2))) + ...
+                ((1-w).*(2.*sqrt(log(2))./(sqrt(pi))).*1./f.*exp(-log(2).*4.*(x2th-xv).^2./f.^2)));
             if handles.xrd.CuKa
-                CuKaPeak(i,:)=(1/1.9)*N.*((w.*(2./pi).*(1./f).*1./(1+(4.*(x2th-xvk).^2./f.^2))) + ((1-w).*(2.*sqrt(log(2))./(sqrt(pi))).*1./f.*exp(-log(2).*4.*(x2th-xvk).^2./f.^2)));
+                CuKaPeak(i,:)=(1/1.9)*N.*((w.*(2./pi).*(1./f).*1./(1+(4.*(x2th-xvk).^2./f.^2))) + ...
+                    ((1-w).*(2.*sqrt(log(2))./(sqrt(pi))).*1./f.*exp(-log(2).*4.*(x2th-xvk).^2./f.^2)));
             end
         case 'Asymmetric Pearson VII'
-            peakArray(i,:) = PackageFitDiffractionData.AsymmCutoff(xv,1,x2th)'.*NL*PackageFitDiffractionData.C4(mL)./f.*(1+4.*(2.^(1/mL)-1).*(x2th-xv).^2/f.^2).^(-mL) + ...
-                PackageFitDiffractionData.AsymmCutoff(xv,2,x2th)'.*NR.*PackageFitDiffractionData.C4(mR)/(f.*NR/NL.*PackageFitDiffractionData.C4(mR)/PackageFitDiffractionData.C4(mL)).*(1+4.*(2.^(1/mR)-1).*(x2th-xv).^2/(f.*NR/NL.*PackageFitDiffractionData.C4(mR)/PackageFitDiffractionData.C4(mL)).^2).^(-mR);
+            peakArray(i,:) = PackageFitDiffractionData.AsymmCutoff(xv,1,x2th)'.* ...
+                NL*PackageFitDiffractionData.C4(mL)./f.*(1+4.*(2.^(1/mL)-1).*(x2th-xv).^2/f.^2).^(-mL) + ...
+                PackageFitDiffractionData.AsymmCutoff(xv,2,x2th)'.*NR.*PackageFitDiffractionData.C4(mR)/ ...
+                (f.*NR/NL.*PackageFitDiffractionData.C4(mR)/PackageFitDiffractionData.C4(mL)).* ...
+                (1+4.*(2.^(1/mR)-1).*(x2th-xv).^2/(f.*NR/NL.*PackageFitDiffractionData.C4(mR)/PackageFitDiffractionData.C4(mL)).^2).^(-mR);
             
             if handles.xrd.CuKa
-                CuKaPeak(i,:)=PackageFitDiffractionData.AsymmCutoff(xvk,1,x2th)'.*(1/1.9)*NL*PackageFitDiffractionData.C4(mL)./f.*(1+4.*(2.^(1/mL)-1).*(x2th-xvk).^2/f.^2).^(-mL) + ...
-                    PackageFitDiffractionData.AsymmCutoff(xvk,2,x2th)'.*(1/1.9)*NR.*PackageFitDiffractionData.C4(mR)/(f.*NR/NL.*PackageFitDiffractionData.C4(mR)/PackageFitDiffractionData.C4(mL)).*(1+4.*(2.^(1/mR)-1).*(x2th-xvk).^2/(f.*NR/NL.*PackageFitDiffractionData.C4(mR)/PackageFitDiffractionData.C4(mL)).^2).^(-mR);
+                CuKaPeak(i,:)=PackageFitDiffractionData.AsymmCutoff(xvk,1,x2th)'.*(1/1.9)*NL* ...
+                    PackageFitDiffractionData.C4(mL)./f.*(1+4.*(2.^(1/mL)-1).*(x2th-xvk).^2/f.^2).^(-mL) + ...
+                    PackageFitDiffractionData.AsymmCutoff(xvk,2,x2th)'.*(1/1.9)*NR.* ...
+                    PackageFitDiffractionData.C4(mR)/(f.*NR/NL.*PackageFitDiffractionData.C4(mR)/ ...
+                    PackageFitDiffractionData.C4(mL)).*(1+4.*(2.^(1/mR)-1).*(x2th-xvk).^2/(f.*NR/NL.* ...
+                    PackageFitDiffractionData.C4(mR)/PackageFitDiffractionData.C4(mL)).^2).^(-mR);
             end
     end
     
 end
 
-% ------------------------------------------------------
+% ==============================================================================
+
 % Plots the raw data for a specified file number in axes1.
-% ------------------------------------------------------
 function plotData(handles)
 Stro = handles.xrd;
 dataSet = handles.popup_filename.Value;
@@ -363,10 +392,19 @@ end
 Stro.DisplayName=Stro.Filename(dataSet);
 
 ylim([0.9*ymin,1.1*ymax])
-xlim([Stro.Min2T, Stro.Max2T])
+xlim(gca, [Stro.Min2T, Stro.Max2T])
 
+filenum=handles.popup_filename.Value;
 
-% ------------------------------------------------------
+xlabel('2\theta','FontSize',11);
+ylabel('Intensity','FontSize',11);
+
+set(handles.axes1, 'XTickMode', 'auto', 'XTickLabelMode', 'auto');
+
+title(handles.axes1, [handles.xrd.Filename{filenum} ' (' num2str(filenum) ' of ' ...
+    num2str(length(handles.xrd.Filename)) ')']);
+% ==============================================================================
+
 % Like plotData, except turns on hold to enable multiple
 %    data to be plotted in handles.axes1.
 function plotSuperimposed(handles)
@@ -418,22 +456,21 @@ cArray=find(~cArray,1);
 try
     set(gca,'ColorOrderIndex',cArray);
 catch  % If all colors are used
-    cArray
+    
 end
 
-% Get the maximum value of each line
+filenum=handles.popup_filename.Value;
 
-minX=PackageFitDiffractionData.Find2theta(lines(1).XData,Stro.Min2T);
-maxX=PackageFitDiffractionData.Find2theta(lines(1).XData,Stro.Max2T);
-y=[];
+xlabel('2\theta','FontSize',11);
+ylabel('Intensity','FontSize',11);
 
-for i=1:length(lines)
-    y=[y,lines(i).YData(minX:maxX)];
-end
-ymin=min(y);
-ymax=max(y);
+set(handles.axes1, 'XTickMode', 'auto', 'XTickLabelMode', 'auto');
 
-% --------------------------------------------------------
+title(handles.axes1, [handles.xrd.Filename{filenum} ' (' num2str(filenum) ' of ' ...
+    num2str(length(handles.xrd.Filename)) ')']);
+% ==============================================================================
+
+
 % Makes a new figure and plots each fit for the entire dataset.
 function plotAllFits(handles)
 Stro = handles.xrd;
@@ -446,6 +483,137 @@ for j=1:numFiles
     hold on
     
     plotFit(handles, j);
+    xlabel('2\theta','FontSize',11);
+    ylabel('Intensity','FontSize',11);
+    
+    title(gca, [handles.xrd.Filename{j} ' (' num2str(j) ' of ' ...
+        num2str(length(handles.xrd.Filename)) ')']);
 end
 
 linkaxes(ax,'xy');
+xlim(gca, [handles.xrd.Min2T handles.xrd.Max2T])
+% ==============================================================================
+
+
+function plotCoefficient(handles, r)
+% r = row number
+hTable = handles.table_results;
+
+vals = [hTable.Data{r, 2:end}];
+numfiles = length(vals);
+filenames = handles.xrd.Filename;
+
+
+axes(handles.axes1)
+cla
+plot(1:numfiles, vals, '-d', ...
+    'MarkerSize', 8, ...
+    'MarkerFaceColor', [0 0 0], ...
+    'DisplayName', hTable.RowName{r})
+xlim([1 numfiles])
+
+set(handles.axes1, ...
+    'XTick', 1:numfiles, ...
+    'XTickLabel', 1:numfiles, ...
+    'YLimMode', 'auto');
+handles.axes1.XLabel.String = 'File Number';
+
+if strcmpi(handles.uitoggletool5.State,'on')
+    legend(hTable.RowName{r})
+end
+
+xlim(gca, [handles.xrd.Min2T handles.xrd.Max2T])
+
+% ==============================================================================
+
+% plots the statistics of all the fits, when 'Fit Statistics' is selected
+function plotFitStats(handles, r)
+
+hTable = handles.table_results;
+
+vals = [hTable.Data{r, 2:end}];
+numfiles = length(vals);
+filenames = handles.xrd.Filename;
+assert(numfiles == length(filenames));
+
+for p=1:length(vals)
+    rsquared(p)=handles.xrd.FmodelGOF{p}.rsquare;
+    adjrsquared(p)=handles.xrd.FmodelGOF{p}.adjrsquare;
+    rmse(p)=handles.xrd.FmodelGOF{p}.rmse;
+    obs=handles.xrd.fit_results{1,p}(2,:)';
+    calc=handles.xrd.fit_results{1,p}(3,:)'+handles.xrd.fit_results{1,p}(4,:)';
+    Rp(p)=(sum(abs(obs-calc))./(sum(obs)))*100; %calculates Rp
+    w=(1./obs); %defines the weighing parameter for Rwp
+    Rwp(p)=(sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
+    DOF=handles.xrd.FmodelGOF{p}.dfe; % degrees of freedom from error
+    Rexp(p)=sqrt(DOF/sum(w.*obs.^2)); % Rexpected
+    Rchi2(p)=(Rwp/Rexp)/100; % reduced chi-squared, GOF
+    
+end
+axes(handles.axes1)
+
+if strcmp(s,'Rsquare')
+    close(figure(5))
+    figure(5)
+    hold on
+    for j=1:6
+        ax(j)=subplot(2,3,j);
+    end
+    plot(ax(1),1:numfiles, rsquared, '-ob', ...
+        'MarkerSize', 8, ...
+        'MarkerFaceColor', [0 0 0], ...
+        'DisplayName', 'R^2')
+    ylabel(ax(1),'R^2','FontSize',14)
+    xlabel(ax(1),'File Number')
+    plot(ax(2),1:numfiles, adjrsquared, '-or', ...
+        'MarkerSize', 8, ...
+        'MarkerFaceColor', [0 0 0], ...
+        'DisplayName', 'AdjR^2')
+    
+    ylabel(ax(2),'Adjusted R^2','FontSize',14)
+    xlabel(ax(2),'File Number')
+    plot(ax(3),1:numfiles, rmse, '-og', ...
+        'MarkerSize', 8, ...
+        'MarkerFaceColor', [0 0 0], ...
+        'DisplayName', 'RMSE')
+    
+    ylabel(ax(3),'Root MSE','FontSize',14)
+    xlabel(ax(3),'File Number')
+    
+    plot(ax(4),1:numfiles, Rp, '-o','Color',[0.85 0.33 0], ...
+        'MarkerSize', 8, ...
+        'MarkerFaceColor', [0 0 0], ...
+        'DisplayName', 'Rp')
+    
+    ylabel(ax(4),'Rp','FontSize',14)
+    xlabel(ax(4),'File Number')
+    
+    plot(ax(5),1:numfiles, Rwp, '-om', ...
+        'MarkerSize', 8, ...
+        'MarkerFaceColor', [0 0 0], ...
+        'DisplayName', 'RMSE')
+    
+    ylabel(ax(5),'Rwp','FontSize',14)
+    xlabel(ax(5),'File Number')
+    
+    plot(ax(6),1:numfiles, Rchi2, '-o', ...
+        'MarkerSize', 8, ...
+        'MarkerFaceColor', [0 0 0], ...
+        'DisplayName', 'Reduced \chi^2')
+    
+    ylabel(ax(6),'Reduced \chi^2','FontSize',14)
+    xlabel(ax(6),'File Number')
+    
+end
+set(handles.axes1, ...
+    'XTick', 1:numfiles, ...
+    'XTickLabel', 1:numfiles, ...
+    'YLimMode', 'auto');
+handles.axes1.XLabel.String = 'File Number';
+linkaxes([ax(1),ax(2),ax(3),ax(4),ax(5),ax(6)], 'x')
+
+
+xlim([1 numfiles])
+% ==============================================================================
+
+
