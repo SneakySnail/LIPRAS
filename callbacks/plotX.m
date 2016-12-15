@@ -3,8 +3,6 @@ function plotX(handles, type)
 
 set(findobj(handles.axes2), 'visible', 'off');
 
-
-filenum=handles.popup_filename.Value;
 cp = handles.guidata.currentProfile;
 
 if nargin <= 1
@@ -27,16 +25,26 @@ else
             plotSuperimposed(handles);
             
         case 'fit'
+            cla(handles.axes1)
             plotFit(handles);
+            plotFitError(handles);
             
         case 'sample'
             plotData(handles);
             handles = plot_sample_fit(handles);
             
+        case 'allfits'
+            plotAllFits(handles);
+            
+        case 'error'
+            plotFitError(handles);
+            
         otherwise
             plotX(handles);
     end
 end
+
+filenum=handles.popup_filename.Value;
 
 xlabel('2\theta','FontSize',11);
 ylabel('Intensity','FontSize',11);
@@ -46,16 +54,19 @@ title(handles.axes1, [handles.xrd.Filename{filenum} ' (' num2str(filenum) ' of '
 
 LIPRAS('uitoggletool5_OnCallback', handles.uitoggletool5, [], handles);
 
+xlim(gca, [handles.xrd.Min2T handles.xrd.Max2T])
+
+
 % ------------------------------------------------------
 
 % 
-function plotFit(handles)
-resizeAxes1ForErrorPlot(handles, 'fit');
-cla(handles.axes1)
-
+function plotFit(handles, ifile)
 Stro = handles.xrd;
 cp = handles.guidata.currentProfile;
-ifile = handles.popup_filename.Value;
+
+if nargin <= 1
+    ifile = handles.popup_filename.Value;
+end
 
 fcns = handles.guidata.PSfxn{cp};
 constraints = handles.guidata.constraints{cp};
@@ -63,7 +74,7 @@ coeff = handles.guidata.coeff{cp};
 coeffvals = handles.xrd.fit_parms{ifile};
 
 
-cla(handles.axes1)
+cla
 x2th = Stro.fit_results{ifile}(1,:);
 intensity = Stro.fit_results{ifile}(2,:)';
 background = Stro.fit_results{ifile}(3,:)';
@@ -80,40 +91,74 @@ data(1) = plot(x2th,intensity,'o', ...
     'LineWidth',1, ...
     'MarkerSize',4, ...
     'DisplayName','Raw Data', ...
-    'MarkerFaceColor', [.08 .17 .55],'MarkerEdgeColor',[.08 .17 .55]); % Raw Data
+    'MarkerFaceColor', [.08 .17 .55],...
+    'MarkerEdgeColor',[.08 .17 .55]); % Raw Data
 data(2) = plot(x2th,background, '--', ...
     'DisplayName', 'Background'); % Background
 data(3) = plot(x2th,fittedPattern,'k', ...
     'LineWidth',1.5, ...
-    'DisplayName','Overall Fit','Color',[0 .5 0]); % Overall Fit
+    'DisplayName','Overall Fit',...
+    'Color',[0 .5 0]); % Overall Fit
 
-co=[0.25 0.25 0.25;1 0 0; 0 0 1;0.4940 .1840 0.5560;.4660 0.6740 0.1880;0.6350 0.0780 0.1840; 0.75 0.75 0; 0.75 0 0.75]; % Color Order for plotting peaks underneath overall fit
+% Color Order for plotting peaks underneath overall fit
+co=[0.25 0.25 0.25; ...
+    1 0 0; ...
+    0 0 1; ...
+    0.4940 .1840 0.5560; ...
+    .4660 0.6740 0.1880; ...
+    0.6350 0.0780 0.1840; ...
+    0.75 0.75 0; ...
+    0.75 0 0.75]; 
 % From https://www.mathworks.com/help/matlab/graphics_transition/why-are-plot-lines-different-colors.html
 
 for jj=1:size(Stro.PSfxn,2)
     if Stro.CuKa
-        data(3+2*jj-1) = plot(x2th',peakfit(jj,:)+background','LineWidth',1,'DisplayName',['Cu-K\alpha1 (',num2str(jj),')']);
-        data(3+2*jj)=plot(x2th',CuKaPeak(jj,:)+background','LineWidth',1,'DisplayName',['Cu-K\alpha2 (',num2str(jj),')']);
+        data(3+2*jj-1) = plot(x2th',peakfit(jj,:)+background',...
+            'LineWidth',1, ...
+            'DisplayName',['Cu-K\alpha1 (',num2str(jj),')']);
+        data(3+2*jj)=plot(x2th',CuKaPeak(jj,:)+background', ...
+            'LineWidth',1, ...
+            'DisplayName',['Cu-K\alpha2 (',num2str(jj),')']);
     else
-        data(3+jj) = plot(x2th',peakfit(jj,:)+background','LineWidth',1,'DisplayName',['Peak ',num2str(jj)],'Color',co(jj,1:3));
+        data(3+jj) = plot(x2th',peakfit(jj,:)+background', ...
+            'LineWidth',1, ...
+            'DisplayName',['Peak ',num2str(jj)], ...
+            'Color',co(jj,1:3));
     end
 end
 
 Stro.DisplayName = {data.DisplayName};
 
-err = plot(handles.axes2, x2th, intensity - (fittedPattern), 'r','LineWidth',.50); % Error
-
-axes(handles.axes1)
-
-xlim([Stro.Min2T Stro.Max2T])
 ylim([0.9*min([data.YData]), 1.1*max([data.YData])]);
+
+% ------------------------------------------------------
+% 
+function plotFitError(handles, ifile)
+if nargin <= 1
+    ifile = handles.popup_filename.Value;
+end
+
+Stro = handles.xrd;
+
+x2th = Stro.fit_results{ifile}(1,:);
+intensity = Stro.fit_results{ifile}(2,:)';
+background = Stro.fit_results{ifile}(3,:)';
+fittedPattern = background;
+
+for i=1:length(Stro.PSfxn(:,1))
+    fittedPattern = fittedPattern + Stro.fit_results{ifile}(3+i,:)';
+end
+
+err = plot(handles.axes2, x2th, intensity - (fittedPattern), 'r','LineWidth',.50); % Error
+resizeAxes1ForErrorPlot(handles, 'fit');
+
+
+
 
 % ------------------------------------------------------
 
 % Plot an example fit using the starting values from table.
 function handles = plot_sample_fit(handles)
-cla(handles.axes1)
-
 resizeAxes1ForErrorPlot(handles, 'data');
 cp = handles.guidata.currentProfile;
 
@@ -323,7 +368,7 @@ xlim([Stro.Min2T, Stro.Max2T])
 
 % ------------------------------------------------------
 % Like plotData, except turns on hold to enable multiple
-%    data to be plotted.
+%    data to be plotted in handles.axes1.
 function plotSuperimposed(handles)
 
 Stro = handles.xrd;
@@ -388,3 +433,19 @@ end
 ymin=min(y);
 ymax=max(y);
 
+% --------------------------------------------------------
+% Makes a new figure and plots each fit for the entire dataset.
+function plotAllFits(handles)
+Stro = handles.xrd;
+
+numFiles = size(Stro.fit_results,2);
+figure(5);
+
+for j=1:numFiles
+    ax(j) = subplot(floor(sqrt(size(Stro.fit_results,2))),ceil(size(Stro.fit_results,2)/floor(sqrt(size(Stro.fit_results,2)))),j);
+    hold on
+    
+    plotFit(handles, j);
+    
+    
+end
