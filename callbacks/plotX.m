@@ -1,8 +1,5 @@
 %
 function plotX(handles, type)
-
-set(findobj(handles.axes2), 'visible', 'off');
-
 cp = handles.guidata.currentProfile;
 
 if nargin <= 1

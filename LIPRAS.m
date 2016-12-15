@@ -51,21 +51,6 @@ function varargout = LIPRAS_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
-
-function edit_bkgdpoints_Callback(hObject, eventdata, handles)
-num = str2double(hObject.String);
-if isempty(num) || isnan(num) || ~isinteger(int8(num)) || num < 1 || num > 2500
-    handles.xrd.Status = ['<html><font color="red"><b>Warning: ' hObject.String ' is not a valid positive integer.'];
-    set(hObject, 'string', num2str(10));
-    return
-end
-
-num = int8(num);
-set(hObject, 'string', num2str(num), 'UserData', num);
-handles.xrd.Status=['Number of background points changed to ',get(hObject,'String'),'.'];
-guidata(hObject,handles)
-
-
 % Executes on button press in push_addprofile.
 function push_addprofile_Callback(hObject, eventdata, handles)
 handles = add_profile(handles);
@@ -495,15 +480,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 % Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-% --- Executes during object creation, after setting all properties.
-function edit_bkgdpoints_CreateFcn(hObject, eventdata, handles)
-
-% Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
