@@ -38,7 +38,7 @@ classdef Constraints
             this.constraints_ = logical(constraints);
         end
         
-        this.total = length(find(sum(constraints, 1)));
+        this.total = length(find(sum(this.constraints_, 1)));
         end
         
         

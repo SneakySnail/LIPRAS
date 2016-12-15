@@ -14,6 +14,8 @@ handles = change_profile(profileNum, handles);
 
 controlProfilePanel(handles);
 
+handles.cfit(profileNum) = CurrentFitParameters_g(handles, profileNum);
+
 assignin('base', 'handles', handles);
 guidata(handles.figure1, handles);
 

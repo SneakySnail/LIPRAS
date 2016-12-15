@@ -1,23 +1,17 @@
 classdef CurrentState
-    %UNTITLED4 Summary of this class goes here
-    %   Detailed explanation goes here
+    % CURRENTSTATE
     
     properties
+        hg
+        
     end
     
-    enumeration
-       InitialState
-       HasDataState
-       HasBackgroundFitState
-       EmptyNumberOfPeaksState
-       IncompleteFunctionsState
-       NoFitBoundsState
-       FitReadyState
-       FitOutputState
-       
-       
-    end
+ 
     methods
+        function obj = CurrentState()
+        obj = 
+        
+        end
     end
     
 end

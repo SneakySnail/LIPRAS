@@ -74,62 +74,9 @@ guidata(hObject, handles)
 
 % Executes on button press in push_newbkgd.
 function push_newbkgd_Callback(hObject, eventdata, handles)
-numpoints = str2num(handles.edit_bkgdpoints.String);
-polyorder = str2num(handles.edit_polyorder.String);
-cp = handles.guidata.currentProfile;
+import ui.plotutils.*
 
-wprof=handles.guidata.currentProfile; % which profile we talking about here...
-
-% lets check xrdContainer to know if bkg2th is filled
-if isempty(handles.xrdContainer(1,wprof).bkgd2th);
-        [points, pos]=EditSelectBkgPoints(handles);
-handles.points{wprof}=points;
-handles.pos{wprof}=pos;
-
-else % else we are not editing bkg points
-
-if isempty(handles.points{wprof}) % incase of all points deleted using delete or reset
-    [points, pos]=EditSelectBkgPoints(handles);
-handles.points{wprof}=points;
-handles.pos{wprof}=pos;    
-elseif handles.radiobutton14_add.Value==1 % activated the add feature
-    [points, pos]=EditSelectBkgPoints(handles,handles.points{wprof},handles.pos{wprof},'Append');
-handles.points{wprof}=points;
-handles.pos{wprof}=pos;
-elseif handles.radiobutton15_delete.Value==1 % activated the delete
-    [points, pos]=EditSelectBkgPoints(handles,handles.points{wprof},handles.pos{wprof},'Delete');
-handles.points{wprof}=points;
-handles.pos{wprof}=pos;
-end
-
-if and(handles.radiobutton15_delete.Value==0,handles.radiobutton14_add==0)
-else
-    handles.xrd.bkgd2th=points; % this is here to activate the FitBackground button
-end
-% handles.xrd.resetBackground(numpoints,polyorder);
-
-if handles.guidata.numPeaks(cp) == 0
-    set(handles.panel_parameters.Children, 'visible', 'off');
-    t12 = findobj(handles.uipanel3, 'tag', 'text12');
-    set([t12, handles.edit_numpeaks], 'visible', 'on', 'enable', 'on');
-end
-
-if ~isempty(handles.xrdContainer(1,wprof).bkgd2th)
-    handles.tabpanel.TabEnables{2}='on';
-    set(handles.push_fitbkgd, 'enable', 'on');
-    set(handles.tab1_next, 'visible', 'on');
-else
-    handles.tabpanel.TabEnables{2} = 'off';
-    set(handles.push_fitbkgd, 'enable', 'off');
-    set(handles.tab1_next, 'visible', 'off');
-end
-
-end
-
-% Lets assign 2th points to bkgd2th in each xrdContainer
-handles.xrdContainer(1,wprof).bkgd2th=handles.points{wprof};
-plotX(handles);
-guidata(hObject, handles)
+selectBackgroundPoints(handles);
 
 
 function uitoggletool4_ClickedCallback(hObject, eventdata, handles)
