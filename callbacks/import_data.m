@@ -2,7 +2,17 @@
 % Imports new data.
 function handles = import_data(handles, filename, path)
 
-[filename, path] = uigetfile({'*.csv;*.txt;*.xy;*.fxye;*.dat;*.xrdml;*.chi;*.spr','*.csv, *.txt, *.xy, *.fxye, *.dat, *.xrdml, *.chi, or *.spr'},'Select Diffraction Pattern to Fit','MultiSelect', 'on');
+try
+    PrefFile=fopen('Preference File.txt','r');
+    data_path=fscanf(PrefFile,'%c');
+    data_path(end)=[]; % method above adds a white space at the last character that messes with import
+    fclose(PrefFile);
+catch
+    data_path=cd;
+end
+
+[filename, path] = uigetfile({'*.csv; *.txt; *.xy; *.fxye; *.dat; *.xrdml; *.chi; *.spr'},'Select Diffraction Pattern to Fit','MultiSelect', 'on',data_path);
+
 if handles.checkbox_reverse.Value == 1
     filename = fliplr(filename);
 end
