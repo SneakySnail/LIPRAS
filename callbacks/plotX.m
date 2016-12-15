@@ -446,6 +446,6 @@ for j=1:numFiles
     hold on
     
     plotFit(handles, j);
-    
-    
 end
+
+linkaxes(ax,'xy');
