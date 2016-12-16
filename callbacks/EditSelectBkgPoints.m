@@ -1,185 +1,130 @@
-function varargout=EditSelectBkgPoints(handles,points, pos,Mode)
+function [points, idx] = EditSelectBkgPoints(handles, Mode)
 % generate the relevant data range, based on Min2T and Max2T
-twotheta = handles.xrd.two_theta(1,(PackageFitDiffractionData.Find2theta( ...
+ranged2theta = handles.xrd.two_theta(1,(PackageFitDiffractionData.Find2theta( ...
     handles.xrd.two_theta(1,:),handles.xrd.Min2T) : ...
     PackageFitDiffractionData.Find2theta(...
     handles.xrd.two_theta(1,:), handles.xrd.Max2T)))';
 
-intensity = handles.xrd.data_fit(1,(PackageFitDiffractionData.Find2theta( ...
+rangedIntensity = handles.xrd.data_fit(1,(PackageFitDiffractionData.Find2theta( ...
     handles.xrd.two_theta(1,:),handles.xrd.Min2T): ...
     PackageFitDiffractionData.Find2theta( ...
     handles.xrd.two_theta(1,:),handles.xrd.Max2T)))';
 
-if nargin<2
+handles.axes1.UserData = [ranged2theta'; rangedIntensity'];
+
+cp = handles.guidata.currentProfile;
+
+if nargin < 2 || strcmpi(Mode, 'Add')
     cla
-    plotX(handles)
-    
-    [points, pos]=Add_bkgpoints(handles,twotheta, intensity);
+    plotX(handles, 'data');
+    handles.axes1.UserData = [ranged2theta'; rangedIntensity']; % repeated because 
+                                                    % plotX clears axes1.UserData
+    [points, idx] = Add_bkgpoints(handles);
     
 elseif strcmp(Mode,'Append')
-    [points, pos]=Append_bkgpoints(handles,twotheta,intensity,points,pos);
+    [points, idx] = Append_bkgpoints(handles);
+    
     
 elseif strcmp(Mode,'Delete')
-    [points, pos]=Delete_bkgpoints(handles,twotheta, intensity,points,pos);
+    cla
+    plotX(handles, 'Data');
+    [points, idx] = Delete_bkgpoints(handles);
     
 else
-    disp('Invalid Mode')
+    error('Invalid Mode')
 end
 
-varargout{1}=points;
-varargout{2}=pos;
+handles.cfit(cp).BackgroundPoints = points;
+handles.cfit(cp).BackgroundPointsIdx = idx;
 
-end
+guidata(handles.figure1, handles);
+% ==============================================================================
 
-function varargout = Add_bkgpoints(handles,twotheta,intensity)
-N=1E4;
 
-for i=1:N
-    [x,~, key]=ginput(1);
+function [points, pos] = Add_bkgpoints(handles)
+import ui.plotutils.*
+
+twotheta = handles.axes1.UserData(1,:);
+intensity = handles.axes1.UserData(2,:);
+i = 1;
+while (true)
+    [p, pidx] = selectOnePointFromPlot(handles.axes1);
     
-    if key==27 % if user pressed Esc
-        break
-        
-    elseif key ~= 1
-        k=654564465645645; % I'll be impressed if someone hits this key, dont think it exists
-        
-        while k~=1
-            k = waitforbuttonpress; % press any key to continue
-            a=1;
-            if handles.radiobutton15_delete.Value==1 
-                break 
-            end % incase some clicks the add or delete half way
-        end
-        
-        if handles.radiobutton15_delete.Value==1
-            break;
-        end % incase some clicks the add or delete half way
-        
-        [x,~, key]=ginput(1);
-        
-    else
-        points(i,1)=x;
-    end
-    
-    if key==27
+    if isempty(p)
         break
     end
+    
+    points(i) = p;
+    pos(i) = pidx;
     hold on
-    points(i,1)=x;
-    pos(i) = FindValue(twotheta,x);
-    plot(handles.axes1,x, intensity(pos(i),1), 'r*') % 'ko'
+    plot(handles.axes1, twotheta(pos(i)), intensity(pos(i)), 'r*') % 'ko'
+    
+    i = i+1;
 end
+
 points=sort(points);
 pos=sort(pos);
-if nargout == 1
-    varargout{1} = [points pos];
-else
-    varargout{1} = points;
-end
-if nargout > 1
-    varargout{1} = points;
-    varargout{2} = pos';
-end
+% ==============================================================================
 
-end
 
-function varargout= Append_bkgpoints(handles,twotheta, intensity, points, pos)
-N=1E4;
 
-plotX(handles)
-hold on
-plot(handles.axes1,twotheta(pos(:,1),:),intensity(pos(:,1),:), 'r*')
-hold off
+function [points, pos] = Append_bkgpoints(handles)
+import ui.plotutils.*
 
-for i=1:N
-    [x,~, key]=ginput(1);
-    if key==27
-        break
-    elseif key ~= 1
-        k=654564465645645; % I'll be impressed if someone hits this key, dont think it exists
-        while k~=1
-            k = waitforbuttonpress; % press any key to continue
-            if handles.radiobutton15_delete.Value==1; break;end
-        end
-        if handles.radiobutton15_delete.Value==1; break;end
-        [x,~, key]=ginput(1);
-    else
-        apoints(i,1)=x;
-    end
-    if key==27
-        break
-    end
-    hold on
-    apoints(i,1)=x;
+twotheta = handles.axes1.UserData(1,:);
+intensity = handles.axes1.UserData(2,:);
+i = 1;
+while (true)
+    [points(i), pos(i)] = selectOnePointFromPlot(handles.axes1);
     
-    apos(i,1) = FindValue(twotheta,x);
-    sapos(i)=apos(i,1);
-    plot(handles.axes1,x, intensity(sapos(i),1), 'r*') % 'ko'
+    if isempty(points(i))
+        break
+    end
+    
+    hold on
+    plot(handles.axes1, twotheta(pos(i)), intensity(pos(i)), 'r*') % 'ko'
+    
+    i = i+1;
 end
 
-if exist('apoints','var')==0 % if cancel is selected from the start
-    apoints=points;
-    fapos=pos;
-else
-    apoints=sort([points;apoints]);
-    fapos=sort([pos;apos]);
-end
+cp = handles.guidata.currentProfile;
+points = sort([handles.cfit(cp).BackgroundPoints, points]);
+pos = sort([handles.cfit(cp).BackgroundPointsIdx, pos]);
+% ==============================================================================
 
-if nargout == 1
-    varargout{1} = [apoints fapos];
-else
-    varargout{1} = apoints;
-end
-if nargout > 1
-    varargout{1} = apoints;
-    varargout{2} = fapos;
-end
+function [points, pos] = Delete_bkgpoints(handles)
+% points - the remaining points to use for the background fit
+% pos    - the index of the remaining points
 
-end
+import ui.plotutils.*
+twotheta = handles.axes1.UserData(1,:);
+intensity = handles.axes1.UserData(2,:);
 
-function varargout=Delete_bkgpoints(handles,twotheta, intensity, points,pos)
-N=1E4;
+cp = handles.guidata.currentProfile;
+points = handles.cfit(cp).BackgroundPointsIdx;
+pos = handles.cfit(cp).BackgroundPointsIdx;
 
-plotX(handles)
 hold on
-plot(handles.axes1,twotheta(pos(:,1),:),intensity(pos(:,1),:), 'r*')
-hold off
-for i=1:N
-    [x,~, key]=ginput(1);
-    if key==27
-        break
-    elseif key ~= 1
-        k=654564465645645; % I'll be impressed if someone hits this key, dont think it exists
-        while k~=1
-            k = waitforbuttonpress; % press any key to continue
-            if handles.radiobutton14_add.Value==1; break;end % incase some clicks the add or delete half way
-        end
-        if handles.radiobutton14_add.Value==1; break;end % incase some clicks the add or delete half way
-        [x,~, key]=ginput(1);
-    else
-        dpoints(i,1)=x;
-    end
-    if key==27
+plot(handles.axes1, twotheta(pos,:), intensity(pos,:), 'r*'); % plot current points
+
+i = 1;
+while (true)
+    [dpoint, ~] = selectOnePointFromPlot(handles.axes1); % Returns the point to delete
+    
+    if isempty(dpoint)
         break
     end
-    hold on
-    dpoints(i,1)=x;
-    dpos = FindValue(points,x);
-    points(dpos)=[];
+
+    dpos = FindValue(points, dpoint); % find the index into points array 
+    points(dpos)=[]; % delete
     pos(dpos)=[];
-    cla
-    plotX(handles)
+    
+    cla(handles.axes1);
     hold on
-    plot(handles.axes1,points, intensity(pos,1), 'r*') % 'ko'
-    hold off
-end
-if nargout == 1
-    varargout{1} = [points pos];
-else
-    varargout{1} = points;
-end
-if nargout > 1
-    varargout{2} = pos;
+    plotX(handles, 'data');
+    plot(handles.axes1, twotheta(pos,:), intensity(pos,:), 'r*'); % plot updated points
+    
+    i = i+1;
 end
 
-end
+% ==============================================================================
