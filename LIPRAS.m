@@ -57,9 +57,7 @@ handles = add_profile(handles);
 assignin('base','handles',handles)
 guidata(hObject, handles)
 
-
 function menu_clearfit_Callback(hObject, eventdata, handles)
-
 
 % Executes on button press in push_removeprofile.
 function push_removeprofile_Callback(hObject, eventdata, handles)
@@ -353,18 +351,24 @@ end
 handles.xrd.Status='Options file successfully loaded.';
 guidata(hObject, handles)
 
+function menu_preferences_Callback(handles)
+folder_name=uigetdir;
+PreferenceFile=fopen('Preference File.txt','w');
+fprintf(PreferenceFile,'%s\n',folder_name);
 
-function menu_help_Callback(hObject, eventdata, handles)
+function menu_help_Callback(handles)
+h=msgbox('Documentation is on its way...','Help');
+set(h, 'Position',[500 440 200 50]) % posx, posy, height, width 
+ah=get(h,'CurrentAxes');
+c=get(ah,'Children');
+set(c,'FontSize',11);
 
-
-function Untitled_10_Callback(hObject, eventdata, handles)
-
-
-function menuHelp_fxns_Callback(hObject, eventdata, handles)
-
-
-
-function edit8_Callback(hObject, eventdata, handles)
+function menu_about_Callback(handles)
+h=msgbox({'LIPRAS, version: 1.0' 'Authors: Klarissa Ramos, Giovanni Esteves, Chris Fancher, and Jacob Jones' 'North Carolina State University (2016)' '' 'Contact Information' 'Giovanni Esteves' 'Email: gesteves21@gmail.com' 'Jacob Jones' 'Email: jacobjones@ncsu.edu'},'About');
+set(h, 'Position',[500 440 400 180]) % posx, posy, horiz, vert 
+ah=get(h,'CurrentAxes');
+c=get(ah,'Children');
+set(c,'FontSize',11);
 
 
 function menu_clearall_Callback(hObject, eventdata, handles)
@@ -525,3 +529,4 @@ set(handles.radiobutton15_delete,'Value',1)
 elseif get(handles.radiobutton14_add,'Value')==1
     set(handles.radiobutton14_add,'Value',0)
 end
+
