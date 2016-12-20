@@ -11,12 +11,11 @@ function handles = initGUI(handles)
     handles = resetGuiData(handles);
     
     addControlListeners();
+
+    reparentTabPanels();
     
     addLastCallbacks();
-    
-    set(handles.panel_setup, 'parent', handles.profiles(7));
-    set(handles.panel_parameters,'parent', handles.profiles(7));
-    set(handles.panel_results, 'parent', handles.profiles(7));
+
 % ==============================================================================
     
     
@@ -99,6 +98,14 @@ function handles = initGUI(handles)
             msg = 'Could not create the Java status bar';
             MException(msgId, msg);
         end
+    end
+    % ==========================================================================
+    
+    % Set the parents of the 3 major panels for tab switching functionality.
+    function reparentTabPanels()
+        set(handles.panel_setup, 'parent', handles.profiles(7));
+        set(handles.panel_parameters,'parent', handles.profiles(7));
+        set(handles.panel_results, 'parent', handles.profiles(7)); 
     end
     % ==========================================================================
     

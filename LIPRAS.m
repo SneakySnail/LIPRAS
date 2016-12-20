@@ -1,4 +1,3 @@
-%% Initialization
 function varargout = LIPRAS(varargin)
     % FDGUI MATLAB code for FDGUI.fig
     
@@ -27,10 +26,11 @@ function varargout = LIPRAS(varargin)
     % Executes just before LIPRAS is made visible.
 function LIPRAS_OpeningFcn(hObject, eventdata, handles, varargin) 
     handles = ui.initGUI(handles);
+    
     handles.plotdata='yes';
+    
     % Choose default command line output for FDGUI
     handles.output = hObject;
-    
     
     assignin('base','handles',handles);
     % Update handles structure
