@@ -12,6 +12,8 @@ function handles = initGUI(handles)
     
     addControlListeners();
     
+    addLastCallbacks();
+    
     set(handles.panel_setup, 'parent', handles.profiles(7));
     set(handles.panel_parameters,'parent', handles.profiles(7));
     set(handles.panel_results, 'parent', handles.profiles(7));
@@ -60,6 +62,8 @@ function handles = initGUI(handles)
     end
     % ==========================================================================
     
+    % Creates the Java status bar, used for updating the user on GUI actions. Throws
+    % an exception if the Java object could not be created.
     function createJavaStatusBar()
         import javax.swing.*
         import java.awt.*
@@ -91,9 +95,27 @@ function handles = initGUI(handles)
             jRootPane.setStatusBarVisible(1);
             
         catch
-            errordlg('Java components could not be created.')
+            msgId = 'initGUI:JavaObjectCreation';
+            msg = 'Could not create the Java status bar';
+            MException(msgId, msg);
         end
     end
     % ==========================================================================
     
+    % Adds callback functions to all other uicomponents. 
+    % 
+    % Assumes this is the last function called in the GUI initialization.
+    % 
+    % Throws an exception if the status bar is invalid.
+    function addLastCallbacks()
+        
+        % Requires a Java status bar to exist
+        if ~isa(handles.statusbarObj, 'com.mathworks.mwswing.MJStatusBar')
+            msgId = 'initGUI:InvalidJavaStatusBar';
+            msg = 'Could not add a callback function for updating the status bar.';
+            MException(msgId, msg);
+        end
+        handles.figure1.WindowButtonMotionFcn = @(o, e)WindowButtonMotionFcn(o, e,guidata(o));
+    end
+    % ==========================================================================
 end

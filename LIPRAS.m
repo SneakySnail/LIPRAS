@@ -31,7 +31,6 @@ function LIPRAS_OpeningFcn(hObject, eventdata, handles, varargin)
     % Choose default command line output for FDGUI
     handles.output = hObject;
     
-    handles.figure1.WindowButtonMotionFcn = @(o, e)WindowButtonMotionFcn(o, e,guidata(o));
     
     assignin('base','handles',handles);
     % Update handles structure
