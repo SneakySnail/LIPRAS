@@ -1,35 +1,50 @@
 % Initialize GUI controls
-function handles = init_GUI(handles, varargin)
-axes(handles.axes1)
-hold(handles.axes1,'all');
-
-set(get(handles.axes1, 'Parent'), 'DefaultAxesColorOrder', ...
-    [0 0 0; % black
-    1 0 0; % red
-    1 0.4 0; % orange
-    0.2 0.2 0; % olive green
-    0 0 0.502; % navy blue
-    0.502 0 0.502; % violet
-    0 0 1; % royal blue
-    0.502 0.502 0]); % dark yellow
-
-% Create the java object status bar
-createJavaStatusBar();
-
-createUserData();
-
-handles = resetGuiData(handles);
-
-addControlListeners();
-
-set(handles.panel_setup, 'parent', handles.profiles(7));
-set(handles.panel_parameters,'parent', handles.profiles(7));
-set(handles.panel_results, 'parent', handles.profiles(7));
+function handles = initGUI(handles)    
+    addToExecPath();
+    
+    initAxes1();
+    
+    createJavaStatusBar();
+    
+    createUserData();
+    
+    handles = resetGuiData(handles);
+    
+    addControlListeners();
+    
+    set(handles.panel_setup, 'parent', handles.profiles(7));
+    set(handles.panel_parameters,'parent', handles.profiles(7));
+    set(handles.panel_results, 'parent', handles.profiles(7));
 % ==============================================================================
-
-
-
-%% helper functions
+    
+    
+    %% helper functions
+    function addToExecPath()
+        addpath(genpath('callbacks'));
+        addpath(genpath('dialog'));
+        addpath(genpath('listener'));
+        % addpath(genpath('Resources'));
+        % addpath('test-path/');
+    end
+    % ==========================================================================
+    
+    function initAxes1()
+        hold(handles.axes1, 'on');
+        
+        % Default color order for plotting data series
+        set(get(handles.axes1, 'Parent'), 'DefaultAxesColorOrder', ...
+            [0 0 0; % black
+            1 0 0; % red
+            1 0.4 0; % orange
+            0.2 0.2 0; % olive green
+            0 0 0.502; % navy blue
+            0.502 0 0.502; % violet
+            0 0 1; % royal blue
+            0.502 0.502 0]); % dark yellow
+        
+    end
+    % ==========================================================================
+    
     function createUserData()
         handles.profiles(7) = handles.uipanel3;
         handles.profiles(7).UserData = 0; % delete
@@ -38,14 +53,16 @@ set(handles.panel_results, 'parent', handles.profiles(7));
         
     end
     % ==========================================================================
-
+    
     function addControlListeners()
         addlistener(handles.xrdContainer(7), 'Status', ...
             'PostSet', @(o,e)statusChange(o,e,handles,7));
     end
     % ==========================================================================
-
+    
     function createJavaStatusBar()
+        import javax.swing.*
+        import java.awt.*
         
         try
             % Turn off JavaFrame obsolete warning
@@ -78,5 +95,5 @@ set(handles.panel_results, 'parent', handles.profiles(7));
         end
     end
     % ==========================================================================
-
+    
 end
