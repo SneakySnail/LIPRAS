@@ -42,7 +42,6 @@ guidata(handles.figure1, handles)
 	% reference
 	
 	% uipanels
-	hObject = handles.uipanel3;
 	objs = findobj(handles.uipanel3);
 	handles.xrd = handles.xrdContainer(iProfile);
 	

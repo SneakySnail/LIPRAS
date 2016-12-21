@@ -23,9 +23,9 @@ handles = guidata(handles.figure1);
 
 % Update the GUI
 if isempty(handles.cfit(cp).FcnNames) == 0
-    set(handles.panel_parameters.Children, 'visible', 'off');
-    t12 = findobj(handles.uipanel3, 'tag', 'text12');
-    set([t12, handles.edit_numpeaks], 'visible', 'on', 'enable', 'on');
+    set(handles.panel_parameters.Children, 'visible', 'on');
+    set(handles.panel_coeffs, 'visible', 'off');
+    
 end
 
 if ~isempty(handles.cfit(cp).BackgroundPoints)
@@ -37,8 +37,6 @@ else
     set(handles.push_fitbkgd, 'enable', 'off');
     set(handles.tab1_next, 'visible', 'off');
 end
-
-
 
 zoom reset
 

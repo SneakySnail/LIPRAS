@@ -11,7 +11,10 @@ catch
     data_path=cd;
 end
 
-[filename, path] = uigetfile({'*.csv; *.txt; *.xy; *.fxye; *.dat; *.xrdml; *.chi; *.spr'},'Select Diffraction Pattern to Fit','MultiSelect', 'on',data_path);
+allowedFiles = {'*.csv; *.txt; *.xy; *.fxye; *.dat; *.xrdml; *.chi; *.spr'};
+title = 'Select Diffraction Pattern to Fit';
+
+[filename, path] = uigetfile(allowedFiles, title, 'MultiSelect', 'on', data_path);
 
 if handles.checkbox_reverse.Value == 1
     filename = fliplr(filename);

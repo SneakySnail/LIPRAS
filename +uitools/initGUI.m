@@ -14,7 +14,7 @@ function handles = initGUI(handles)
 
     reparentTabPanels();
     
-    handles.edit_polyorder = 
+%      handles.edit_polyorder = uitools.uispinner(handles.edit_polyorder, 3, 1, 25, 1);
     
     addLastCallbacks();
 
@@ -66,9 +66,6 @@ function handles = initGUI(handles)
     % Creates the Java status bar, used for updating the user on GUI actions. Throws
     % an exception if the Java object could not be created.
     function createJavaStatusBar()
-        import javax.swing.*
-        import java.awt.*
-        
         try
             % Turn off JavaFrame obsolete warning
             warning off MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame;
@@ -89,6 +86,9 @@ function handles = initGUI(handles)
             jRootPane.setStatusBar(handles.statusbarObj);
             handles.statusbarObj.setText('<html>Please import file(s) containing data to fit.</html>');
             
+            % separator
+%             sep = javaObjectEDT('javax.swing.JSeparator');
+%             sep
             % right status bar
             handles.statusbarRight = javaObjectEDT('com.mathworks.mwswing.MJStatusBar');
             handles.statusbarObj.add(handles.statusbarRight, 'East');

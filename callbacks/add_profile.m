@@ -42,10 +42,6 @@ guidata(handles.figure1, handles);
         % profile panel, then just reset the panel.
         obj = copyobj(handles.profiles(7), handles.figure1);
         
-        popup = findobj(obj.Children, 'style', 'popupmenu');
-        edit = findobj(obj.Children, 'style', 'edit');
-        check = findobj(obj.Children, 'style', 'checkbox');
-        
         
         baseCtrls = findobj(handles.profiles(7).Children);
         newCtrls = findobj(obj.Children);
@@ -68,10 +64,17 @@ guidata(handles.figure1, handles);
             if isprop(baseCtrls(i), 'ButtonDownFcn')
                 newCtrls(i).ButtonDownFcn = baseCtrls(i).ButtonDownFcn;
             end
+            % When copying object, create new java wrapper for polyorder
+            if strcmpi(baseCtrls(i).Tag, 'edit_polyorder')
+               newCtrls(i) = uitools.uispinner(newCtrls(i), 3, 1, 25, 1);
+            end
+            % When copying object, create new java wrapper for numpeaks
+%             if strcmpi(baseCtrls(i).Tag, 'edit_numpeaks')
+%                newCtrls(i) = uitools.uispinner(newCtrls(i), 1, 1, 25, 1);
+%             end
         end
         
-        editpeak = findobj(newCtrls, 'tag', 'edit_numpeaks');
-        
+                
         
         %********************************************************%
         % Create tab panels

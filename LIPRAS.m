@@ -63,7 +63,8 @@ function push_removeprofile_Callback(hObject, eventdata, handles)
     
     % Executes on button press in push_newbkgd.
 function push_newbkgd_Callback(hObject, eventdata, handles)
-    import uitools.plotutils.*
+    import plotutils.*
+
     
     selectBackgroundPoints(handles);
     

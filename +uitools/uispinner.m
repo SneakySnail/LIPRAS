@@ -1,26 +1,33 @@
 % Takes an existing edit box uicomponent and replaces it with a Java Spinner
 % object.
-function hedit = uispinner(hedit, initialval, minval, maxval, incrval)
+function varargout = uispinner(hedit, initialval, minval, maxval, incrval)
     % hedit      - handle to an editable text box component
     % initialval - initial value for the spinner component
     % minval     - minimum value of spinner component
     % maxval     - maximum value of spinner component
     % incrval    - increment value
-    
     jModel = javax.swing.SpinnerNumberModel( ...
         initialval, ...
         minval, ...
         maxval, ...
         incrval);
     
-    jhSpinner = javax.swing.JSpinner(jModel);
-    [~, jhSpinner] = javacomponent(jhSpinner);
+    jSpinner = javax.swing.JSpinner(jModel);
+    jSpinner = javaObjectEDT(jSpinner);
+    [jhSpinner, hSpinner] = javacomponent(jSpinner);
     
-    set(jhSpinner, ...
+    set(hSpinner, ...
         'Parent', hedit.Parent, ...
         'Units', 'Normalized', ...
-        'Position', hedit.Position);
+        'Position', hedit.Position, ...
+        'Tag', hedit.Tag);
     
     delete(hedit);
+    %     set(hedit, 'visible','off');
     
-    hedit = jhSpinner;
+    if nargout <= 1
+        varargout{1} = hSpinner;
+    end
+    if nargout > 1
+        varargout{2} = jhSpinner;
+    end

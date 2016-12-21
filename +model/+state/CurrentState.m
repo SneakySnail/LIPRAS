@@ -1,16 +1,21 @@
-classdef CurrentState
-    % CURRENTSTATE
+classdef CurrentState < StateInterface
+    %STATEINTERFACE Summary of this class goes here
+    %   Detailed explanation goes here
     
     properties
-        hg
-        
+        Name
+        ID
     end
     
- 
-    methods
-        function obj = CurrentState()
-        obj = 
+    
+    methods (Static)
         
+        function obj = constructor(id)
+            
+        end
+        
+        function obj = update(id)
+            
         end
     end
     

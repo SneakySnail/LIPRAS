@@ -42,7 +42,8 @@ guidata(handles.figure1, handles);
 
 
 function [points, pos] = Add_bkgpoints(handles)
-import uitools.plotutils.*
+import plotutils.*
+
 
 twotheta = handles.axes1.UserData(1,:);
 intensity = handles.axes1.UserData(2,:);
@@ -69,17 +70,21 @@ pos=sort(pos);
 
 
 function [points, pos] = Append_bkgpoints(handles)
-import uitools.plotutils.*
+import plotutils.*
+
 
 twotheta = handles.axes1.UserData(1,:);
 intensity = handles.axes1.UserData(2,:);
 i = 1;
 while (true)
-    [points(i), pos(i)] = selectOnePointFromPlot(handles.axes1);
+    [p, px] = selectOnePointFromPlot(handles.axes1);
     
-    if isempty(points(i))
+    if isempty(p)
         break
     end
+    
+    points(i) = p;
+    pos(i) = px;
     
     hold on
     plot(handles.axes1, twotheta(pos(i)), intensity(pos(i)), 'r*') % 'ko'
@@ -96,7 +101,8 @@ function [points, pos] = Delete_bkgpoints(handles)
 % points - the remaining points to use for the background fit
 % pos    - the index of the remaining points
 
-import uitools.plotutils.*
+import plotutils.*
+
 twotheta = handles.axes1.UserData(1,:);
 intensity = handles.axes1.UserData(2,:);
 
