@@ -1,5 +1,5 @@
 function fitReady(handles)
-handles = ui.helpers.controls.updateConstraints(handles);
+handles = uitools.helpers.controls.updateConstraints(handles);
 
 handles.tabpanel.TabEnables{2} = 'on';
 handles.tabpanel.Selection = 2;

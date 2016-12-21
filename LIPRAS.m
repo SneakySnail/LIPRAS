@@ -25,7 +25,7 @@ function varargout = LIPRAS(varargin)
     
     % Executes just before LIPRAS is made visible.
 function LIPRAS_OpeningFcn(hObject, eventdata, handles, varargin) 
-    handles = ui.initGUI(handles);
+    handles = uitools.initGUI(handles);
     
     handles.plotdata='yes';
     
@@ -35,19 +35,20 @@ function LIPRAS_OpeningFcn(hObject, eventdata, handles, varargin)
     assignin('base','handles',handles);
     % Update handles structure
     guidata(hObject, handles)
+%===============================================================================
     
     % Outputs from this function are returned to the command line.
 function varargout = LIPRAS_OutputFcn(hObject, eventdata, handles)
     % Get default command line output from handles structure
     varargout{1} = handles.output;
-    
-    % Executes on button press in push_addprofile.
+%===============================================================================
+
+% Executes on button press in push_addprofile.
 function push_addprofile_Callback(hObject, eventdata, handles)
     handles = add_profile(handles);
     assignin('base','handles',handles)
     guidata(hObject, handles)
-    
-function menu_clearfit_Callback(hObject, eventdata, handles)
+%===============================================================================
     
     % Executes on button press in push_removeprofile.
 function push_removeprofile_Callback(hObject, eventdata, handles)
@@ -58,11 +59,11 @@ function push_removeprofile_Callback(hObject, eventdata, handles)
     end
     
     guidata(hObject, handles)
-    
+%===============================================================================
     
     % Executes on button press in push_newbkgd.
 function push_newbkgd_Callback(hObject, eventdata, handles)
-    import ui.plotutils.*
+    import uitools.plotutils.*
     
     selectBackgroundPoints(handles);
     
@@ -329,7 +330,7 @@ function menu_parameter_Callback(hObject, eventdata, handles)
     % 	end
     %
     try
-        handles=ui.manager.load_parameter(handles);
+        handles=uitools.manager.load_parameter(handles);
     catch ME
         ME.stack(1)
         
@@ -390,7 +391,7 @@ function Untitled_9_Callback(hObject, eventdata, handles)
     % Plots the background points selected.
 function push_fitbkgd_Callback(~, ~, handles)
     
-    ui.manager.plotBackgroundFit(handles);
+    uitools.manager.plotBackgroundFit(handles);
     
     
     

@@ -29,7 +29,7 @@ saveParametersIntoGuidata();
 updateUiControlValues();
 
 
-ui.adapter.state.fitReady(handles);
+uitools.adapter.state.fitReady(handles);
 
 
 
@@ -182,7 +182,7 @@ ui.adapter.state.fitReady(handles);
     % constraints
     constrained = model.fitcomponents.Constraints(pVal.constraints);
     
-    ui.helpers.table.resizeConstraintColumns(handles, constrained);
+    uitools.helpers.table.resizeConstraintColumns(handles, constrained);
     
     
     end
