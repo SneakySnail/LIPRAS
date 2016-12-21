@@ -23,6 +23,11 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
         Fcoeff % coefficient names;
         Constrains = zeros(1,5); % variable constrains for fit equations
         DisplayName = '';
+        Temperature
+        KAlpha1
+        KAlpha2
+        KBeta
+        RKa1Ka2
         
     end
     

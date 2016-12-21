@@ -42,7 +42,7 @@ function [Stro, has_data] = Read_Data(Stro, fname, path)
 				
 				if or(strcmp( ext, 'csv'),strcmp( ext, '.csv'))
 					Stro.suffix = 'csv';
-					fid = xlsread(inFile,'A:B');
+					fid = inFile;
 					Stro.readFile(i,fid);
 				elseif or(strcmp( ext, 'txt'),strcmp( ext, '.txt'))
 					Stro.suffix = 'txt';
@@ -65,7 +65,7 @@ function [Stro, has_data] = Read_Data(Stro, fname, path)
 					fid = fopen(inFile, 'r');
 					Stro.readFile(i,fid);
 				elseif or(strcmp( ext, 'xrdml'),strcmp( ext, '.xrdml'))
-					Stro.parseXRDML
+					Stro.parseXRDML(i)
 				end
 			end
 		end
