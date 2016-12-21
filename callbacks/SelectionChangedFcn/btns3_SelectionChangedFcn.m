@@ -13,8 +13,7 @@ switch hObject.SelectedObject
                         'ColumnWidth', {'auto'}, ...
                         'ColumnEditable', false);
                 
-                cla(handles.axes1)
-                plotX(handles);
+                plotX(handles, 'fit');
                 
                 
         case handles.radio_coeff

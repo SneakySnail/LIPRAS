@@ -25,6 +25,9 @@ addControlListeners();
 set(handles.panel_setup, 'parent', handles.profiles(7));
 set(handles.panel_parameters,'parent', handles.profiles(7));
 set(handles.panel_results, 'parent', handles.profiles(7));
+% ==============================================================================
+
+
 
 %% helper functions
     function createUserData()
@@ -34,14 +37,13 @@ set(handles.panel_results, 'parent', handles.profiles(7));
         handles.xrdContainer(7) = handles.xrd;
         
     end
+    % ==========================================================================
 
     function addControlListeners()
-        addlistener(handles.edit_numpeaks, 'UserData', 'PostSet', @(o,e)guidata.numpeaks(o,e,guidata(e.AffectedObject)));
         addlistener(handles.xrdContainer(7), 'Status', ...
             'PostSet', @(o,e)statusChange(o,e,handles,7));
-        % This listener will resize axes1 when axes2 becomes visible
-        % 				addlistener(handles.axes2, 'Visible', 'PostSet', @(o,e)visible.resizeAxes1ToFitAxes2Axes1ToFitAxes2(o,e,guidata(e.AffectedObject)));
     end
+    % ==========================================================================
 
     function createJavaStatusBar()
         
@@ -75,8 +77,6 @@ set(handles.panel_results, 'parent', handles.profiles(7));
             errordlg('Java components could not be created.')
         end
     end
-
-
-
+    % ==========================================================================
 
 end

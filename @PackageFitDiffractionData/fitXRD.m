@@ -5,15 +5,15 @@ position=position(1);
 wprof=handles.guidata.currentProfile;
 bkgModel=handles.popup_bkgdmodel.Value;
 if handles.popup_bkgdmodel.Value==1
-[bkgArray, S, U]=handles.xrd.fitBkgd(data,handles.points{wprof}, data(2,handles.pos{wprof}), handles.xrd.PolyOrder,bkgModel);
+    [bkgArray, S, U]=handles.xrd.fitBkgd(data,handles.points{wprof}, data(2,handles.pos{wprof}), handles.xrd.PolyOrder,bkgModel);
 else
     % A bit silly, bkgx and bkgy need the end points, otherwise, the final
     % function wont evaluate the last points and it will lead to a value of
     % zero...
-  bkgx=handles.points{wprof}';
-  bkgy(1,:)=data(2,handles.pos{wprof});
-  order=2;
-[bkgArray]=handles.xrd.fitBkgd(data,bkgx, bkgy, handles.xrd.PolyOrder,bkgModel);
+    bkgx=handles.points{wprof}';
+    bkgy(1,:)=data(2,handles.pos{wprof});
+    order=2;
+    [bkgArray]=handles.xrd.fitBkgd(data,bkgx, bkgy, handles.xrd.PolyOrder,bkgModel);
 end
 
 % FOR GUI, BACKGROUND
@@ -21,8 +21,7 @@ hold on
 
 % handles.noplotfit.Value=0;
 if handles.noplotfit.Value == 1
-
-plot(data(1,:),bkgArray,'k-') %to check okay
+    plot(data(1,:),bkgArray,'k-') %to check okay
 end
 
 %END
@@ -48,18 +47,18 @@ dataMax = PackageFitDiffractionData.Find2theta(data(1,:),Stro.Max2T); % shapes d
 
 % Add CuKa if statement here
 fitrange=Stro.fitrange;
-        mid = mean([Stro.Min2T Stro.Max2T]);
-        leftbound = mid-fitrange/2;
-        rightbound = mid+fitrange/2;
-        if leftbound < Stro.Min2T
-            leftbound = Stro.Min2T;
-        end
-        if leftbound > Stro.Max2T
-            rightbound = Stro.Max2T;
-        end
-        minr = PackageFitDiffractionData.Find2theta(data(1,:),leftbound);
-        maxr = PackageFitDiffractionData.Find2theta(data(1,:),rightbound);
-%         
+mid = mean([Stro.Min2T Stro.Max2T]);
+leftbound = mid-fitrange/2;
+rightbound = mid+fitrange/2;
+if leftbound < Stro.Min2T
+    leftbound = Stro.Min2T;
+end
+if leftbound > Stro.Max2T
+    rightbound = Stro.Max2T;
+end
+minr = PackageFitDiffractionData.Find2theta(data(1,:),leftbound);
+maxr = PackageFitDiffractionData.Find2theta(data(1,:),rightbound);
+%
 % avg = mean(position(1,:)); % average of all peaks
 % positionX(1) = PackageFitDiffractionData.Find2theta(dataNB(1,:),avg); % index into dataNB array
 % minr=positionX(1)-floor(fitrangeX(1)/2);
@@ -68,14 +67,14 @@ fitrange=Stro.fitrange;
 % if maxr>fitrangeX; maxr=fitrangeX; end
 
 a=1;
-if minr<dataMin; 
+if minr<dataMin;
     disp('minr_true')
-    minr=dataMin; 
+    minr=dataMin;
 end
 
-if maxr>dataMax; 
-      disp('maxr_true')
-    maxr=dataMax; 
+if maxr>dataMax;
+    disp('maxr_true')
+    maxr=dataMax;
 end
 
 dataMin = PackageFitDiffractionData.Find2theta(Stro.two_theta,Stro.Min2T); % to generate data within user selected fit range
@@ -113,25 +112,25 @@ assignin('base','fitteddata',fitteddata)
 
 if handles.noplotfit.Value==1
     cla
-% FOR GUI, FIT
-plot(fitdata{1}(1,:),fittedmodel{1}(fitdata{1}(1,:))'+bkgArray(minr:maxr),'-','Color',[0 .5 0],'LineWidth',1.5);
-pause(0.05);
-%END
-
-% FOR GUI, DATA
-plot(data(1,:),data(2,:),'o','MarkerSize',4,'LineWidth',1,'MarkerEdgeColor',[.08 .17 .55], 'MarkerFaceColor',[.08 .17 .55]) % CHANGES MARKER COLOR
-% END
-
-% FOR GUI DIFFERENCE PLOT
-axes(handles.axes2) % this is slow, consider moving outside loop
-cla
-        plot(fitteddata(1,:),fitteddata(2,:)-(fitteddata(3,:)+fitteddata(4,:)),'-r')
-%     plot(fitdata{1}(1,:),fitdata{1}(2,:)-fittedmodel{1}(fitdata{1}(1,:))','-r');
-
-xlim([Stro.Min2T Stro.Max2T])
-
-linkaxes([handles.axes1 handles.axes2],'x')
-axes(handles.axes1) % this is slow, consider moving outside of loop
+    % FOR GUI, FIT
+    plot(fitdata{1}(1,:),fittedmodel{1}(fitdata{1}(1,:))'+bkgArray(minr:maxr),'-','Color',[0 .5 0],'LineWidth',1.5);
+    pause(0.05);
+    %END
+    
+    % FOR GUI, DATA
+    plot(data(1,:),data(2,:),'o','MarkerSize',4,'LineWidth',1,'MarkerEdgeColor',[.08 .17 .55], 'MarkerFaceColor',[.08 .17 .55]) % CHANGES MARKER COLOR
+    % END
+    
+    % FOR GUI DIFFERENCE PLOT
+    axes(handles.axes2) % this is slow, consider moving outside loop
+    cla
+    plot(fitteddata(1,:),fitteddata(2,:)-(fitteddata(3,:)+fitteddata(4,:)),'-r')
+    %     plot(fitdata{1}(1,:),fitdata{1}(2,:)-fittedmodel{1}(fitdata{1}(1,:))','-r');
+    
+    xlim([Stro.Min2T Stro.Max2T])
+    
+    linkaxes([handles.axes1 handles.axes2],'x')
+    axes(handles.axes1) % this is slow, consider moving outside of loop
 end
 
 %Save this matrix to save the fit cutoff fit, to plot later

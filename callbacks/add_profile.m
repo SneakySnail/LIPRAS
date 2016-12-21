@@ -1,5 +1,5 @@
 function handles = add_profile(handles)
-
+import model.state.*
 profileNum = handles.guidata.numProfiles+1;
 handles.guidata.numProfiles = profileNum;
 handles.profiles(7).UserData = profileNum;
@@ -13,6 +13,8 @@ handles = resetGuiData(handles, profileNum);
 handles = change_profile(profileNum, handles);
 
 controlProfilePanel(handles);
+
+handles.cfit(profileNum) = CurrentFitParameters_g(handles, profileNum);
 
 assignin('base', 'handles', handles);
 guidata(handles.figure1, handles);
@@ -69,7 +71,6 @@ guidata(handles.figure1, handles);
         end
         
         editpeak = findobj(newCtrls, 'tag', 'edit_numpeaks');
-        addlistener(editpeak, 'UserData', 'PostSet', @(o,e)guidata.numpeaks(o,e,guidata(e.AffectedObject)));
         
         
         %********************************************************%

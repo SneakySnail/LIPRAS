@@ -109,3 +109,5 @@ else
                 legend(hTable.RowName{r})
         end
 end
+
+resizeAxes1ForErrorPlot(handles, 'data');

@@ -72,63 +72,9 @@ guidata(hObject, handles)
 
 % Executes on button press in push_newbkgd.
 function push_newbkgd_Callback(hObject, eventdata, handles)
-polyorder = str2num(handles.edit_polyorder.String);
-cp = handles.guidata.currentProfile;
+import ui.plotutils.*
 
-wprof=handles.guidata.currentProfile; % which profile we talking about here...
-
-% lets check xrdContainer to know if bkg2th is filled
-if isempty(handles.xrdContainer(1,wprof).bkgd2th);
-        [points, pos]=EditSelectBkgPoints(handles);
-handles.points{wprof}=points;
-handles.pos{wprof}=pos;
-
-else % else we are not editing bkg points
-
-if isempty(handles.points{wprof}) % incase of all points deleted using delete or reset
-    [points, pos]=EditSelectBkgPoints(handles);
-handles.points{wprof}=points;
-handles.pos{wprof}=pos;    
-elseif handles.radiobutton14_add.Value==1 % activated the add feature
-    [points, pos]=EditSelectBkgPoints(handles,handles.points{wprof},handles.pos{wprof},'Append');
-handles.points{wprof}=points;
-handles.pos{wprof}=pos;
-elseif handles.radiobutton15_delete.Value==1 % activated the delete
-    [points, pos]=EditSelectBkgPoints(handles,handles.points{wprof},handles.pos{wprof},'Delete');
-handles.points{wprof}=points;
-handles.pos{wprof}=pos;
-end
-
-if and(handles.radiobutton15_delete.Value==0,handles.radiobutton14_add==0)
-else
-    handles.xrd.bkgd2th=points; % this is here to activate the FitBackground button
-end
-% handles.xrd.resetBackground(numpoints,polyorder);
-end
-% Lets assign 2th points to bkgd2th in each xrdContainer
-handles.xrdContainer(1,wprof).bkgd2th=handles.points{wprof};
-
-if handles.guidata.numPeaks(cp) == 0
-    set(handles.panel_parameters.Children, 'visible', 'off');
-    t12 = findobj(handles.uipanel3, 'tag', 'text12');
-    set([t12, handles.edit_numpeaks], 'visible', 'on', 'enable', 'on');
-end
-
-if ~isempty(handles.xrdContainer(1,wprof).bkgd2th)
-    handles.tabpanel.TabEnables{2}='on';
-    set(handles.push_fitbkgd, 'enable', 'on');
-    set(handles.tab1_next, 'visible', 'on');
-else
-    handles.tabpanel.TabEnables{2} = 'off';
-    set(handles.push_fitbkgd, 'enable', 'off');
-    set(handles.tab1_next, 'visible', 'off');
-end
-
-
-
-
-plotX(handles);
-guidata(hObject, handles)
+selectBackgroundPoints(handles);
 
 
 function uitoggletool4_ClickedCallback(hObject, eventdata, handles)
@@ -183,7 +129,7 @@ guidata(hObject, handles)
 
 % Executes on button press in push_viewall.
 function push_viewall_Callback(hObject, eventdata, handles)
-plotFit(handles, 'all');
+plotX(handles, 'allfits');
 
 % Executes on button press in push_default.
 function push_default_Callback(hObject, eventdata, handles)
@@ -201,7 +147,7 @@ handles.table_fitinitial.Data = cell(len,3);
 set(hObject.Parent.Children,'Enable','off');
 set(handles.push_selectpeak,'Enable','on', 'string', 'Select Peak(s)');
 set(handles.table_fitinitial,'Enable','on');
-plotData(handles, get(handles.popup_filename,'Value'));
+plotX(handles, 'Data');
 
 % 	if strcmpi(handles.uitoggletool5.State,'on')
 % 		legend(handles.xrd.DisplayName,'box','off')
@@ -248,7 +194,7 @@ cla
 % If box is checked, turn on hold in axes1
 if get(hObject,'Value')
     handles.xrd.DisplayName = {};
-    plotData(handles, filenum,'superimpose');
+    plotX(handles, 'superimpose');
     set(handles.axes2,'Visible','off');
     set(handles.popup_filename, 'enable', 'on');
     set(handles.listbox_files, 'enable', 'on');
@@ -286,7 +232,7 @@ if get(handles.checkbox_superimpose,'Value')==1
             return
         end
     end
-    plotData(handles, filenum,'superimpose');
+    plotX(handles, 'superimpose');
 else
     cla
     hold off
@@ -485,15 +431,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 % Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-% --- Executes during object creation, after setting all properties.
-function edit_bkgdpoints_CreateFcn(hObject, eventdata, handles)
-
-% Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
