@@ -9,7 +9,7 @@ classdef CurrentFitParameters_g
     %   the uicontrol objects in the GUI to reflect these changes.
     %
     % For now, it assumes that all set values are verified.
-    %
+    
     %   i.e. class version of handles.guidata
     
     properties (SetAccess = private)
@@ -26,14 +26,19 @@ classdef CurrentFitParameters_g
         Range2t
         BackgroundModel
         PolyOrder
-        BackgroundPoints
-        BackgroundPointsIdx
-        PeakPositions
         FcnNames
         Constraints
         FitInitial
         FitRange
         Coefficients
+    end
+    
+    % These properties don't depend on a uicomponent in the GUI, so they're not
+    % visible but are still accessible
+    properties (Dependent, Hidden)
+        BackgroundPoints
+        BackgroundPointsIdx
+        PeakPositions
     end
     
     % The properties
@@ -185,7 +190,7 @@ classdef CurrentFitParameters_g
         
         function obj = set.BackgroundPoints(obj, value)
             obj.BackgroundPoints_ = value;
-            obj.hg.xrd.bkgd2th = value;
+%             obj.hg.xrd.bkgd2th = value;
             % Note - No uicontrol to update
         end
         
