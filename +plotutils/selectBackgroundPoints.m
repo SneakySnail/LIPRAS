@@ -20,12 +20,13 @@ handles.cfit(cp).BackgroundPointsIdx = pos;
 % update the handles structure
 guidata(handles.figure1, handles);
 handles = guidata(handles.figure1);
+assignin('base', 'handles', handles);
 
 % Update the GUI
 if isempty(handles.cfit(cp).FcnNames) == 0
     set(handles.panel_parameters.Children, 'visible', 'on');
     set(handles.panel_coeffs, 'visible', 'off');
-    
+    set(handles.tab2_next, 'visible', 'off');
 end
 
 if ~isempty(handles.cfit(cp).BackgroundPoints)

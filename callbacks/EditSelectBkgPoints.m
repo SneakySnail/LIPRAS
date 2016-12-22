@@ -12,8 +12,6 @@ rangedIntensity = handles.xrd.data_fit(1,(PackageFitDiffractionData.Find2theta( 
 
 handles.axes1.UserData = [ranged2theta'; rangedIntensity'];
 
-cp = handles.guidata.currentProfile;
-
 if nargin < 2 || strcmpi(Mode, 'Add')
     cla
     plotX(handles, 'data');
@@ -33,9 +31,6 @@ elseif strcmp(Mode,'Delete')
 else
     error('Invalid Mode')
 end
-
-handles.cfit(cp).BackgroundPoints = points;
-handles.cfit(cp).BackgroundPointsIdx = idx;
 
 guidata(handles.figure1, handles);
 % ==============================================================================
