@@ -16,6 +16,8 @@ end
 
 handles.cfit(cp).BackgroundPoints = points;
 handles.cfit(cp).BackgroundPointsIdx = pos;
+handles.points{cp} = points;    % Added for compatibility with Gio's code
+handles.pos{cp} = pos;          % Added for compatibility with Gio's code
 
 % update the handles structure
 guidata(handles.figure1, handles);
