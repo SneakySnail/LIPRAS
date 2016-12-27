@@ -1,8 +1,4 @@
 function readFile(Stro,index,fid)
-
-for i=1:Stro.skiplines
-		fgetl(fid);
-end
 if or(strcmp( Stro.suffix, 'csv'), strcmp( Stro.suffix, '.csv'))
 		datain = xlsread(fid);
         % Method for reading of data that does not start with numerial

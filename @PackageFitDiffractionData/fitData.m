@@ -1,39 +1,68 @@
 function fitData(Stro, ~, ~, ~, ~, ~, handles)
-% Stro.getBackground();
+
 Stro.fit_results={};
 Stro.fit_parms={};
 Stro.fit_parms_error={};
 
-datainMin = PackageFitDiffractionData.Find2theta(Stro.two_theta,Stro.Min2T);
-datainMax = PackageFitDiffractionData.Find2theta(Stro.two_theta,Stro.Max2T);
 
-data = Stro.data_fit(:,datainMin:datainMax); %Extract relevant 2theta region
-TwT = Stro.two_theta(datainMin:datainMax); %Extract relevant 2theta region
 
 %create arbitrary axis for plotting of data
 arb = 1:1:size(Stro.data_fit,1); %here
 
-[~,~]=meshgrid(TwT,arb);
+i=Stro.makeFunction(Stro.PSfxn);
 
-% Arbgridsum=arb;
-% datasum=data;
-g=Stro.makeFunction(Stro.PSfxn);
-
-
-
-for i=1:length(Stro.Filename) %this is the start of the for loop that executes the remainder of the
-    Stro.Status=['Fitting ', Stro.Filename{1},': Dataset ',num2str(i),' of ',num2str(length(Stro.Filename)),'... '];
-    
+% Execute on remainder of files
+for i=1:length(Stro.Filename)
     if handles.radio_stopleastsquares.Value==1
         Stro.Status=[Stro.Status,'Stopped.'];
         break
     end
     
+    fitSingleFile();
+end
+
+linkaxes([handles.axes1 handles.axes2],'x')
+axes(handles.axes1) % this is slow, consider moving outside of loop
+
+Stro.Status = 'Fitting dataset... Done.';
+
+
+% Writes Fmodel and Fdata, after the fitting has been completed
+for i=1:length(Stro.Filename)
+    
+    if isa(Stro.Filename,'char')
+        [~, filename, ~] = fileparts(Stro.Filename);
+    elseif length(Stro.Filename) == 1
+        [~, filename, ~] = fileparts(Stro.Filename{1});
+    else
+        [~, filename, ~] = fileparts(Stro.Filename{i});
+    end
+    
+    % Writes individual Fdata
+    Stro.SaveFitData(strcat(fitOutputPath,filename,'_Profile_',num2str(handles.guidata.currentProfile),'_',num2str(arb(i)),'.Fdata'),Stro.fit_results{i});
+    
+    Fmodel=Stro.Fmodel(i);
+    Fcoeff=Stro.Fcoeff(1);
+    FmodelGOF=Stro.FmodelGOF(i);
+    FmodelCI=Stro.FmodelCI(i);
+    % Writes individual Fmodel
+    Stro.SaveFitValues(strcat(fitOutputPath,filename,'_Profile_',num2str(handles.guidata.currentProfile),'_',num2str(arb(i)),'.Fmodel'),Stro.PSfxn,Fmodel,Fcoeff,FmodelGOF,FmodelCI);
+    
+end
+
+
+
+    function fitSingleFile()
+    
+    Stro.Status=['Fitting ', Stro.Filename{1},': Dataset ',num2str(i),' of ',num2str(length(Stro.Filename)),'... '];
+    
+    
+    
     %this is the primary function
     if size(Stro.PSfxn,1)==size(Stro.PeakPositions,1)
         datasent = Stro.getRangedData(i, Stro.fitrange);
         
-        Stro.fitXRD(datasent, Stro.PeakPositions, i, handles,g);
+        Stro.fitXRD(datasent, Stro.PeakPositions, i, handles,i);
         
         % Master File, writes all Fmodel results into one file
         fitOutputPath = strcat(Stro.OutputPath,'FitData/');
@@ -94,34 +123,5 @@ for i=1:length(Stro.Filename) %this is the start of the for loop that executes t
     
     Stro.fit_results{i} = Stro.Fdata;
     
-end
-
-linkaxes([handles.axes1 handles.axes2],'x')
-axes(handles.axes1) % this is slow, consider moving outside of loop
-
-Stro.Status = 'Fitting dataset... Done.';
-
-
-% Writes Fmodel and Fdata, after the fitting has been completed
-for g=1:length(Stro.Filename)
-    
-    if isa(Stro.Filename,'char')
-        [~, filename, ~] = fileparts(Stro.Filename);
-    elseif length(Stro.Filename) == 1
-        [~, filename, ~] = fileparts(Stro.Filename{1});
-    else
-        [~, filename, ~] = fileparts(Stro.Filename{g});
     end
-    
-    % Writes individual Fdata
-    Stro.SaveFitData(strcat(fitOutputPath,filename,'_Profile_',num2str(handles.guidata.currentProfile),'_',num2str(arb(g)),'.Fdata'),Stro.fit_results{g});
-    
-    Fmodel=Stro.Fmodel(g);
-    Fcoeff=Stro.Fcoeff(1);
-    FmodelGOF=Stro.FmodelGOF(g);
-    FmodelCI=Stro.FmodelCI(g);
-    % Writes individual Fmodel
-    Stro.SaveFitValues(strcat(fitOutputPath,filename,'_Profile_',num2str(handles.guidata.currentProfile),'_',num2str(arb(g)),'.Fmodel'),Stro.PSfxn,Fmodel,Fcoeff,FmodelGOF,FmodelCI);
-    
-    
 end

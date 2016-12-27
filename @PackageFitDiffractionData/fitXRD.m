@@ -41,7 +41,6 @@ dataNB(2,:) = data(2,:) - bkgArray;
 % Size of array to fit
 fitrangeX=length(dataNB(1,:));
 
-
 dataMin = PackageFitDiffractionData.Find2theta(data(1,:),Stro.Min2T); % shapes the data matrix supplied to fit
 dataMax = PackageFitDiffractionData.Find2theta(data(1,:),Stro.Max2T); % shapes data matrix suppled to fit
 
@@ -72,7 +71,7 @@ if minr<dataMin;
     minr=dataMin;
 end
 
-if maxr>dataMax;
+if maxr>dataMax
     disp('maxr_true')
     maxr=dataMax;
 end
@@ -80,7 +79,6 @@ end
 dataMin = PackageFitDiffractionData.Find2theta(Stro.two_theta,Stro.Min2T); % to generate data within user selected fit range
 dataMax = PackageFitDiffractionData.Find2theta(Stro.two_theta,Stro.Max2T); % same as above
 
-datafit=Stro.data_fit(:,dataMin:dataMax);
 fitdata{1} = dataNB(:,minr:maxr);
 
 
@@ -108,7 +106,6 @@ fdata(3,:)=bkgArray;
 fdata(4,:)=fittedmodel{1}(data(1,:));
 fitteddata(1+3,minr:maxr)=fittedmodel{1}(fitdata{1}(1,:));
 fitteddata=fdata;
-assignin('base','fitteddata',fitteddata)
 
 if handles.noplotfit.Value==1
     cla
