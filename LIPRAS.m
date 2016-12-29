@@ -307,9 +307,7 @@ legend(handles.axes1, handles.xrd.DisplayName,'Box','off')
 %% Menu callback functions
 
 function menu_new_Callback(hObject, eventdata, handles)
-handles.xrd.Status='Loading data... ';
-
-import_data(handles);
+newDataSet(handles);
 
 function menu_save_Callback(hObject, eventdata, handles)
 handles.xrd.Status='Saving results...';

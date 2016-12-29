@@ -1,6 +1,6 @@
-%% import_data(handles, filename, path)
+%% newDataSet(handles, filename, path)
 % Imports new data.
-function handles = import_data(handles, filename, path)
+function handles = newDataSet(handles, filename, path)
 
 try
     PrefFile=fopen('Preference File.txt','r');

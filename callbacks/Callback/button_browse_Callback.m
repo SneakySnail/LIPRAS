@@ -1,7 +1,7 @@
 %  Executes on button press in button_browse.
 function button_browse_Callback(hObject, eventdata, handles)
 	handles.xrd.Status='Browsing for dataset... ';
-	handles = import_data(handles);
+	handles = newDataSet(handles);
 	
     if handles.xrdContainer(7).hasData
         handles.guidata.Filename = handles.xrd.Filename;
