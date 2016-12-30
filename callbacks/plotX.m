@@ -199,7 +199,7 @@ bkgd2th = handles.xrd.getBkgdPoints();
 wprof=handles.guidata.currentProfile;
 bkgModel=handles.popup_bkgdmodel.Value;
 if handles.popup_bkgdmodel.Value==1
-    [bkgArray, S, U]=handles.xrd.fitBkgd(data,handles.points{wprof}, data(2,handles.pos{wprof}), handles.xrd.PolyOrder,bkgModel);
+    [bkgArray, S, U] = handles.xrd.fitBkgd(data, handles.points{wprof}, data(2,handles.pos{wprof}), handles.xrd.PolyOrder,bkgModel);
 else
     % A bit silly, bkgx and bkgy need the end points, otherwise, the final
     % function wont evaluate the last points and it will lead to a value of

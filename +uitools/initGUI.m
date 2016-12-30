@@ -114,30 +114,7 @@ function handles = initGUI(handles)
         set(handles.panel_results, 'parent', handles.profiles(7)); 
     end
     % ==========================================================================
-    
-    function replaceUiComponentWithSpinner()
-        INCREMENT_VALUE = 1;
         
-        hPoly = handles.edit_polyorder;
-        INITIAL_POLYORDER = 3;
-        MIN_POLYORDER = 1;
-        MAX_POLYORDER = 25;
-        
-        jmodelPoly = javax.swing.SpinnerNumberModel( ...
-            INITIAL_POLYORDER, ...
-            MIN_POLYORDER, ...
-            MAX_POLYORDER, ...
-            INCREMENT_VALUE);
-        
-        jPoly = javax.swing.JSpinner(jmodelPoly);
-        [~, jhPoly] = javacomponent(jPoly, hPoly.Position, hPoly.Parent);
-        set(jhPoly, 'Units', 'Normalized', 'Position', hPoly.Position);
-        
-        handles.edit_polyorder = jhPoly;
-        
-    end
-    % ==========================================================================
-    
     
     % Adds callback functions to all other uicomponents. 
     % 

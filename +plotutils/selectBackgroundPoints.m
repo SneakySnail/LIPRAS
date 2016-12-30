@@ -24,23 +24,6 @@ guidata(handles.figure1, handles);
 handles = guidata(handles.figure1);
 assignin('base', 'handles', handles);
 
-% Update the GUI
-if isempty(handles.cfit(cp).FcnNames) == 0
-    set(handles.panel_parameters.Children, 'visible', 'on');
-    set(handles.panel_coeffs, 'visible', 'off');
-    set(handles.tab2_next, 'visible', 'off');
-end
-
-if ~isempty(handles.cfit(cp).BackgroundPoints)
-    handles.tabpanel.TabEnables{2}='on';
-    set(handles.push_fitbkgd, 'enable', 'on');
-    set(handles.tab1_next, 'visible', 'on');
-else
-    handles.tabpanel.TabEnables{2} = 'off';
-    set(handles.push_fitbkgd, 'enable', 'off');
-    set(handles.tab1_next, 'visible', 'off');
-end
-
 zoom reset
 
 % Lets assign 2th points to bkgd2th in each xrdContainer
