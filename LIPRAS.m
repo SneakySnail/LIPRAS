@@ -325,7 +325,7 @@ handles.xrd.Status='Loading options file... ';
 % 	end
 %
 try
-    handles=uitools.manager.load_parameter(handles);
+    handles=fileutils.importParameterFile(handles);
 catch ME
     ME.stack(1)
     

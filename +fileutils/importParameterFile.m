@@ -1,5 +1,5 @@
 % Reads a parameter file specified by the user into the current profile.
-function handles = load_parameter(handles)
+function handles = importParameterFile(handles)
 cp = handles.guidata.currentProfile;
 
 try
