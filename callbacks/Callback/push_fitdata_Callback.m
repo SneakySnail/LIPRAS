@@ -22,7 +22,7 @@ LB = fitinit{3};
 try
     resizeAxes1ForErrorPlot(handles, 'fit');
     handles.xrd.fitData(peakpos, fnames, SP, UB, LB, handles);	% Function - fit data
-    handles = guidata(hObject);
+%     handles = guidata(hObject);
     
     if isempty(handles.xrd.Fmodel)
         handles.guidata.fitted{cp} = false; 

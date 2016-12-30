@@ -53,8 +53,8 @@ for i=1:length(peakTableRow)
 end
 
 handles.guidata.PeakPositions{cp} = x;
-fill_table_fitinitial(handles); 
-handles = guidata(hObject);
+ui.control.table.fillFitInitialValues(handles); 
+% handles = guidata(hObject);
 
 hold off
 plotX(handles, 'data');

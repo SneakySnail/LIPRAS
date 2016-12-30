@@ -13,7 +13,6 @@ elseif strcmpi(o.String,'m')
     o.Parent.UserData(5) = ~o.Parent.UserData(5);
 end
 
-handles = guidata(o);
 cp = handles.guidata.currentProfile;
 
 
