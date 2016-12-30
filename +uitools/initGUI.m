@@ -2,7 +2,7 @@
 function handles = initGUI(handles)    
     addToExecPath();
     
-    initAxes1();
+    initComponents();
     
     createJavaStatusBar();
     
@@ -31,7 +31,7 @@ function handles = initGUI(handles)
     end
     % ==========================================================================
     
-    function initAxes1()
+    function initComponents()
         hold(handles.axes1, 'on');
         
         % Default color order for plotting data series
@@ -44,6 +44,10 @@ function handles = initGUI(handles)
             0.502 0 0.502; % violet
             0 0 1; % royal blue
             0.502 0.502 0]); % dark yellow
+        
+        set(handles.table_paramselection, 'Data', cell(1, 1), ...
+            'enable', 'on', 'ColumnName', {'Peak function'}, ...
+            'ColumnWidth', {250}, 'Data', cell(1, 1));
         
     end
     % ==========================================================================

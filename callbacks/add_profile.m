@@ -1,5 +1,4 @@
 function handles = add_profile(handles)
-import uitools.state.*
 profileNum = handles.guidata.numProfiles+1;
 handles.guidata.numProfiles = profileNum;
 handles.profiles(7).UserData = profileNum;
@@ -14,7 +13,9 @@ handles = change_profile(profileNum, handles);
 
 controlProfilePanel(handles);
 
-handles.cfit(profileNum) = CurrentFitParameters_g(handles, profileNum);
+profiledata = ui.control.container.ProfileData(handles, profileNum);
+handles.cfit(profileNum) = profiledata;
+setappdata(handles.figure1, 'profiledata', profiledata);
 
 assignin('base', 'handles', handles);
 guidata(handles.figure1, handles);
@@ -69,9 +70,9 @@ guidata(handles.figure1, handles);
                newCtrls(i) = uitools.uispinner(newCtrls(i), 3, 1, 25, 1);
             end
             % When copying object, create new java wrapper for numpeaks
-%             if strcmpi(baseCtrls(i).Tag, 'edit_numpeaks')
-%                newCtrls(i) = uitools.uispinner(newCtrls(i), 1, 1, 25, 1);
-%             end
+            if strcmpi(baseCtrls(i).Tag, 'edit_numpeaks')
+                newCtrls(i) = uitools.uispinner(newCtrls(i), 1, 1, 20, 1);
+            end
         end
         
                 
