@@ -13,9 +13,7 @@ handles = change_profile(profileNum, handles);
 
 controlProfilePanel(handles);
 
-profiledata = ui.control.container.ProfileData(handles, profileNum);
-handles.cfit(profileNum) = profiledata;
-setappdata(handles.figure1, 'profiledata', profiledata);
+initProfileData();
 
 assignin('base', 'handles', handles);
 guidata(handles.figure1, handles);
@@ -36,6 +34,17 @@ guidata(handles.figure1, handles);
             set(handles.push_addprofile, 'enable', 'on');
             set(handles.push_removeprofile, 'visible', 'off');
         end
+    end
+
+    function initProfileData()
+    profiledata = ui.control.container.ProfileData(handles, profileNum);
+    handles.cfit(profileNum) = profiledata;
+    
+    setappdata(handles.figure1, 'profiledata', profiledata);
+    
+    set(handles.edit_numpeaks.JavaPeer, ...
+        'StateChangedCallback', {@numberOfPeaksChanged, handles});
+        
     end
 
     function obj = duplicate_uipanel3() 
@@ -71,7 +80,7 @@ guidata(handles.figure1, handles);
             end
             % When copying object, create new java wrapper for numpeaks
             if strcmpi(baseCtrls(i).Tag, 'edit_numpeaks')
-                newCtrls(i) = uitools.uispinner(newCtrls(i), 1, 1, 20, 1);
+                newCtrls(i) = uitools.uispinner(newCtrls(i), 0, 0, 20, 1);
             end
         end
         
