@@ -270,7 +270,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
                 arrayposition=0;
             else
                 test = find(data >= value2theta);
-                if isempty(test);
+                if isempty(test)
                     arrayposition = length(data)-1;
                 else
                     arrayposition = test(1);

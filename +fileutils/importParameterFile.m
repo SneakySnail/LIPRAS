@@ -1,10 +1,12 @@
-% Reads a parameter file specified by the user into the current profile.
 function handles = importParameterFile(handles)
+%IMPORTPARAMETERFILE Reads a file containing parameter settings and saves it 
+%   into the current profile.
+
 cp = handles.guidata.currentProfile;
 
 try
     fid = getParameterFileId();
-catch ME
+catch
     handles.xrd.Status = 'Parameter file not found. ';
     %     rethrow(ME)
     return
@@ -94,8 +96,8 @@ uitools.adapter.state.fitReady(handles);
                 
             case 'Constraints:'
                 param.constraints = str2double(a(2:end));
-                param.numfcns = length(param.fxn);
-                param.constraints = reshape(param.constraints, [param.numfcns 5]);
+                numfcns = length(param.fxn);
+                param.constraints = reshape(param.constraints, [numfcns 5]);
                 
             case 'DataPath:'
                 param.datapath = a(2);
@@ -156,6 +158,11 @@ uitools.adapter.state.fitReady(handles);
     handles.guidata.fitrange{cp} = pVal.fitrange;
     handles.guidata.coeff{cp} = pVal.coeff;
     
+    handles.cfit(1).Range2t = [pVal.min2t pVal.max2t];
+    handles.cfit(1).PolyOrder = pVal.polyorder;
+    handles.cfit(1).BackgroundPoints = pVal.bkgd;
+    
+    plotX(handles, 'data');
     end
 
 
@@ -182,7 +189,7 @@ uitools.adapter.state.fitReady(handles);
     % constraints
     constrained = model.fitcomponents.Constraints(pVal.constraints);
     
-    uitools.helpers.table.resizeConstraintColumns(handles, constrained);
+    ui.control.table.toggleConstraints(handles, constrained);
     
     
     end

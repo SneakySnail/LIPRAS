@@ -1,6 +1,8 @@
-function resizeConstraintColumns(handles, constrained)
+function toggleConstraints(handles, constrained)
 table = handles.table_paramselection;
+
 persistent originalWidth;
+
 if isempty(originalWidth)
     originalWidth = table.ColumnWidth;
 end
