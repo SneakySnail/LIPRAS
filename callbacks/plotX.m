@@ -6,7 +6,7 @@ if nargin <= 1
     if ~handles.guidata.fitted{cp} % If there isn't a fit yet
         plotData(handles);
         if ~isempty(handles.guidata.fit_initial{cp})
-            handles = plot_sample_fit(handles);
+            plot_sample_fit(handles);
         end
     else
         plotFit(handles);
@@ -172,32 +172,36 @@ xlim(gca, [handles.xrd.Min2T handles.xrd.Max2T])
 
 % Plot an example fit using the starting values from table.
 function handles = plot_sample_fit(handles)
+import ui.control.*
 cp = handles.guidata.currentProfile;
+profile = handles.cfit(cp);
 
 % Make sure all the cells with starting values are not empty
 try
-    SP = handles.guidata.fit_initial{cp}{1};
-    coeff=handles.table_fitinitial.RowName';
+    SP = profile.FitInitial.start;
+    coeff = profile.Coefficients;
     assert(~isempty(coeff));
-    assert(isempty(find(~strcmpi(coeff, handles.guidata.coeff{cp}), 1)));
+%     assert(isempty(find(~strcmpi(coeff, handles.guidata.coeff{cp}), 1)));
     assert(~isempty(SP));
     
-    temp = cellfun(@isempty, handles.table_fitinitial.Data(:, 1:3));
-    assert(isempty(find(temp, 1)));
+    assert(~ProfileData.hasEmptyCell(handles.table_fitinitial));
     assert(length(SP)==length(coeff));
     assert(~isempty(handles.xrd.bkgd2th));
 catch
+%     ME.stack(1)
+%     keyboard
     return
 end
 
 filenum=get(handles.popup_filename,'Value');
 fitrange=str2double(get(handles.edit_fitrange,'string'));
 data=handles.xrd.getRangedData(filenum,fitrange);
-bkgd2th = handles.xrd.getBkgdPoints();
+% bkgd2th = handles.xrd.getBkgdPoints();
 
 % Get Background
 wprof=handles.guidata.currentProfile;
 bkgModel=handles.popup_bkgdmodel.Value;
+
 if handles.popup_bkgdmodel.Value==1
     [bkgArray, S, U] = handles.xrd.fitBkgd(data, handles.points{wprof}, data(2,handles.pos{wprof}), handles.xrd.PolyOrder,bkgModel);
 else
@@ -374,11 +378,11 @@ end
 
 % ==============================================================================
 
-% Plots the raw data for a specified file number in axes1.
 function plotData(handles)
+% PLOTDATA Plots the raw data for a specified file number in axes1.
 Stro = handles.xrd;
 dataSet = handles.popup_filename.Value;
-cla(handles.axes1)
+hold off 
 
 x = Stro.two_theta;
 c=find(Stro.Min2T <= Stro.two_theta & Stro.Max2T >= Stro.two_theta);
@@ -387,15 +391,13 @@ intensity = Stro.data_fit(dataSet,:);
 ymax=max(intensity(c));
 ymin=min(intensity(c));
 
-hold off
-
 if isempty(Stro.bkgd2th)
     plot(x,intensity,'-o','LineWidth',0.5,'MarkerSize',5, 'MarkerFaceColor', [1 1 1]);
 else
     plot(x,intensity,'-o','LineWidth',0.5,'MarkerSize',4, 'MarkerFaceColor', [0 0 0]);
 end
 
-Stro.DisplayName=Stro.Filename(dataSet);
+Stro.DisplayName = Stro.Filename(dataSet);
 
 ylim([0.9*ymin,1.1*ymax])
 xlim(gca, [Stro.Min2T, Stro.Max2T])

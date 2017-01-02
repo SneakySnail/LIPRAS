@@ -34,7 +34,7 @@ handles.guidata.numPeaks(cp) = num;
 handles.guidata.constraints{cp} = zeros(num, 5);
 
 % set uicontrol visibility
-set([handles.tab2_panel1, handles.panel_constraints, handles.panel_kalpha2], 'visible', 'on');
+set([handles.container_fitfunctions, handles.panel_constraints, handles.panel_kalpha2], 'visible', 'on');
 set(handles.table_paramselection, ...'visible', 'on', ...
         'enable', 'on', 'ColumnName', {'Peak function'}, ...
         'ColumnWidth', {250}, 'Data', cell(num, 1));

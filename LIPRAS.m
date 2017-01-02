@@ -63,9 +63,7 @@ guidata(hObject, handles)
 
 % Executes on button press in push_newbkgd.
 function push_newbkgd_Callback(hObject, eventdata, handles)
-import plotutils.*
-
-selectBackgroundPoints(handles);
+plotutils.selectBackgroundPoints(handles);
 
 
 function uitoggletool4_ClickedCallback(hObject, eventdata, handles)

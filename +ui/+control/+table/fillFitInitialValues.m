@@ -1,6 +1,6 @@
 % ---
-function isFilled = fill_table_fitinitial(handles)
-% --- Fills empty cells in table_coeffvals with their default values only if the
+function isFilled = fillFitInitialValues(handles)
+% Fills empty cells in table_coeffvals with their default values only if the
 % initial peak peakPositionsitions are in the table.
 isFilled = false;
 cp = handles.guidata.currentProfile;

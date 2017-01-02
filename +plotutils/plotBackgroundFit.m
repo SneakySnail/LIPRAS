@@ -30,10 +30,12 @@ end
 points = cfit.BackgroundPoints;
 idx = cfit.BackgroundPointsIdx;
 
-cla(handles.axes1)
+% cla(handles.axes1)
+
+hold off
+plot(handles.axes1,data(1,:),data(2,:),'-o','LineWidth',0.5,'MarkerSize',4, 'MarkerFaceColor', [0 0 0])
 
 hold on
-plot(handles.axes1,data(1,:),data(2,:),'-o','LineWidth',0.5,'MarkerSize',4, 'MarkerFaceColor', [0 0 0])
 plot(handles.axes1, points, data(2,idx), 'rd', 'markersize', 5, ...
     'markeredgecolor', 'r', 'markerfacecolor','r');
 plot(handles.axes1,data(1,:),bkgArray,'--')

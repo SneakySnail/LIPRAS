@@ -13,7 +13,7 @@ rangedIntensity = handles.xrd.data_fit(1,(PackageFitDiffractionData.Find2theta( 
 handles.axes1.UserData = [ranged2theta'; rangedIntensity'];
 
 if nargin < 2 || strcmpi(Mode, 'Add')
-    cla
+%     cla
     plotX(handles, 'data');
     handles.axes1.UserData = [ranged2theta'; rangedIntensity']; % repeated because 
                                                     % plotX clears axes1.UserData
@@ -32,13 +32,14 @@ else
     error('Invalid Mode')
 end
 
+zoom reset
+    
 guidata(handles.figure1, handles);
 % ==============================================================================
 
 
 function [points, pos] = Add_bkgpoints(handles)
 import plotutils.*
-
 
 twotheta = handles.axes1.UserData(1,:);
 intensity = handles.axes1.UserData(2,:);
@@ -66,7 +67,6 @@ pos=sort(pos);
 
 function [points, pos] = Append_bkgpoints(handles)
 import plotutils.*
-
 
 twotheta = handles.axes1.UserData(1,:);
 intensity = handles.axes1.UserData(2,:);

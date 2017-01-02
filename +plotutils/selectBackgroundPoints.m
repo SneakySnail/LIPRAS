@@ -19,14 +19,18 @@ handles.cfit(cp).BackgroundPointsIdx = pos;
 handles.points{cp} = points;    % Added for compatibility with Gio's code
 handles.pos{cp} = pos;          % Added for compatibility with Gio's code
 
-% update the handles structure
-guidata(handles.figure1, handles);
-handles = guidata(handles.figure1);
-assignin('base', 'handles', handles);
-
-zoom reset
+handles.tab1_next.Visible = 'on';
+handles.push_fitbkgd.Enable = 'on';
+handles.container_numpeaks.Visible = 'on';
+set(findobj(handles.panel_parameters, 'tag', 'text12'),'visible', 'on');
+set(handles.edit_numpeaks, 'visible', 'on');
+handles.tabpanel.TabEnables{2} = 'on';
+handles.tabpanel.Selection = 2;
 
 % Lets assign 2th points to bkgd2th in each xrdContainer
-handles.xrdContainer(1,cp).bkgd2th=handles.cfit(cp).BackgroundPoints;
+handles.xrdContainer(1,cp).bkgd2th = handles.cfit(cp).BackgroundPoints;
 plotX(handles, 'data');
-guidata(handles.figure1, handles)
+
+% update the handles structure
+assignin('base', 'handles', handles);
+guidata(handles.figure1, handles);

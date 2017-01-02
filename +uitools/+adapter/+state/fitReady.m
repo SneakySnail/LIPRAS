@@ -6,7 +6,7 @@ handles.tabpanel.Selection = 2;
 
 set(handles.panel_parameters.Children, 'visible', 'on');
 
-set(handles.tab2_panel1.Children, 'enable', 'on');
+set(handles.container_fitfunctions.Children, 'enable', 'on');
 
 set(handles.panel_coeffs.Children, 'enable', 'on');
 

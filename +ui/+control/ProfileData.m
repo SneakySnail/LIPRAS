@@ -35,7 +35,7 @@ classdef ProfileData
     
     % These properties don't depend on a uicomponent in the GUI, so they're not
     % visible but are still accessible
-    properties (Dependent, Hidden)
+    properties (Hidden)
         BackgroundPoints
         BackgroundPointsIdx
         PeakPositions
@@ -47,14 +47,14 @@ classdef ProfileData
         Range2t_
         BackgroundModel_
         PolyOrder_
-        BackgroundPoints_
-        BackgroundPointsIdx_
-        PeakPositions_
+%         BackgroundPoints_
+%         BackgroundPointsIdx_
+%         PeakPositions_
         FcnNames_
         Constraints_
         FitInitial_
         FitRange_
-        Coefficients_
+%         Coefficients_
     end
     
     
@@ -107,21 +107,21 @@ classdef ProfileData
         jh.setValue(value);
         end
         
-        function obj = set.BackgroundPoints(obj, value)
-        obj.BackgroundPoints_ = value;
-        %             obj.hg.xrd.bkgd2th = value;
-        % Note - No uicontrol to update
-        end
-        
-        function obj = set.BackgroundPointsIdx(obj, value)
-        obj.BackgroundPointsIdx_ = value;
-        % Note - No uicontrol to update
-        end
-        
-        function obj = set.PeakPositions(obj, value)
-        obj.PeakPositions_ = value;
-        % Note - No uicontrol to update
-        end
+%         function obj = set.BackgroundPoints(obj, value)
+%         obj.BackgroundPoints_ = value;
+%         %             obj.hg.xrd.bkgd2th = value;
+%         % Note - No uicontrol to update
+%         end
+%         
+%         function obj = set.BackgroundPointsIdx(obj, value)
+%         obj.BackgroundPointsIdx_ = value;
+%         % Note - No uicontrol to update
+%         end
+%         
+%         function obj = set.PeakPositions(obj, value)
+%         obj.PeakPositions_ = value;
+%         % Note - No uicontrol to update
+%         end
         
         function obj = set.FcnNames(obj, value)
         obj.FcnNames_ = value;
@@ -146,7 +146,8 @@ classdef ProfileData
         end
         
         function obj = set.Coefficients(obj, value)
-        obj.Coefficients_ = value;
+        %VALUE - 1xN string cell array
+        obj.hg.table_fitinitial.RowName = value';
         
         end
         
@@ -179,18 +180,18 @@ classdef ProfileData
         end
         
         % Selected 2theta points to use for the background fit.
-        function value = get.BackgroundPoints(obj)
-        value = obj.BackgroundPoints_;
-        end
+%         function value = get.BackgroundPoints(obj)
+%         value = obj.BackgroundPoints_;
+%         end
         
-        function value = get.BackgroundPointsIdx(obj)
-        value = obj.BackgroundPointsIdx_;
-        end
-        
-        function value = get.PeakPositions(obj)
-        % Selected 2theta points to use for the initial peak positions.
-        value = obj.PeakPositions_; %TODO replace guidata
-        end
+%         function value = get.BackgroundPointsIdx(obj)
+%         value = obj.BackgroundPointsIdx_;
+%         end
+%         
+%         function value = get.PeakPositions(obj)
+%         % Selected 2theta points to use for the initial peak positions.
+%         value = obj.PeakPositions_; %TODO replace guidata
+%         end
         
         function value = get.FcnNames(obj)
         % Cell array of the fit function names.
@@ -213,6 +214,7 @@ classdef ProfileData
         
         function value = get.FitInitial(obj)
         % Structure containing the the fit initial bounds.
+        %
         %   start    - numeric array of starting points
         %   lower    - numeric array of lower bounds
         %   upper    - numeric array of upper bounds
@@ -228,10 +230,26 @@ classdef ProfileData
         value = str2double(h.String);
         end
         
-        % Returns the coefficients list as a cell array of strings.
+        % Returns the coefficients row name as a 1xN cell array of strings.
         function value = get.Coefficients(obj)
-        value = obj.Coefficients_;
+        value = obj.hg.table_fitinitial.RowName';
         end 
+    end
+    
+    
+    methods (Static)
+        
+        function value = hasEmptyCell(table)
+        %VALUE - True if there is an empty cell in the table, false if not.
+        temp = cellfun(@isempty, table.Data);
+        if isempty(find(temp, 1))
+            value = false;
+        else
+            value = true;
+        end
+        
+        end
+        
     end
 end
 

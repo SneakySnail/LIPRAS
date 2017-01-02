@@ -32,12 +32,7 @@ updateUiControlValues();
 
 
 uitools.adapter.state.fitReady(handles);
-
-
-
-% =======================================
-% Helper functions
-% =======================================
+%===============================================================================
 
     function fid = getParameterFileId()
     
@@ -142,7 +137,7 @@ uitools.adapter.state.fitReady(handles);
     fclose(fid);
     
     end
-
+%===============================================================================
 
     function saveParametersIntoGuidata()
     
@@ -164,7 +159,7 @@ uitools.adapter.state.fitReady(handles);
     
     plotX(handles, 'data');
     end
-
+%===============================================================================
 
     function updateUiControlValues()
     % guidata.numPeaks
@@ -193,6 +188,6 @@ uitools.adapter.state.fitReady(handles);
     
     
     end
-
+%===============================================================================
 
 end

@@ -1,10 +1,11 @@
-% Picks one point on a plot and returns an array of length 2 for the 2theta and index
-% location. 
+function [point, idx] = selectOnePointFromPlot(ax)
+%SELECTONEPOINTFROMPLOT Picks one point on a plot and returns an array of length
+% 2 for the 2theta and index location. 
 %
 % Any time the user hits the Esc key while picking points on the plot, the mouse
 % pointer switches to the zoom capability. To resume picking points, press the
 % Esc key again.
-function [point, idx] = selectOnePointFromPlot(ax)
+% 
 % point - 2theta value. Empty if keypress was anything except a mouse click or Esc
 % idx - index into data array. Empty if keypress was anything except a mouse click or Esc
 
