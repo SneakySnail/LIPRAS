@@ -1,55 +1,69 @@
 %
 function plotX(handles, type)
-cp = handles.guidata.currentProfile;
+if isfield(handles, 'cfit')
+    profiledata = handles.cfit(handles.guidata.currentProfile);
+else
+    %TODO
+    profiledata.isFitted = false;
+end
 
 if nargin <= 1
-    if ~handles.guidata.fitted{cp} % If there isn't a fit yet
-        plotData(handles);
-        if ~isempty(handles.guidata.fit_initial{cp})
-            plot_sample_fit(handles);
-        end
+    if profiledata.isFitted
+        type = 'fit';
     else
+        type = 'data';
+    end
+end
+
+
+switch lower(type)
+    case 'backgroundpoints'
+        plotData(handles);
+        hold on;
+        plotBackgroundPoints(handles);
+        resizeAxes1ForErrorPlot(handles, 'data');
+        
+    case 'backgroundfit'
+        plotData(handles);
+        hold on
+        plotBackgroundFit(handles);
+        resizeAxes1ForErrorPlot(handles, 'data');
+        
+    case 'data'
+        plotData(handles);
+        handles = plot_sample_fit(handles);
+        resizeAxes1ForErrorPlot(handles, 'data');
+        
+    case 'superimpose'
+        plotSuperimposed(handles);
+        resizeAxes1ForErrorPlot(handles, 'data');
+        
+    case 'fit'
+        cla(handles.axes1)
         plotFit(handles);
-    end
-    
-else
-    switch type
-        case 'data'
-            plotData(handles);
-            handles = plot_sample_fit(handles);
-            resizeAxes1ForErrorPlot(handles, 'data');
-            
-        case 'superimpose'
-            plotSuperimposed(handles);
-            resizeAxes1ForErrorPlot(handles, 'data');
-            
-        case 'fit'
-            cla(handles.axes1)
-            plotFit(handles);
-            plotFitError(handles);
-            resizeAxes1ForErrorPlot(handles, 'fit');
-            
-        case 'sample'
-            plotData(handles);
-            handles = plot_sample_fit(handles);
-            resizeAxes1ForErrorPlot(handles, 'data');
-            
-        case 'allfits'
-            plotAllFits(handles);
-            
-        case 'error'
-            plotFitError(handles);
-            resizeAxes1ForErrorPlot(handles, 'fit');
-            
-        case 'coeff' %TODO 
-            
-            
-        case 'stats' %TODO
-            
-            
-        otherwise
-            
-    end
+        plotFitError(handles);
+        resizeAxes1ForErrorPlot(handles, 'fit');
+        
+    case 'sample'
+        plotData(handles);
+        handles = plot_sample_fit(handles);
+        resizeAxes1ForErrorPlot(handles, 'data');
+        
+    case 'allfits'
+        plotAllFits(handles);
+        
+    case 'error'
+        plotFitError(handles);
+        resizeAxes1ForErrorPlot(handles, 'fit');
+        
+    case 'coeff' %TODO
+        
+        
+    case 'stats' %TODO
+        
+        
+    otherwise
+        
 end
 
 % ==============================================================================
@@ -174,22 +188,22 @@ xlim(gca, [handles.xrd.Min2T handles.xrd.Max2T])
 function handles = plot_sample_fit(handles)
 import ui.control.*
 cp = handles.guidata.currentProfile;
-profile = handles.cfit(cp);
 
 % Make sure all the cells with starting values are not empty
 try
+    profile = handles.cfit(cp);
     SP = profile.FitInitial.start;
     coeff = profile.Coefficients;
     assert(~isempty(coeff));
-%     assert(isempty(find(~strcmpi(coeff, handles.guidata.coeff{cp}), 1)));
+    %     assert(isempty(find(~strcmpi(coeff, handles.guidata.coeff{cp}), 1)));
     assert(~isempty(SP));
     
     assert(~ProfileData.hasEmptyCell(handles.table_fitinitial));
     assert(length(SP)==length(coeff));
     assert(~isempty(handles.xrd.bkgd2th));
 catch
-%     ME.stack(1)
-%     keyboard
+    %     ME.stack(1)
+    %     keyboard
     return
 end
 
@@ -203,14 +217,14 @@ wprof=handles.guidata.currentProfile;
 bkgModel=handles.popup_bkgdmodel.Value;
 
 if handles.popup_bkgdmodel.Value==1
-    [bkgArray, S, U] = handles.xrd.fitBkgd(data, handles.points{wprof}, data(2,handles.pos{wprof}), handles.xrd.PolyOrder,bkgModel);
+    [bkgArray, S, U] = handles.xrd.fitBkgd(data, handles.points{wprof}, data(2,handles.pos{wprof}), bkgModel);
 else
     % A bit silly, bkgx and bkgy need the end points, otherwise, the final
     % function wont evaluate the last points and it will lead to a value of
     % zero...
     bkgx=handles.points{wprof}';
     bkgy(1,:)=data(2,handles.pos{wprof});
-    [bkgArray]=handles.xrd.fitBkgd(data,bkgx, bkgy, handles.xrd.PolyOrder,bkgModel);
+    [bkgArray]=handles.xrd.fitBkgd(data,bkgx, bkgy,bkgModel);
 end
 
 % Use initial coefficient values to plot fit
@@ -382,7 +396,7 @@ function plotData(handles)
 % PLOTDATA Plots the raw data for a specified file number in axes1.
 Stro = handles.xrd;
 dataSet = handles.popup_filename.Value;
-hold off 
+hold off
 
 x = Stro.two_theta;
 c=find(Stro.Min2T <= Stro.two_theta & Stro.Max2T >= Stro.two_theta);
@@ -623,5 +637,48 @@ linkaxes([ax(1),ax(2),ax(3),ax(4),ax(5),ax(6)], 'x')
 
 xlim([1 numfiles])
 % ==============================================================================
+
+function handles = plotBackgroundFit( handles )
+%UNTITLED9 Summary of this function goes here
+%   Detailed explanation goes here
+
+
+
+
+
+function plotBackgroundPoints(handles) % plots points and BkgFit
+% The current file TODO: "getCurrentFile(handles.popup_filename)"
+iFile = handles.popup_filename.Value;
+data = handles.xrd.getRangedData(iFile);
+profiledata = handles.cfit(handles.guidata.currentProfile);
+
+% Get Background
+bkgModel=handles.popup_bkgdmodel.Value;
+
+if handles.popup_bkgdmodel.Value==1
+    [bkgArray, S, U]=handles.xrd.fitBkgd(data, profiledata.BackgroundPoints, data(2,profiledata.BackgroundPointsIdx), bkgModel);
+    
+else
+    % A bit silly, bkgx and bkgy need the end points, otherwise, the final
+    % function wont evaluate the last points and it will lead to a value of
+    % zero...
+    bkgx=profiledata.BackgroundPoints';
+    bkgy(1,:)=data(2,profiledata.BackgroundPointsIdx);
+    [bkgArray]=handles.xrd.fitBkgd(data,bkgx, bkgy, bkgModel);
+end
+
+points = profiledata.BackgroundPoints;
+idx = profiledata.BackgroundPointsIdx;
+
+% cla(handles.axes1)
+
+hold off
+plot(handles.axes1,data(1,:),data(2,:),'-o','LineWidth',0.5,'MarkerSize',4, 'MarkerFaceColor', [0 0 0])
+
+hold on
+plot(handles.axes1, points, data(2,idx), 'rd', 'markersize', 5, ...
+    'markeredgecolor', 'r', 'markerfacecolor','r');
+plot(handles.axes1,data(1,:),bkgArray,'--')
+
 
 
