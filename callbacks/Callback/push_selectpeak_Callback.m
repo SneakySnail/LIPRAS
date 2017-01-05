@@ -6,10 +6,10 @@ plotX(handles, 'data');
 
 oldTableData = handles.table_fitinitial.Data;
 cp = handles.guidata.currentProfile;
-fcns = handles.guidata.PSfxn{cp};
-constraints = handles.guidata.constraints{cp};
+profiledata = handles.cfit(cp);
+fcns = profiledata.FcnNames;
 
-coeff = handles.xrd.getCoeff(fcns, constraints);
+coeff = handles.xrd.getCoeff(fcns, profiledata.Constraints);
 peakTableRow = find(strncmp(coeff, 'x', 1));
 handles = update_fitoptions(handles);
 
@@ -53,11 +53,15 @@ for i=1:length(peakTableRow)
 end
 
 handles.guidata.PeakPositions{cp} = x;
+handles.cfit(cp).PeakPositions = x;
+
 ui.control.table.fillFitInitialValues(handles); 
+% profiledata.FitInitial
+
 % handles = guidata(hObject);
 
 hold off
-plotX(handles, 'data');
+plotX(handles, 'sample');
 
 set(handles.panel_coeffs, 'visible', 'on');
 set(handles.panel_coeffs.Children, 'enable', 'on');

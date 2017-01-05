@@ -12,8 +12,8 @@ try
         'ColumnEditable', false);
     
     for i=1:length(handles.xrd.Filename)
-%         assert(length(handles.table_results.Data(i,:))==length(handles.xrd.fit_parms{i}));
-        handles.table_results.Data(i,:) = num2cell(handles.xrd.fit_parms{i});
+%          assert(length(handles.table_results.Data(i,:))==length(handles.xrd.fit_parms{i}));
+        handles.table_results.Data(:,i) = num2cell(handles.xrd.fit_parms{i});
     end
     
 catch ME

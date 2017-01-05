@@ -1,9 +1,10 @@
 % better name is table_fcnNames
 function table_paramselection_CellEditCallback(hObject, evt, handles)
 cp = handles.guidata.currentProfile;
+profiledata = handles.cfit(cp);
 
 % Update guidata.PSfxn{cp} 
-handles.guidata.PSfxn{cp} = hObject.Data(:, 1)';
+% handles.guidata.PSfxn{cp} = hObject.Data(:, 1)';
 
 getFcnData();
 
@@ -21,7 +22,7 @@ guidata(hObject, handles);
 
 
     function getFcnData()
-        fcnNames = handles.guidata.PSfxn{cp};
+        fcnNames = profiledata.FcnNames;
         peakHasFunc = ~cellfun(@isempty, fcnNames);
         
         for i=2:length(hObject.ColumnName)
@@ -32,7 +33,7 @@ guidata(hObject, handles);
         if isempty(find(~peakHasFunc, 1))
             set(handles.push_selectpeak, 'enable', 'on');
             set(handles.push_update, 'enable', 'on');
-            coeff = handles.xrd.getCoeff(fcnNames, handles.guidata.constraints{cp});
+            coeff = handles.xrd.getCoeff(fcnNames, profiledata.Constraints);
             
         else
             set(handles.push_selectpeak, 'enable', 'off');

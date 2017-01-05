@@ -4,28 +4,25 @@ function isFilled = fillFitInitialValues(handles)
 % initial peak peakPositionsitions are in the table.
 isFilled = false;
 cp = handles.guidata.currentProfile;
+profiledata = handles.cfit(cp);
 
-if find(handles.guidata.constraints{1}(:,2), 1)
-    nPeaks = length(find(~handles.guidata.constraints{1}(:,2))) + 1;
-else
-    nPeaks = length(handles.guidata.PSfxn{cp});
-end
+nPeakPos = profiledata.NumPeakPositions;
 
 % If not enough peak peakPositions for each function
-if length(handles.guidata.PeakPositions{cp}) < nPeaks
+if length(profiledata.PeakPositions) < nPeakPos
     return
 end
 try
-    peakpos = handles.guidata.PeakPositions{cp};
-    fcns = handles.guidata.PSfxn{cp};
-    cons = handles.guidata.constraints{cp};
+    peakpos = profiledata.PeakPositions;
+    fcns = profiledata.FcnNames;
+    cons = profiledata.Constraints;
     
     [SP,LB,UB] = handles.xrd.getDefaultStartingBounds(fcns, peakpos, cons);
 catch 
     return
 end
 
-coeff = handles.xrd.getCoeff(fcns, cons);
+coeff = profiledata.Coefficients;
 
 try
     assert(length(coeff) == size(handles.table_fitinitial.Data, 1));
@@ -50,6 +47,7 @@ end
 
 data = handles.table_fitinitial.Data;
 handles.guidata.fit_initial{cp} = {[data{:,1}]; [data{:,2}]; [data{:,3}]};
+
 
 assignin('base', 'handles', handles);
 guidata(handles.figure1,handles)

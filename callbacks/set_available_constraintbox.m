@@ -1,5 +1,6 @@
 function set_available_constraintbox(handles)
 cp = handles.guidata.currentProfile;
+profiledata = handles.cfit(cp);
 
 set(handles.checkboxN,'Enable','off');
 set(handles.checkboxx,'Enable','off');
@@ -8,7 +9,7 @@ set(handles.checkboxw,'Enable','off');
 set(handles.checkboxm,'Enable','off');
 
 try
-fcnNames = handles.guidata.PSfxn{cp};
+fcnNames = profiledata.FcnNames;
 peakHasFunc = ~cellfun(@isempty, fcnNames);
 catch
    return 
@@ -50,7 +51,7 @@ end
 handles.guidata.constraints{cp} = handles.panel_constraints.UserData;
 
 try
-    handles.guidata.coeff{cp} = handles.xrd.getCoeff(fcnNames, handles.guidata.constraints{cp});
+    handles.guidata.coeff{cp} = handles.xrd.getCoeff(fcnNames, profiledata.Constraints);
 catch 
    
 

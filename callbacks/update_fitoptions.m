@@ -4,9 +4,8 @@ function handles = update_fitoptions(handles)
 % user-inputted function names.
 % It also saves handles.guidata into handles.xrd
 cp = handles.guidata.currentProfile;
-fcnNames = handles.guidata.PSfxn{cp};
-constraints = handles.guidata.constraints{cp};
-coeff = handles.xrd.getCoeff(fcnNames, constraints);
+profiledata = handles.cfit(cp);
+coeff = profiledata.Coefficients;
 
 set(handles.table_fitinitial, ...
     'data', cell(length(coeff), 3), 'RowName', coeff);

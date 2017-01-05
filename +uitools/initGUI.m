@@ -64,6 +64,9 @@ function handles = initGUI(handles)
     function addControlListeners()
         addlistener(handles.xrdContainer(7), 'Status', ...
             'PostSet', @(o,e)statusChange(o,e,handles,7));
+        
+        addlistener(handles.axes1, 'ColorOrderIndex', ...
+            'PostSet', @(o,e)colorOrderIndexChanged(o,e,guidata(e.AffectedObject)));
     end
     % ==========================================================================
     

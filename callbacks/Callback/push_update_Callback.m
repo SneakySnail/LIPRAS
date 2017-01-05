@@ -2,6 +2,7 @@
 function push_update_Callback(hObject, ~, handles)
 handles.xrd.Status = 'Updating fit options... ';
 
+profiledata = handles.cfit(handles.guidata.currentProfile);
 edit_initial_bounds();
 
 ui.control.table.fillFitInitialValues(handles);
@@ -10,21 +11,16 @@ ui.control.table.fillFitInitialValues(handles);
 
 set_btn_clickable();
 
-plotX(handles, 'data');
+plotX(handles, 'sample');
 
 handles.xrd.Status = 'Fit options updated.';
 assignin('base','handles',handles)
 guidata(hObject,handles)
 
     function edit_initial_bounds()
-    cp = handles.guidata.currentProfile;
-    % get new parameters
-    fcnNames = handles.guidata.PSfxn{cp};
-    constraints = handles.guidata.constraints{cp};
-    
     % Set parameters into xrd
-    handles.xrd.PSfxn = fcnNames;
-    handles.xrd.Constrains = constraints;
+    handles.xrd.PSfxn = profiledata.FcnNames;
+    handles.xrd.Constrains = profiledata.Constraints;
     handles = update_fitoptions(handles);
     
     end

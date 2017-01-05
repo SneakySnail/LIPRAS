@@ -14,6 +14,7 @@ elseif strcmpi(o.String,'m')
 end
 
 cp = handles.guidata.currentProfile;
+profiledata = handles.cfit(cp);
 
 
 if o.Value == 1 % If constraint box was checked
@@ -24,7 +25,7 @@ else % constraint box was unchecked
 end
 
 % if more than 3 peak functions, resize the column to fit checkboxes
-if handles.guidata.numPeaks > 2
+if profiledata.NumPeaks > 2
     % If constraint box was checked and fitting more than 2 peaks
     width = handles.table_paramselection.ColumnWidth;
     

@@ -384,8 +384,7 @@ function Untitled_9_Callback(hObject, eventdata, handles)
 % Plots the background points selected.
 function push_fitbkgd_Callback(~, ~, handles)
 
-plotutils.plotBackgroundFit(handles);
-
+plotX(handles, 'backgroundfit');
 
 
 
