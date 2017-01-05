@@ -1,11 +1,12 @@
-function fitXRD(Stro, data, position, filenum,handles,g)
-position=position(1);
+function fitXRD(Stro, data, filenum,handles,g)
 
 % Get Background
 wprof=handles.guidata.currentProfile;
 bkgModel=handles.popup_bkgdmodel.Value;
+profiledata = handles.cfit(wprof);
 if handles.popup_bkgdmodel.Value==1
-    [bkgArray, S, U]=handles.xrd.fitBkgd(data,handles.points{wprof}, data(2,handles.pos{wprof}), handles.xrd.PolyOrder,bkgModel);
+    [bkgArray, S, U]=handles.xrd.fitBkgd(data,profiledata.BackgroundPoints, ...
+        data(2,profiledata.BackgroundPointsIdx), bkgModel);
 else
     % A bit silly, bkgx and bkgy need the end points, otherwise, the final
     % function wont evaluate the last points and it will lead to a value of
@@ -13,7 +14,7 @@ else
     bkgx=handles.points{wprof}';
     bkgy(1,:)=data(2,handles.pos{wprof});
     order=2;
-    [bkgArray]=handles.xrd.fitBkgd(data,bkgx, bkgy, handles.xrd.PolyOrder,bkgModel);
+    [bkgArray]=handles.xrd.fitBkgd(data,bkgx, bkgy, bkgModel);
 end
 
 % FOR GUI, BACKGROUND
@@ -65,8 +66,8 @@ maxr = PackageFitDiffractionData.Find2theta(data(1,:),rightbound);
 % maxr=positionX(1)+ceil(fitrangeX(1)/2);
 % if maxr>fitrangeX; maxr=fitrangeX; end
 
-a=1;
-if minr<dataMin;
+a = 1;
+if minr<dataMin
     disp('minr_true')
     minr=dataMin;
 end
@@ -137,8 +138,6 @@ sfitdata(2,:)=fittedmodel{1}(fitdata{1}(1,:))'+bkgArray(minr:maxr);
 Stro.Fdata = fitteddata;
 Stro.Fcoeff = coefficients;
 
-for i=1:size(position,1)
-    Stro.Fmodel{filenum,i} = fittedmodel{i};
-    Stro.FmodelGOF{filenum,i} = fittedmodelGOF{i};
-    Stro.FmodelCI{filenum,i} = fittedmodelCI{i};
-end
+    Stro.Fmodel{filenum} = fittedmodel{1};
+    Stro.FmodelGOF{filenum} = fittedmodelGOF{1};
+    Stro.FmodelCI{filenum} = fittedmodelCI{1};

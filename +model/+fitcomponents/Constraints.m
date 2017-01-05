@@ -1,6 +1,17 @@
 classdef Constraints
+    %CONSTRAINTS A value class that is stored in the class ProfileData to help
+    %   provide implementation abstraction. It accepts an array of size ?x5,
+    %   where the first column 
+    
+    properties
+       NumPeaks
+    end
+    
     properties (Dependent)
-        coeffs = ''
+        Logical 
+        % A structure containing logical values with members 'N', 'x', 'f', 'w', and 'm'
+        CoeffList
+        coeffs = '' % Cell array of the constrained coeffs
         
     end
     properties (Dependent, Hidden)
@@ -12,6 +23,12 @@ classdef Constraints
     end
     
     properties (Hidden)
+        Logical_
+        Logical_N_
+        Logical_x_
+        Logical_f_
+        Logical_w_
+        Logical_m_
         nPeaks
         total
     end
@@ -25,20 +42,16 @@ classdef Constraints
         m_COLUMN = 5;
     end
     
-    properties (Hidden)
-        constraints_
-    end
-    
     
     methods
         function this = Constraints(constraints)
         if nargin < 1
-            this.constraints_ = false(1, 5);
+            this.Logical = false(1, 5);
         else
-            this.constraints_ = logical(constraints);
+            this.Logical = logical(constraints);
         end
         
-        this.total = length(find(sum(this.constraints_, 1)));
+        this.total = length(find(sum(this.Logical.N, 1)));
         end
         
         
@@ -46,78 +59,155 @@ classdef Constraints
         function value = get.coeffs(this)
         value = '';
         
-        if ~isempty(find(sum(this.N, 1),1))
+        if this.isNConstrained
             value = [value, {'N'}];
         end
         
-        if ~isempty(find(sum(this.x, 1),1))
+        if this.isXConstrained
             value = [value, {'x'}];
         end
         
-        if ~isempty(find(sum(this.f, 1),1))
+        if this.isFConstrained
             value = [value, {'f'}];
         end
         
-        if ~isempty(find(sum(this.w, 1),1))
+        if this.isWConstrained
             value = [value, {'w'}];
         end
         
-        if ~isempty(find(sum(this.m, 1),1))
+        if this.isMConstrained
             value = [value, {'m'}];
         end
         
         end
         
         %         function val = get.N(this)
-        %         val = ~isempty(find(this.constraints_(:, this.N_COLUMN), 1));
+        %         val = ~isempty(find(this.Logical(:, this.N_COLUMN), 1));
         %         end
         
         function val = get.N(this)
-        val = this.constraints_(:, this.N_COLUMN)';
+        val = this.Logical(:, this.N_COLUMN)';
         end
         
         
         %         function val = get.x(this)
-        %         val = ~isempty(find(this.constraints_(:, this.x_COLUMN), 1));
+        %         val = ~isempty(find(this.Logical(:, this.x_COLUMN), 1));
         %         end
         
         function val = get.x(this)
-        val = this.constraints_(:, this.x_COLUMN)';
+        val = this.Logical(:, this.x_COLUMN)';
         end
         
         %         function val = get.f(this)
-        %         val = ~isempty(find(this.constraints_(:, this.f_COLUMN), 1));
+        %         val = ~isempty(find(this.Logical(:, this.f_COLUMN), 1));
         %         end
         
         function val = get.f(this)
-        val = this.constraints_(:, this.f_COLUMN)';
+        val = this.Logical(:, this.f_COLUMN)';
         end
         
         %         function val = get.w(this)
-        %         val = ~isempty(find(this.constraints_(:, this.w_COLUMN), 1));
+        %         val = ~isempty(find(this.Logical(:, this.w_COLUMN), 1));
         %         end
         
         function val = get.w(this)
-        val = this.constraints_(:, this.w_COLUMN)';
+        val = this.Logical(:, this.w_COLUMN)';
         end
         
         %         function val = get.m(this)
-        %         val = ~isempty(find(this.constraints_(:, this.m_COLUMN), 1));
+        %         val = ~isempty(find(this.Logical(:, this.m_COLUMN), 1));
         %         end
         
         function val = get.m(this)
-        val = this.constraints_(:, this.m_COLUMN)';
+        val = this.Logical(:, this.m_COLUMN)';
         end
         
         function val = get.nPeaks(this)
-        val = size(this.constraints_, 1);
+        val = size(this.Logical, 1);
         end
         
         function this = update(this, constraints)
-        this.constraints_ = constraints;
+        this.Logical = constraints;
+        end
+        
+        function value = get.Logical(this)   
+        value.N = this.Logical_(:,1)';
+        
+        value.x = this.Logical_(:,2)';
+        
+        value.f = this.Logical_(:,3)';
+        
+        value.w = this.Logical_(:,4)';
+        
+        value.m = this.Logical_(:,5)';
+        
+            
+        
+        
+        
+        end
+    end
+    
+    methods
+        function this = set.Logical(this, value)
+        if isempty(this.Logical_)
+            this.Logical_ = value;
+        end
+        
+        if ~islogical(value) && ~isstruct(value)
+            MException('Constraints:Logical:InvalidType')
+        end
+        
+        if size(value, 2) ~= 5
+            MException('Constraints:Logical:InvalidLength')
+        end
+        
+        if isstruct(value)
+            if isfield(value, 'N')
+                this.Logical_N_ = value;
+            end
+            if isfield(value, 'x')
+                this.Logical_x_ = value;
+            end
+            if isfield(value, 'f')
+                this.Logical_f_ = value;
+            end
+            if isfield(value, 'w')
+                this.Logical_w_ = value;
+            end
+            if isfield(value, 'm')
+                this.Logical_m_ = value;
+            end
+            
+        else
+            this.Logical_N_ = value(:, 1);
+            this.Logical_x_ = value(:, 2);
+            this.Logical_f_ = value(:, 3);
+            this.Logical_w_ = value(:, 4);
+            this.Logical_m_ = value(:, 5);
+        end
+        
+        end
+    
+        function result = isNConstrained(this)
+        result = ~isempty(find(this.Logical.N, 1));
+        end
+        function result = isXConstrained(this)
+        result = ~isempty(find(this.Logical.x, 1));
+        end
+        function result = isFConstrained(this)
+        result = ~isempty(find(this.Logical.f, 1));
+        end
+        function result = isWConstrained(this)
+        result = ~isempty(find(this.Logical.w, 1));
+        end
+        function result = isMConstrained(this)
+        result = ~isempty(find(this.Logical.m, 1));
         end
         
     end
+    
+    
     
     
     

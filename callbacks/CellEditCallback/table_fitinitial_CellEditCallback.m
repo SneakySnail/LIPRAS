@@ -6,7 +6,8 @@ function table_fitinitial_CellEditCallback(hObject, eventdata, handles)
 %	EditData: string(s) entered by the user
 %	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
 %	Error: error string when failed to convert EditData to appropriate value for Data
-numpeaks=str2double(handles.edit_numpeaks.String);
+profiledata = handles.cfit(handles.guidata.currentProfile);
+numpeaks = profiledata.NumPeaks;
 r=eventdata.Indices(1);
 c=eventdata.Indices(2);
 cp = handles.guidata.currentProfile;
@@ -16,8 +17,8 @@ if ~isa(eventdata.NewData, 'double')
         num = str2double(eventdata.NewData);
         hObject.Data{r, c} = num;
     catch
-        hObject.Data{r,c} = [];
-        cla
+        hObject.Data{r,c} = eventdata.PreviousData;
+        %         cla
         plotX(handles);
         return
     end
@@ -27,17 +28,9 @@ end
 
 % If NewData is empty or was not changed
 if isnan(num)
-    hObject.Data{r,c} = [];
-    handles.xrd.Status=[handles.table_fitinitial.ColumnName{c},...
-        ' value of coefficient ',hObject.RowName{r}, ' is now empty.'];
-    cla
+    hObject.Data{r,c} = eventdata.PreviousData;
     plotX(handles);
 else
-    
-    if strcmpi(hObject.RowName{r}(1), 'x') && c == 1
-        ipk = str2double(hObject.RowName{r}(2));
-        hObject.UserData{ipk} = num;
-    end
     
     % Check if SP, LB, and UB are within bounds
     switch c
@@ -64,10 +57,6 @@ else
             end
     end
 end
-
-data = handles.table_fitinitial.Data;
-handles.guidata.fit_initial{cp} = {[data{:,1}]; [data{:,2}]; [data{:,3}]};
-
 
 if ~isempty(num)
     handles.xrd.Status=[handles.table_fitinitial.ColumnName{c},...

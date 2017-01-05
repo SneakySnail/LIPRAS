@@ -5,23 +5,22 @@ handles.xrd.Status='Fitting dataset...';
 set(handles.radio_stopleastsquares, 'enable', 'on');
 
 cp = handles.guidata.currentProfile;
-fnames = handles.guidata.PSfxn{cp};
-peakpos = handles.guidata.PeakPositions{cp};
-fitinit = handles.guidata.fit_initial{cp};
-constraints = handles.guidata.constraints{cp};
+profiledata = handles.cfit(cp);
 
-handles.xrd.PSfxn = fnames;
-handles.xrd.fit_initial = fitinit;
-handles.xrd.PeakPositions = peakpos;
+fitNames = profiledata.FcnNames;
+constraints = profiledata.Constraints;
+SP = profiledata.FitInitial.start;
+LB = profiledata.FitInitial.lower;
+UB = profiledata.FitInitial.upper;
+
+% Save into xrd object
+handles.xrd.PSfxn = fitNames;
+handles.xrd.fit_initial = {SP; LB; UB};
 handles.xrd.Constrains = constraints;
-
-SP = fitinit{1};
-UB = fitinit{2};
-LB = fitinit{3};
 
 try
     resizeAxes1ForErrorPlot(handles, 'fit');
-    handles.xrd.fitData(peakpos, fnames, SP, UB, LB, handles);	% Function - fit data
+    handles.xrd.fitData(handles);	% Function - fit data
 %     handles = guidata(hObject);
     
     if isempty(handles.xrd.Fmodel)
@@ -38,7 +37,7 @@ catch ME
     
     plotX(handles, 'data');
     
-    rethrow(ME)
+    keyboard
 end
 
 if ~handles.guidata.fitted{cp}
@@ -46,10 +45,7 @@ if ~handles.guidata.fitted{cp}
     return
 end
 
-filenum = get(handles.popup_filename, 'Value');		% The current file visible
-vals = handles.xrd.fit_parms{filenum};			% The fitted parameter results
-
-guidata(handles.figure1, handles)
+guidata(handles.figure1, handles);
 
 fill_table_results(handles);
 

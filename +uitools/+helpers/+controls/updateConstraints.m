@@ -62,7 +62,7 @@ assignin('base', 'handles', handles);
     % reset constraints panel
     set(handles.panel_constraints.Children, 'value', 0);
     
-    constraints = model.fitcomponents.Constraints(handles.guidata.constraints{cp});
+    constraints = model.fitcomponents.Constraints(handles.cfit(cp).Constraints);
     
     for i=1:constraints.total
         handles.(['checkbox' constraints.coeffs{i}]).Value = 1;
