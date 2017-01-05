@@ -9,5 +9,3 @@ if index > length(colors)
     set(gca, 'ColorOrderIndex', mod(index, length(colors)));
 end
 
-
-get(gca, 'colororderindex')
