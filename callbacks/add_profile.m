@@ -11,9 +11,9 @@ handles = resetGuiData(handles, profileNum);
 
 handles = change_profile(profileNum, handles);
 
-controlProfilePanel(handles);
-
 initProfileData();
+
+controlProfilePanel(handles);
 
 assignin('base', 'handles', handles);
 guidata(handles.figure1, handles);
@@ -37,13 +37,13 @@ guidata(handles.figure1, handles);
     end
 
     function initProfileData()
-    profiledata = ui.control.container.ProfileData(handles, profileNum);
+    profiledata = ui.control.ProfileData(handles, profileNum);
     handles.cfit(profileNum) = profiledata;
     
     setappdata(handles.figure1, 'profiledata', profiledata);
     
     set(handles.edit_numpeaks.JavaPeer, ...
-        'StateChangedCallback', {@numberOfPeaksChanged, handles});
+        'StateChangedCallback', @(o,e)numberOfPeaksChanged(o,e,guidata(handles.figure1)));
         
     end
 

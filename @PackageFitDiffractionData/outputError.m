@@ -23,7 +23,7 @@ end
 index = 0;
 iprefix = '00';
 
-while exist(strcat(outFilePrefix,strcat(iprefix,num2str(index)),'_Profile_',num2str(Profile),'.txt'),'file') == 2
+while exist(strcat(outFilePrefix,strcat(iprefix,num2str(index)),'_Profile_',num2str(Profile.id),'.txt'),'file') == 2
     index = index + 1;
     if index > 100
         iprefix = '';
@@ -32,64 +32,44 @@ while exist(strcat(outFilePrefix,strcat(iprefix,num2str(index)),'_Profile_',num2
     end
 end
 
-fid=fopen(strcat(outFilePrefix,strcat(iprefix,num2str(index)),'_Profile_',num2str(Profile),'.txt'),'w'); %the name of the file it will write containing the statistics of the fit
+fid=fopen(strcat(outFilePrefix,strcat(iprefix,num2str(index)),'_Profile_',num2str(Profile.id),'.txt'),'w'); %the name of the file it will write containing the statistics of the fit
 
-fprintf(fid, 'Fit parameters\n\n');
-fprintf(fid, '2theta_fit_range: %f %f\n\n',Stro.Min2T, Stro.Max2T);
+% File info
+%TODO add platform-independent data file reading
+fprintf(fid, 'DataPath: %s\n\n', Stro.DataPath);
 
-if ~isempty(Stro.SPR_Angle)
-    fprintf(fid, 'SPR_Angle: %i \n\n',Stro.SPR_Angle);
-end
+fprintf(fid, 'Filenames: ');
+fprintf(fid, '%s ', Stro.Filename{:});
+fprintf(fid, '\n\n');
 
-fprintf(fid, 'Number_of_background_points: %i\n',length(Stro.bkgd2th));
-fprintf(fid, 'Background_order: %i\n', Stro.PolyOrder);
-fprintf(fid, 'Background_points:');
-for i=1:length(Stro.bkgd2th)
-    fprintf(fid, ' %f',Stro.bkgd2th(i));
-end
-fprintf(fid, '\n\nPeak Parameters\n');
+fprintf(fid, '2ThetaRange: %f %f\n\n',Stro.Min2T, Stro.Max2T);
 
-fprintf(fid, 'PeakPos:');
-for i=1:size(Stro.PSfxn,1) % i=profilenum
-    if i~=1
-        fprintf(fid,';');
-    end
-    for j=1:size(Stro.PeakPositions,2) % j=peaknum
-        fprintf(fid,' %.3f',Stro.PeakPositions(i,j));
-    end
-end
+fprintf(fid, 'PolynomialOrder: %i\n', Profile.PolyOrder);
+fprintf(fid, 'BackgroundPoints:');
+fprintf(fid, ' %f', Profile.BackgroundPoints(:));
 
-fprintf(fid,'\nFxn:');
-for i=1:size(Stro.PSfxn,1)
-    for j=1:size(Stro.PSfxn,2)
-        fprintf(fid,' %s',Stro.PSfxn{j});
-    end
-end
+%fprintf(fid, '\n\nPeak Parameters\n');
+fprintf(fid,'FitFunction(s): ');
+fprintf(fid,'%s; ', Profile.FcnNames{:});
 
-if ~isempty(Stro.fitrange)
-    fprintf(fid,'\nfitrange:');
-    for i=1:size(Stro.PSfxn,1)
-        fprintf(fid,' %.4f',Stro.fitrange(i));
-    end
-end
+fprintf(fid,'\nFitRange: %.4f\n', Profile.FitRange);
 
 fprintf(fid,'\nConstraints:');
 fprintf(fid, ' %d',Stro.Constrains);
 
-fprintf(fid, '\n\nFit_initial Parameters\n');
+fprintf(fid, '\n\n== Initial Fit Parameters ==\n');
 
-for g=1:size(Stro.PSfxn,1)
-    % 				fprintf(fid, '\n%s', Stro.PSfxn{g});
-    for f=1:length(Stro.Fcoeff)
-        fprintf(fid, '%s ', Stro.Fcoeff{f}{:}); %write coefficient names
-    end
-    fprintf(fid, '\n%s','SP:');
-    fprintf(fid,' %#.5g',(Stro.fit_initial{1,1}));
-    fprintf(fid, '\n%s','UB:');
-    fprintf(fid,' %#.5g',(Stro.fit_initial{2,1}));
-    fprintf(fid, '\n%s','LB:');
-    fprintf(fid,' %#.5g',(Stro.fit_initial{3,1})); 
+for g=1:size(Profile.FcnNames,1)
+    fprintf(fid, '%s ', Profile.Coefficients{:}); %write coefficient names
+    fprintf(fid, '\nSP: ');
+    fprintf(fid, '%#.5g ', Profile.FitInitial.start);
+    fprintf(fid, '\nUB: ');
+    fprintf(fid, '%#.5g ', Profile.FitInitial.lower);
+    fprintf(fid, '\nLB: ');
+    fprintf(fid, '%#.5g ', Profile.FitInitial.upper); 
 end
+%===============================================================================
+
 
 
 

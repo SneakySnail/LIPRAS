@@ -309,30 +309,18 @@ newDataSet(handles);
 
 function menu_save_Callback(hObject, eventdata, handles)
 handles.xrd.Status='Saving results...';
-outputError(handles.xrd,handles.guidata.currentProfile);
+outputError(handles.xrd, handles.cfit(handles.guidata.currentProfile));
 handles.xrd.Status='Saving results... Done.';
 
 % ---
 function menu_parameter_Callback(hObject, eventdata, handles)
-handles.xrd.Status='Loading options file... ';
-
-% Check if there is already a fit
-% 	try call.overwriteExistingFit(handles);
-% 	catch
-% 		return
-% 	end
-%
 try
     handles=fileutils.importParameterFile(handles);
 catch ME
     ME.stack(1)
     
     ME.message
-    
-    keyboard
-end
-
-handles.xrd.Status='Options file successfully loaded.';
+    end
 guidata(hObject, handles)
 
 function menu_preferences_Callback(handles)
@@ -383,7 +371,10 @@ function Untitled_9_Callback(hObject, eventdata, handles)
 
 % Plots the background points selected.
 function push_fitbkgd_Callback(~, ~, handles)
-
+hold off
+plotX(handles, 'data');
+hold on
+plotX(handles, 'backgroundpoints');
 plotX(handles, 'backgroundfit');
 
 

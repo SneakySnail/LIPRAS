@@ -23,12 +23,14 @@ end
 
 % Begin save into handles.guidata
 resetGuiData(handles, cp, 'profile');
-
     
-saveParametersIntoGuidata();
+saveParametersIntoGuidata(pVal);
 
+plotX(handles, 'data');
 
 updateUiControlValues();
+assignin('base', 'handles', handles);
+guidata(handles.figure1, handles)
 
 
 uitools.adapter.state.fitReady(handles);
@@ -43,9 +45,6 @@ uitools.adapter.state.fitReady(handles);
     end
 
     function param = readParameterFile()
-    % Skip first 2 lines
-    fgetl(fid);
-    fgetl(fid);
     
     while ~feof(fid)
         line = fgetl(fid);
@@ -54,56 +53,35 @@ uitools.adapter.state.fitReady(handles);
         % The rest are values of property.
         
         switch(a{1})
-            case '2theta_fit_range:'
+            case '2ThetaRange:'
                 param.min2t = str2double(a{2});
                 param.max2t = str2double(a{3});
                 
-            case 'Number_of_background_points:'
-                param.numbkgdpts = str2double(a{2});
-                
-            case 'Background_order:'
+            case 'PolynomialOrder:'
                 param.polyorder = str2double(a{2});
                 
-            case 'Background_points:'
+            case 'BackgroundPoints:'
                 param.bkgd = str2double(a(2:end));
-                
-            case 'PeakPos:'
-                param.peakpos = str2double(a(2:end));
-                
-            case 'fitrange:'
+                    
+            case 'FitRange:'
                 param.fitrange = str2double(a(2:end));
                 
-            case 'Fxn:'
-                j = 1; i =2;
-                while i<=length(a)
-                    if strcmpi(a{i}, 'Pearson') || strcmpi(a{i}, 'Pseudo')
-                        param.fxn{j} = [a{i}, ' ', a{i+1}];
-                        i = i+2;
-                    elseif strcmpi(a{i}, 'Asymmetric') && strcmpi(a{i+1}, 'Pearson')
-                        param.fxn{j} = [a{i}, ' ', a{i+1}, ' ', a{i+2}];
-                        i = i+3;
-                    else
-                        param.fxn{j}=a{i};
-                        i=i+1;
-                    end
-                    j = j+1;
-                end
+            case 'FitFunction(s):'
+                param.fxn = strsplit(a(2:end), '; ');
                 
             case 'Constraints:'
                 param.constraints = str2double(a(2:end));
-                numfcns = length(param.fxn);
+                numfcns = length(param.constraints)/5;
                 param.constraints = reshape(param.constraints, [numfcns 5]);
                 
             case 'DataPath:'
                 param.datapath = a(2);
                 
-            case 'Files:'
+            case 'Filenames:'
                 param.filename = a(2:end);
                 
-                %         case 'Fit_Range'
-                %             fitrange = str2double(a(2:end));
                 
-            case 'Fit_initial'
+            case '=='
                 break
                 
             otherwise
@@ -139,7 +117,7 @@ uitools.adapter.state.fitReady(handles);
     end
 %===============================================================================
 
-    function saveParametersIntoGuidata()
+    function saveParametersIntoGuidata(pVal)
     
     
     
@@ -153,17 +131,22 @@ uitools.adapter.state.fitReady(handles);
     handles.guidata.fitrange{cp} = pVal.fitrange;
     handles.guidata.coeff{cp} = pVal.coeff;
     
-    handles.cfit(1).Range2t = [pVal.min2t pVal.max2t];
-    handles.cfit(1).PolyOrder = pVal.polyorder;
-    handles.cfit(1).BackgroundPoints = pVal.bkgd;
-    
-    plotX(handles, 'data');
+    handles.cfit(cp).Range2t = [pVal.min2t pVal.max2t];
+    handles.cfit(cp).PolyOrder = pVal.polyorder;
+    handles.cfit(cp).BackgroundPoints = pVal.bkgd;
+    handles.cfit(cp).NumPeaks = length(pVal.fxn);
+    handles.cfit(cp).PeakPositions = pVal.peakpos;
+    handles.cfit(cp).Constraints = pVal.constraints;
+    handles.cfit(cp).FitInitial.start = pVal.sp;
+    handles.cfit(cp).FitInitial.lower = pVal.lb;
+    handles.cfit(cp).FitInitial.upper = pVal.up;
+    handles.cfit(cp).FitRange = pVal.fitrange;
+    handles.cfit(cp).NumPeaks = length(pVal.fxn);
     end
 %===============================================================================
 
     function updateUiControlValues()
     % guidata.numPeaks
-    handles.edit_numpeaks.String = num2str(length(pVal.fxn));
     
     %guidata.PSfxn
     set(handles.table_paramselection,...
@@ -178,14 +161,11 @@ uitools.adapter.state.fitReady(handles);
                   num2cell(pVal.lb); ...
                   num2cell(pVal.ub)]'));
     
-    % fitrange
-    handles.edit_fitrange.String = num2str(pVal.fitrange);
-    
+    % fitrange    
     % constraints
     constrained = model.fitcomponents.Constraints(pVal.constraints);
     
     ui.control.table.toggleConstraints(handles, constrained);
-    
     
     end
 %===============================================================================

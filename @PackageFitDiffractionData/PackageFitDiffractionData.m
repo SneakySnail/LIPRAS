@@ -87,12 +87,9 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
                 constraints = Stro.Constrains;
             end
             
-            coeff='';
-            if find(constraints(:,1),1); coeff=[coeff,{'N'}]; end
-            if find(constraints(:,2),1); coeff=[coeff,{'x'}]; end
-            if find(constraints(:,3),1); coeff=[coeff,{'f'}]; end
-            if find(constraints(:,4),1); coeff=[coeff,{'w'}]; end
-            if find(constraints(:,5),1); coeff=[coeff,{'m'}]; end
+            constrained = model.fitcomponents.Constraints(constraints);
+            
+            coeff = constrained.coeffs;
             
             for i=1:length(fxn)
                 coeffNames = '';
@@ -212,38 +209,48 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
             data = datasent;
         end
         
+        
+        
     end
     
     methods(Static)
-        function varargout = fitBkgd(data,bkgd2th,bkgdint, polyorder,bkgModel)
-            
-            if bkgModel==1 %PolyModel
-                [P, S, U] = polyfit(bkgd2th,bkgdint, polyorder);
+        
+        function varargout = fitBkgd(data, polyorder, bkgdX, bkgdY, bkgModel)
+            % varargout{1} - Numeric array of background fit within range
+            %
+            % varargout{2} - A structure that can be used as an input to polyval
+            %    to obtain error estimates
+            %
+            % varargout{3} - A two-element vector with centering and scaling
+            %   values
+                       
+            if bkgModel == 1 %PolyModel
+                [P, S, U] = polyfit(bkgdX, bkgdY, polyorder);
                 bkgdArray = polyval(P,data(1,:),S,U);
+            
             else % Spline BkgModel
-                
-                bkgx=bkgd2th;
-                bkgx=[data(1,1),bkgx,data(1,end)];
+                bkgdX = [data(1,1) ,bkgdX,data(1,end)];
                 bkgy(1,:)=bkgdint;
                 bkgy=[data(2,1),bkgy,data(2,end)];
                 order=2;
-                yy=spapi(order,bkgx,bkgy);
-                bkgdArray = fnval(yy,data(1,:));
-                
+                yy=spapi(order,bkgdX,bkgy);
+                bkgdArray = fnval(yy,data(1,:)); 
             end
-            if nargout==1;
+            
+            if nargout==1
                 varargout{1}=bkgdArray;
+                
             elseif nargout==2
                 varargout{1}=bkgdArray;
                 varargout{2}=S;
-            elseif nargout==3;
+                
+            elseif nargout==3
                 varargout{1}=bkgdArray;
                 varargout{2}=S;
                 varargout{3}=U;
             end
             
         end
-        
         
         function Exceptions(number)
             if number == 0
@@ -264,16 +271,23 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable
             % function arrayposition=Find2theta(data,value2theta)
             % Finds the nearest position in a vector
             % MUST be a single array of 2theta values only (most common error)
+            %
+            % 
+            
+            arrayposition = zeros(1, length(value2theta));
             
             if nargin~=2
-                error('Incorrect number of arguments')
-                arrayposition=0;
+                error('Incorrect number of arguments');
             else
-                test = find(data >= value2theta);
-                if isempty(test)
-                    arrayposition = length(data)-1;
-                else
-                    arrayposition = test(1);
+                for i=1:length(value2theta)
+                    test = find(data >= value2theta(i), 1);
+                    
+                    if isempty(test)
+                        arrayposition(i) = length(data) - 1;
+                        
+                    else
+                        arrayposition(i) = test;
+                    end
                 end
             end
         end

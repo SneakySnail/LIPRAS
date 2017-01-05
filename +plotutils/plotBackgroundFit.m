@@ -12,12 +12,13 @@ data = handles.xrd.getRangedData(iFile);
 
 wprof=handles.guidata.currentProfile;
 cfit = handles.cfit(wprof);
+polyorder = cfit.PolyOrder;
 
 % Get Background
 bkgModel=handles.popup_bkgdmodel.Value;
 
 if handles.popup_bkgdmodel.Value==1
-    [bkgArray, S, U]=handles.xrd.fitBkgd(data, cfit.BackgroundPoints, data(2,cfit.BackgroundPointsIdx), bkgModel);
+    [bkgArray, S, U]=handles.xrd.fitBkgd(data, polyorder, cfit.BackgroundPoints, data(2,cfit.BackgroundPointsIdx), bkgModel);
     
 else
     % A bit silly, bkgx and bkgy need the end points, otherwise, the final

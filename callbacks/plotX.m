@@ -18,16 +18,12 @@ end
 
 switch lower(type)
     case 'backgroundpoints'
-        hold off
-        plotData(handles);
         hold on;
         plotBackgroundPoints(handles);
         handles = plot_sample_fit(handles);
         resizeAxes1ForErrorPlot(handles, 'data');
         
     case 'backgroundfit'
-        hold off
-        plotData(handles);
         hold on
         plotBackgroundFit(handles);
         handles = plot_sample_fit(handles);
@@ -222,7 +218,7 @@ end
     bkgModel=handles.popup_bkgdmodel.Value;
     
     if handles.popup_bkgdmodel.Value==1
-        [bkgArray, S, U] = handles.xrd.fitBkgd(data, profiledata.BackgroundPoints, ...
+        [bkgArray, S, U] = handles.xrd.fitBkgd(data, profiledata.PolyOrder, profiledata.BackgroundPoints, ...
             data(2,profiledata.BackgroundPointsIdx), bkgModel);
     else
         % A bit silly, bkgx and bkgy need the end points, otherwise, the final
@@ -230,7 +226,7 @@ end
         % zero...
         bkgx = profiledata.BackgroundPoints;
         bkgy(1,:) = data(2, handles.BackgroundPointsIdx);
-        [bkgArray]=handles.xrd.fitBkgd(data,bkgx, bkgy,bkgModel);
+        [bkgArray]=handles.xrd.fitBkgd(data, profiledata.PolyOrder, bkgx, bkgy,bkgModel);
     end
     
     % Use initial coefficient values to plot fit
@@ -690,18 +686,19 @@ end
     
     % Get Background
     bkgModel=handles.popup_bkgdmodel.Value;
+    polyorder = profiledata.PolyOrder;
     
     if handles.popup_bkgdmodel.Value==1
-        [bkgArray, S, U]=handles.xrd.fitBkgd(data, profiledata.BackgroundPoints, ...
+        [bkgArray, S, U]=handles.xrd.fitBkgd(data, polyorder, profiledata.BackgroundPoints, ...
             data(2,profiledata.BackgroundPointsIdx), bkgModel);
         
     else
         % A bit silly, bkgx and bkgy need the end points, otherwise, the final
         % function wont evaluate the last points and it will lead to a value of
         % zero...
-        bkgx=profiledata.BackgroundPoints';
+        bkgx=profiledata.BackgroundPoints;
         bkgy(1,:)=data(2,profiledata.BackgroundPointsIdx);
-        [bkgArray]=handles.xrd.fitBkgd(data,bkgx, bkgy, bkgModel);
+        [bkgArray]=handles.xrd.fitBkgd(data, polyorder, bkgx, bkgy, bkgModel);
     end
     
     plot(data(1,:),bkgArray,'--', ...

@@ -5,7 +5,7 @@ wprof=handles.guidata.currentProfile;
 bkgModel=handles.popup_bkgdmodel.Value;
 profiledata = handles.cfit(wprof);
 if handles.popup_bkgdmodel.Value==1
-    [bkgArray, S, U]=handles.xrd.fitBkgd(data,profiledata.BackgroundPoints, ...
+    [bkgArray, S, U]=handles.xrd.fitBkgd(data,profiledata.PolyOrder, profiledata.BackgroundPoints, ...
         data(2,profiledata.BackgroundPointsIdx), bkgModel);
 else
     % A bit silly, bkgx and bkgy need the end points, otherwise, the final
@@ -14,7 +14,7 @@ else
     bkgx=handles.points{wprof}';
     bkgy(1,:)=data(2,handles.pos{wprof});
     order=2;
-    [bkgArray]=handles.xrd.fitBkgd(data,bkgx, bkgy, bkgModel);
+    [bkgArray]=handles.xrd.fitBkgd(data, profiledata.PolyOrder, bkgx, bkgy, bkgModel);
 end
 
 % FOR GUI, BACKGROUND
