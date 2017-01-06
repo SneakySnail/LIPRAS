@@ -36,7 +36,7 @@ fid=fopen(strcat(outFilePrefix,strcat(iprefix,num2str(index)),'_Profile_',num2st
 
 % File info
 %TODO add platform-independent data file reading
-fprintf(fid, 'DataPath: %s\n\n', Stro.DataPath);
+fprintf(fid, 'DataPath: %s\n', Stro.DataPath);
 
 fprintf(fid, 'Filenames: ');
 fprintf(fid, '%s ', Stro.Filename{:});
@@ -50,8 +50,11 @@ fprintf(fid, 'BackgroundPoints:');
 fprintf(fid, ' %f', Profile.BackgroundPoints(:));
 
 %fprintf(fid, '\n\nPeak Parameters\n');
-fprintf(fid,'\nFitFunction(s): ');
+fprintf(fid,'\n\nFitFunction(s):\n');
 fprintf(fid,'%s; ', Profile.FcnNames{:});
+
+fprintf(fid, '\nPeakPosition(s): ');
+fprintf(fid, '%f ', Profile.PeakPositions(:));
 
 fprintf(fid,'\nConstraints:');
 fprintf(fid, ' %d',Stro.Constrains);

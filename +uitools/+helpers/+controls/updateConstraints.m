@@ -3,6 +3,7 @@ function handles = updateConstraints(handles)
 %   Detailed explanation goes here
 
 cp = handles.guidata.currentProfile;
+profiledata = handles.cfit(cp);
 
 handles = setEnabledComponents(handles);
 
@@ -21,9 +22,8 @@ assignin('base', 'handles', handles);
     set(handles.checkboxm,'Enable','off');
     
     try
-        
-        fcnNames = handles.guidata.PSfxn{cp};
-        peakHasFunc = ~cellfun(@isempty, fcnNames);
+        fcnNames = profiledata.FcnNames;
+        peakHasFunc = ~cellfun(@isempty, fcnNames); 
         
     catch ex
         error(ex.Message)

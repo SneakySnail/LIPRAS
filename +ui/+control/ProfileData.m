@@ -16,12 +16,6 @@ classdef ProfileData
         id % The profile number
     end
     
-    properties (Hidden)        
-        SP
-        LB
-        UB
-    end
-    
     % The values we want from the GUI
     properties (Dependent)
         CurrentFile % Currently viewing file number in the plot
@@ -32,8 +26,10 @@ classdef ProfileData
         BackgroundModel
         PolyOrder
         FcnNames
-        Constraints %TODO
-        FitInitial
+        Constraints 
+        FitInitialStart
+        FitInitialLower
+        FitInitialUpper
         FitRange
         Coefficients
     end
@@ -45,6 +41,8 @@ classdef ProfileData
         BackgroundPoints
         BackgroundPointsIdx
         PeakPositions
+        MinRange
+        MaxRange
     end
     
     % The properties
@@ -60,7 +58,9 @@ classdef ProfileData
         PeakPositions_
         FcnNames_
         Constraints_
-        FitInitial_
+        FitInitialStart_
+        FitInitialLower_
+        FitInitialUpper_
         FitRange_
 %         Coefficients_
     end
@@ -88,6 +88,7 @@ classdef ProfileData
         obj.hg_ = handles;
         end
         
+        
         function obj = set.CurrentFile(obj, value)
         obj.CurrentFile_ = value;
         obj.hg.popup_filename.Value = value;
@@ -104,15 +105,48 @@ classdef ProfileData
         function obj = set.Range2t(obj, range)
         % TODO add verification
         obj.Range2t_ = range;
-        minStr = sprintf('%2.4f', range(1));
-        maxStr = sprintf('%2.4f', range(2));
         
-        obj.hg.edit_min2t.String = minStr;
-        obj.hg.edit_max2t.String = maxStr;
-        
-        obj.hg.xrd.Min2T = range(1);
-        obj.hg.xrd.Max2T = range(2);
         end
+        
+        function obj = set.MinRange(obj, value)
+        % Check if within range
+        xrd = obj.hg.xrdContainer(obj.id);
+        
+        if value < xrd.two_theta(1)
+            value = xrd.two_theta(1);
+            
+        elseif value > xrd.two_theta(end)
+            value = xrd.two_theta(end);
+        end        
+        
+        % Save value
+        obj.hg.xrdContainer(obj.id).Min2T = value;
+        obj.hg.edit_min2t.String = sprintf('%2.4f', value);
+        obj.Range2t_(1) = value;
+        
+        plotX(obj.hg, 'limits');
+        end
+        
+        function obj = set.MaxRange(obj, value)
+         xrd = obj.hg.xrdContainer(obj.id);
+        
+        if value < xrd.two_theta(1)
+            value = xrd.two_theta(1);
+            
+        elseif value > xrd.two_theta(end)
+            value = xrd.two_theta(end);
+        end
+        
+        % Save value
+        obj.hg.xrdContainer(obj.id).Max2T = value;
+        obj.hg.edit_max2t.String = sprintf('%2.4f', value);
+        obj.Range2t_(2) = value;
+        
+        plotX(obj.hg, 'limits');
+        
+        % Check to make sure value < absolute maximum 2theta
+        end
+        
         
         function obj = set.BackgroundModel(obj, value)
         obj.BackgroundModel_ = value;
@@ -146,83 +180,81 @@ classdef ProfileData
         function obj = set.FcnNames(obj, value)
         obj.FcnNames_ = value;
         ht = obj.hg.table_paramselection;
+        if size(ht.Data, 1) ~= length(value)
+            set(ht, 'Data', cell(length(value), 1));
+        end
         ht.Data(:, 1) = value';
         end
         
         function obj = set.Constraints(obj, value)
         obj.Constraints_ = value;
         % TODO update constraints controls
+        
+        constrained = model.fitcomponents.Constraints(value);
+        ui.control.table.toggleConstraints(obj.hg, constrained);
         end
         
-        function obj = set.SP(obj, value)
-        if ~isnumeric(value)
-            MException('ProfileData:SP:InvalidType')
-        end
-        obj.SP = value;
-        end
-        function obj = set.LB(obj, value)
-        if ~isnumeric(value)
-            MException('ProfileData:SP:InvalidType')
-        end
-        obj.LB = value;
-        end
-        function obj = set.UB(obj, value)
-        if ~isnumeric(value)
-            MException('ProfileData:SP:InvalidType')
-        end
-        obj.UB = value;
-        end
         
-        function obj = set.FitInitial(obj, value)
-        % Must be a struct with fields SP, LB, or UB. Otherwise, must be numeric
-        if ~isstruct(value) || ~isnumeric(value)
-                MException('ProfileData:FitInitial:InvalidType')
-        end
-            
-        if isstruct(value)
-            obj.SP = value.start;
-            obj.LB = value.lower;
-            obj.UB = value.upper;
-            obj.FitInitial_ = [obj.SP; obj.LB; obj.UB];
-            
-        else
-            obj.FitInitial_ = value;
+        function obj = set.FitInitialStart(obj, value)
+        % Updates table_fitinitial with values specified in the argument value
+        if isnumeric(value)
+            value = num2cell(value);
+        
+        elseif ~iscell(value)
+            msg = 'Value must be a numeric array.';
+            MException('LIPRAS:ProfileData:FitInitial:InvalidType', msg)
         end
         
         hObject = obj.hg.table_fitinitial;
-        constraints = model.fitcomponents.Constraints(obj.FitInitial_);
-       
-        % If not enough peak peakPositions for each function
-        if length(obj.PeakPositions) < obj.NumPeaks
-            return
+        
+        if length(value) ~= length(hObject.Data(:,1))
+            msg = 'Value must be the same length as table';
+            MException('LIPRAS:ProfileData:FitInitial:InvalidLength', msg)
         end
-        try         
-            [sp,lb,ub] = obj.hg.xrd.getDefaultStartingBounds(obj.FcnNames, ...
-                obj.PeakPositions, obj.Constraints);
-        catch
-            return
-        end
-        
-        
-        
-        try            
-            % Fill in table with default values if cell is empty
-            for i=1:length(profiledata.Coefficients)
-                if isempty(hObject.Data{i,1})
-                    hObject.Data{i,1} = sp(i);
-                end
-                if isempty(hObject.Data{i,2})
-                    hObject.Data{i,2}  =lb(i);
-                end
-                if isempty(hObject.Data{i,3})
-                    hObject.Data{i,3} = ub(i);
-                end
-            end
-        catch
             
-        end
-                
+        obj.FitInitialStart_ = value;
         
+        hObject.Data(:, 1) = value;
+        
+        end
+        
+        function obj = set.FitInitialLower(obj, value)
+        % Updates table_fitinitial with values specified in the argument value
+        if isnumeric(value)
+            value = num2cell(value);
+        
+        elseif ~iscell(value)
+            MException('LIPRAS:ProfileData:FitInitial:InvalidType')
+        end
+        
+        hObject = obj.hg.table_fitinitial;
+        
+        if length(value) ~= length(hObject.Data(:,1))
+            MException('LIPRAS:ProfileData:FitInitial:InvalidLength')
+        end
+            
+        obj.FitInitialStart_ = value;
+        hObject.Data(:, 2) = value;
+        
+        end
+        
+        function obj = set.FitInitialUpper(obj, value)
+        % Updates table_fitinitial with values specified in the argument value
+        if isnumeric(value)
+            value = num2cell(value);
+        
+        elseif ~iscell(value)
+            MException('LIPRAS:ProfileData:FitInitial:InvalidType')
+        end
+        
+        hObject = obj.hg.table_fitinitial;
+        
+        if length(value) ~= length(hObject.Data(:,1))
+            MException('LIPRAS:ProfileData:FitInitial:InvalidLength')
+        end
+            
+        obj.FitInitialStart_ = value;
+        hObject.Data(:, 3) = value;
         
         end
         
@@ -233,8 +265,11 @@ classdef ProfileData
         
         function obj = set.Coefficients(obj, value)
         %VALUE - 1xN string cell array
-        obj.hg.table_fitinitial.RowName = value';
-        
+        hObject = obj.hg.table_fitinitial;
+        if ~isequal(hObject.RowName, value')
+            hObject.RowName = value';
+            hObject.Data = cell(length(value), 3);
+        end
         end
         
     end
@@ -264,6 +299,7 @@ classdef ProfileData
         
         value = [xRanged; yRanged];
         end
+
         % Returns the 2theta range for the current fit as a 1x2 numeric array.
         function value = get.Range2t(obj)
         min2t = str2double(obj.hg.edit_min2t.String);
@@ -341,28 +377,22 @@ classdef ProfileData
         
         end
         
-        function value = get.SP(obj)
-        data = obj.hg.table_fitinitial.Data';
-        value = cell2mat(data(1,:));
-        end
-        function value = get.LB(obj)
-        data = obj.hg.table_fitinitial.Data';
-        value = cell2mat(data(2,:));
-        end
-        function value = get.UB(obj)
-        data = obj.hg.table_fitinitial.Data';
-        value = cell2mat(data(3,:));
+        function value = get.FitInitialStart(obj)
+        % Gets the first column (the initial values) in table_fitinitial
+        hObject = obj.hg.table_fitinitial;
+        value = [hObject.Data{:, 1}];
         end
         
-        function value = get.FitInitial(obj)
-        % Structure containing the the fit initial bounds.
-        %
-        %   start    - numeric array of starting points
-        %   lower    - numeric array of lower bounds
-        %   upper    - numeric array of upper bounds
-        value.start = obj.SP;
-        value.lower = obj.LB;
-        value.upper = obj.UB;
+        function value = get.FitInitialLower(obj)
+        % Gets the first column (the initial values) in table_fitinitial
+        hObject = obj.hg.table_fitinitial;
+        value = [hObject.Data{:, 2}];
+        end
+        
+        function value = get.FitInitialUpper(obj)
+        % Gets the first column (the initial values) in table_fitinitial
+        hObject = obj.hg.table_fitinitial;
+        value = [hObject.Data{:, 3}];
         end
         
         % Returns the fit range as an integer.
@@ -442,9 +472,6 @@ classdef ProfileData
     end
     
     methods (Hidden)
-        function value = xrd(obj)
-        value = obj.hg.xrd;
-        end
         
         function value = verifyCoeffName(obj, coeff)
         

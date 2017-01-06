@@ -44,7 +44,6 @@ guidata(handles.figure1, handles);
     
     set(handles.edit_numpeaks.JavaPeer, ...
         'StateChangedCallback', @(o,e)numberOfPeaksChanged(o,e,guidata(handles.figure1)));
-        
     end
 
     function obj = duplicate_uipanel3() 

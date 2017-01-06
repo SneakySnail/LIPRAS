@@ -1,4 +1,4 @@
-function colorOrderIndexChanged(hObject, eventdata, handles)
+function colorOrderIndexChanged(~, ~, ~)
 % Property listener for the color order index. If ColorOrderIndex changes, make
 % sure it doesn't go over the max index.
 
