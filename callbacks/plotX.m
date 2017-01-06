@@ -210,7 +210,7 @@ end
     end
     
     filenum=get(handles.popup_filename,'Value');
-    data = profiledata.getData(filenum);
+    data = profiledata.Data;
     % bkgd2th = handles.xrd.getBkgdPoints();
     
     % Get Background
@@ -267,9 +267,8 @@ end
     function [peakArray, CuKaPeak] = calculatePeakResults(handles, coeffvals)
     
     profiledata = handles.cfit(handles.guidata.currentProfile);
-    data = profiledata.getData;
     constraints = model.fitcomponents.Constraints(profiledata.Constraints);
-    x2th = data(1,:);
+    x2th = profiledata.Data(1,:);
     coeff = profiledata.Coefficients;
     fcns = profiledata.FcnNames;
     
@@ -578,7 +577,7 @@ end
         'YLimMode', 'auto');
     handles.axes1.XLabel.String = 'File Number';
     
-    if strcmpi(handles.uitoggletool5.State,'on')
+    if strcmpi(handles.toolbar_legend.State,'on')
         legend(hTable.RowName{r})
     end
     
@@ -682,7 +681,7 @@ end
     %   Detailed explanation goes here
     iFile = handles.popup_filename.Value;
     profiledata = handles.cfit(handles.guidata.currentProfile);
-    data = profiledata.getData(iFile);
+    data = profiledata.Data;
     
     % Get Background
     bkgModel=handles.popup_bkgdmodel.Value;
@@ -713,7 +712,7 @@ end
     % The current file TODO: "getCurrentFile(handles.popup_filename)"
     iFile = handles.popup_filename.Value;
     profiledata = handles.cfit(handles.guidata.currentProfile);
-    data = profiledata.getData(iFile);
+    data = profiledata.Data;
     
     
     

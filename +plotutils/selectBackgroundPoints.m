@@ -25,7 +25,7 @@ handles.container_numpeaks.Visible = 'on';
 set(findobj(handles.panel_parameters, 'tag', 'text12'),'visible', 'on');
 set(handles.edit_numpeaks, 'visible', 'on');
 handles.tabpanel.TabEnables{2} = 'on';
-handles.tabpanel.Selection = 2;
+% handles.tabpanel.Selection = 2;
 
 % Lets assign 2th points to bkgd2th in each xrdContainer
 handles.xrdContainer(1,cp).bkgd2th = handles.cfit(cp).BackgroundPoints;

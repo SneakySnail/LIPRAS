@@ -95,13 +95,14 @@ pos = sort([handles.cfit(cp).BackgroundPointsIdx, pos]);
 function [points, pos] = Delete_bkgpoints(handles)
 % points - the remaining points to use for the background fit
 % pos    - the index of the remaining points
-
 import plotutils.*
 
-twotheta = handles.axes1.UserData(1,:);
-intensity = handles.axes1.UserData(2,:);
-
 cp = handles.guidata.currentProfile;
+profiledata = handles.cfit(handles.guidata.currentProfile);
+data = profiledata.Data;
+twotheta = data(1,:);
+intensity = data(2,:);
+
 points = handles.cfit(cp).BackgroundPointsIdx;
 pos = handles.cfit(cp).BackgroundPointsIdx;
 

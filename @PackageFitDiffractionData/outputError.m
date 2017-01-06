@@ -44,15 +44,14 @@ fprintf(fid, '\n\n');
 
 fprintf(fid, '2ThetaRange: %f %f\n\n',Stro.Min2T, Stro.Max2T);
 
+fprintf(fid, 'BackgroundModel: %s\n', Profile.BackgroundModel);
 fprintf(fid, 'PolynomialOrder: %i\n', Profile.PolyOrder);
 fprintf(fid, 'BackgroundPoints:');
 fprintf(fid, ' %f', Profile.BackgroundPoints(:));
 
 %fprintf(fid, '\n\nPeak Parameters\n');
-fprintf(fid,'FitFunction(s): ');
+fprintf(fid,'\nFitFunction(s): ');
 fprintf(fid,'%s; ', Profile.FcnNames{:});
-
-fprintf(fid,'\nFitRange: %.4f\n', Profile.FitRange);
 
 fprintf(fid,'\nConstraints:');
 fprintf(fid, ' %d',Stro.Constrains);

@@ -35,7 +35,7 @@ catch ME
     
     resizeAxes1ForErrorPlot(handles, 'data');
     
-    plotX(handles, 'data');
+    plotX(handles, 'sample');
     
     keyboard
 end
@@ -57,7 +57,7 @@ handles.xrd.Status = 'Fitting dataset... Done.';
 
 function set_btn_availability(hObject, handles)
 set(handles.menu_save,'Enable','on');
-set(handles.tabpanel, 'TabEnables', {'on', 'on', 'on'});
+set(handles.tabpanel, 'TabEnables', {'on', 'on', 'on'}, 'Selection', 3);
 set(handles.tab2_next, 'visible', 'on');
 set(handles.radio_stopleastsquares, 'enable', 'off', 'value', 0);
 set(handles.push_viewall, 'enable', 'on', 'visible', 'on');

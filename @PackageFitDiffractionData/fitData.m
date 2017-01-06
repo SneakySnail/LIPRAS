@@ -55,7 +55,7 @@ end
     function fitSingleFile(iFile)
     
     %this is the primary function
-    datasent = profiledata.getData(iFile);
+    datasent = profiledata.Data;
     
     Stro.fitXRD(datasent, iFile, handles, g);
     

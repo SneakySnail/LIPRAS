@@ -24,7 +24,8 @@ classdef ProfileData
     
     % The values we want from the GUI
     properties (Dependent)
-        CurrentFile % Currently viewing file in the plot
+        CurrentFile % Currently viewing file number in the plot
+        Data
         NumPeaks
         NumPeakPositions
         Range2t
@@ -190,13 +191,7 @@ classdef ProfileData
         
         hObject = obj.hg.table_fitinitial;
         constraints = model.fitcomponents.Constraints(obj.FitInitial_);
-                
-%         if find(handles.guidata.constraints{1}(:,2), 1)
-%             nPeaks = length(find(~handles.guidata.constraints{1}(:,2))) + 1;
-%         else
-%             nPeaks = obj.NumPeaks;
-%         end
-%         
+       
         % If not enough peak peakPositions for each function
         if length(obj.PeakPositions) < obj.NumPeaks
             return
@@ -255,6 +250,20 @@ classdef ProfileData
         value = obj.hg.popup_filename.Value;
         end
         
+        function value = get.Data(obj)
+        % Returns the data in the current profile range for the current file
+        % 
+        % FIRST ROW: 2theta region
+        % SECOND ROW & ABOVE: Integrated intensity of experimental data
+        Stro = obj.hg.xrd;
+     
+        dataIndices = PackageFitDiffractionData.Find2theta(Stro.two_theta, obj.Range2t);
+        
+        xRanged = Stro.two_theta(dataIndices(1):dataIndices(2)); %Extract relevant 2theta region
+        yRanged = Stro.data_fit(file, dataIndices(1):dataIndices(2));
+        
+        value = [xRanged; yRanged];
+        end
         % Returns the 2theta range for the current fit as a 1x2 numeric array.
         function value = get.Range2t(obj)
         min2t = str2double(obj.hg.edit_min2t.String);
@@ -376,30 +385,6 @@ classdef ProfileData
         else
             value = true;
         end
-        end
-        
-        function result = getData(obj, file)
-        % Returns an array where the first row contains the relevant 2theta values
-        %   and the second row contains the relevant intensity of the experimental 
-        %   data to be fitted. If the file is not specified, data for all files
-        %   are returned in order starting in the second row.
-        %  
-        %FILE - the file number of wanted data. If not specified, data for all
-        %   files are returned.
-        Stro = obj.hg.xrd;
-     
-        dataIndices = PackageFitDiffractionData.Find2theta(Stro.two_theta, obj.Range2t);
-        
-        xRanged = Stro.two_theta(dataIndices(1):dataIndices(2)); %Extract relevant 2theta region
-        
-        if nargin < 2
-            yRanged = Stro.data_fit(:,dataIndices(1):dataIndices(2)); %Extract relevant 2theta region
-        else
-            yRanged = Stro.data_fit(file, dataIndices(1):dataIndices(2));
-        end
-        
-        result = [xRanged; yRanged];
-                
         end
         
         function result = findCoeffIndex(obj, coeff)

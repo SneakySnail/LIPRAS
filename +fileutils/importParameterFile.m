@@ -7,7 +7,6 @@ cp = handles.guidata.currentProfile;
 try
     fid = getParameterFileId();
 catch
-    handles.xrd.Status = 'Parameter file not found. ';
     %     rethrow(ME)
     return
 end
@@ -49,6 +48,7 @@ uitools.adapter.state.fitReady(handles);
     while ~feof(fid)
         line = fgetl(fid);
         a = strsplit(line,' ');
+        
         % a{1} is the name of the property.
         % The rest are values of property.
         
@@ -79,6 +79,9 @@ uitools.adapter.state.fitReady(handles);
                 
             case 'Filenames:'
                 param.filename = a(2:end);
+                if isempty(a{end})
+                    param.filename = a(2:end-1);
+                end
                 
                 
             case '=='

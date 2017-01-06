@@ -105,7 +105,7 @@ else
         'YLimMode', 'auto');
     handles.axes1.XLabel.String = 'File Number';
     
-    if strcmpi(handles.uitoggletool5.State,'on')
+    if strcmpi(handles.toolbar_legend.State,'on')
         legend(hTable.RowName{r})
     end
 end
