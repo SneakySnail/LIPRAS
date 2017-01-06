@@ -1,6 +1,5 @@
 % Properties needed: datatype, DisplayName, ColorOrder
 function plotX(handles, type)
-
 if isfield(handles, 'cfit')
     profiledata = handles.cfit(handles.guidata.currentProfile);
 else
@@ -35,6 +34,9 @@ switch lower(type)
         hold on
         %         handles = plot_sample_fit(handles);
         resizeAxes1ForErrorPlot(handles, 'data');
+        
+    case 'limits'
+        updateLim(handles);
         
     case 'superimpose'
         plotSuperimposed(handles);
@@ -72,8 +74,19 @@ end
 
 % ==============================================================================
 
+    function updateLim(handles)
+    Stro = handles.xrd;
+    c=find(Stro.Min2T <= Stro.two_theta & Stro.Max2T >= Stro.two_theta);
+    intensity = Stro.data_fit(profiledata.CurrentFile,:);
+    
+    ymax=max(intensity(c));
+    ymin=min(intensity(c));
+    
+    xlim(handles.axes1, [handles.xrd.Min2T handles.xrd.Max2T]);
+    ylim(handles.axes1, [0.9*ymin,1.1*ymax])
+    end
+% ==============================================================================
 
-%
     function plotFit(handles, ifile)
     Stro = handles.xrd;
     cp = handles.guidata.currentProfile;
@@ -145,15 +158,15 @@ end
     Stro.DisplayName = {data.DisplayName};
     filenum=handles.popup_filename.Value;
     
-    xlabel(gca, '2\theta','FontSize',11);
-    ylabel(gca, 'Intensity','FontSize',11);
+    xlabel(handles.axes1, '2\theta','FontSize',11);
+    ylabel(handles.axes1, 'Intensity','FontSize',11);
     
-    set(gca, 'XTickMode', 'auto', 'XTickLabelMode', 'auto');
+    set(handles.axes1, 'XTickMode', 'auto', 'XTickLabelMode', 'auto');
     
-    title(gca, [handles.xrd.Filename{filenum} ' (' num2str(filenum) ' of ' ...
+    title(handles.axes1, [handles.xrd.Filename{filenum} ' (' num2str(filenum) ' of ' ...
         num2str(length(handles.xrd.Filename)) ')']);
     
-    xlim(gca, [handles.xrd.Min2T handles.xrd.Max2T]);
+    xlim(handles.axes1, [handles.xrd.Min2T handles.xrd.Max2T]);
     ylim([0.9*min([data.YData]), 1.1*max([data.YData])]);
     end
 % ==============================================================================
@@ -181,7 +194,7 @@ end
         'LineWidth',.50, ...
         'Tag', 'Error'); % Error
     
-    xlim(gca, [handles.xrd.Min2T handles.xrd.Max2T])
+    xlim(handles.axes1, [handles.xrd.Min2T handles.xrd.Max2T])
     end
 % ==============================================================================
 
@@ -209,7 +222,6 @@ end
         return
     end
     
-    filenum=get(handles.popup_filename,'Value');
     data = profiledata.Data;
     % bkgd2th = handles.xrd.getBkgdPoints();
     
@@ -249,7 +261,7 @@ end
     
     dispname={datafit.DisplayName};
     handles.xrd.DisplayName=[handles.xrd.DisplayName, dispname];
-    xlim(gca, [handles.xrd.Min2T handles.xrd.Max2T])
+    xlim(handles.axes1, [handles.xrd.Min2T handles.xrd.Max2T])
     
     filenum=handles.popup_filename.Value;
     
@@ -446,13 +458,13 @@ end
     
     Stro.DisplayName = Stro.Filename(dataSet);
     
-    ylim([0.9*ymin,1.1*ymax])
-    xlim(gca, [Stro.Min2T, Stro.Max2T])
+    ylim(handles.axes1, [0.9*ymin,1.1*ymax])
+    xlim(handles.axes1, [Stro.Min2T, Stro.Max2T])
     
     filenum=handles.popup_filename.Value;
     
-    xlabel('2\theta','FontSize',11);
-    ylabel('Intensity','FontSize',11);
+    xlabel('2\theta','FontSize',13);
+    ylabel('Intensity','FontSize',13);
     
     set(handles.axes1, 'XTickMode', 'auto', 'XTickLabelMode', 'auto');
     
@@ -490,15 +502,15 @@ end
     else
         % Delete from DisplayName and from current axis
         Stro.DisplayName(ind)=[];
-        lines=get(gca,'Children');
+        lines=get(handles.axes1,'Children');
         lind=find(strcmp(get(lines,'DisplayName'),Stro.Filename(dataSet)));
         delete(lines(lind)); %#ok<FNDSB>
     end
     
     % Go back one color index if a line is deleted for next line to use
-    lines=get(gca,'Children');
+    lines=get(handles.axes1,'Children');
     cArray=zeros(1,7);
-    co=get(gca,'ColorOrder');
+    co=get(handles.axes1,'ColorOrder');
     lc=get(lines,'Color');
     if length(lines)==1
         ind=find(lc(1,1)==co(:,1));
@@ -511,7 +523,7 @@ end
     end
     cArray=find(~cArray,1);
     try
-        set(gca,'ColorOrderIndex',cArray);
+        set(handles.axes1,'ColorOrderIndex',cArray);
     catch  % If all colors are used
         
     end
@@ -544,12 +556,12 @@ end
         xlabel('2\theta','FontSize',11);
         ylabel('Intensity','FontSize',11);
         
-        title(gca, [handles.xrd.Filename{j} ' (' num2str(j) ' of ' ...
+        title(handles.axes1, [handles.xrd.Filename{j} ' (' num2str(j) ' of ' ...
             num2str(length(handles.xrd.Filename)) ')']);
     end
     
     linkaxes(ax,'xy');
-    xlim(gca, [handles.xrd.Min2T handles.xrd.Max2T])
+    xlim(handles.axes1, [handles.xrd.Min2T handles.xrd.Max2T])
     end
 % ==============================================================================
 
@@ -569,7 +581,7 @@ end
         'MarkerSize', 8, ...
         'MarkerFaceColor', [0 0 0], ...
         'DisplayName', hTable.RowName{r})
-    xlim([1 numfiles])
+    xlim(handles.axes1, [1 numfiles])
     
     set(handles.axes1, ...
         'XTick', 1:numfiles, ...
@@ -581,7 +593,7 @@ end
         legend(hTable.RowName{r})
     end
     
-    xlim(gca, [handles.xrd.Min2T handles.xrd.Max2T])
+    xlim(handles.axes1, [handles.xrd.Min2T handles.xrd.Max2T])
     end
 % ==============================================================================
 
