@@ -66,14 +66,6 @@ function push_newbkgd_Callback(hObject, eventdata, handles)
 plotutils.selectBackgroundPoints(handles);
 
 
-function uitoggletool4_ClickedCallback(hObject, eventdata, handles)
-
-function tabgroup_SelectionChangedFcn(hObject, eventdata, handles)
-
-function menu_edit_Callback(hObject, eventdata, handles)
-
-
-
 function edit_lambda_Callback(hObject, eventdata, handles)
 lambda=str2double(get(hObject,'String'));
 handles.xrd.lambda=lambda;
@@ -175,7 +167,6 @@ end
 function checkbox_superimpose_Callback(hObject, eventdata, handles)
 handles.xrd.Status='Superimposing raw data...';
 axes(handles.axes1)
-filenum=get(handles.popup_filename,'Value');
 cla
 % If box is checked, turn on hold in axes1
 if get(hObject,'Value')
@@ -186,7 +177,7 @@ if get(hObject,'Value')
     set(handles.listbox_files, 'enable', 'on');
     set(handles.axes2.Children,'Visible','off');
     % 		handles.uitoggletool5.UserData=handles.uitoggletool5.State;
-    uitoggletool5_OnCallback(handles.uitoggletool5, eventdata, handles)
+    toolbar_legend_OnCallback(handles.toolbar_legend, eventdata, guidata(hObject));
 else
     hold off
     plotX(handles);
@@ -278,27 +269,27 @@ menu_new_Callback(hObject, eventdata, handles);
 guidata(hObject,handles);
 
 % Toggles the legend.
-function uitoggletool5_ClickedCallback(hObject, eventdata, handles)
+function toolbar_legend_ClickedCallback(hObject, eventdata, handles)
 % hObject    handle to uitoggletool5 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 if strcmpi(hObject.State,'on')
     handles.xrd.Status='Legend was turned on.';
-    uitoggletool5_OnCallback(hObject, eventdata, handles)
+    toolbar_legend_OnCallback(hObject, eventdata, handles)
 else
     handles.xrd.Status='Legend was turned off.';
-    uitoggletool5_OffCallback(hObject, eventdata, handles)
+    toolbar_legend_OffCallback(hObject, eventdata, handles)
 end
 
 % Turns off the legend.
-function uitoggletool5_OffCallback(hObject, eventdata, handles)
+function toolbar_legend_OffCallback(hObject, eventdata, handles)
 set(hObject,'State','off');
 lgd = findobj(handles.figure1, 'tag', 'legend');
 set(lgd, 'visible', 'off');
 
 % Turns on the legend.
-function uitoggletool5_OnCallback(hObject, eventdata, handles)
+function toolbar_legend_OnCallback(hObject, eventdata, handles)
 set(hObject,'State','on');
 legend(handles.axes1, handles.xrd.DisplayName,'Box','off')
 
@@ -320,22 +311,22 @@ catch ME
     ME.stack(1)
     
     ME.message
-    end
+end
 guidata(hObject, handles)
 
-function menu_preferences_Callback(handles)
+function menu_preferences_Callback(~,~,~)
 folder_name=uigetdir;
 PreferenceFile=fopen('Preference File.txt','w');
 fprintf(PreferenceFile,'%s\n',folder_name);
 
-function menu_help_Callback(handles)
+function menu_help_Callback(~,~)
 h=msgbox('Documentation is on its way...','Help');
 set(h, 'Position',[500 440 200 50]) % posx, posy, height, width
 ah=get(h,'CurrentAxes');
 c=get(ah,'Children');
 set(c,'FontSize',11);
 
-function menu_about_Callback(handles)
+function menu_about_Callback(~,~)
 h=msgbox({'LIPRAS, version: 1.0' 'Authors: Klarissa Ramos, Giovanni Esteves, Chris Fancher, and Jacob Jones' 'North Carolina State University (2016)' '' 'Contact Information' 'Giovanni Esteves' 'Email: gesteves21@gmail.com' 'Jacob Jones' 'Email: jacobjones@ncsu.edu'},'About');
 set(h, 'Position',[500 440 400 180]) % posx, posy, horiz, vert
 ah=get(h,'CurrentAxes');
