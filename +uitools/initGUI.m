@@ -81,28 +81,14 @@ addLastCallbacks();
     import java.awt.BorderLayout
     import java.awt.Color
     
-    set(handles.figure1, 'visible', 'on'); 
+    set(handles.figure1, 'visible', 'on');
     try
-        % Turn off JavaFrame obsolete warning
-        warning off MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame;
-        jFrame=get(handles.figure1,'JavaFrame');
-        try
-            jRootPane = jFrame.fFigureClient.getWindow;  % This works up to R2011a
-        catch
-            try
-                jRootPane = jFrame.fHG1Client.getWindow;  % This works from R2008b-R2014a
-            catch
-                jRootPane = jFrame.fHG2Client.getWindow;  % This works from R2014b and up
-            end
-        end
-        
-        
         % left status bar
         handles.statusbarObj = javaObjectEDT('com.mathworks.mwswing.MJStatusBar');
         handles.statusbarObj = javacomponent(handles.statusbarObj, 'South');
         handles.statusbarObj = handles.statusbarObj.getComponent(0);
         handles.statusbarObj.setBackground(Color.white);
-%         jRootPane.setStatusBar(handles.statusbarObj);
+        %         jRootPane.setStatusBar(handles.statusbarObj);
         handles.statusbarObj.setText('To start, import file(s) from your computer to fit.');
         
         % border
@@ -110,23 +96,23 @@ addLastCallbacks();
         %             newBorder = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
         %             newBorder = BorderFactory.createLoweredBevelBorder();
         %         newBorder = BorderFactory.createRaisedBevelBorder();
-%         newBorder = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
-%         handles.statusbarObj.setBorder(newBorder);
+        %         newBorder = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
+        %         handles.statusbarObj.setBorder(newBorder);
         
     catch
-        msgId = 'initGUI:JavaObjectCreation';
+        msgId = 'LIPRAS:initGUI:JavaObjectCreation';
         msg = 'Could not create the Java status bar';
         MException(msgId, msg);
     end
-    end
+end
 % ==========================================================================
 
 % Set the parents of the 3 major panels for tab switching functionality.
-    function reparentTabPanels()
-    set(handles.panel_setup, 'parent', handles.profiles(7));
-    set(handles.panel_parameters,'parent', handles.profiles(7));
-    set(handles.panel_results, 'parent', handles.profiles(7));
-    end
+function reparentTabPanels()
+set(handles.panel_setup, 'parent', handles.profiles(7));
+set(handles.panel_parameters,'parent', handles.profiles(7));
+set(handles.panel_results, 'parent', handles.profiles(7));
+end
 % ==========================================================================
 
 
@@ -135,15 +121,15 @@ addLastCallbacks();
 % Assumes this is the last function called in the GUI initialization.
 %
 % Throws an exception if the status bar is invalid.
-    function addLastCallbacks()
-    
-    % Requires a Java status bar to exist
-    if ~isa(handles.statusbarObj, 'com.mathworks.mwswing.MJStatusBar')
-        msgId = 'initGUI:InvalidJavaStatusBar';
-        msg = 'Could not add a callback function for updating the status bar.';
-        MException(msgId, msg);
-    end
-    handles.figure1.WindowButtonMotionFcn = @(o, e)WindowButtonMotionFcn(o, e,guidata(o));
-    end
+function addLastCallbacks()
+
+% Requires a Java status bar to exist
+if ~isa(handles.statusbarObj, 'com.mathworks.mwswing.MJStatusBar')
+    msgId = 'initGUI:InvalidJavaStatusBar';
+    msg = 'Could not add a callback function for updating the status bar.';
+    MException(msgId, msg);
+end
+handles.figure1.WindowButtonMotionFcn = @(o, e)WindowButtonMotionFcn(o, e,guidata(o));
+end
 % ==========================================================================
 end
