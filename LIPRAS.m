@@ -1,5 +1,5 @@
 function varargout = LIPRAS(varargin)
-% FDGUI MATLAB code for FDGUI.fig
+% LIPRAS MATLAB code for LIPRAS.fig
 
 % Last Modified by GUIDE v2.5 14-Nov-2016 10:45:23
 
@@ -9,7 +9,7 @@ gui_State = struct('gui_Name',       mfilename, ...
     'gui_Singleton',  gui_Singleton, ...
     'gui_OpeningFcn', @LIPRAS_OpeningFcn, ...
     'gui_OutputFcn',  @LIPRAS_OutputFcn, ...
-    'gui_LayoutFcn',  [] , ...get
+    'gui_LayoutFcn',  [] , ...
     'gui_Callback',   []);
 if nargin && ischar(varargin{1})
     gui_State.gui_Callback = str2func(varargin{1});
@@ -25,23 +25,44 @@ end
 
 % Executes just before LIPRAS is made visible.
 function LIPRAS_OpeningFcn(hObject, eventdata, handles, varargin)
-handles = uitools.initGUI(handles);
-
-handles.plotdata='yes';
+import ui.control.*
+import model.*
+import utils.fileutils.*
 
 % Choose default command line output for FDGUI
 handles.output = hObject;
 
+% if ~isempty(GUIController.getInstance())
+%     delete(GUIController.getInstance());
+% end
+% 
+% handles.profiles = ProfileListManager.getInstance();
+% guidata(hObject, handles);
+% 
+% handles.gui = GUIController.getInstance(hObject);
+% handles = GUIController.initGUI(handles);
+
 assignin('base','handles',handles);
 % Update handles structure
-guidata(hObject, handles)
+guidata(hObject, handles);
 %===============================================================================
 
 % Outputs from this function are returned to the command line.
-function varargout = LIPRAS_OutputFcn(hObject, eventdata, handles)
+function varargout = LIPRAS_OutputFcn(~, ~, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 %===============================================================================
+
+%  Executes on button press in button_browse.
+function button_browse_Callback(hObject, ~, handles)
+handles.gui.Status = 'Browsing for dataset... ';
+handles.profiles.newXRD();
+model.ProfileListManager.getInstance(handles.profiles);
+if handles.profiles.hasData
+    ui.update(handles, 'dataset');
+else
+    handles.gui.Status = '';
+end
 
 % Executes on button press in push_addprofile.
 function push_addprofile_Callback(hObject, eventdata, handles)
@@ -63,14 +84,138 @@ guidata(hObject, handles)
 
 % Executes on button press in push_newbkgd.
 function push_newbkgd_Callback(hObject, eventdata, handles)
-plotutils.selectBackgroundPoints(handles);
+import utils.plotutils.*
+hold off
+plotX(handles, 'data');
+hold on
+
+if handles.profiles.xrd.hasBackground
+    plotX(handles, 'background');
+end
+
+selected = handles.group_bkgd_edit_mode.SelectedObject.String;
+
+if strcmpi(selected, 'Delete')
+    numpoints = length(handles.profiles.xrd.getBackgroundPoints);
+    points = selectPointsFromPlot(handles, numpoints);
+else
+    points = selectPointsFromPlot(handles);
+end
+
+model.update(handles, 'backgroundpoints', points);
+ui.update(handles, 'backgroundpoints');
+
+% Plots the background points selected.
+function push_fitbkgd_Callback(hObject, ~, handles)
+import utils.plotutils.*
+if handles.gui.isFitDirty
+    plotX(handles, 'background');
+else
+    plotX(handles, 'sample');
+end
 
 
-function edit_lambda_Callback(hObject, eventdata, handles)
-lambda=str2double(get(hObject,'String'));
-handles.xrd.lambda=lambda;
+function edit_min2t_Callback(~, ~, handles)
+xrd = handles.profiles.xrd;
+newValue = handles.gui.Min2T;
+if ~isnan(newValue)
+    model.update(handles, 'Min2T', newValue);
+else
+    handles.gui.Min2T = xrd.Min2T;
+end
+utils.plotutils.plotX(handles, 'sample');
+
+function edit_max2t_Callback(~, ~, handles)
+xrd = handles.profiles.xrd;
+newValue = handles.gui.Max2T;
+if ~isnan(newValue)
+    model.update(handles, 'Max2T', newValue);
+else
+    handles.gui.Max2T = xrd.Max2T;
+end
+utils.plotutils.plotX(handles, 'sample');
+
+function edit_polyorder_Callback(src, ~, handles)
+%BACKGROUNDORDERCHANGED Summary of this function goes here
+%   Detailed explanation goes here
+value = round(src.getValue);
+
+if value == 1 && strcmpi(handles.gui.BackgroundModel, 'Spline')
+   value = 2;
+   handles.gui.Status = '<html><font color="red"><b>Spline Order must be > 1.';
+end
+
+xrd = handles.profiles.xrd;
+xrd.setBackgroundOrder(value);
+handles.gui.PolyOrder = value;
 
 
+function popup_bkgdmodel_Callback(o, ~, handles)
+handles.profiles.xrd.setBackgroundModel(o.String{o.Value});
+ui.update(handles,'backgroundmodel');
+
+% Executes on button press of any checkbox in panel_constraints.
+function checkbox_constraints_Callback(o, ~, handles)
+% Save new constraint as an index from panel_constraints.UserData
+handles.profiles.xrd.constrain(o.String);
+ui.update(handles, 'Constraints');
+
+% Executes on button press in checkbox_lambda.
+function checkbox_CuKa_Callback(hObject, eventdata, handles)
+if get(hObject,'Value')
+    handles.profiles.xrd.CuKa=true;
+    set(handles.panel_cuka,'Visible', 'on');
+else
+    handles.profiles.xrd.CuKa=false;
+    set(handles.panel_cuka,'Visible', 'off');
+end
+
+
+function edit_kalpha_Callback(hObject, eventdata, handles)
+ka1 = str2double(get(handles.edit_kalpha1, 'String'));
+ka2 = str2double(get(handles.edit_kalpha2, 'String'));
+set(handles.edit_kalpha1, 'String', sprintf('%.4f', ka1));
+set(handles.edit_kalpha2, 'String', sprintf('%.4f', ka2));
+handles.profiles.xrd.KAlpha1 = ka1;
+handles.profiles.xrd.KAlpha2 = ka2;
+handles.gui.Status = ['<html>' hObject.TooltipString ' wavelength set to ' hObject.String '.'];
+
+
+% Executes on  'Update' button press.
+function push_update_Callback(hObject, ~, handles)
+% This function sets the table_fitinitial in the GUI to have the coefficients for the new
+% user-inputted function names.
+% It also saves handles.guidata into handles.xrd
+ui.update(handles, 'fitinitial');
+utils.plotutils.plotX(handles, 'sample');
+
+% Executes on button press of 'Select Peak(s)'.
+function push_selectpeak_Callback(hObject, ~, handles)
+import utils.plotutils.*
+peakcoeffs = find(contains(handles.profiles.xrd.getCoeffs, 'x'));
+points = selectPointsFromPlot(handles, length(peakcoeffs));
+handles.profiles.xrd.PeakPositions = points;
+ui.update(handles, 'peakposition');
+ui.update(handles, 'fitinitial');
+
+% Executes when the handles.edit_numpeaks spinner value is changed.
+function edit_numpeaks_Callback(src, ~, handles)
+%NUMBEROFPEAKSCHANGED Callback function that executes when the value of the
+%   JSpinner object changes. 
+value = round(src.getValue);
+oldfcns = handles.profiles.xrd.getFunctions;
+newfcns = cell(1, value);
+for i=1:value
+    if i <= length(oldfcns) && ~isempty(oldfcns{i})
+        newfcns{i} = oldfcns{i}.Name;
+    else
+        break
+    end
+end
+handles.profiles.xrd.setFunctions(newfcns);
+ui.update(handles, 'NumPeaks');
+ui.update(handles, 'functions');
+ui.update(handles, 'constraints');
 
 % Executes on button press in push_prevprofile.
 function push_prevprofile_Callback(hObject, eventdata, handles)
@@ -82,7 +227,6 @@ handles.xrd.Status = ['<html>Now editing <b>Profile ', num2str(i), '.</b></html>
 assignin('base','handles',handles)
 guidata(hObject,handles)
 
-
 % Executes on button press in push_nextprofile.
 function push_nextprofile_Callback(hObject, eventdata, handles)
 i = find(handles.uipanel3==handles.profiles, 1) + 1;
@@ -92,22 +236,19 @@ handles.xrd.Status = ['<html>Now editing <b>Profile ', num2str(i), '.</b></html>
 assignin('base','handles',handles)
 guidata(hObject,handles)
 
-
+function push_fitstats_Callback(~, ~, handles)
+handles.gui.onPlotFitChange('stats');
 
 
 function table_results_CellEditCallback(hObject,evt,handles)
-r = evt.Indices(1);
-[hObject.Data{:, 1}]=deal(false);
-hObject.Data{r, 1} = true;
-s='NoStats';
-plot_coeffs(r, s, handles);
-guidata(hObject, handles)
-
+hObject.Data(:,1) = {false};
+hObject.Data{evt.Indices(1), 1} = true;
+utils.plotutils.plotX(handles, 'coeff');
 
 
 % Executes on button press in push_viewall.
 function push_viewall_Callback(hObject, eventdata, handles)
-plotX(handles, 'allfits');
+utils.plotutils.plotX(handles, 'allfits');
 
 % Executes on button press in push_default.
 function push_default_Callback(hObject, eventdata, handles)
@@ -138,6 +279,19 @@ handles.xrd.Status=[status,'Done.'];
 guidata(hObject,handles)
 
 
+% Switches between different tabs in the current profile.
+function push_tabswitch_Callback(hObject, e, handles)
+% Switches between Tabs 1 (Setup), 2 (Parameters), and 3 (Results).
+switch hObject.Tag
+    case 'tab1_next'
+        set(handles.tabpanel, 'Selection', 2);
+    case 'tab2_prev'
+        set(handles.tabpanel, 'Selection', 1);
+    case 'tab2_next'
+        set(handles.tabpanel, 'Selection', 3);
+    case 'tab3_prev'
+        set(handles.tabpanel, 'Selection', 2);		
+end
 
 %% Toggle Button callback functions
 
@@ -145,27 +299,16 @@ guidata(hObject,handles)
 
 %% Checkbox callback functions
 
-function checkbox_recycle_Callback(o, e, handles)
+function checkbox_recycle_Callback(o, e, handles) %#ok<*DEFNU>
 if get(o, 'value')
     handles.xrd.recycle_results = 1;
 else
     handles.xrd.recycle_results = 0;
 end
 
-% Executes on button press in checkbox_lambda.
-function checkbox_lambda_Callback(hObject, eventdata, handles)
-if get(hObject,'Value')
-    set(handles.edit_lambda,'Enable','on');
-    handles.xrd.CuKa=true;
-else
-    set(handles.edit_lambda,'Enable','off');
-    handles.xrd.CuKa=false;
-end
-
-
 % Superimpose raw data.
 function checkbox_superimpose_Callback(hObject, eventdata, handles)
-handles.xrd.Status='Superimposing raw data...';
+
 axes(handles.axes1)
 cla
 % If box is checked, turn on hold in axes1
@@ -192,29 +335,28 @@ handles.xrd.Status='Superimposing raw data... Done.';
 
 % Executes on selection change in popup_filename.
 function popup_filename_Callback(hObject, eventdata, handles)
-% hObject.UserData: table_fitinitial values for each separate file
-filenum = get(hObject, 'Value');
-set(handles.text_filenum,'String',[num2str(filenum),' of ',num2str(length(hObject.String))]);
-set(hObject,'UserData',handles.table_fitinitial.Data);
-set(handles.listbox_files,'Value',filenum);
 
-axes(handles.axes1)
+import utils.plotutils.plotX
+
+ui.update(handles, 'filenumber');
+
+superimposed = get(handles.checkbox_superimpose, 'Value');
+
 % If superimpose box is checked, plot any subsequent data sets together
-if get(handles.checkbox_superimpose,'Value')==1
-    % If there is only one dataset plotted
-    if length(handles.xrd.DisplayName)==1
-        % If the same dataset is chosen
-        if strcmp(handles.xrd.Filename(filenum),handles.xrd.DisplayName)
-            % Do nothing and exit out of the function
-            return
-        end
+if superimposed
+    numLines = length(handles.axes1.Children);
+    
+    isSameFile = strcmpi(handles.gui.getFileNames(filenum), handles.gui.DisplayName);
+    
+    % If there is only one dataset plotted and % if the same dataset is chosen
+    if numLines > 1 && ~isSameFile
+        plotX(handles, 'superimpose');    
     end
-    plotX(handles, 'superimpose');
+    
 else
-    cla
-    hold off
-    handles.xrd.Status=['File changed to ',handles.xrd.Filename{filenum},'.'];
     plotX(handles);
+    
+    
 end
 
 guidata(hObject, handles)
@@ -226,93 +368,43 @@ LIPRAS('popup_filename_Callback',handles.popup_filename,[],guidata(hObject));
 
 
 
-%% Edit box callback functions
-
-% Profile Range edit box callback function.
-function edit_fitrange_Callback(hObject, eventdata, handles)
-num = str2double(get(hObject, 'string'));
-if isempty(num) || isnan(num) || num <= 0
-    handles.xrd.Status = ['<html><font color="red"><b>Warning: ' hObject.String ' is not a valid fit range. Please enter a floating point number greater than 0.'];
-    set(hObject, 'string', sprintf('%2.4f', handles.xrd.fitrange));
-    return
-end
-
-handles.xrd.fitrange = num;
-handles.guidata.fitrange = num;
-set(hObject,'string', sprintf('%2.4f', handles.xrd.fitrange), 'UserData',handles.xrd.fitrange);
-handles.xrd.Status = 'Fit range was updated.';
-
-%
-function edit_polyorder_Callback(hObject, eventdata, handles)
-num = str2double(hObject.String);
-if isempty(num) || isnan(num) || ~isinteger(int8(num)) || num < 1
-    handles.xrd.Status = ['<html><font color="red"><b>Warning: ' hObject.String ' is not a valid positive integer.'];
-    set(hObject, 'string', num2str(3));
-    return
-end
-num = int8(num);
-set(hObject, 'string', num2str(num), 'UserData', num);
-handles.xrd.PolyOrder=str2double(hObject.String);
-handles.xrd.Status=['Coefficient backgrounds changed to ',get(hObject,'String'),'.'];
-
-
-%% uitable callback functions
-
-
-
-
 %% Toobar callback functions
 
-% Import new file(s) to fit.
-function uipushtoolnew_ClickedCallback(hObject, eventdata, handles)
-menu_new_Callback(hObject, eventdata, handles);
-guidata(hObject,handles);
-
-% Toggles the legend.
 function toolbar_legend_ClickedCallback(hObject, eventdata, handles)
-% hObject    handle to uitoggletool5 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
+% Toggles the legend.
 if strcmpi(hObject.State,'on')
-    handles.xrd.Status='Legend was turned on.';
-    toolbar_legend_OnCallback(hObject, eventdata, handles)
+    toolbar_legend_OnCallback(hObject, eventdata, handles);
+
 else
-    handles.xrd.Status='Legend was turned off.';
-    toolbar_legend_OffCallback(hObject, eventdata, handles)
+    toolbar_legend_OffCallback(hObject, eventdata, handles);
 end
 
 % Turns off the legend.
-function toolbar_legend_OffCallback(hObject, eventdata, handles)
-set(hObject,'State','off');
-lgd = findobj(handles.figure1, 'tag', 'legend');
-set(lgd, 'visible', 'off');
+function toolbar_legend_OffCallback(~, ~, handles)
+handles.gui.Legend = 'off';
 
+function toolbar_legend_OnCallback(~, ~, handles)
 % Turns on the legend.
-function toolbar_legend_OnCallback(hObject, eventdata, handles)
-set(hObject,'State','on');
-legend(handles.axes1, handles.xrd.DisplayName,'Box','off')
+handles.gui.Legend = 'on';
 
 %% Menu callback functions
 
-function menu_new_Callback(hObject, eventdata, handles)
-newDataSet(handles);
-
 function menu_save_Callback(hObject, eventdata, handles)
-handles.xrd.Status='Saving results...';
-outputError(handles.xrd, handles.cfit(handles.guidata.currentProfile));
-handles.xrd.Status='Saving results... Done.';
+if handles.profiles.xrd.hasFit
+    handles.profiles.exportProfileParametersFile();
+end
 
 % ---
 function menu_parameter_Callback(hObject, eventdata, handles)
-try
-    handles=fileutils.importParameterFile(handles);
-catch ME
-    ME.stack(1)
-    
-    ME.message
+[filename, pathName, ~]  = uigetfile({'*.txt;','*.txt'},'Select Input File','MultiSelect', 'off');
+if filename ~= 0
+    handles.profiles.importProfileParametersFile([pathName filename]);
+    ui.update(handles, 'parameters');
 end
-guidata(hObject, handles)
+
+function table_fitinitial_listener(src, e, handles)
+dbstack(4)
+
 
 function menu_preferences_Callback(~,~,~)
 folder_name=uigetdir;
@@ -320,14 +412,19 @@ PreferenceFile=fopen('Preference File.txt','w');
 fprintf(PreferenceFile,'%s\n',folder_name);
 
 function menu_help_Callback(~,~)
-h=msgbox('Documentation is on its way...','Help');
+h=uiwait(msgbox('Documentation is on its way...','Help'));
 set(h, 'Position',[500 440 200 50]) % posx, posy, height, width
 ah=get(h,'CurrentAxes');
 c=get(ah,'Children');
 set(c,'FontSize',11);
 
 function menu_about_Callback(~,~)
-h=msgbox({'LIPRAS, version: 1.0' 'Authors: Klarissa Ramos, Giovanni Esteves, Chris Fancher, and Jacob Jones' 'North Carolina State University (2016)' '' 'Contact Information' 'Giovanni Esteves' 'Email: gesteves21@gmail.com' 'Jacob Jones' 'Email: jacobjones@ncsu.edu'},'About');
+% Displays a message box
+h = uiwait(msgbox({'LIPRAS, version: 1.0' ['Authors: Klarissa Ramos, Giovanni Esteves, ' ...
+    'Chris Fancher, and Jacob Jones'] 'North Carolina State University (2016)' '' ...
+    'Contact Information' 'Giovanni Esteves' 'Email: gesteves21@gmail.com' ...
+    'Jacob Jones' 'Email: jacobjones@ncsu.edu'}, 'About'));
+
 set(h, 'Position',[500 440 400 180]) % posx, posy, horiz, vert
 ah=get(h,'CurrentAxes');
 c=get(ah,'Children');
@@ -356,23 +453,12 @@ close_fig(handles);
 % Menu: File -> Save As callback function
 function Untitled_7_Callback(hObject, eventdata, handles)
 
-% Menu option callback to Import Workspace.
-function Untitled_9_Callback(hObject, eventdata, handles)
-
-
-% Plots the background points selected.
-function push_fitbkgd_Callback(~, ~, handles)
-hold off
-plotX(handles, 'data');
-hold on
-plotX(handles, 'backgroundpoints');
-plotX(handles, 'backgroundfit');
 
 
 
 %% Close request functions
 function figure1_CloseRequestFcn(o, e, handles)
-close_fig(handles);
+requestClose(handles);
 
 
 %% CreateFcns and Unused Callbacks
@@ -424,27 +510,11 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-function menu_file_Callback(hObject, eventdata, handles)
-
-% Executes during object creation, after setting all properties.
-function edit_fitrange_CreateFcn(hObject, eventdata, handles)
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
 % Executes when selected object is changed in uibuttongroup2.
 function uibuttongroup2_SelectionChangedFcn(hObject, eventdata, handles)
 
-
 % Executes on mouse press over axes background.
 function axes2_ButtonDownFcn(hObject, eventdata, handles)
-
-
-
 
 % Executes during object creation, after setting all properties.
 function edit8_CreateFcn(hObject, eventdata, handles)
@@ -454,8 +524,6 @@ function edit8_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
 
 
 % Executes during object creation, after setting all properties.
