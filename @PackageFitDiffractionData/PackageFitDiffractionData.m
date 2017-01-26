@@ -115,72 +115,22 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
         % ==================================================================== %
         
-        function output = getPeakPosition(Stro, fcnID)
-        if nargin > 1
-            output = Stro.FitFunctions{fcnID}.PeakPosition;
-        else
-            output = cell(1, Stro.NumFuncs);
-            for i=1:Stro.NumFuncs
-                if ~isempty(Stro.FitFunctions{i})
-                    output{i} = Stro.FitFunctions{i}.PeakPosition;
-                end
-            end
-        end
-        end
-        % ==================================================================== %
         
-        function Stro = setPeakPosition(Stro, value, fcnID)
-        %SETPEAKPOSITION sets the peak position of a function.
-        import utils.*
-        pos = Stro.PeakPositions_;
-        if nargin < 3
-            if isempty(value)
-                pos = cell(1, Stro.NumFuncs);
-            else
-                for i=1:length(value)
-                    if isempty(Stro.FitFunctions{i})
-                        pos{i} = [];
-                    else
-                        pos{i} = value(i);
-                    end  
-                end
-            end
-            
-            xConstrainedIdx = find(contains(Stro.getConstraints, 'x'));
-            xUniqueIdx = find(~contains(Stro.getConstraints, 'x'));
-            
-            if ~isempty(xConstrainedIdx)
-                % Distribute the first peak value to all constrained x's
-                for i=1:length(xConstrainedIdx)
-                    idx = xConstrainedIdx(i);
-                    Stro.FitFunctions{idx}.PeakPosition = value(1);
-                end
-                value = value(2:end);
-            end
-            
-            for i=1:length(xUniqueIdx)
-                idx = xUniqueIdx(i);
-                Stro.FitFunctions{idx}.PeakPosition = value(i);
-            end
-            
-        else
-            Stro.FitFunctions{fcnID}.PeakPosition = value;
-        end
-        
-        Stro.PeakPositions_ = pos;
-        end
-        % ==================================================================== %
         
         function vals = get.PeakPositions(Stro)
-        if isempty(Stro.PeakPositions_)
-            vals = zeros(1, Stro.NumFuncs);
-        else
-            vals = Stro.PeakPositions_;
+        vals = zeros(1, Stro.NumFuncs);
+        if ~isempty(Stro.PeakPositions_)
+            for i=1:length(vals)
+                if i <= length(Stro.PeakPositions_)
+                    vals(i) = Stro.PeakPositions_(i);
+                end
+            end
         end
         end
         
         function set.PeakPositions(Stro, val)
-        %VAL is a cell array
+        %VAL is a numeric array
+        val = sort(val);
         pos = zeros(1, Stro.NumFuncs);
         for i=1:length(pos)
             pos(i) = val(i);
@@ -557,7 +507,11 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             return
         end
         if nargin > 2
-            Stro.FitFunctions{fcnID} = Stro.setFitFunction_(fcnName, fcnID); 
+            % Assuming FCNNAME is a string with a valid function name
+            if ~isempty(fcnName)
+                Stro.FitFunctions{fcnID} = Stro.setFitFunction_(fcnName, fcnID); 
+            end
+            
         else
            if ischar(fcnName)
                fcnName = {fcnName};
@@ -787,110 +741,21 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             'Weight',weight);
         end
         
-        function output = getDefaultStartingBounds(Stro)
-        if isempty(Stro.FitFunctions) || isempty(Stro.PeakPositions)
-            output = [];
+        
+        function values = generateDefaultFitBounds(Stro)
+        % Generates the default starting, lower, and upper bounds based on the peak
+        % positions and saves it into the property FitInitial.
+        
+        % Check if peak positions and fit functions are valid
+        if ~isempty(find(Stro.PeakPositions==0,1)) || ~isempty(find(cellfun(@isempty,Stro.FitFunctions),1))
             return
         end
-        if nargin < 2
-            file = 1;
-        end
-        
-        coefflist = Stro.getCoeffs;
-        result = zeros(1, length(coefflist));
-        for i=1:length(Stro.FitFunctions)
-            Stro.FitFunctions{i}.PeakPosition = Stro.PeakPositions(i);
-        end
-        
-        for i=1:length(coefflist)
-            c = coefflist{i};
-            % Finds the first function to have a coefficient with the same name
-            for j=1:length(Stro.FitFunctions)
-                fcn = Stro.FitFunctions{j};
-                fcn.RawData = [Stro.getTwoTheta; Stro.getDataNoBackground()];
-                
-                vals = fcn.getDefaultInitialValues(fcn.RawData);
-                fc = fcn.getCoeffs;
-                idx = find(strcmpi(fc, c), 1);
-                
-                if ~isempty(idx)
-                    result(i) = vals.(c(1));
-                    break
-                end
-            end
-            
-        end
-        
-        output = result;
-        
-        
+        Stro.FitInitial.start = Stro.getDefaultStartingBounds;
+        Stro.FitInitial.lower = Stro.getDefaultLowerBounds;
+        Stro.FitInitial.upper = Stro.getDefaultUpperBounds;
+        values = Stro.FitInitial;
         end
          
-        function output = getDefaultLowerBounds(Stro)
-        if isempty(Stro.FitFunctions)
-            error('No fit functions')
-        elseif isempty(Stro.getPeakPosition)
-            error('No peak position')
-        end
-        
-        coefflist = Stro.getCoeffs;
-        result = zeros(1, length(coefflist));
-        
-        for i=1:length(coefflist)
-            c = coefflist{i};
-            
-            for j=1:length(Stro.FitFunctions)
-                fcn = Stro.FitFunctions{j};
-                fcn.RawData = [Stro.getTwoTheta; Stro.getDataNoBackground()];
-                
-                vals = fcn.getDefaultLowerBounds(fcn.RawData);
-                fc = fcn.getCoeffs;
-                idx = find(strcmpi(fc, c), 1);
-                
-                if ~isempty(idx)
-                    result(i) = vals.(c(1));
-                    break
-                end
-            end
-            
-        end
-        
-        output = result;
-        end
-        
-        function output = getDefaultUpperBounds(Stro)
-        if isempty(Stro.FitFunctions)
-            error('No fit functions')
-        elseif isempty(Stro.getPeakPosition)
-            error('No peak position')
-        end
-        
-        coefflist = Stro.getCoeffs;
-        result = zeros(1, length(coefflist));
-        
-        for i=1:length(coefflist)
-            c = coefflist{i};
-            
-            for j=1:length(Stro.FitFunctions)
-                fcn = Stro.FitFunctions{j};
-                fcn.RawData = [Stro.getTwoTheta; Stro.getDataNoBackground()];
-                
-                vals = fcn.getDefaultUpperBounds(fcn.RawData);
-                fc = fcn.getCoeffs;
-                idx = find(strcmpi(fc, c), 1);
-                
-                if ~isempty(idx)
-                    result(i) = vals.(c(1));
-                    break
-                end
-            end
-            
-        end
-        
-        output = result;
-        end
-        
-        
     end
     
     % ==================================================================== %

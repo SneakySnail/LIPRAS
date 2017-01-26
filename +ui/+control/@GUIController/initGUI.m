@@ -1,5 +1,6 @@
 % Initialize GUI controls
 function handles = initGUI(handles)
+set(handles.figure1, 'visible', 'on');
 
 addToExecPath();
 
@@ -11,8 +12,8 @@ guidata(handles.figure1, handles);
 
 addControlListeners();
 
-% handles.figure1.Position(1) = 0;
-% set(handles.figure1, 'visible', 'off'); % To prevent error
+handles.figure1.Position(1) = 0;
+set(handles.figure1, 'visible', 'off'); % To prevent error
 
 % ==============================================================================
 
@@ -37,9 +38,9 @@ addControlListeners();
          0      0     1;        % royal blue
          0.502  0.502 0]);      % dark yellow
      handles.gui.Legend = 'on';
-%      set(handles.panel_setup, 'parent', handles.uipanel3);
-%      set(handles.panel_parameters,'parent', handles.uipanel3);
-%      set(handles.panel_results, 'parent', handles.uipanel3);
+     set(handles.panel_setup, 'parent', handles.uipanel3);
+     set(handles.panel_parameters,'parent', handles.uipanel3);
+     set(handles.panel_results, 'parent', handles.uipanel3);
      handles.tabpanel = uix.TabPanel('parent', handles.uipanel3, 'tag','tabpanel');
      set(findobj(handles.uipanel3,'tag', 'panel_setup'), 'parent', handles.tabpanel, 'visible', 'on', 'title', '');
      set(findobj(handles.uipanel3,'tag','panel_parameters'),'parent',handles.tabpanel, 'visible', 'on', 'title','');
@@ -83,7 +84,6 @@ addControlListeners();
     import javax.swing.BorderFactory
     import java.awt.BorderLayout
     import java.awt.Color
-    set(handles.figure1, 'visible', 'on');
     try
         % left status bar
         handles.statusbarObj = javaObjectEDT('com.mathworks.mwswing.MJStatusBar');

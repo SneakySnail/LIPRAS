@@ -6,28 +6,32 @@ function table_fitinitial_CellEditCallback(hObject, eventdata, handles)
 %	EditData: string(s) entered by the user
 %	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
 %	Error: error string when failed to convert EditData to appropriate value for Data
-
+% 
+% Assumes handles.gui.Coefficients == handles.profiles.xrd.getCoeffs
 if ~isa(eventdata.NewData, 'double')
     num = eventdata.PreviousData;
 else
     num = eventdata.NewData;
 end
 
+r = eventdata.Indices(1);
+c = eventdata.Indices(2);
 % If NewData is empty
 if isnan(num)
-    num = [];
+    hObject.Data{r, c} = [];
+    return
 end
 
-if eventdata.Indices(2) == 1
+if c == 1
     bounds = 'start';
-elseif eventdata.Indices(2) == 2
+elseif c == 2
     bounds = 'lower';
-elseif eventdata.Indices(2) == 3
+elseif c == 3
     bounds = 'upper';
 end
 
-coeff = hObject.RowName{eventdata.Indices(1)};
-model.update(handles, 'fitinitial', {bounds, coeff, num});
+handles.profiles.xrd.FitInitial.(bounds)(r) = num;
+ui.update(handles, 'fitinitial');
 
 
 

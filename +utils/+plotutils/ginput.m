@@ -120,7 +120,7 @@ while how_many ~= 0
         y = [y;pt(1,2)]; %#ok<AGROW>
         b = [b;button]; %#ok<AGROW>
         
-        if(char == 13) || char == 27 % & how_many ~= 0)
+        if~isempty(char) && (char == 13 || char == 27) % & how_many ~= 0)
             % if the return key was pressed, char will == 13,
             % and that's our signal to break out of here whether
             % or not we have collected all the requested data

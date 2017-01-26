@@ -83,7 +83,7 @@ function newParameterFile(handles)
 profiles = model.ProfileListManager.getInstance(handles.profiles);
 fcns = profiles.xrd.getFunctionNames;
 bkgdpoints = profiles.xrd.getBackgroundPoints;
-peakpos = profiles.xrd.getPeakPosition;
+peakpos = profiles.xrd.PeakPositions;
 constraints = profiles.xrd.getConstraints;
 coeffs = profiles.xrd.getCoeffs;
 fitinitial = handles.profiles.xrd.getFitInitial;
@@ -121,9 +121,9 @@ utils.plotutils.plotX(handles, 'data');
 % ==============================================================================
 
 function fileNumberChanged(handles)
-plottitle = [num2str(handles.gui.CurrentFile) ' of ' num2str(handles.profiles.NumFiles)];
+plottitle = [num2str(handles.gui.CurrentFile) ' of ' num2str(handles.profiles.xrd.NumFiles)];
 set(handles.text_filenum, 'String', plottitle);
-set(handles.listbox_files, 'Value', filenum);
+set(handles.listbox_files, 'Value', handles.gui.CurrentFile);
 % ==============================================================================
 
 function newBackgroundModel(handles)
@@ -165,7 +165,7 @@ if numpeaks == 0
     % Number of peaks uicomponent
     set(handles.tab2_prev, 'visible', 'on');
 else
-    set([handles.container_fitfunctions, handles.panel_constraints, handles.panel_kalpha2], ...
+    set([handles.container_fitfunctions, handles.panel_constraints], ...
         'visible', 'on');
     set(handles.container_numpeaks, 'visible', 'on');
 end
@@ -233,14 +233,20 @@ else
 end
 if handles.gui.areFuncsReady
     set(handles.push_selectpeak, 'enable', 'on');
-    set(handles.push_update, 'enable', 'on');
 else
     set(handles.push_selectpeak, 'enable', 'off');
+end
+
+% Make sure all peak positions are valid before updating the table
+if isempty(find(handles.profiles.xrd.PeakPositions==0,1))
+    set(handles.push_update, 'enable', 'on');
+else
     set(handles.push_update, 'enable', 'off');
 end
+
+fcns = handles.gui.FcnNames;
 % Set property ENABLE for constraint checkboxN, checkboxx, and checkboxf if 
 %   there is more than 1 function
-fcns = handles.gui.FcnNames;
 if length(find(~cellfun(@isempty, fcns))) > 1
     set(handles.checkboxN,'Enable','on');
     set(handles.checkboxx,'Enable','on');
@@ -257,12 +263,19 @@ if length(find(utils.contains(fcns, 'Pearson VII'))) > 1
 else
     set(handles.checkboxm,'Enable','off');
 end
-
 % Set property ENABLE of constraint checkboxw for Pseudo-Voigt 
 if length(find(utils.contains(fcns, 'Pseudo-Voigt'))) > 1
     set(handles.checkboxw,'Enable','on');
 else
     set(handles.checkboxw,'Enable','off');
+end
+
+% Create constraint checkboxes 
+fcntable = handles.table_paramselection;
+if length(fcntable.ColumnName) > 1
+    for i=1:length(fcns)
+        
+    end
 end
 % ==============================================================================
 
@@ -275,7 +288,7 @@ function updateFitBoundsTable(handles)
 %UPDATEFITBOUNDS should be called after the 'Update' button in the Options tab is pressed.
 %   It updates the row names of table_fitinitial to display the correct coefficients.
 coeffs = handles.profiles.xrd.getCoeffs;
-if ~isequal(handles.gui.Coefficients, coeffs)
+if handles.gui.isFitDirty
     handles.gui.Coefficients = coeffs;
 end
 handles.gui.FitInitial = handles.profiles.xrd.FitInitial;
@@ -289,6 +302,7 @@ if isempty(emptyCell)
 else
     set(handles.push_fitdata, 'enable', 'off');
 end
+utils.plotutils.plotX(handles,'sample');
 % ==============================================================================
 
 function newFitResults(handles)

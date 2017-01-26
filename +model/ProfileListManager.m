@@ -16,6 +16,8 @@ classdef ProfileListManager < matlab.mixin.Copyable
    end
    
    properties (Hidden)
+       ValidFunctions = {'Gaussian', 'Lorentzian', 'Pearson VII', 'Pseudo-Voigt', 'Asymmetric Pearson VII'};
+       
        initialXRD_
        
        Writer
@@ -42,13 +44,14 @@ classdef ProfileListManager < matlab.mixin.Copyable
                this.reset();
                this.initialXRD_ = xrd;
            end
-           if this.initialXRD_.hasData
+           if ~isempty(this.initialXRD_) && this.initialXRD_.hasData
                xrd = this.initialXRD_;
                this.DataPath = xrd.DataPath;
                this.OutputPath = [xrd.DataPath 'FitOutputs' filesep];
                this.addProfile;
            end
        end
+       
        
        function this = addProfile(this)
        %ADDPROFILE Adds a profile to the GUI.
@@ -99,7 +102,7 @@ classdef ProfileListManager < matlab.mixin.Copyable
        
        function result = getCurrentProfile(this)
        if isempty(this.xrdContainer)
-           result = 0;
+           result = [];
        else
            result = this.xrd;
        end
@@ -234,6 +237,10 @@ classdef ProfileListManager < matlab.mixin.Copyable
        else
            value = this.xrdContainer(this.CurrentProfileNumber_);
        end
+       end
+       
+       function set.xrd(this, xrd)
+       
        end
    end
    

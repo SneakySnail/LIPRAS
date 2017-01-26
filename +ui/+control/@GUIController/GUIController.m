@@ -138,7 +138,8 @@ classdef GUIController < handle
         %   parameters) don't match the table_fitinitial coefficients.
         xrd = this.hg.profiles.xrd;
         if isequal(this.FcnNames, xrd.getFunctionNames) && ...
-                isequal(this.Coefficients, xrd.getCoeffs) 
+                isequal(this.Coefficients, xrd.getCoeffs) && ...
+                isequal(this.FitInitial, xrd.FitInitial)
             result = false;
         else
             result = true;
@@ -309,7 +310,7 @@ classdef GUIController < handle
         %   function object and then updates the View.
         ht = this.hg.table_paramselection;
         if isempty(value)
-            set(ht, 'Data', cell(1,1));
+            set(ht, 'Data', cell(1,1), 'ColumnWidth', this.FUNCTION_COLUMN_WIDTH);
             return
         end
         olddata = ht.Data;
@@ -343,11 +344,6 @@ classdef GUIController < handle
         %   If VALUE is a cell array, then it updates table_paramselection to
         %   display checks in the appropriate location.
         set(this.hg.panel_constraints.Children, 'Value', 0);
-<<<<<<< HEAD
-=======
-        this.onCheckedConstraints;
-        
->>>>>>> parent of e32ad56... update
         if ischar(value)
             for i=1:length(value)
                 switch value(i)
@@ -418,9 +414,21 @@ classdef GUIController < handle
             hObject.Data = input;
             
         elseif isstruct(input)
-            hObject.Data(:, 1) = num2cell(input.start)';
-            hObject.Data(:, 2) = num2cell(input.lower)';
-            hObject.Data(:, 3) = num2cell(input.upper)';
+            if ~isempty(input.start)
+                hObject.Data(:, 1) = num2cell(input.start)';
+            else
+                hObject.Data(:, 1) = cell(size(hObject.Data,1),1);
+            end
+            if ~isempty(input.lower)
+                hObject.Data(:, 2) = num2cell(input.lower)';
+            else
+                hObject.Data(:, 2) = cell(size(hObject.Data,1),1);
+            end
+            if ~isempty(input.upper)
+                hObject.Data(:, 3) = num2cell(input.upper)';
+            else
+                hObject.Data(:, 3) = cell(size(hObject.Data,1),1);
+            end
         
         elseif ~iscell(input)
             msg = 'Value must be a numeric array.';
@@ -513,7 +521,7 @@ classdef GUIController < handle
         end
         
         function value = get.PeakPositions(this)
-        h = this.table_fitinitial;
+        h = this.hg.table_fitinitial;
         coeffs = this.Coefficients;
         idx = contains(coeffs, 'x');
         value = cell2mat(h.Data(idx, 1)');
@@ -588,7 +596,7 @@ classdef GUIController < handle
         function set.ConstraintsInTable(this, value)
         % VALUE is a cell array of any combination of the letters 'Nxfwm', with one cell per function.
         %   If the coefficient is not already a column, it creates a new one. It MUST be the same
-        %   size as NumPeaks.
+        %   size as NumPeaks. 
         import utils.*
         table = this.hg.table_paramselection;
         if isempty(value)
@@ -603,12 +611,17 @@ classdef GUIController < handle
         cols = table.ColumnName(2:end);
         data = table.Data(:, 2:end);
         for i=1:length(value)
-            if ~isempty(value{i}) && ~isempty(this.FcnNames{i})
-                constraints = cellstr(value{i}')';
-                idx = contains(cols, constraints);
+            if ~isempty(this.FcnNames{i}) 
+                idxChecked = [];
+                if ~isempty(value{i})
+                    constraints = cellstr(value{i}')';
+                    idxChecked = contains(cols, constraints);
+                else
+                    idxChecked = false(1,length(cols));
+                end
+
                 data(i, :) = {false};
-                data(i, idx) = {true};
-                % If the function 
+                data(i, idxChecked) = {true};
             end
         end
         set(table, 'Data', [this.FcnNames', data]);

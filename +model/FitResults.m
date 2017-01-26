@@ -74,7 +74,7 @@ end
         this.BackgroundOrder = xrd.getBackgroundOrder;
         this.BackgroundModel = xrd.getBackgroundModel;
         this.BackgroundPoints = xrd.getBackgroundPoints;
-        this.PeakPositions = xrd.getPeakPosition;
+        this.PeakPositions = xrd.PeakPositions;
         this.Constraints = xrd.getConstraints;
         this.FitType       = xrd.getFitType;
         this.FitOptions    = xrd.getFitOptions;

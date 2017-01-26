@@ -13,9 +13,6 @@ if col == 1
     ui.update(handles, 'functions');
     handles.profiles.xrd.constrain(handles.gui.Constraints);
     ui.update(handles, 'constraints');
-    
-%     constraints = handles.gui.Constraints;
-%     model.update(handles, 'Constraints', constraints);
 else
     % On constraint value change
     handles.profiles.xrd.unconstrain('Nxfwm');
@@ -29,6 +26,3 @@ else
         end
     end
 end
-
-assignin('base', 'handles', handles)
-guidata(hObject, handles);

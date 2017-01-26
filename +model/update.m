@@ -155,69 +155,6 @@ end
 handles.profiles.xrd.setBackgroundPoints(points, mode);
 % ==============================================================================
 
-function updateNumPeaks(handles, numpeaks)
-%UPDATENUMPEAKS(HANDLES, NUMPEAKS) accepts an integer and updates
-%   handles.table_paramselection to have the correct size.
-
-% --- in ui.update ------------------------------------------------------------------------
-if numpeaks == 0
-    set(handles.panel_parameters.Children, 'visible', 'off');
-    % Number of peaks label
-    handles.container_numpeaks.Visible = 'on';
-    
-    % Number of peaks uicomponent
-    set(handles.tab2_prev, 'visible', 'on');
-    
-else
-    set([handles.container_fitfunctions, handles.panel_constraints, handles.panel_kalpha2], ...
-        'visible', 'on');
-    set(handles.container_numpeaks, 'visible', 'on');
-end
-
-olddata = handles.table_paramselection.Data;
-colwidth = handles.table_paramselection.ColumnWidth;
-colname = handles.table_paramselection.ColumnName;
-
-% set uicontrol visibility of table_paramselection
-set(handles.table_paramselection, ...
-    'Enable', 'on', ...
-    'ColumnName', colname, ...
-    'ColumnWidth', colwidth, ...
-    'Data', cell(numpeaks, length(colname)));
-
-% Add previous data to new table
-if size(olddata, 1) < numpeaks
-    extrarows = numpeaks - size(olddata, 1);
-    newdata = [olddata; cell(extrarows, length(colname))];
-    handles.table_paramselection.Data = newdata;
-    
-    % Reset the peak positions if increasing number of peaks
-    handles.profiles.xrd.setPeakPosition([]);
-    
-elseif size(olddata, 1) > numpeaks
-    newdata = olddata(1:numpeaks, :);
-    handles.table_paramselection.Data = newdata;
-    
-else
-%     handles.profiles.xrd.setPeakPosition(
-    handles.table_paramselection.Data = olddata;
-end
-
-set(handles.panel_coeffs.Children, 'enable', 'off');
-if ~isempty(cellfun(@(a)isempty(a), handles.gui.FcnNames))
-    set(handles.push_update, 'enable', 'off');
-    set(handles.push_selectpeak, 'enable', 'off');
-else
-    set(handles.push_update, 'enable', 'on');
-    set(handles.push_selectpeak, 'enable', 'on');
-end
-% --- in ui.update ------------------------------------------------------------------------
-
-% model.update(handles, 'fitfunctions', handles.gui.FcnNames);
-
-% Set 'ENABLE' property of constraint checkboxes accordingly
-% ==============================================================================
-
 
 function onConstraintsInPanelUpdate(handles, value)
 %UPDATECONSTRAINTS(HANDLES, VALUE) accepts a cell array of strings containing 
@@ -226,10 +163,6 @@ function onConstraintsInPanelUpdate(handles, value)
 
 handles.profiles.xrd.unconstrain('Nxfwm');
 handles.profiles.xrd.constrain(value);
-<<<<<<< HEAD
-=======
-
->>>>>>> parent of e32ad56... update
 % In case constraints aren't allowed for a function
 
 % ==============================================================================
@@ -325,7 +258,7 @@ else
 % if INPUT wasn't specified, then fill table with default values
     
     % Add default values to table_fitinitial if there are peak positions selected
-    if ~isempty(xrd.getPeakPosition)
+    if ~isempty(xrd.PeakPositions) 
         SP = xrd.getDefaultStartingBounds;
         LB = xrd.getDefaultLowerBounds;
         UB = xrd.getDefaultUpperBounds;
@@ -409,39 +342,5 @@ end
 %UPDATEFITRESULTS is called when push_fitdata is pressed. It fills table_fitinitial with
 %   the fit result values.
 
-
-function updateParameters(handles)
-%UPDATEPARAMETERS is called when a new parameter file is read in. This function updates
-%   the GUI to display the new parameters.
-
-profiles = model.ProfileListManager.getInstance(handles.profiles);  % updates the profiles instance
-
-fcns = profiles.xrd.getFunctionNames;
-bkgdpoints = profiles.xrd.getBackgroundPoints;
-peakpos = profiles.xrd.getPeakPosition;
-constraints = profiles.xrd.getConstraints;
-coeffs = profiles.xrd.getCoeffs;
-fitinitial = handles.profiles.xrd.getFitInitial;
-
-handles.gui.Min2T = profiles.xrd.Min2T;
-handles.gui.Max2T = profiles.xrd.Max2T;
-handles.gui.BackgroundModel = profiles.xrd.getBackgroundModel;
-handles.gui.PolyOrder = profiles.xrd.getBackgroundOrder;
-
-handles.gui.NumPeaks = length(fcns);
-handles.gui.FcnNames = fcns;
-
-handles.gui.ConstrainedCoeffs = constraints;
-handles.gui.Constraints = constraints;
-handles.gui.Coefficients = coeffs;
-
-model.update(handles, 'backgroundpoints', bkgdpoints);
-model.update(handles, 'peaks', peakpos);
-
-profiles.xrd.setPeakPosition(peakpos);
-model.update(handles, 'fitinitial', fitinitial);
-
-profiles = model.ProfileListManager.getInstance(profiles);
-utils.plotutils.plotX(handles, 'sample');
 
 

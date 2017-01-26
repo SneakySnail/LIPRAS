@@ -32,15 +32,15 @@ import utils.fileutils.*
 % Choose default command line output for FDGUI
 handles.output = hObject;
 
-% if ~isempty(GUIController.getInstance())
-%     delete(GUIController.getInstance());
-% end
-% 
-% handles.profiles = ProfileListManager.getInstance();
-% guidata(hObject, handles);
-% 
-% handles.gui = GUIController.getInstance(hObject);
-% handles = GUIController.initGUI(handles);
+if ~isempty(GUIController.getInstance())
+    delete(GUIController.getInstance());
+end
+
+handles.profiles = ProfileListManager.getInstance();
+guidata(hObject, handles);
+
+handles.gui = GUIController.getInstance(hObject);
+handles = GUIController.initGUI(handles);
 
 assignin('base','handles',handles);
 % Update handles structure
@@ -157,7 +157,11 @@ ui.update(handles,'backgroundmodel');
 % Executes on button press of any checkbox in panel_constraints.
 function checkbox_constraints_Callback(o, ~, handles)
 % Save new constraint as an index from panel_constraints.UserData
-handles.profiles.xrd.constrain(o.String);
+if o.Value
+    handles.profiles.xrd.constrain(o.String);
+else
+    handles.profiles.xrd.unconstrain(o.String);
+end
 ui.update(handles, 'Constraints');
 
 % Executes on button press in checkbox_lambda.
@@ -186,17 +190,28 @@ function push_update_Callback(hObject, ~, handles)
 % This function sets the table_fitinitial in the GUI to have the coefficients for the new
 % user-inputted function names.
 % It also saves handles.guidata into handles.xrd
-ui.update(handles, 'fitinitial');
-utils.plotutils.plotX(handles, 'sample');
+if handles.gui.isFitDirty
+    % Make sure all peak positions are valid
+    if isempty(find(handles.profiles.xrd.PeakPositions == 0,1))
+        % Generate new values for the start, lower, and upper bounds
+        handles.profiles.xrd.generateDefaultFitBounds;
+        ui.update(handles, 'fitinitial');
+        utils.plotutils.plotX(handles, 'sample');
+    end
+end
 
 % Executes on button press of 'Select Peak(s)'.
 function push_selectpeak_Callback(hObject, ~, handles)
 import utils.plotutils.*
 peakcoeffs = find(contains(handles.profiles.xrd.getCoeffs, 'x'));
 points = selectPointsFromPlot(handles, length(peakcoeffs));
-handles.profiles.xrd.PeakPositions = points;
-ui.update(handles, 'peakposition');
-ui.update(handles, 'fitinitial');
+if length(points) == length(peakcoeffs)
+    handles.profiles.xrd.PeakPositions = points;
+    % Generate new default bounds because of new peak positions
+    handles.profiles.xrd.generateDefaultFitBounds;
+    ui.update(handles, 'peakposition');
+    ui.update(handles, 'fitinitial');
+end
 
 % Executes when the handles.edit_numpeaks spinner value is changed.
 function edit_numpeaks_Callback(src, ~, handles)
@@ -396,7 +411,10 @@ end
 
 % ---
 function menu_parameter_Callback(hObject, eventdata, handles)
-[filename, pathName, ~]  = uigetfile({'*.txt;','*.txt'},'Select Input File','MultiSelect', 'off');
+filename = 0;
+if handles.profiles.hasData
+    [filename, pathName, ~]  = uigetfile({'*.txt;','*.txt'},'Select Input File','MultiSelect', 'off');
+end
 if filename ~= 0
     handles.profiles.importProfileParametersFile([pathName filename]);
     ui.update(handles, 'parameters');
@@ -536,21 +554,21 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-function radiobutton14_add_Callback(hObject, eventdata, handles)
-set(handles.radiobutton14_add,'Value',1)
-
-if and(get(handles.radiobutton14_add,'Value')==0,get(handles.radiobutton15_delete,'Value')==0)
-    set(handles.radiobutton14_add,'Value',1)
-elseif get(handles.radiobutton15_delete,'Value')==1
-    set(handles.radiobutton15_delete,'Value',0)
-end
-
-function radiobutton15_delete_Callback(hObject, eventdata, handles)
-set(handles.radiobutton15_delete,'Value',1)
-
-if and(get(handles.radiobutton14_add,'Value')==0,get(handles.radiobutton15_delete,'Value')==0)
-    set(handles.radiobutton15_delete,'Value',1)
-elseif get(handles.radiobutton14_add,'Value')==1
-    set(handles.radiobutton14_add,'Value',0)
-end
+% function radiobutton14_add_Callback(hObject, eventdata, handles)
+% set(handles.radiobutton14_add,'Value',1)
+% 
+% if and(get(handles.radiobutton14_add,'Value')==0,get(handles.radiobutton15_delete,'Value')==0)
+%     set(handles.radiobutton14_add,'Value',1)
+% elseif get(handles.radiobutton15_delete,'Value')==1
+%     set(handles.radiobutton15_delete,'Value',0)
+% end
+% 
+% function radiobutton15_delete_Callback(hObject, eventdata, handles)
+% set(handles.radiobutton15_delete,'Value',1)
+% 
+% if and(get(handles.radiobutton14_add,'Value')==0,get(handles.radiobutton15_delete,'Value')==0)
+%     set(handles.radiobutton15_delete,'Value',1)
+% elseif get(handles.radiobutton14_add,'Value')==1
+%     set(handles.radiobutton14_add,'Value',0)
+% end
 
