@@ -165,7 +165,7 @@ if numpeaks == 0
     % Number of peaks uicomponent
     set(handles.tab2_prev, 'visible', 'on');
 else
-    set([handles.container_fitfunctions, handles.panel_constraints], ...
+    set([handles.container_fitfunctions, handles.panel_constraints handles.checkbox_lambda], ...
         'visible', 'on');
     set(handles.container_numpeaks, 'visible', 'on');
 end

@@ -220,19 +220,25 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             Stro.FitFunctions{fcnID}.constrain(coeff);
             
         else
-             c = cell(1, Stro.NumFuncs);
             if ischar(coeff)
-                c(:) = {coeff};
-            
-            elseif iscell(coeff) 
-                for i=1:length(coeff)
-                    c{i} = coeff{i};
+                coeffcells = cell(1,Stro.NumFuncs);
+                coeffcells(:) = {coeff};
+                coeff = coeffcells;
+            end
+            % c = string of constrained coefficients. Can be any letter in 'Nxfwm' in any order
+            c = unique([coeff{:}]);
+            % For every constraint, check to make sure there are at least 2 functions
+            % constrained
+            for i=1:length(c)
+                numConstraints = length(find(utils.contains(coeff, c(i))));
+                if numConstraints < 2
+                    Stro.unconstrain(c(i));
                 end
             end
             
             for i=1:Stro.NumFuncs
                 if ~isempty(Stro.FitFunctions{i})
-                    Stro.FitFunctions{i}.constrain(c{i});
+                    Stro.constrain(coeff{i}, i);
                 end
             end
         end
@@ -242,29 +248,22 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         % ==================================================================== %
         
         function Stro = unconstrain(Stro, coeff, fcnID)
+        % COEFF is a string
         if nargin > 2 && fcnID > length(Stro.FitFunctions)
             error('fcnID out of bounds.')
         end
         
-        if nargin > 2
-            Stro.constrain(coeff, fcnID);
-            
-        else
-            c = cell(1, Stro.NumFuncs);
-            if ischar(coeff)
-                c(:) = {coeff};
-            
-            elseif iscell(coeff) 
-                for i=1:length(coeff)
-                    c{i} = coeff{i};
-                end
+        if nargin > 2 
+            if ischar(coeff) && ~isempty(Stro.FitFunctions{fcnID})
+                Stro.FitFunctions{fcnID}.unconstrain(coeff);
             end
-            
+        else
             for i=1:Stro.NumFuncs
                 if ~isempty(Stro.FitFunctions{i})
-                    Stro.FitFunctions{i}.unconstrain(c{i});
+                    Stro.FitFunctions{i}.unconstrain(coeff);
                 end
             end
+            
         end
         
         

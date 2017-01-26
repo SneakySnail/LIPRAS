@@ -240,7 +240,7 @@ classdef ProfileListManager < matlab.mixin.Copyable
        end
        
        function set.xrd(this, xrd)
-       
+       this.xrdContainer(this.CurrentProfileNumber_) = xrd;
        end
    end
    
