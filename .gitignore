@@ -1,11 +1,9 @@
 FitOutputs/**
 Preferences/**
-Sample Data/**
+SampleData/**
 Copies/**
 startup.m
 finish.m
 breakpoints.mat
-
-LIPRAS (1).fig
 
 *.Fdata

@@ -1,3 +1,3 @@
 
-function statusChange(src,evt,handles,i)
-handles.statusbarObj.setText(handles.xrdContainer(i).Status);
+function statusChange(src,evt,handles)
+handles.statusbarObj.setText(handles.gui.Status);
