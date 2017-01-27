@@ -352,8 +352,11 @@ classdef FitFunctionInterface < handle
         end
         xupi_ = findIndex(xdata, xup);
         
-        
-        result.N = trapz(xdata(xlowi_:xupi_), ydata(xlowi_:xupi_));
+        try
+            result.N = trapz(xdata(xlowi_:xupi_), ydata(xlowi_:xupi_));
+        catch
+            result.N = trapz(xdata, ydata) / 2;
+        end
         
         result.f = 2*result.N / max(ydata);
         
