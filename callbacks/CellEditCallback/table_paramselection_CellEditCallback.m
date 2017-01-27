@@ -4,7 +4,7 @@ col = evt.Indices(2);
 colnames = hObject.ColumnName;
 if col == 1
     % Function change
-    handles.profiles.xrd.setFunctions(handles.gui.FcnNames);
+    handles.profiles.xrd.setFunctions(handles.gui.FcnNames{row}, row);
     ui.update(handles, 'functions');
     handles.profiles.xrd.constrain(handles.gui.Constraints);
     ui.update(handles, 'constraints');
