@@ -12,7 +12,7 @@ guidata(handles.figure1, handles);
 
 addControlListeners();
 
-handles.figure1.Position(1) = 0;
+% handles.figure1.Position(1) = 0;
 set(handles.figure1, 'visible', 'off'); % To prevent error
 
 % ==============================================================================
@@ -86,12 +86,11 @@ set(handles.figure1, 'visible', 'off'); % To prevent error
     import java.awt.Color
     try
         % left status bar
-        handles.statusbarObj = javaObjectEDT('com.mathworks.mwswing.MJStatusBar');
-        handles.statusbarObj = javacomponent(handles.statusbarObj, 'South');
+        handles.statusbarObj = javacomponent('com.mathworks.mwswing.MJStatusBar', 'South', handles.figure1);
         handles.statusbarObj = handles.statusbarObj.getComponent(0);
         handles.statusbarObj.setBackground(Color.white);
         handles.statusbarObj.setText('To start, import file(s) from your computer to fit.');
-
+        handles.statusbarObj = handles.statusbarObj.getParent;
     catch
         msgId = 'LIPRAS:initGUI:JavaObjectCreation';
         msg = 'Could not create the Java status bar';
