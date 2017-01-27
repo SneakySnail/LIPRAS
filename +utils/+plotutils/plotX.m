@@ -1,20 +1,25 @@
 % Properties needed: datatype, DisplayName, ColorOrder
-function  plotX(handles, type, varargin)
+function  plotX(handles, mode, varargin)
 xrd = handles.profiles.xrd;
 
 if nargin <= 1
     if xrd.hasFit
-        type = 'fit';
+        mode = 'fit';
     else
-        type = 'sample';
+        mode = 'sample';
     end
 end
 
 filenum = handles.gui.CurrentFile;
 filenames = handles.gui.getFileNames;
 
+persistent previousPlot_
+if isempty(previousPlot_)
+    previousPlot_ = mode;
+end
 
-switch lower(type)
+try
+switch lower(mode)
     case 'background'
         hold off
         plotData(handles);
@@ -76,6 +81,13 @@ switch lower(type)
         
     otherwise
         
+end
+catch
+    try
+        utils.plotutils.plotX(handles, previousPlot_);
+    catch
+        utils.plotutils.plotX(handles, 'data');
+    end
 end
 
 % ==============================================================================

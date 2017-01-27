@@ -355,11 +355,8 @@ handles.xrd.Status='Superimposing raw data... Done.';
 
 % Executes on selection change in popup_filename.
 function popup_filename_Callback(hObject, eventdata, handles)
-
 import utils.plotutils.plotX
-
 ui.update(handles, 'filenumber');
-
 superimposed = get(handles.checkbox_superimpose, 'Value');
 
 % If superimpose box is checked, plot any subsequent data sets together

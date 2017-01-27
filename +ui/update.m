@@ -18,12 +18,12 @@ function update(handles, varargin)
 %       'FitInitial'    - VALUE is a cell array {'BOUNDS', 'COEFF', COEFFVAL}.
 %
 
-if handles.gui.isFitDirty
+if isfield(handles, 'gui') && handles.gui.isFitDirty
     set(handles.panel_coeffs.Children, 'enable', 'off');
 else
     set(handles.panel_coeffs.Children, 'enable', 'on');
 end
-if handles.gui.areFuncsReady
+if isfield(handles, 'gui') && handles.gui.areFuncsReady
     set(handles.push_selectpeak, 'enable', 'on');
     set(handles.push_update, 'enable', 'on');
 else

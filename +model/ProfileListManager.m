@@ -226,6 +226,11 @@ classdef ProfileListManager < matlab.mixin.Copyable
        this.Writer.saveAsMasterFile();
        end
        
+       function filename = exportFdataFile(this)
+       
+       
+       
+       end
    end
    
    methods

@@ -174,8 +174,8 @@ end
         
         twotheta = this.TwoTheta';
         background = this.Background';
-        peaks = this.FData;
-        totalfit = this.Background 
+        overall = this.Background' + this.FData';
+        peaks = zeros();
         
         for i=1:(size(dataMatrix,1)-1);
             dataformat = strcat('%f\t',dataformat);
