@@ -203,6 +203,8 @@ end
 % Executes on button press of 'Select Peak(s)'.
 function push_selectpeak_Callback(hObject, ~, handles)
 import utils.plotutils.*
+plotX(handles, 'data');
+plotX(handles, 'backgroundfit');
 peakcoeffs = find(contains(handles.profiles.xrd.getCoeffs, 'x'));
 points = selectPointsFromPlot(handles, length(peakcoeffs));
 if length(points) == length(peakcoeffs)
@@ -211,6 +213,9 @@ if length(points) == length(peakcoeffs)
     handles.profiles.xrd.generateDefaultFitBounds;
     ui.update(handles, 'peakposition');
     ui.update(handles, 'fitinitial');
+else
+    % Restore old plot
+    plotX(handles, 'data');
 end
 
 % Executes when the handles.edit_numpeaks spinner value is changed.
