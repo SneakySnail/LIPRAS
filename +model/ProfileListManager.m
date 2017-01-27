@@ -202,22 +202,20 @@ classdef ProfileListManager < matlab.mixin.Copyable
        end
        % Read SP values
        line  = fgetl(fid);
-       sp    = textscan(line,'%s');
-       sp    = sp{1}';
-       sp    = str2double(sp(2:end));
-       this.xrd.setFitInitial('start', coeff, sp);
+       start    = textscan(line,'%s');
+       start    = start{1}';
+       init.start    = str2double(start(2:end));
        % Read UB values
        line  = fgetl(fid);
-       lb    = textscan(line,'%s');
-       lb    = lb{1}';
-       lb    = str2double(lb(2:end));
-       this.xrd.setFitInitial('lower', coeff, lb);
+       lower    = textscan(line,'%s');
+       lower    = lower{1}';
+       init.lower    = str2double(lower(2:end));
        % Read LB values
        line  = fgetl(fid);
        ub    = textscan(line,'%s');
        ub    = ub{1}';
-       ub    = str2double(ub(2:end));
-       this.xrd.setFitInitial('upper', coeff, ub);
+       init.upper    = str2double(ub(2:end));
+       this.xrd.FitInitial = init;
        fclose(fid);
        end
        

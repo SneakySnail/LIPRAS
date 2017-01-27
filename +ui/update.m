@@ -42,6 +42,8 @@ for i=1:length(varargin)
             constraints(handles);
         case 'fitinitial'
             updateFitBoundsTable(handles);
+        case 'results'
+            newFitResults(handles);
     end
 end
 assignin('base', 'handles', handles);
@@ -288,8 +290,10 @@ function updateFitBoundsTable(handles)
 %UPDATEFITBOUNDS should be called after the 'Update' button in the Options tab is pressed.
 %   It updates the row names of table_fitinitial to display the correct coefficients.
 coeffs = handles.profiles.xrd.getCoeffs;
-if handles.gui.isFitDirty
-    handles.gui.Coefficients = coeffs;
+if isempty(coeffs)
+    return
+elseif handles.gui.isFitDirty
+    set(handles.table_fitinitial, 'RowName', coeffs, 'Data', cell(length(coeffs), 3));
 end
 handles.gui.FitInitial = handles.profiles.xrd.FitInitial;
 set(handles.panel_coeffs, 'visible', 'on');
@@ -306,4 +310,18 @@ utils.plotutils.plotX(handles,'sample');
 % ==============================================================================
 
 function newFitResults(handles)
-set(handles.tab2_next, 'visible', 'on');
+profiles = handles.profiles;
+if profiles.xrd.hasFit
+    set(handles.push_fitdata, 'enable', 'off');
+    set(handles.tab2_next, 'visible', 'on');
+    set(handles.menu_save,'Enable','on');
+    set(handles.tabpanel, 'TabEnables', {'on', 'on', 'on'}, 'Selection', 3);
+    set(handles.push_viewall, 'enable', 'on', 'visible', 'on');
+    
+    handles.gui.onPlotFitChange('peakfit');
+else
+    set(handles.push_fitdata, 'enable', 'on');
+    set(handles.menu_save,'Enable','off');
+    set(handles.tabpanel, 'TabEnables', {'on', 'on', 'off'}, 'Selection', 2);
+    set(handles.tab2_next, 'visible', 'off');
+end

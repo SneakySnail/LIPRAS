@@ -18,8 +18,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         
         FitOutput
         
-        FitResults % cell array of fit outputs
-        
         FitWeight
         
         Results % An instance of FitResults
@@ -46,6 +44,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
     end
     
     properties (Hidden)
+        FitResults % cell array of fit outputs
         CuKa = false;
         DataPath
         FullTwoThetaRange
@@ -230,14 +229,14 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             % For every constraint, check to make sure there are at least 2 functions
             % constrained
             for i=1:length(c)
-                numConstraints = length(find(utils.contains(coeff, c(i))));
-                if numConstraints < 2
-                    Stro.unconstrain(c(i));
+                idx = find(utils.contains(coeff, c(i)));
+                if length(idx) < 2
+                    coeff{idx} = strrep(coeff{idx}, c(i), '');
                 end
             end
             
             for i=1:Stro.NumFuncs
-                if ~isempty(Stro.FitFunctions{i})
+                if ~isempty(Stro.FitFunctions{i}) && ~isempty(coeff{i})
                     Stro.constrain(coeff{i}, i);
                 end
             end
@@ -456,8 +455,11 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         %   background fit.
         %
         if isempty(Stro.Background) || isempty(Stro.Background.InitialPoints)
-            error('No background points')
+            result = [];
+            return
         end
+        
+        Stro.Background.update2T([Stro.Min2T Stro.Max2T]);
         
         if nargin < 2
             file = 1;
@@ -473,7 +475,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         
         end
         
-        function fcnName = setFunctions(Stro, fcnName, fcnID)
+        function funcObj = setFunctions(Stro, fcnName, fcnID)
         %SETFUNCTIONS Creates the FitFunction objects of type Gaussian, Lorentzian,
         %   Pearson VII, and Pseudo-Voigt, or any of their corresponding
         %   asymmetric functions. The function type is specified by the string
@@ -501,40 +503,47 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         %       Asymmetric Pearson VII-
         %       Pseudo-Voigt          -
         
-        if isempty(fcnName)
-            Stro.FitFunctions = [];
-            return
-        end
         if nargin > 2
             % Assuming FCNNAME is a string with a valid function name
             if ~isempty(fcnName)
-                Stro.FitFunctions{fcnID} = Stro.setFitFunction_(fcnName, fcnID); 
+                funcObj = Stro.setFitFunction_(fcnName, fcnID);
+                Stro.FitFunctions{fcnID} = funcObj;
+            else
+                funcObj = [];
+                Stro.FitFunctions{fcnID} = funcObj;
             end
             
+        elseif isempty(fcnName)
+            Stro.FitFunctions = [];
+            return
+            
         else
-           if ischar(fcnName)
-               fcnName = {fcnName};
-           end
-           newfcns = cell(1, length(fcnName));
+            if ischar(fcnName)
+                fcnName = {fcnName};
+            end
+            newfcns = cell(1, length(fcnName));
            if isempty(Stro.FitFunctions)
-               oldfcns = newfcns;
-           else
-               oldfcns = Stro.FitFunctions;
+               Stro.FitFunctions = newfcns;
            end
+           
+           oldfcns = Stro.FitFunctions;
            for i=1:length(fcnName)
                if i > length(oldfcns)
                    break
-               elseif isempty(oldfcns{i}) 
-                   newfcns{i} = Stro.setFitFunction_(fcnName{i}, i);
+               elseif isempty(oldfcns{i})
+                   newfcns{i} = Stro.setFunctions(fcnName{i}, i);
+
                elseif isequal(oldfcns{i}.Name, fcnName{i})
                    newfcns{i} = Stro.FitFunctions{i};
                end
            end
+           
            Stro.FitFunctions = newfcns;
+           funcObj = newfcns;
         end
         end
         
-        function fcnName = setFitFunction_(Stro, fcnName, fcnID)
+        function fcnObj = setFitFunction_(Stro, fcnName, fcnID)
         %SETFUNCTION Creates the FitFunction objects of type Gaussian, Lorentzian,
         %   Pearson VII, and Pseudo-Voigt, or any of their corresponding
         %   asymmetric functions. The function type is specified by the string
@@ -548,6 +557,13 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         %   be asymmetric
         if isempty(fcnName)
             fcnName = [];
+            return
+        end
+        
+        if ~isempty(Stro.FitFunctions) && ...
+                ~isempty(Stro.FitFunctions{fcnID}) && ...
+                isequal(Stro.FitFunctions{fcnID}.Name, fcnName)
+            fcnObj = Stro.FitFunctions{fcnID};
             return
         end
         
@@ -577,9 +593,15 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         someFunc = allowedFcns_{idx};
         
         if isAsym
-            fcnName = model.fitcomponents.Asymmetric(fcnID, '', someFunc);
+            fcnObj = model.fitcomponents.Asymmetric(fcnID, '', someFunc);
         else
-            fcnName = model.fitcomponents.(someFunc)(fcnID); 
+            fcnObj = model.fitcomponents.(someFunc)(fcnID); 
+        end
+        
+        if ~isempty(Stro.PeakPositions) && Stro.PeakPositions(fcnID) ~= 0
+            fcnObj.PeakPosition = Stro.PeakPositions(fcnID);
+        else
+            fcnObj.PeakPosition = [];
         end
         end
         % ==================================================================== %
@@ -754,8 +776,8 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         Stro.FitInitial.upper = Stro.getDefaultUpperBounds;
         values = Stro.FitInitial;
         end
-         
     end
+         
     
     % ==================================================================== %
     
@@ -769,6 +791,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         for i=1:length(Stro.DataSet)
             Stro.DataSet{i}.Min2T = value;
         end
+        Stro.FitWeight = 1./abs(Stro.getTwoTheta);
         end
         
         function value = get.Max2T(Stro)
@@ -781,6 +804,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         for i=1:length(Stro.DataSet)
             Stro.DataSet{i}.Max2T = value;
         end
+        Stro.FitWeight = 1./abs(Stro.getTwoTheta);
         end
         
         
