@@ -17,11 +17,26 @@ function update(handles, varargin)
 %                         currently selected options in the GUI.
 %       'FitInitial'    - VALUE is a cell array {'BOUNDS', 'COEFF', COEFFVAL}.
 %
+
+if handles.gui.isFitDirty
+    set(handles.panel_coeffs.Children, 'enable', 'off');
+else
+    set(handles.panel_coeffs.Children, 'enable', 'on');
+end
+if handles.gui.areFuncsReady
+    set(handles.push_selectpeak, 'enable', 'on');
+    set(handles.push_update, 'enable', 'on');
+else
+    set(handles.push_selectpeak, 'enable', 'off');
+    set(handles.push_update, 'enable', 'off');
+end
 for i=1:length(varargin)
     property = varargin{i};
     switch lower(property)
         case 'dataset'
             newDataSet(handles);
+        case 'tabchange'
+            
         case 'filenumber'
             fileNumberChanged(handles);
         case 'parameters'
@@ -50,7 +65,7 @@ assignin('base', 'handles', handles);
 guidata(handles.figure1, handles);
 % ==============================================================================
 
-function onTabChange(handles)
+function onTabPanelChange(handles)
 
 
 function newDataSet(handles)
@@ -275,13 +290,6 @@ else
     set(handles.checkboxw,'Enable','off');
 end
 
-% Create constraint checkboxes 
-fcntable = handles.table_paramselection;
-if length(fcntable.ColumnName) > 1
-    for i=1:length(fcns)
-        
-    end
-end
 % ==============================================================================
 
 function newPeakPositions(handles)
@@ -315,7 +323,7 @@ utils.plotutils.plotX(handles,'sample');
 function newFitResults(handles)
 profiles = handles.profiles;
 if profiles.xrd.hasFit
-    set(handles.push_fitdata, 'enable', 'off');
+    set(handles.push_fitdata, 'enable', 'on');
     set(handles.tab2_next, 'visible', 'on');
     set(handles.menu_save,'Enable','on');
     set(handles.tabpanel, 'TabEnables', {'on', 'on', 'on'}, 'Selection', 3);

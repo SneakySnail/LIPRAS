@@ -104,8 +104,7 @@ classdef PearsonVII < model.fitcomponents.FitFunctionInterface
            end
         end
         
-        output = N.*2.* ((2.^(1/m)-1).^0.5) / f / (pi.^0.5) .* gamma(m) / ...
-            gamma(m-0.5) .* (1+4.*(2.^(1/m)-1).*((xdata-xv).^2)/f.^2).^(-m);
+        output = N .* this.C4(m) ./ f .*(1+4 .* (2.^(1/m)-1) .* (xdata-xv).^2 / f.^2) .^(-m);
         
         end
         

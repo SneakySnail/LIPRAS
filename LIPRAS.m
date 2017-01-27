@@ -195,10 +195,10 @@ if handles.gui.isFitDirty
     if isempty(find(handles.profiles.xrd.PeakPositions == 0,1))
         % Generate new values for the start, lower, and upper bounds
         handles.profiles.xrd.generateDefaultFitBounds;
-        ui.update(handles, 'fitinitial');
-        utils.plotutils.plotX(handles, 'sample');
     end
 end
+ui.update(handles, 'fitinitial');
+utils.plotutils.plotX(handles, 'sample');
 
 % Executes on button press of 'Select Peak(s)'.
 function push_selectpeak_Callback(hObject, ~, handles)

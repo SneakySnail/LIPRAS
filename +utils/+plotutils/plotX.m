@@ -50,7 +50,6 @@ switch lower(type)
         
     case 'fit'
         plotFit(handles);
-        updateLim(handles);
         utils.plotutils.resizeAxes1ForErrorPlot(handles, 'fit');
         plotFitError(handles);
         
@@ -82,18 +81,19 @@ end
 % ==============================================================================
 
 
-    function updateLim(handles)
+    function updateLim(handles, range)
     
+    if nargin < 2
+        range = [xrd.Min2T xrd.Max2T];
+    end
     title(handles.axes1, [filenames{filenum} ' (' num2str(filenum) ' of ' ...
         num2str(length(filenames)) ')']);
     
-    x = xrd.getTwoTheta;
     y = xrd.getData(filenum);
-    
     ymax = max(y);
     ymin = min(y);
     
-    xlim(handles.axes1, [xrd.Min2T xrd.Max2T]);
+    xlim(handles.axes1, range);
     ylim(handles.axes1, [0.9*ymin, 1.1*ymax]);
 
     xlabel(handles.axes1, '2\theta','FontSize',13);
@@ -138,10 +138,10 @@ end
     data(1) = plot(ax, ...
         fitted.TwoTheta, fitted.Intensity, 'o', ...
         'LineWidth',1, ...
-        'MarkerSize',5, ...
+        'MarkerSize',3, ...
         'DisplayName','Raw Data', ...
         'MarkerFaceColor', [1 1 1], ...%[.08 .17 .55],...
-        'MarkerEdgeColor',[.08 .17 .55], ...
+        'MarkerEdgeColor',[0.3 0.3 0.3], ...
         'Tag', 'Data'); 
     
     hold(ax, 'on');
@@ -195,8 +195,7 @@ end
         'Tag', 'Error'); % Error
     
     linkaxes([handles.axes1 handles.axes2], 'x');
-    plotX(handles,'limits');
-    
+    updateLim(handles, [fitted.TwoTheta(1) fitted.TwoTheta(end)]);
     end
 % ==============================================================================
 

@@ -167,22 +167,29 @@ classdef Asymmetric < model.fitcomponents.FitFunctionInterface
         leftcoeffs = this.Left.getCoeffs;
         rightcoeffs = this.Right.getCoeffs;
         coefflist = this.getCoeffs;
+        fidx = 0;
         
         % Assuming length(leftcoeffs) == length(rightcoeffs)
         for i=1:length(leftcoeffs) 
             leftidx(i) = find(strcmpi(coefflist, leftcoeffs{i}),1);
             rightidx(i) = find(strcmpi(coefflist, rightcoeffs{i}),1);
             % Assuming leftcoeff value of x == rightcoeff value of x
-
-            if leftcoeffs{i}(1) == 'x'
+            if leftcoeffs{i}(1) == 'N'
+                Nidx = i;
+            elseif leftcoeffs{i}(1) == 'x'
                 xval = coeffvals(leftidx(i));
+            elseif leftcoeffs{i}(1) == 'f'
+                fidx = i;
+            elseif leftcoeffs{i}(1) == 'm'
+                midx = i;
             end
-            
-            
         end
         
-        leftoutput = this.Left.calculateFit(xdata, coeffvals(leftidx));
-        rightoutput = this.Right.calculateFit(xdata, coeffvals(rightidx));
+        lvals = coeffvals(leftidx);
+        rvals = coeffvals(rightidx);
+        rvals(fidx) = rvals(fidx) * rvals(Nidx)/lvals(Nidx) * this.Left.C4(rvals(midx)) / this.Right.C4(lvals(midx));
+        leftoutput = this.Left.calculateFit(xdata, lvals);
+        rightoutput = this.Right.calculateFit(xdata, rvals);
         
         
         output = leftoutput .* this.AsymmCutoff(xval, 1, xdata) + ...
