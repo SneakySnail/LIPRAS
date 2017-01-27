@@ -1,1 +1,0 @@
-function onSelectedPeaks(this, profiles)

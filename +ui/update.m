@@ -50,6 +50,9 @@ assignin('base', 'handles', handles);
 guidata(handles.figure1, handles);
 % ==============================================================================
 
+function onTabChange(handles)
+
+
 function newDataSet(handles)
 xrd = handles.profiles.xrd;
 handles.gui.FileNames = xrd.getFileNames;
@@ -299,9 +302,9 @@ handles.gui.FitInitial = handles.profiles.xrd.FitInitial;
 set(handles.panel_coeffs, 'visible', 'on');
 set(handles.panel_coeffs.Children, 'visible', 'on', 'enable', 'on');
 % Enable/disable 'FIT DATA' button depending on if there is an empty cell in
-%   table_fitinitial
+%   table_fitinitial OR if only the 2theta positions were changed
 emptyCell = find(cellfun(@isempty, handles.table_fitinitial.Data), 1);
-if isempty(emptyCell)
+if isempty(emptyCell) 
     set(handles.push_fitdata, 'enable', 'on');
 else
     set(handles.push_fitdata, 'enable', 'off');

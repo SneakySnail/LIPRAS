@@ -125,14 +125,7 @@ classdef GUIController < handle
     end
         
     % Set methods
-    methods
-        function result = isRangeDirty(this)
-        %ISRANGEDIRTY returns TRUE if the two theta range was changed when there are already data
-        %   saved for the background points, fit functions, or any other property that depends on
-        %   the two theta range.
-        
-        end
-        
+    methods        
         function result = isFitDirty(this)
         %ISFITDIRTY returns TRUE if the selected options above the 'UPDATE' button (i.e. the fit
         %   parameters) don't match the table_fitinitial coefficients.
