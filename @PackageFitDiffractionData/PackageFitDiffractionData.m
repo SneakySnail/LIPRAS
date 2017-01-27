@@ -68,7 +68,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         symdata = 0;
         binID = 1:1:24;
         lambda = 1.5405980;
-        OutputPath = 'FitOutputs/';
+        OutputPath = ['FitOutputs' filesep];
         numAzim
         recycle_results = 0;
     end

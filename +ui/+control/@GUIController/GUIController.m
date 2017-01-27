@@ -73,7 +73,7 @@ classdef GUIController < handle
         Data
         NumPeakPositions
         Range2t
-        DefaultOutputPath = 'FitOutputs/';
+        DefaultOutputPath = ['FitOutputs' filesep];
         DefaultDataPath
         Suffix
         Profiles

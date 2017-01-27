@@ -339,14 +339,14 @@ classdef FitFunctionInterface < handle
         xdata = data(1,:);
         ydata = data(2,:);
         
+        xoffset = (xdata(end) - xdata(1)) ./ 10;
         result.x = this.PeakPosition;
-        
-        xlow = this.PeakPosition - FitFunctionInterface.DEFAULT_OFFSET_X;
+        xlow = result.x - xoffset;
         if xlow < xdata(1)
             xlow = xdata(1);
         end
         xlowi_ = findIndex(xdata, xlow);
-        xup = this.PeakPosition + FitFunctionInterface.DEFAULT_OFFSET_X;
+        xup = result.x + xoffset;
         if xup > xdata(end)
             xup = xdata(end);
         end
@@ -365,19 +365,20 @@ classdef FitFunctionInterface < handle
         result.m = FitFunctionInterface.DEFAULT_VALUE_M;
         end
         
-        function result = getDefaultLowerBounds(this, ~)
+        function result = getDefaultLowerBounds(this, data)
         import model.fitcomponents.*
         import utils.*
+        initial = this.getDefaultInitialValues(data);
         
-        result.x = this.PeakPosition - FitFunctionInterface.DEFAULT_OFFSET_X;
+        xoffset = (data(1,end) - data(1,1)) ./ 10;
+        result.x = this.PeakPosition - 2*xoffset;
         
-        result.N = 0;
+        result.N = initial.N / 2;
         
-        result.f = 0;
+        result.f = initial.f / 2;
+        result.w = FitFunctionInterface.DEFAULT_VALUE_W / 2;
+        result.m = FitFunctionInterface.DEFAULT_VALUE_M / 2;
         
-        result.w = 0;
-        
-        result.m = 0;
         
         end
         
@@ -387,16 +388,13 @@ classdef FitFunctionInterface < handle
         
         initial = this.getDefaultInitialValues(data);
         
-        result.x = this.PeakPosition + FitFunctionInterface.DEFAULT_OFFSET_X;
+        xoffset = (data(1,end) - data(1,1)) ./ 10;
+        result.x = this.PeakPosition + 2*xoffset;
         
-        result.N = initial.N * FitFunctionInterface.DEFAULT_MULTIPLIER_N;
-        
-        result.f = initial.f * FitFunctionInterface.DEFAULT_MULTIPLIER_F;
-        
-        result.w = FitFunctionInterface.DEFAULT_UPPER_W;
-        
-        result.m = FitFunctionInterface.DEFAULT_UPPER_M;
-        
+        result.N = initial.N * 1.5;
+        result.f = initial.f * 1.5;
+        result.w = FitFunctionInterface.DEFAULT_VALUE_W * 1.5;
+        result.m = FitFunctionInterface.DEFAULT_VALUE_M * 1.5;
         end
         
         function result = isAsymmetric(this)

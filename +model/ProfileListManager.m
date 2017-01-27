@@ -149,6 +149,7 @@ classdef ProfileListManager < matlab.mixin.Copyable
         if isempty(this.Writer)
             this.Writer = ui.FileWriter(this);
         end
+        this.Writer.OutputPath = this.OutputPath;
         this.Writer.saveAsParametersFile();
        end
         

@@ -9,7 +9,7 @@ classdef FileWriter < handle
    end
    
    properties (Constant, Hidden)
-       DEFAULT_OUTPUT_PATH = 'FitOutputs/';
+       DEFAULT_OUTPUT_PATH = ['FitOutputs' filesep];
    end
    
    
@@ -71,7 +71,7 @@ classdef FileWriter < handle
        fitted = fits{1};
        
        %the name of the file it will write containing the statistics of the fit
-       fid = fopen([this.OutputPath filename], 'w'); 
+       fid = fopen(filename, 'w'); 
        
        
        fprintf(fid, 'Filenames: ');
@@ -107,7 +107,7 @@ classdef FileWriter < handle
        
        function output = getParameterFileName(this, fits)
        if nargin < 2
-           profiles = model.ProfileListManager.getInstance;
+           profiles = this.Profiles;
            fits = profiles.xrd.getFitResults;
        end
        
