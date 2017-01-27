@@ -20,6 +20,8 @@ set(handles.figure1, 'visible', 'off'); % To prevent error
 
 %% helper functions
     function addToExecPath()
+    directory = strsplit(which('LIPRAS'),filesep);
+    addpath(strjoin(directory(1:end-1),filesep)); % add root directory of LIPRAS to path
     addpath(genpath([pwd '/callbacks']));
     addpath(genpath([pwd '/dialog']));
     addpath(genpath([pwd '/listener']));
