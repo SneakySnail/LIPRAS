@@ -30,6 +30,7 @@ classdef PseudoVoigt < model.fitcomponents.FitFunctionInterface
         end
         
         function str = getEqnStr(this)
+        import utils.contains
         coeff = this.getCoeffs;
         Nidx = find(contains(coeff, 'N'), 1);
         xidx = find(contains(coeff, 'x'), 1);

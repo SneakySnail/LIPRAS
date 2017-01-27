@@ -3,7 +3,7 @@
 % data is an existing variable in the workspace containing the diffraction data from
 %   one or more files. It was obtained by running newDataSet and saving 'data'
 %   into the base workspace.
-
+import utils.contains
 %% Constructor
 if ~exist('data', 'var') || ~exist('filename', 'var')
     [data, filename, path] = utils.fileutils.newDataSet();

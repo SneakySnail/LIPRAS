@@ -115,7 +115,7 @@ classdef FitFunctionInterface < handle
          if isempty(coeff)
             return
         end
-        
+        import utils.contains
         if contains(lower(coeff), 'n')
             this.ConstrainedLogical(1) = false;
         end
@@ -293,8 +293,11 @@ classdef FitFunctionInterface < handle
         end
         
         function result = getCoeffs(this)
+        
+        import utils.contains
         constraints = this.ConstrainedLogical;
         unconstrained = [];
+        
         
         if ~constraints(1)
             unconstrained = [unconstrained {[this.CoeffNames{1} num2str(this.ID)]}];
@@ -394,7 +397,7 @@ classdef FitFunctionInterface < handle
         end
         
         function result = isAsymmetric(this)
-        if contains(this.Name, 'Asymmetric')
+        if utils.contains(this.Name, 'Asymmetric')
             result = true;
         else
             result = false;

@@ -202,6 +202,7 @@ utils.plotutils.plotX(handles, 'sample');
 
 % Executes on button press of 'Select Peak(s)'.
 function push_selectpeak_Callback(hObject, ~, handles)
+import utils.contains
 import utils.plotutils.*
 plotX(handles, 'data');
 plotX(handles, 'backgroundfit');
@@ -422,10 +423,6 @@ if filename ~= 0
     ui.update(handles, 'parameters');
 end
 
-function table_fitinitial_listener(src, e, handles)
-dbstack(4)
-
-
 function menu_preferences_Callback(~,~,~)
 folder_name=uigetdir;
 PreferenceFile=fopen('Preference File.txt','w');
@@ -452,7 +449,6 @@ set(c,'FontSize',11);
 
 
 function menu_clearall_Callback(hObject, eventdata, handles)
-
 % If there is data loaded, confirm
 ans=questdlg('This will reset the figure and your data will be lost.','Warning','Continue','Cancel','Cancel');
 if strcmp(ans,'Continue')
@@ -470,107 +466,14 @@ function menu_close_Callback(hObject, eventdata, handles)
 close_fig(handles);
 
 
-% Menu: File -> Save As callback function
-function Untitled_7_Callback(hObject, eventdata, handles)
-
-
-
 
 %% Close request functions
 function figure1_CloseRequestFcn(o, e, handles)
 requestClose(handles);
 
-
-%% CreateFcns and Unused Callbacks
-
-% Executes during object creation, after setting all properties.
-function edit_min2t_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_min2t (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-% --- Executes during object creation, after setting all properties.
-function edit_max2t_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-% Executes during object creation, after setting all properties.
-function edit_polyorder_CreateFcn(hObject, eventdata, handles)
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
 function noplotfit_Callback(hObject,eventdata,handles)
-
 handles.noplotfit=get(hObject,'Value');
 
 
-% Executes during object creation, after setting all properties.
-function popup_filename_CreateFcn(hObject, eventdata, handles)
-handles.n=1;
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-% Executes when selected object is changed in uibuttongroup2.
-function uibuttongroup2_SelectionChangedFcn(hObject, eventdata, handles)
-
 % Executes on mouse press over axes background.
 function axes2_ButtonDownFcn(hObject, eventdata, handles)
-
-% Executes during object creation, after setting all properties.
-function edit8_CreateFcn(hObject, eventdata, handles)
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% Executes during object creation, after setting all properties.
-function edit_lambda_CreateFcn(hObject, eventdata, handles)
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% function radiobutton14_add_Callback(hObject, eventdata, handles)
-% set(handles.radiobutton14_add,'Value',1)
-% 
-% if and(get(handles.radiobutton14_add,'Value')==0,get(handles.radiobutton15_delete,'Value')==0)
-%     set(handles.radiobutton14_add,'Value',1)
-% elseif get(handles.radiobutton15_delete,'Value')==1
-%     set(handles.radiobutton15_delete,'Value',0)
-% end
-% 
-% function radiobutton15_delete_Callback(hObject, eventdata, handles)
-% set(handles.radiobutton15_delete,'Value',1)
-% 
-% if and(get(handles.radiobutton14_add,'Value')==0,get(handles.radiobutton15_delete,'Value')==0)
-%     set(handles.radiobutton15_delete,'Value',1)
-% elseif get(handles.radiobutton14_add,'Value')==1
-%     set(handles.radiobutton14_add,'Value',0)
-% end
-

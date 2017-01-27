@@ -365,14 +365,13 @@ classdef GUIController < handle
         %   is either empty or contains a combination of the letters 'Nxfwm'. 
         %   It sets the checkboxes in table_paramselection to TRUE if the cell
         %   at the same index as the function contains one of the letters.
-        
+        import utils.contains
         % cons = constraint coefficients as a string
         constr = unique([value{:}], 'stable');
         % Make sure Constraints in the panel are also checked
         this.Constraints = constr;
         table = this.hg.table_paramselection;
         colnames = table.ColumnName(2:end);
-        import utils.*
         for i=1:length(colnames)
             newvals = contains(value, colnames{i})';
             table.Data(:, i+1) = num2cell(newvals);
@@ -514,6 +513,7 @@ classdef GUIController < handle
         end
         
         function value = get.PeakPositions(this)
+        import utils.contains
         h = this.hg.table_fitinitial;
         coeffs = this.Coefficients;
         idx = contains(coeffs, 'x');

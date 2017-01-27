@@ -191,6 +191,7 @@ end
 % ==============================================================================
 
 function updatePeakPosition(handles, pos)
+import utils.contains
 xcoeffs = find(contains(handles.gui.Coefficients, 'x'));
 if length(pos) == length(xcoeffs)
     handles.profiles.xrd.setPeakPosition(pos);

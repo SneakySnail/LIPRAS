@@ -296,8 +296,8 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
                 
         function output = isConstrained(Stro, coeff, fcnID)
+        import utils.contains
         constraints = Stro.getConstraints;
-        
         if nargin > 2
             if isempty(constraints{fcnID})
                 output = false;
@@ -471,7 +471,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
         
         function output = isFuncAsymmetric(~, name)
-        output = contains(lower(name), 'asym');
+        output = utils.contains(lower(name), 'asym');
         
         end
         
@@ -552,7 +552,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         %FCNNAMES - A string cel array specifying the name of the fit functions
         %   to use.
         %
-        
+        import utils.contains
         % Logical array of size shape specifying if the function is supposed to
         %   be asymmetric
         if isempty(fcnName)

@@ -41,6 +41,7 @@ classdef Lorentzian < model.fitcomponents.FitFunctionInterface
     
     methods
         function str = getEqnStr(this)
+        import utils.contains
         coeff = this.getCoeffs;
         Nidx = find(contains(coeff, 'N'), 1);
         xidx = find(contains(coeff, 'x'), 1);
