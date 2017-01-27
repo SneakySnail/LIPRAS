@@ -18,10 +18,6 @@ if nargin < 1
     title = 'Select Diffraction Pattern to Fit';
     [filename, path, ~] = uigetfile(allowedFiles, title, 'MultiSelect', 'on', data_path);
 end
-if nargin < 2
-    path = [];
-end
-
 
 if ~isequal(filename, 0)
     data = readNewDataFile(filename, path);

@@ -3,6 +3,7 @@ classdef DiffractionData
     
     properties
         FileName
+        DataPath
         Min2T
         Max2T
     end

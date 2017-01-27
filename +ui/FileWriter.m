@@ -148,7 +148,7 @@ classdef FileWriter < handle
        end
 
        function printFdataFiles(this, fits)
-       profilenumber = model.ProfileListManager.getInstance.getCurrentProfileNumber;
+       profilenumber = this.Profiles.getCurrentProfileNumber;
        for i=1:length(fits)
            filename = [this.OutputPath fits{i}.FileName '_Profile_' num2str(profilenumber) '_' ...
                        num2str(i) '.Fdata'];

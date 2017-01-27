@@ -43,10 +43,13 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         
     end
     
+    properties (Dependent, Hidden)
+        DataPath
+    end
+    
     properties (Hidden)
         FitResults % cell array of fit outputs
         CuKa = false;
-        DataPath
         FullTwoThetaRange
         FullIntensityData
         Temperature
@@ -86,6 +89,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             Stro.AbsoluteRange = [x(1) x(end)];
             Stro.Background = model.Background(Stro);
             str = strsplit(which(filenames{1}), filesep);
+            
             Stro.DataPath = fullfile(filesep, str{1:end-1}, filesep);
         end
         end
@@ -94,6 +98,16 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
     end
     
     methods
+        function set.DataPath(Stro, datapath)
+            for i=1:length(Stro.DataSet)
+                Stro.DataSet{i}.DataPath = datapath;
+            end
+        end
+        
+        function datapath = get.DataPath(Stro)
+        datapath = Stro.DataSet{1}.DataPath;
+        end
+        
         function result = hasCuKa(Stro)
         if ~isempty(Stro.KAlpha2)
             result = true;
@@ -628,42 +642,27 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
         % ==================================================================== %
         
-        function status = fitDataSet(Stro)
+        function fitresults = fitDataSet(Stro, filenum)
         % Fits the entire dataset and saves it as a cell array of FitResults.
         %
         %   STATUS is TRUE if the fit was successful. 
-        status = false;
-        try
-        h = waitbar(0, '1', 'Name', 'Fitting dataset...', ...
-            'CreateCancelBtn', ...
-            'setappdata(gcbf,''canceling'', 1)');
-        setappdata(h, 'canceling', 0);
-        catch
-        end
-        steps = Stro.NumFiles;
-        fitresults = cell(1, steps);
-        xdata = Stro.getTwoTheta;
-        for step=1:steps
-            if exist('h', 'var') && getappdata(h, 'canceling')
-                break
+        if nargin < 2
+            fitresults = cell(1, Stro.NumFiles);
+            for i=1:Stro.NumFiles
+                fitresults{i} = Stro.fitDataSet(i);
             end
-            % Report current status of fitting dataset
-            msg = ['Fitting Dataset ' num2str(step) ' of ' num2str(steps)];
-            if exist('h', 'var')
-            waitbar(step/steps, h, msg);
-            else
-                disp(msg)
-            end
-            ydata = Stro.getDataNoBackground(step);
+            
+        else
+            xdata = Stro.getTwoTheta;
+            ydata = Stro.getDataNoBackground(filenum);
             fitType = Stro.getFitType();
             fitOptions = Stro.getFitOptions();
-            fitresults{step} = model.FitResults(Stro, step);
+            try
+                fitresults = model.FitResults(Stro, filenum);
+            catch exception
+                errordlg(exception.message, 'Fit Error')
+            end
         end
-        if exist('h', 'var') && ~getappdata(h, 'canceling')
-            Stro.FitResults = fitresults;
-            status = true;
-        end
-        delete(h);
         end
         
         function output = getFitResults(Stro)
