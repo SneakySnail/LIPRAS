@@ -169,20 +169,21 @@ end
 
         function printFdataFile(this, fid)
         fprintf(fid, 'This is an output file from a MATLAB routine.\n');
-        fprintf(fid, 'All single peak data (column 3+) does not include background intensity.\n');
+        fprintf(fid, 'All single peak data (column 3+) does not include background intensity.\n\n');
         fprintf(fid, '2theta \t IntMeas \t BkgdFit \t Peak1 \t Peak2 \t Etc...\n');
         
         twotheta = this.TwoTheta';
+        intmeas = this.Intensity';
         background = this.Background';
-        overall = this.Background' + this.FData';
-        peaks = zeros();
-        
-        for i=1:(size(dataMatrix,1)-1);
-            dataformat = strcat('%f\t',dataformat);
+        peaks = zeros(length(twotheta), length(this.FunctionNames));
+        for j=1:length(this.FunctionNames)
+            peaks(:,j) = this.calculatePeakFit(j)';
         end
-        fprintf(fid, dataformat, dataMatrix);
-        fclose(fid);
-        
+        for i=1:length(twotheta)
+            line = [twotheta(i), intmeas(i), background(i), peaks(i,:)];
+            fprintf(fid, '%.3f\t', line(:));
+            fprintf(fid, '\n');
+        end
         end
     end
 end

@@ -146,11 +146,9 @@ classdef ProfileListManager < matlab.mixin.Copyable
        end
        
        function this = exportProfileParametersFile(this)
-        if isempty(this.Writer)
-            this.Writer = ui.FileWriter(this);
-        end
-        this.Writer.OutputPath = this.OutputPath;
-        this.Writer.saveAsParametersFile();
+       writer = ui.FileWriter(this);
+       writer.OutputPath = this.OutputPath;
+       writer.saveAsParametersFile();
        end
         
        function this = importProfileParametersFile(this, filename)
@@ -225,16 +223,13 @@ classdef ProfileListManager < matlab.mixin.Copyable
        end
        
        function this = exportProfileMasterFile(this)
-       if isempty(this.Writer)
-           this.Writer = ui.FileWriter(this);
-       end
-       this.Writer.saveAsMasterFile();
+       writer = ui.FileWriter(this);
+       writer.saveAsMasterFile();
        end
        
-       function filename = exportFdataFile(this)
-       
-       
-       
+       function filename = exportFdataFiles(this)
+       writer = ui.FileWriter(this);
+
        end
    end
    

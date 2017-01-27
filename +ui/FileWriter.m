@@ -64,11 +64,11 @@ classdef FileWriter < handle
        if ~exist(this.OutputPath, 'dir')
            mkdir(this.OutputPath);
        end
-       
-       filename = this.getParameterFileName();
        profiles = this.Profiles;
        fits = profiles.xrd.getFitResults;
        fitted = fits{1};
+       
+       filename = this.getFileName(['Fit_Parameters_' fitted.FileName], '.txt');
        
        %the name of the file it will write containing the statistics of the fit
        fid = fopen(filename, 'w'); 
@@ -105,14 +105,16 @@ classdef FileWriter < handle
        fclose(fid);
        end
        
-       function output = getParameterFileName(this, fits)
-       if nargin < 2
-           profiles = this.Profiles;
-           fits = profiles.xrd.getFitResults;
+       function output = getFileName(this, name, ext)
+       % mode = type of file output
+       % mode = 'Fit_Parameters_', 'Master', 
+       profiles = this.Profiles;
+       fits = this.Profiles.xrd.getFitResults;
+       if nargin < 3
+           ext = '';
        end
        
-%        name = strrep(xrd.getFileNames(1), '.', '_');
-        outFilePrefix = [this.OutputPath,'Fit_Parameters_', fits{1}.FileName, '_'];
+        outFilePrefix = [this.OutputPath, name, '_'];
        
        if length(fits) > 1
            outFilePrefix = [outFilePrefix 'Series_'];
@@ -121,7 +123,7 @@ classdef FileWriter < handle
        index = 0;
        iprefix = '00';
        profileNumber = profiles.getCurrentProfileNumber;
-       outFileSuffix = ['_Profile_', num2str(profileNumber), '.txt'];
+       outFileSuffix = ['_Profile_', num2str(profileNumber), ext];
        filename = [outFilePrefix, iprefix, num2str(index), outFileSuffix];
        while exist(filename, 'file') == 2
            index = index + 1;
@@ -137,7 +139,7 @@ classdef FileWriter < handle
        end
        
        function printFmodelFiles(this, fits)
-       profilenumber = model.ProfileListManager.getInstance.getCurrentProfileNumber;
+       profilenumber = this.Profiles.getCurrentProfileNumber;
        for i=1:length(fits)
            filename = [this.OutputPath fits{i}.FileName '_Profile_' num2str(profilenumber) '_' ...
                        num2str(i) '.Fmodel'];
@@ -149,9 +151,11 @@ classdef FileWriter < handle
 
        function printFdataFiles(this, fits)
        profilenumber = this.Profiles.getCurrentProfileNumber;
+       if ~exist(this.OutputPath, 'dir')
+           mkdir(this.OutputPath);
+       end
        for i=1:length(fits)
-           filename = [this.OutputPath fits{i}.FileName '_Profile_' num2str(profilenumber) '_' ...
-                       num2str(i) '.Fdata'];
+           filename = this.getFileName(fits{i}.FileName, '.Fdata');
            fid = fopen(filename, 'w');
            printFdataFile(fits{i}, fid);
            fclose(fid);

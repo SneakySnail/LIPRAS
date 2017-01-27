@@ -31,18 +31,22 @@ try
         fitresults{step} = model.FitResults(Stro, step);
     end
     
+    writer = ui.FileWriter(handles.profiles);
+    writer.OutputPath = [writer.OutputPath 'Fdata' filesep];
+    writer.printFdataFiles(fitresults);
+    
     if exist('h', 'var') && ~getappdata(h, 'canceling')
         Stro.FitResults = fitresults;
         status = true;
     end
     ui.update(handles, 'results');
 catch ME
+    delete(h)
     errordlg(ME.message)
 end
 
-delete(h);
+delete(h)
    
-
 
 
 
