@@ -89,6 +89,7 @@ else
     set(handles.push_viewall,'Visible','off'); % View All
     handles.gui.Status='There is 1 file in this dataset.';
 end
+set(handles.menu_parameter, 'enable', 'on');
 set(handles.panel_profilecontrol, 'visible', 'on');
 set(handles.tabpanel, 'TabEnables', {'on' 'off' 'off'}, 'Selection', 1);
 set(handles.panel_rightside,'visible','on');

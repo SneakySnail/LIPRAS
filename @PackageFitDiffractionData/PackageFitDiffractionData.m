@@ -88,9 +88,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             end
             Stro.AbsoluteRange = [x(1) x(end)];
             Stro.Background = model.Background(Stro);
-            str = strsplit(which(filenames{1}), filesep);
-            
-            Stro.DataPath = fullfile(filesep, str{1:end-1}, filesep);
         end
         end
         

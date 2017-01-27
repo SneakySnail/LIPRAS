@@ -50,7 +50,8 @@ classdef ProfileListManager < matlab.mixin.Copyable
            if ~isempty(this.initialXRD_) && this.initialXRD_.hasData
                xrd = this.initialXRD_;
                this.DataPath = xrd.DataPath;
-               this.OutputPath = [xrd.DataPath 'FitOutputs' filesep];
+               xrd.OutputPath = [xrd.DataPath 'FitOutputs' filesep];
+               this.OutputPath = xrd.OutputPath;
                this.addProfile;
            end
        end
