@@ -10,13 +10,14 @@ catch
     data_path=cd;
 end
 
-
-data = [];
-
 if nargin < 1
+    path = [];
+    data = [];
     allowedFiles = {'*.csv; *.txt; *.xy; *.fxye; *.dat; *.xrdml; *.chi; *.spr'};
     title = 'Select Diffraction Pattern to Fit';
     [filename, path, ~] = uigetfile(allowedFiles, title, 'MultiSelect', 'on', data_path);
+    
+    
 end
 
 if ~isequal(filename, 0)

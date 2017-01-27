@@ -71,7 +71,7 @@ classdef FileWriter < handle
        fitted = fits{1};
        
        %the name of the file it will write containing the statistics of the fit
-       fid = fopen(filename, 'w'); 
+       fid = fopen([this.OutputPath filename], 'w'); 
        
        
        fprintf(fid, 'Filenames: ');
