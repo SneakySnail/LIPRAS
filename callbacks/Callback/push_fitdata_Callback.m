@@ -1,6 +1,6 @@
 
 % Executes on button press in push_fitdata.
-function push_fitdata_Callback(hObject, ~, handles)
+function push_fitdata_Callback(~, ~, handles)
 import utils.plotutils.*
 % Create waitbar dialog
 try
@@ -13,22 +13,17 @@ end
 
 Stro = handles.profiles.xrd;
 try
-    steps = Stro.NumFiles;
-    fitresults = cell(1, steps);
-    xdata = Stro.getTwoTheta;
-    for step=1:steps
+    fitresults = cell(1, Stro.NumFiles);
+    for i=1:Stro.NumFiles
         % Report current status of fitting dataset
-        msg = ['Fitting Dataset ' num2str(step) ' of ' num2str(steps)];
+        msg = ['Fitting Dataset ' num2str(i) ' of ' num2str(Stro.NumFiles)];
         if exist('h', 'var')
-            waitbar(step/steps, h, msg);
+            waitbar(i/Stro.NumFiles, h, msg);
         end
         if exist('h', 'var') && getappdata(h, 'canceling')
             break
         end
-        ydata = Stro.getDataNoBackground(step);
-        fitType = Stro.getFitType();
-        fitOptions = Stro.getFitOptions();
-        fitresults{step} = model.FitResults(Stro, step);
+        fitresults{i} = Stro.fitDataSet(i);
     end
     
     writer = ui.FileWriter(handles.profiles);

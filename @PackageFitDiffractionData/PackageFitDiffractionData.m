@@ -650,6 +650,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             end
             
         else
+            fitresults = {};
             xdata = Stro.getTwoTheta;
             ydata = Stro.getDataNoBackground(filenum);
             fitType = Stro.getFitType();

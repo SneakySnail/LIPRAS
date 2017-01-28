@@ -407,13 +407,13 @@ handles.gui.Legend = 'on';
 
 %% Menu callback functions
 
-function menu_save_Callback(hObject, eventdata, handles)
+function menu_save_Callback(~, ~, handles)
 if handles.profiles.xrd.hasFit
     handles.profiles.exportProfileParametersFile();
 end
 
 % ---
-function menu_parameter_Callback(hObject, eventdata, handles)
+function menu_parameter_Callback(~, ~, handles)
 filename = 0;
 if handles.profiles.hasData
     [filename, pathName, ~]  = uigetfile({'*.txt;','*.txt'},'Select Input File','MultiSelect', 'off');
@@ -462,18 +462,11 @@ if strcmp(ans,'Continue')
 end
 
 
-function menu_close_Callback(hObject, eventdata, handles)
-close_fig(handles);
-
-
-
 %% Close request functions
-function figure1_CloseRequestFcn(o, e, handles)
+function figure1_CloseRequestFcn(~, ~, handles)
 requestClose(handles);
 
-function noplotfit_Callback(hObject,eventdata,handles)
+function noplotfit_Callback(hObject,~,handles)
 handles.noplotfit=get(hObject,'Value');
 
 
-% Executes on mouse press over axes background.
-function axes2_ButtonDownFcn(hObject, eventdata, handles)

@@ -21,9 +21,9 @@ end
 try
 switch lower(mode)
     case 'background'
-        hold off
+        cla;
         plotData(handles);
-        hold on
+        
         if handles.profiles.xrd.hasBackground
             plotBackgroundPoints(handles);
             plotBackgroundFit(handles);
@@ -153,7 +153,7 @@ end
         'DisplayName','Raw Data', ...
         'MarkerFaceColor', [1 1 1], ...%[.08 .17 .55],...
         'MarkerEdgeColor',[0.3 0.3 0.3], ...
-        'Tag', 'Data'); 
+        'XLim', [fitted.TwoTheta(1) fitted.TwoTheta(end)]); 
     
     hold(ax, 'on');
     % Background

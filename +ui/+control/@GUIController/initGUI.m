@@ -73,7 +73,7 @@ set(handles.figure1, 'visible', 'off'); % To prevent error
         throw(MException(msgId, msg))
     end
     
-    handles.figure1.WindowButtonMotionFcn = @(o, e)WindowButtonMotionFcn(o, e,guidata(o));
+    handles.figure1.WindowButtonMotionFcn = @(o,e)WindowButtonMotionFcn(o, e,guidata(o));
     end
 % ==========================================================================
 

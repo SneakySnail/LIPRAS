@@ -376,8 +376,8 @@ classdef FitFunctionInterface < handle
         result.N = initial.N / 2;
         
         result.f = initial.f / 2;
-        result.w = FitFunctionInterface.DEFAULT_VALUE_W / 2;
-        result.m = FitFunctionInterface.DEFAULT_VALUE_M / 2;
+        result.w = FitFunctionInterface.DEFAULT_VALUE_W / 5;
+        result.m = FitFunctionInterface.DEFAULT_VALUE_M / 5;
         
         
         end
@@ -393,8 +393,8 @@ classdef FitFunctionInterface < handle
         
         result.N = initial.N * 1.5;
         result.f = initial.f * 1.5;
-        result.w = FitFunctionInterface.DEFAULT_VALUE_W * 1.5;
-        result.m = FitFunctionInterface.DEFAULT_VALUE_M * 1.5;
+        result.w = FitFunctionInterface.DEFAULT_VALUE_W * 2;
+        result.m = FitFunctionInterface.DEFAULT_VALUE_M * 5;
         end
         
         function result = isAsymmetric(this)
