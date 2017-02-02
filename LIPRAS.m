@@ -198,7 +198,6 @@ if handles.gui.isFitDirty
     end
 end
 ui.update(handles, 'fitinitial');
-utils.plotutils.plotX(handles, 'sample');
 
 % Executes on button press of 'Select Peak(s)'.
 function push_selectpeak_Callback(hObject, ~, handles)

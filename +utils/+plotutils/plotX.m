@@ -18,7 +18,7 @@ if isempty(previousPlot_)
     previousPlot_ = mode;
 end
 
-try
+% try
 switch lower(mode)
     case 'background'
         cla;
@@ -63,7 +63,6 @@ switch lower(mode)
         plotData(handles);
         hold(handles.axes1, 'on');
         handles = plot_sample_fit(handles);
-        utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
         
     case 'allfits'
         plotAllFits(handles);
@@ -82,13 +81,15 @@ switch lower(mode)
     otherwise
         
 end
-catch
-    try
-        utils.plotutils.plotX(handles, previousPlot_);
-    catch
-        utils.plotutils.plotX(handles, 'data');
-    end
-end
+% catch ex
+%     try
+%         utils.plotutils.plotX(handles, previousPlot_);
+%     catch
+%         utils.plotutils.plotX(handles, 'data');
+%     end
+% end
+
+previousPlot_ = mode;
 % ==============================================================================
 
 
@@ -110,8 +111,8 @@ end
     xlabel(handles.axes1, '2\theta','FontSize',13);
     ylabel(handles.axes1, 'Intensity','FontSize',13);
     
-    title(handles.axes1, ['\fontsize{15}' filenames{filenum} ' (' num2str(filenum) ' of ' ...
-        num2str(length(filenames)) ')']);
+    title(handles.axes1, [filenames{filenum} ' (' num2str(filenum) ' of ' ...
+        num2str(length(filenames)) ')'], 'FontSize', 15, 'FontName','default');
     end
 % ==============================================================================
 
@@ -152,10 +153,9 @@ end
         'MarkerSize',3, ...
         'DisplayName','Raw Data', ...
         'MarkerFaceColor', [1 1 1], ...%[.08 .17 .55],...
-        'MarkerEdgeColor',[0.3 0.3 0.3], ...
-        'XLim', [fitted.TwoTheta(1) fitted.TwoTheta(end)]); 
-    
+        'MarkerEdgeColor',[0.3 0.3 0.3]); 
     hold(ax, 'on');
+    set(ax, 'XLim', [fitted.TwoTheta(1) fitted.TwoTheta(end)]);
     % Background
     data(2) = plot(ax, ...
         fitted.TwoTheta, fitted.Background, '--', ...
@@ -237,7 +237,8 @@ end
     dispname = {datafit.DisplayName};
     handles.gui.DisplayName = [handles.gui.DisplayName, dispname];
     handles.gui.Legend = 'on';
-    plotX(handles,'limits');
+    utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
+    updateLim(handles, [twotheta(1) twotheta(end)])
     end
 % ==============================================================================
 

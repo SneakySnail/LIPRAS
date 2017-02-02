@@ -12,7 +12,10 @@ guidata(handles.figure1, handles);
 
 addControlListeners();
 
-% handles.figure1.Position(1) = 0;
+handles.figure1.Position(1) = 0;
+
+drawnow;
+
 set(handles.figure1, 'visible', 'off'); % To prevent error
 
 % ==============================================================================
