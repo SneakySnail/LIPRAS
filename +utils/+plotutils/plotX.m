@@ -1,22 +1,17 @@
 % Properties needed: datatype, DisplayName, ColorOrder
 function  plotX(handles, mode, varargin)
 xrd = handles.profiles.xrd;
+persistent previousPlot_
 
-if nargin <= 1
-    if xrd.hasFit
-        mode = 'fit';
-    else
-        mode = 'sample';
+if nargin == 1
+    if isempty(previousPlot_)
+        previousPlot_ = 'data';
     end
+    mode = previousPlot_;
 end
 
 filenum = handles.gui.CurrentFile;
 filenames = handles.gui.getFileNames;
-
-persistent previousPlot_
-if isempty(previousPlot_)
-    previousPlot_ = mode;
-end
 
 % try
 switch lower(mode)

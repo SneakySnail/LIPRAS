@@ -214,17 +214,53 @@ plotedit(handles.fig2save, 'off');
 selected = handles.saveoptions.SelectedObject;
 ext = ['.' lower(selected.String)];
 
-name = regexprep(handles.ax.Title.String, '(\w+)+(?:[( ).])+','$1_');
-name = name(1:end-1); % get rid of last letter underscore
-path = [handles.lipras.profiles.OutputPath name ext];
-
-[file pathname] = uiputfile(path, 'Save Plot As...');
-
-if ~isequal(file, 0) && ~isequal(pathname, 0)
-    saveas(handles.fig2save, [pathname file]);
+path = uigetdir(handles.lipras.profiles.OutputPath, 'Save In...');
+if ~isequal(path, 0)
+    if path(end) ~= filesep
+        path = [path filesep];
+    end
+    % Get all line properties
+    oldfilenum = handles.lipras.gui.CurrentFile;
+    allnames = handles.lipras.gui.getFileNames;
+    
+    oldobjs = allchild(handles.ax);
+    
+    for i=1:length(allnames)
+        handles.lipras.gui.CurrentFile = i;
+        name = handles.lipras.axes1.Title.String;
+        handles.ax.Title.String = name;
+        name = regexprep(name, '(\w+)+(?:[( ).])+','$1_');
+        name = name(1:end-1); % get rid of last letter underscore
+        
+        newobjs = allchild(handles.lipras.axes1);
+        set(oldobjs, {'XData', 'YData'}, get(newobjs, {'XData', 'YData'}));
+        saveas(handles.fig2save, [path name ext]);
+    end
+    handles.lipras.gui.CurrentFile = oldfilenum;
 end
 
 figSaveAs_CloseRequestFcn(handles.figSaveAs, [], guidata(handles.figSaveAs));
+
+
+function copyProperties(oldObj, newObj)
+tic
+allOldObjs = findobj(oldObj);
+allNewObjs = findobj(newObj);
+
+for i=1:length(allOldObjs)
+    propnames = fieldnames(allOldObjs(i));
+    propvals = get(allOldObjs(i), propnames);
+    
+    if isequal(class(oldObj), class(newObj))
+        for j=1:length(propnames)
+            newObj.(propnames{j}) = propvals{j};
+        end
+    end
+end
+toc
+
+
+
 
 % --- Executes on button press in pushbutton2.
 function push_cancel_Callback(hObject, ~, handles)
