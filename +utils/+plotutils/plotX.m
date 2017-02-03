@@ -2,12 +2,24 @@
 function  plotX(handles, mode, varargin)
 xrd = handles.profiles.xrd;
 persistent previousPlot_
+persistent plotConversion_
 
-if nargin == 1
-    if isempty(previousPlot_)
-        previousPlot_ = 'data';
-    end
+if nargin > 1
+    previousPlot_ = mode;
+end
+if isempty(previousPlot_)
+    previousPlot_ = 'data';  
     mode = previousPlot_;
+elseif nargin > 1 && isempty(mode)
+    mode = previousPlot_;
+else
+    previousPlot_ = mode;
+end
+
+if isempty(plotConversion_)
+    plotConversion_ = 'normal';
+elseif nargin > 2 % if there is another fcn argument
+    plotConversion_ = varargin{1};
 end
 
 filenum = handles.gui.CurrentFile;
@@ -16,77 +28,88 @@ filenames = handles.gui.getFileNames;
 % try
 switch lower(mode)
     case 'background'
-        cla;
+        hold(handles.axes1, 'off');
         plotData(handles);
-        
+        hold(handles.axes1, 'on');
         if handles.profiles.xrd.hasBackground
             plotBackgroundPoints(handles);
             plotBackgroundFit(handles);
         end
-        
     case 'backgroundpoints'
         hold on;
         plotBackgroundPoints(handles);
         handles = plot_sample_fit(handles);
         utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
-        
     case 'backgroundfit'
         hold(handles.axes1, 'on');
         plotBackgroundFit(handles);
         utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
-        
     case 'data'
         hold(handles.axes1, 'off');
         plotData(handles);
         hold(handles.axes1, 'on');
         %         handles = plot_sample_fit(handles);
-        
     case 'limits'
         updateLim(handles);
-        
     case 'superimpose'
         plotSuperimposed(handles);
         utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
-        
     case 'fit'
         plotFit(handles);
         utils.plotutils.resizeAxes1ForErrorPlot(handles, 'fit');
         plotFitError(handles);
-        
     case 'sample'
         hold(handles.axes1, 'off');
         plotData(handles);
         hold(handles.axes1, 'on');
-        handles = plot_sample_fit(handles);
-        
+        plot_sample_fit(handles);
     case 'allfits'
         plotAllFits(handles);
-        
     case 'error'
         plotFitError(handles);
         utils.plotutils.resizeAxes1ForErrorPlot(handles, 'fit');
-        
     case 'coeff' %TODO
         plotCoefficients(handles);
         utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
-        
     case 'stats' %TODO
         plotFitStats(handles);
+end
+
+switch plotConversion_
+    case 'normal' 
+        set(handles.axes1, {'YScale', 'YTickMode'}, {'linear', 'auto'});
+        set(handles.axes2, {'YScale', 'YTickMode'}, {'linear', 'auto'});
+        handles.axes1.YLabel.String = 'Intensity (a.u.)';
         
-    otherwise
+    case 'log' % convert to log(y) = log(x)
+        set(handles.axes1, {'YScale', 'YTickMode'}, {'log', 'manual'});
+        set(handles.axes2, {'YScale','YTickMode'}, {'log', 'manual'});
+%         ytick1 = handles.axes1.YTick;
+%         ytick2 = handles.axes2.YTick;
+%         handles.axes1.YTickLabel = cellstr(num2str(round(log10(ytick1(:))), '10^%d'));
+%         handles.axes2.YTickLabel = cellstr(num2str(round(log10(ytick2(:))), '10^%d'));
+        handles.axes1.YLabel.String = 'log_{10}(Intensity) (a.u.)';
+    case 'dspace' % d = n*lambda/(2*sin(theta))
+        convertToDspace(handles);
         
 end
-% catch ex
-%     try
-%         utils.plotutils.plotX(handles, previousPlot_);
-%     catch
-%         utils.plotutils.plotX(handles, 'data');
-%     end
-% end
-
-previousPlot_ = mode;
 % ==============================================================================
-
+    function convertToDspace(handles) 
+    % Convert X-axis from 2theta to d-space using d=lambda/(2*sin(theta))
+    
+    theta = xrd.getTwoTheta ./ 2;
+    lambda = xrd.lambda;
+    dspace = lambda ./ (2*sin(theta));
+    lines = handles.axes1.Children;
+    for i=1:length(lines)
+        line = lines(i);
+        line.XData = dspace;
+    end
+    
+    handles.axes1.XLabel.String = 'D-space (nm)';
+    handles.axes1.XLim = [min(dspace) max(dspace)];
+    end
+% ==============================================================================
 
     function updateLim(handles, range)
     
@@ -122,7 +145,7 @@ previousPlot_ = mode;
    
     handles.gui.DisplayName = handles.gui.getFileNames(filenum);
     
-    plotX(handles,'limits');
+    updateLim(handles, [x(1) x(end)]);
         
     set(handles.axes1, 'XTickMode', 'auto', 'XTickLabelMode', 'auto');
     utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');

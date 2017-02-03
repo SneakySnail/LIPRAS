@@ -110,6 +110,17 @@ end
 handles.profiles.xrd.setBackgroundPoints(points);
 ui.update(handles, 'backgroundpoints');
 
+function menu_plottype_Callback(o,e,handles)
+set(findobj(o.Parent), 'Checked', 'off'); % turn off checks in all plot menu items
+switch o.Tag
+    case 'menu_plottype1' % linear
+        utils.plotutils.plotX(handles, [], 'normal');
+    case 'menu_plottype2'% log
+        utils.plotutils.plotX(handles, [], 'log');
+    case 'menu_plottype3' % d-space
+end
+o.Checked = 'on';
+
 % Plots the background points selected.
 function push_fitbkgd_Callback(hObject, ~, handles)
 import utils.plotutils.*
@@ -437,7 +448,7 @@ PreferenceFile=fopen('Preference File.txt','w');
 fprintf(PreferenceFile,'%s\n',folder_name);
 
 function menu_help_Callback(~,~)
-h=uiwait(msgbox('Documentation is on its way...','Help'));
+h=msgbox('Documentation is on its way...','Help');
 set(h, 'Position',[500 440 200 50]) % posx, posy, height, width
 ah=get(h,'CurrentAxes');
 c=get(ah,'Children');
@@ -445,10 +456,10 @@ set(c,'FontSize',11);
 
 function menu_about_Callback(~,~)
 % Displays a message box
-h = uiwait(msgbox({'LIPRAS, version: 1.0' ['Authors: Klarissa Ramos, Giovanni Esteves, ' ...
+h = msgbox({'LIPRAS, version: 1.0' ['Authors: Klarissa Ramos, Giovanni Esteves, ' ...
     'Chris Fancher, and Jacob Jones'] 'North Carolina State University (2016)' '' ...
     'Contact Information' 'Giovanni Esteves' 'Email: gesteves21@gmail.com' ...
-    'Jacob Jones' 'Email: jacobjones@ncsu.edu'}, 'About'));
+    'Jacob Jones' 'Email: jacobjones@ncsu.edu'}, 'About');
 
 set(h, 'Position',[500 440 400 180]) % posx, posy, horiz, vert
 ah=get(h,'CurrentAxes');
