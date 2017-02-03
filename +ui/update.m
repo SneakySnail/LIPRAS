@@ -95,7 +95,7 @@ set(handles.tabpanel, 'TabEnables', {'on' 'off' 'off'}, 'Selection', 1);
 set(handles.panel_rightside,'visible','on');
 set(handles.uipanel3, 'visible', 'on');
 set(handles.push_removeprofile, 'enable', 'off');
-utils.plotutils.plotX(handles, 'data');
+% utils.plotutils.plotX(handles, 'data');
 % ==============================================================================
 
 function newParameterFile(handles)

@@ -134,6 +134,14 @@ set(ax, 'Units', 'normalized', 'OuterPosition', [0 0 1 1]);
 legend(ax,'show');
 handles.ax = ax;
 
+ax.XTickMode = 'manual';
+ax.YTickMode = 'manual';
+ax.ZTickMode = 'manual';
+ax.XLimMode = 'manual';
+newfigcopy.PaperPositionMode = 'auto';
+newfigcopy.PaperUnits = 'inches';
+newfigcopy.PaperPosition = [0 0 6 3];
+
 % Enable docking for deployed figures
 jframe = utils.javaGetFigureFrame(newfigcopy);
 jframe.fHG2Client.setClientDockable(true);
@@ -147,12 +155,20 @@ handles.fig2save = newfigcopy;
 
 % First get the desktop handle to figure out if the property editor is
 % minimized or undocked
-dt = jframe.getDesktop;
+persistent dt
+if isempty(dt)
+    dt = jframe.getDesktop;
+end
 if dt.isClientMinimized(pe)
     dt.setClientMinimized(pe, false);
 elseif ~dt.isClientDocked(pe)
     dt.setClientDocked(pe, true);
 end
+
+% Update jframe and pe variables in case property editor was undocked
+jframe = utils.javaGetFigureFrame(newfigcopy);
+setappdata(newfigcopy, 'JavaFrame', jframe);
+pe = propertyeditor(newfigcopy, 'on');
 
 % Disable some options we don't need
 if pe.isShowZAxisControls
@@ -169,10 +185,18 @@ if pe.isShowRefreshDataButton
 end
 
 rootpane = pe.getRootPane;
-while isempty(rootpane)
+if isempty(rootpane)
     pause(0.05), drawnow
+    rootpane = pe.getRootPane;
 end
-dtgframe = rootpane.getContentPane.getComponent(1); % get DTGroupFrame
+
+try
+    dtgframe = rootpane.getContentPane.getComponent(1);
+catch
+    pause(0.05), drawnow
+    dtgframe = rootpane.getContentPane.getComponent(1);
+end
+
 toolbar = dtgframe.getComponent(0).getComponent(0);
 if toolbar.isVisible
     toolbar.setVisible(false);
@@ -242,6 +266,7 @@ hmenu.figDataManagerBrushTools.Visible = 'off';
 
 rootpane = getappdata(e.AffectedObject, 'JavaFrame');
 % disable unneeded java figure menu items
+try %  catch if plottools is off
 jmenu = rootpane.getAxisComponent.getTopLevelAncestor.getJMenuBar;
 for i=1:jmenu.getComponentCount
     if strcmp(jmenu.getComponent(i-1).getName, 'DesktopDebugMenu')
@@ -251,6 +276,8 @@ for i=1:jmenu.getComponentCount
     elseif strcmp(jmenu.getComponent(i-1).getName, 'DesktopWindowMenu')
         jmenu.getComponent(i-1).setVisible(false);
     end
+end
+catch
 end
 % ---
     
@@ -296,6 +323,7 @@ if ~isequal(path, 0)
         
         newobjs = allchild(handles.lipras.axes1);
         set(oldobjs, {'XData', 'YData'}, get(newobjs, {'XData', 'YData'}));
+        
         saveas(handles.fig2save, [path name ext]);
     end
     handles.lipras.gui.CurrentFile = oldfilenum;
