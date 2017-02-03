@@ -51,11 +51,12 @@ function SaveAs_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to SaveAs (see VARARGIN)
 
-handles.output = guihandles(hObject);
 % Insert custom Title and Text if specified by the user
 % Hint: when choosing keywords, be sure they are not easily confused 
 % with existing figure properties.  See the output of set(figure) for
 % a list of figure properties.
+handles.output = [];
+clear plottools
 if(nargin > 3)
     for index = 1:2:(nargin-3),
         if nargin-3==index, break, end
@@ -109,7 +110,7 @@ set(handles.figSaveAs, 'Colormap', IconCMap);
 set(handles.figSaveAs,'WindowStyle','normal', 'visible', 'on', ...
     'Units', 'pixels', 'Position', [140 300 186 215])
 if strcmpi(handles.figSaveAs.Visible, 'on')
-    jf = get(handles.figSaveAs, 'JavaFrame');
+    jf = utils.javaGetFigureFrame(handles.figSaveAs);
     container = jf.getFigurePanelContainer;
     drawnow
     root = container.getRootPane;
@@ -132,23 +133,27 @@ ax = copyobj(lipras.axes1, newfigcopy);
 set(ax, 'Units', 'normalized', 'OuterPosition', [0 0 1 1]);
 legend(ax,'show');
 handles.ax = ax;
+
+% Enable docking for deployed figures
+jframe = utils.javaGetFigureFrame(newfigcopy);
+jframe.fHG2Client.setClientDockable(true);
+jframe.fHG2Client.setClientWindowStyle(true, false); % initially dock the figure
+setappdata(newfigcopy, 'JavaFrame', jframe);
+
 % Enable editing
-plotedit(newfigcopy, 'on');
 pe = propertyeditor(newfigcopy, 'on');
 pe.validate();
 handles.fig2save = newfigcopy;
 
-if ~pe.isValid
-    pe = getplottool(newfigcopy, 'propertyeditor');
-    pe.validate();
-end
-if ~pe.isValid
-    figSaveAs_CloseRequestFcn(handles.figSaveAs, [], guidata(handles.figSaveAs));
-    handles.output = 'Error';
-    return
+% First get the desktop handle to figure out if the property editor is
+% minimized or undocked
+dt = jframe.getDesktop;
+if dt.isClientMinimized(pe)
+    dt.setClientMinimized(pe, false);
+elseif ~dt.isClientDocked(pe)
+    dt.setClientDocked(pe, true);
 end
 
-drawnow
 % Disable some options we don't need
 if pe.isShowZAxisControls
     javaMethodEDT('setShowZAxisControls', pe, false);
@@ -163,34 +168,91 @@ if pe.isShowRefreshDataButton
     javaMethodEDT('setShowRefreshDataButton', pe, false);
 end
 
-%   MJPanel outer, FigurePropPanel, MJPanel buttons
-pe.getComponent(0).getComponent(1).getComponent(1).setVisible(0); % Don't show 'More Properties' and 'Export Setup' buttons
-
 rootpane = pe.getRootPane;
-if isempty(rootpane)
+while isempty(rootpane)
     pause(0.05), drawnow
-    rootpane = pe.getRootPane; % To prevent error 
 end
-menubar = rootpane.getMenuBar;
-% Disable all menubar items
-if menubar.isVisible
-    menubar.setVisible(false);
-end
-
-dtgframe = rootpane.getLayeredPane.getComponent(0).getComponent(1);
+dtgframe = rootpane.getContentPane.getComponent(1); % get DTGroupFrame
 toolbar = dtgframe.getComponent(0).getComponent(0);
 if toolbar.isVisible
     toolbar.setVisible(false);
 end
+
+hProp = findprop(handle(newfigcopy),'WindowStyle');  % a schema.prop object
+% if figure becomes docked or undocked, invoke the callback
+hlistener = addlistener(handle(newfigcopy), hProp, 'PostSet',@(o,e)SaveAs('DockingCallbackFcn',o,e));
+% attach listener to the GUI since it needs to be known (as long as the figure exists)
+setappdata(newfigcopy, 'Handle_Listener', hlistener);
+
+% Make document bar invisible so as not to trigger mouse clicked callbacks,
+dtsplitpane = pe.getParent.getParent.getParent;
+for i=1:dtsplitpane.countComponents
+    if strcmp(dtsplitpane.getComponent(i-1).getName, 'DesktopDocumentContainer')
+        ddcontainer = dtsplitpane.getComponent(i-1);
+        break
+    end
+end
+if ~isempty(ddcontainer)
+    DTDocumentBar = javaObjectEDT(ddcontainer.getComponent(0).getComponent(0));
+    DTDocumentBar.setVisible(false);
+end
+
 
 handles.fig2save = newfigcopy;
 handles.rootpane2save = rootpane;
 % Update handles structure
 guidata(hObject, handles)
 
-handles.output = guidata(hObject);
+function DockingCallbackFcn(o,e)
+% Runs every time a new figure is docked in the group.
+% disable unneeded matlab figure menu items
+hmenu = guihandles(e.AffectedObject);
+hmenu.figMenuHelp.Visible = 'off';
+hmenu.figMenuView.Visible = 'off';
+hmenu.figMenuDesktop.Visible = 'off';
+% File Menu Items
+set(allchild(hmenu.figMenuFile), 'Visible', 'off');
+hmenu.figMenuFilePrintPreview.Visible = 'on';
+hmenu.printMenu.Visible = 'on';
+% Edit Menu Items
+hmenu.figMenuEditCopyFigure.Visible = 'off';
+hmenu.figMenuEditCopyOptions.Visible = 'off';
+hmenu.figMenuEditGCF.Visible = 'off';
+hmenu.figMenuEditGCA.Visible = 'off';
+hmenu.figMenuEditGCO.Visible = 'off';
+hmenu.figMenuEditFindFiles.Visible = 'off';
+hmenu.figMenuEditClearCmdHistory.Visible = 'off';
+hmenu.figMenuEditClearCmdWindow.Visible = 'off';
+hmenu.figMenuEditClearFigure.Visible = 'off';
+hmenu.figMenuEditClearWorkspace.Visible = 'off';
+% Insert Menu Items
+hmenu.figMenuInsertAxes.Visible = 'off';
+hmenu.figMenuInsertLight.Visible = 'off';
+% Tools Menu Items
+hmenu.figMenuToolsPlotedit.Visible = 'off';
+hmenu.figMenuRotate3D.Visible = 'off';
+hmenu.figMenuResetView.Visible = 'off';
+hmenu.figBrush.Visible = 'off';
+hmenu.figLinked.Visible = 'off';
+hmenu.figMenuToolsBF.Visible = 'off';
+hmenu.figMenuToolsDS.Visible = 'off';
+hmenu.figDataManagerBrush.Visible = 'off';
+hmenu.figDataManagerBrushTools.Visible = 'off';  
+% ---
 
-
+rootpane = getappdata(e.AffectedObject, 'JavaFrame');
+% disable unneeded java figure menu items
+jmenu = rootpane.getAxisComponent.getTopLevelAncestor.getJMenuBar;
+for i=1:jmenu.getComponentCount
+    if strcmp(jmenu.getComponent(i-1).getName, 'DesktopDebugMenu')
+        jmenu.getComponent(i-1).setVisible(false);
+    elseif strcmp(jmenu.getComponent(i-1).getName, 'DesktopMenu')
+        jmenu.getComponent(i-1).setVisible(false);
+    elseif strcmp(jmenu.getComponent(i-1).getName, 'DesktopWindowMenu')
+        jmenu.getComponent(i-1).setVisible(false);
+    end
+end
+% ---
     
 % --- Outputs from this function are returned to the command line.
 function varargout = SaveAs_OutputFcn(~, ~, handles)
@@ -237,28 +299,16 @@ if ~isequal(path, 0)
         saveas(handles.fig2save, [path name ext]);
     end
     handles.lipras.gui.CurrentFile = oldfilenum;
-end
-
-figSaveAs_CloseRequestFcn(handles.figSaveAs, [], guidata(handles.figSaveAs));
-
-
-function copyProperties(oldObj, newObj)
-tic
-allOldObjs = findobj(oldObj);
-allNewObjs = findobj(newObj);
-
-for i=1:length(allOldObjs)
-    propnames = fieldnames(allOldObjs(i));
-    propvals = get(allOldObjs(i), propnames);
     
-    if isequal(class(oldObj), class(newObj))
-        for j=1:length(propnames)
-            newObj.(propnames{j}) = propvals{j};
-        end
-    end
+    handles.output.path = path;
+    handles.output.ext = ext;
+    handles.output.numfiles = length(allnames);
+    
+    msgbox([num2str(handles.output.numfiles) ' files were saved in the directory ' handles.output.path ' as ' handles.output.ext ...
+        ' files.'], 'Saved')
+    
+    figSaveAs_CloseRequestFcn(handles.figSaveAs, [], guidata(handles.figSaveAs));
 end
-toc
-
 
 
 
@@ -268,7 +318,7 @@ function push_cancel_Callback(hObject, ~, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-handles.output = get(hObject,'String');
+handles.output = [];
 figSaveAs_CloseRequestFcn(handles.figSaveAs, [], guidata(handles.figSaveAs));
 
 
@@ -279,7 +329,6 @@ function figSaveAs_CloseRequestFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 plottools(hObject, 'off');
 delete(findall(0,'tag', 'figCustomSave'))
-handles.output = [];
 delete(hObject);
 
 

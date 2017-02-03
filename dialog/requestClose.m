@@ -17,6 +17,7 @@ end
 % Handle response
 switch choice
     case 'Yes'
+        clear(['+utils' filesep '+plotutils' filesep 'plotX'])
         delete(findall(0,'tag','figure1'));
         delete(findall(0,'tag','TMWWaitbar'));
         

@@ -56,6 +56,7 @@ varargout{1} = handles.output;
 %  Executes on button press in button_browse.
 function button_browse_Callback(hObject, ~, handles)
 handles.gui.Status = 'Browsing for dataset... ';
+clear(['+utils' filesep '+plotutils' filesep 'plotX'])
 handles.profiles.newXRD();
 model.ProfileListManager.getInstance(handles.profiles);
 if handles.profiles.hasData
@@ -98,17 +99,21 @@ selected = handles.group_bkgd_edit_mode.SelectedObject.String;
 if strcmpi(selected, 'Delete')
     numpoints = length(handles.profiles.xrd.getBackgroundPoints);
     points = selectPointsFromPlot(handles, numpoints);
+elseif strcmpi(selected, 'Add')
+    oldpoints = handles.profiles.xrd.getBackgroundPoints;
+    newpoints = selectPointsFromPlot(handles);
+    points = sort([oldpoints newpoints]);
 else
     points = selectPointsFromPlot(handles);
 end
 
-model.update(handles, 'backgroundpoints', points);
+handles.profiles.xrd.setBackgroundPoints(points);
 ui.update(handles, 'backgroundpoints');
 
 % Plots the background points selected.
 function push_fitbkgd_Callback(hObject, ~, handles)
 import utils.plotutils.*
-if handles.gui.isFitDirty
+if ~handles.gui.areFuncsReady || handles.gui.isFitDirty 
     plotX(handles, 'background');
 else
     plotX(handles, 'sample');
@@ -421,6 +426,10 @@ if filename ~= 0
     handles.profiles.importProfileParametersFile([pathName filename]);
     ui.update(handles, 'parameters');
 end
+
+% Executes when the menu item 'Export->As Image' is clicked.
+function menu_saveasimage_Callback(o,e,handles)
+SaveAs;
 
 function menu_preferences_Callback(~,~,~)
 folder_name=uigetdir;

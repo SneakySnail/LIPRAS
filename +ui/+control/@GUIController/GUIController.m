@@ -229,6 +229,7 @@ classdef GUIController < handle
         numfiles = this.hg.profiles.getNumFiles;
         this.hg.popup_filename.Value = value;
         this.hg.text_filenum.String = [num2str(value) ' of ' num2str(numfiles)];
+        clear('utils.plotutils.plotX')
         utils.plotutils.plotX(this.hg);
         end 
         

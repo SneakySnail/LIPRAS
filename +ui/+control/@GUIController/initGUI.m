@@ -1,5 +1,7 @@
 % Initialize GUI controls
 function handles = initGUI(handles)
+clear(['+utils' filesep '+plotutils' filesep 'plotX'])
+
 set(handles.figure1, 'visible', 'on');
 
 addToExecPath();
@@ -54,6 +56,9 @@ set(handles.figure1, 'visible', 'off'); % To prevent error
          'tabenables', {'on','off','off'}, 'fontsize', 11, 'tabwidth', 75);
      handles.edit_polyorder = utils.uispinner(handles.edit_polyorder, 3, 1, 25, 1);
      handles.edit_numpeaks = utils.uispinner(handles.edit_numpeaks, 0, 0, 20, 1);
+     
+     % Clear persistent variables
+     clear('utils.plotutils.plotX')
     end
 % ==========================================================================
 

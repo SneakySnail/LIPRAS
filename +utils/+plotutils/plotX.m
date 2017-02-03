@@ -445,6 +445,8 @@ previousPlot_ = mode;
 
     function plotBackgroundPoints(handles) % plots points and BkgFit
     % The current file TODO: "getCurrentFile(handles.popup_filename)"
+    
+    hold(handles.axes1, 'on')
     xdata = xrd.getTwoTheta;    
     ydata = xrd.getData(handles.gui.CurrentFile);
     
