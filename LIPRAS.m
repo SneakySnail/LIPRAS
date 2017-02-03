@@ -118,6 +118,7 @@ switch o.Tag
     case 'menu_plottype2'% log
         utils.plotutils.plotX(handles, [], 'log');
     case 'menu_plottype3' % d-space
+        utils.plotutils.plotX(handles, [], 'dspace');
 end
 o.Checked = 'on';
 

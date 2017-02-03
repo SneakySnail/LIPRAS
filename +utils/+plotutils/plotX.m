@@ -4,7 +4,7 @@ xrd = handles.profiles.xrd;
 persistent previousPlot_
 persistent plotConversion_
 
-if nargin > 1
+if nargin > 1 && ~isempty(mode)
     previousPlot_ = mode;
 end
 if isempty(previousPlot_)
@@ -12,6 +12,7 @@ if isempty(previousPlot_)
     mode = previousPlot_;
 elseif nargin > 1 && isempty(mode)
     mode = previousPlot_;
+    previousPlot_ = mode;
 else
     previousPlot_ = mode;
 end
