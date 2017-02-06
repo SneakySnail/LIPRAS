@@ -731,7 +731,9 @@ classdef GUIController < handle
         
         end
         
-
+        function str = get.FileNames(this)
+        str = this.hg.popup_filename.String;
+        end
     
         function output = getFileNames(this, file)
         str = this.hg.popup_filename.String;

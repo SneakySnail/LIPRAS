@@ -19,10 +19,10 @@ classdef DiffractionData
     end
     
     methods
-        function this = DiffractionData(data, filename)
+        function this = DiffractionData(data, filename, fileIndex)
         % Constructor
-        this.FullTwoTheta = data(1,:);
-        this.FullIntensityData = data(2,:);
+        this.FullTwoTheta = data.two_theta(fileIndex,:);
+        this.FullIntensityData = data.data_fit(fileIndex,:);
         this.FileName = filename;
         this.Min2T = this.FullTwoTheta(1);
         this.Max2T = this.FullTwoTheta(end);

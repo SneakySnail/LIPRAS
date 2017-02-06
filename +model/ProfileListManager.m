@@ -38,7 +38,7 @@ classdef ProfileListManager < matlab.mixin.Copyable
                [data, filename, path] = utils.fileutils.newDataSet();
                if ~isempty(data)
                    this.reset();
-                   this.initialXRD_ = PackageFitDiffractionData(data.two_theta, data.data_fit, filename);
+                   this.initialXRD_ = PackageFitDiffractionData(data, filename);
                    this.initialXRD_.DataPath = path;
                end
                

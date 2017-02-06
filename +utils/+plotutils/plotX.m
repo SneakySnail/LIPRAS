@@ -2,7 +2,7 @@
 function  plotX(handles, mode, varargin)
 xrd = handles.profiles.xrd;
 persistent previousPlot_
-persistent plotConversion_
+% persistent plotConversion_
 
 if nargin > 1 && ~isempty(mode)
     previousPlot_ = mode;
@@ -14,20 +14,31 @@ elseif nargin > 1 && isempty(mode)
     mode = previousPlot_;
     previousPlot_ = mode;
 else
-    previousPlot_ = mode;
+    mode = previousPlot_;
 end
 
-if isempty(plotConversion_)
-    plotConversion_ = 'normal';
-elseif nargin > 2 % if there is another fcn argument
-    plotConversion_ = varargin{1};
-end
+% if isempty(plotConversion_)
+%     plotConversion_ = 'normal';
+% elseif nargin > 2 % if there is another fcn argument
+%     plotConversion_ = varargin{1};
+% end
 
 filenum = handles.gui.CurrentFile;
 filenames = handles.gui.getFileNames;
 
+persistent plotter
+if isempty(plotter)
+    plotter = utils.plotutils.AxPlotter(handles.axes1, filenames);
+    setappdata(handles.axes1, 'plotter', plotter);
+end
+
 % try
 switch lower(mode)
+    case 'data'
+        hold(handles.axes1, 'off');
+        plotData(handles);
+        hold(handles.axes1, 'on');
+        %         handles = plot_sample_fit(handles);
     case 'background'
         hold(handles.axes1, 'off');
         plotData(handles);
@@ -39,17 +50,12 @@ switch lower(mode)
     case 'backgroundpoints'
         hold on;
         plotBackgroundPoints(handles);
-        handles = plot_sample_fit(handles);
+%         handles = plot_sample_fit(handles);
         utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
     case 'backgroundfit'
         hold(handles.axes1, 'on');
         plotBackgroundFit(handles);
         utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
-    case 'data'
-        hold(handles.axes1, 'off');
-        plotData(handles);
-        hold(handles.axes1, 'on');
-        %         handles = plot_sample_fit(handles);
     case 'limits'
         updateLim(handles);
     case 'superimpose'
@@ -76,40 +82,7 @@ switch lower(mode)
         plotFitStats(handles);
 end
 
-switch plotConversion_
-    case 'normal' 
-        set(handles.axes1, {'YScale', 'YTickMode'}, {'linear', 'auto'});
-        set(handles.axes2, {'YScale', 'YTickMode'}, {'linear', 'auto'});
-        handles.axes1.YLabel.String = 'Intensity (a.u.)';
-        
-    case 'log' % convert to log(y) = log(x)
-        set(handles.axes1, {'YScale', 'YTickMode'}, {'log', 'manual'});
-        set(handles.axes2, {'YScale','YTickMode'}, {'log', 'manual'});
-%         ytick1 = handles.axes1.YTick;
-%         ytick2 = handles.axes2.YTick;
-%         handles.axes1.YTickLabel = cellstr(num2str(round(log10(ytick1(:))), '10^%d'));
-%         handles.axes2.YTickLabel = cellstr(num2str(round(log10(ytick2(:))), '10^%d'));
-        handles.axes1.YLabel.String = 'log_{10}(Intensity) (a.u.)';
-    case 'dspace' % d = n*lambda/(2*sin(theta))
-        convertToDspace(handles);
-        
-end
-% ==============================================================================
-    function convertToDspace(handles) 
-    % Convert X-axis from 2theta to d-space using d=lambda/(2*sin(theta))
-    
-    theta = xrd.getTwoTheta ./ 2;
-    lambda = xrd.lambda;
-    dspace = lambda ./ (2*sin(theta));
-    lines = handles.axes1.Children;
-    for i=1:length(lines)
-        line = lines(i);
-        line.XData = dspace;
-    end
-    
-    handles.axes1.XLabel.String = 'D-space (nm)';
-    handles.axes1.XLim = [min(dspace) max(dspace)];
-    end
+
 % ==============================================================================
 
     function updateLim(handles, range)
@@ -140,16 +113,22 @@ end
     % PLOTDATA Plots the raw data for a specified file number in axes1.
     x = xrd.getTwoTheta;
     y = xrd.getData(filenum);
+    hold(handles.axes1, 'off');
+    if isempty(getappdata(handles.axes1, 'rawdata'))
+        rawdata = utils.plotutils.DataLinePlot('rawdata');
+        setappdata(handles.axes1, 'rawdata', rawdata);
+    else
+        rawdata = getappdata(handles.axes1, 'rawdata');
+    end
+    plotter.RawData(x, y, rawdata, 'DisplayName', filenames{filenum});
     
-    plot(handles.axes1, x, y,'-o','LineWidth',0.3,'MarkerSize', 5, ...
-        'MarkerFaceColor', [1 1 1], 'DisplayName', 'Experimental Data');
-   
     handles.gui.DisplayName = handles.gui.getFileNames(filenum);
     
     updateLim(handles, [x(1) x(end)]);
         
     set(handles.axes1, 'XTickMode', 'auto', 'XTickLabelMode', 'auto');
     utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
+    hold(handles.axes1, 'on');
     end
 % ==============================================================================
 
@@ -206,6 +185,11 @@ end
 %         end
     end
     
+    for i=1:length(data)
+        setappdata(data(i), 'xdata', data(i).XData);
+        setappdata(data(i), 'ydata', data(i).YData);
+    end
+    
     handles.gui.DisplayName = {data.DisplayName};
    
     handles.gui.Legend = 'on';
@@ -238,7 +222,6 @@ end
         return
     end
     twotheta = xrd.getTwoTheta;
-    data = xrd.getData(handles.gui.CurrentFile);
     % Plot background fit
     background = plotBackgroundFit(handles);
     % Use initial coefficient values to plot fit
@@ -252,6 +235,8 @@ end
 %             datafit(i)=plot(x2th,CuKaPeak(i,:)+bkgArray,':','LineWidth',2,...
 %                 'DisplayName',['Cu-K\alpha2 (Peak ', num2str(i), ')']);
 %         end
+        setappdata(datafit(i), 'xdata', twotheta);
+        setappdata(datafit(i), 'ydata', fitsample(i,:) + background);
     end
     dispname = {datafit.DisplayName};
     handles.gui.DisplayName = [handles.gui.DisplayName, dispname];
@@ -459,10 +444,12 @@ end
     % Get Background
     bkgdArray = xrd.calculateBackground();
     
-    plot(handles.axes1, xdata, bkgdArray,'--', ...
+    line = plot(handles.axes1, xdata, bkgdArray,'--', ...
         'LineWidth',1,...
-        'DisplayName','Background');
+        'DisplayName','Background Fit');
 
+    setappdata(line, 'xdata', xdata);
+    setappdata(line, 'ydata', bkgdArray);
     result = bkgdArray;
     end
 
@@ -479,7 +466,7 @@ end
     
     % plot(handles.axes1,data(1,:),data(2,:),'-o','LineWidth',0.5,'MarkerSize',4, 'MarkerFaceColor', [0 0 0])
     plot(handles.axes1, points, ydata(idx), 'rd', 'markersize', 5, ...
-        'markeredgecolor', 'r', 'markerfacecolor','r');
+        'markeredgecolor', 'r', 'markerfacecolor','r', 'DisplayName', 'Background Points');
     
     utils.plotutils.plotX(handles, 'limits');
     end

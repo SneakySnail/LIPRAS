@@ -43,7 +43,9 @@ elseif key == ZOOM_KEY
     z = zoom(gcf);
     z.Direction = 'in';
     z.Enable = 'on';
-    
+    others = findall(gcf, 'tag', 'axes2');
+    z.setAllowAxesZoom(ax, true);
+    z.setAllowAxesZoom(others, false);
     % Wait for user to press the escape key to exit zoom
     key = MOUSE_CLICK;
     

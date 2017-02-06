@@ -75,17 +75,25 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
     
     % ======================================================================== %
     methods
-        function Stro = PackageFitDiffractionData(x, y, filenames)
+        function Stro = PackageFitDiffractionData(data, filenames)
         % Constructor
         import model.*
         if nargin >= 1
             if ischar(filenames)
                 filenames = {filenames};
             end
+            Stro.DataSet = cell(1, length(filenames));
+            [~, ~, ext] = fileparts(filenames{1});
+            x = data.two_theta;
+            y = data.data_fit;
             for i=1:size(y, 1)
-                dataInput = [x; y(i,:)];
-                Stro.DataSet{i} = DiffractionData(dataInput, filenames{i});
+                if ~strcmpi(ext, '.xrdml')
+                    Stro.DataSet{i} = DiffractionData(data, filenames{i}, i);
+                else
+                    Stro.DataSet{i} = XRDMLData(data, filenames{i}, i);
+                end
             end
+           
             Stro.AbsoluteRange = [x(1) x(end)];
             Stro.Background = model.Background(Stro);
         end

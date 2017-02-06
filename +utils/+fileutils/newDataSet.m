@@ -16,8 +16,6 @@ if nargin < 1
     allowedFiles = {'*.csv; *.txt; *.xy; *.fxye; *.dat; *.xrdml; *.chi; *.spr'};
     title = 'Select Diffraction Pattern to Fit';
     [filename, path, ~] = uigetfile(allowedFiles, title, 'MultiSelect', 'on', data_path);
-    
-    
 end
 
 if ~isequal(filename, 0)
@@ -44,36 +42,35 @@ function data = readNewDataFile(filename, path)
         
         if strcmp(ext, '.csv')
             datatemp = readSpreadsheet(fullFileName);
-            
         elseif strcmp(ext, '.txt')
             datatemp = readWithHeader(i,fullFileName);
-            
         elseif strcmp(ext, '.xy')
             datatemp = readFile(fid, ext);
-            
         elseif strcmp(ext, '.fxye')
             datatemp = readWithHeader(i,fullFileName);
-            
         elseif strcmp(ext, '.chi')
             datatemp = readFile(fid, ext);
-            
         elseif strcmp(ext, '.dat')
             datatemp = readFile(fid, ext);
-            
         elseif strcmp(ext, '.xrdml')
-            datatemp = parseXRDML(handles.gui, i);
+            datatemp = parseXRDML(fullFileName);
         end
         
-        data.two_theta = datatemp(1, :);
-        data.data_fit(i, :) = datatemp(2,:);
+        if ~strcmp(ext, '.xrdml')
+            data.two_theta(i,:) = datatemp(1, :);
+            data.data_fit(i, :) = datatemp(2,:);
+        else
+            data.two_theta(i,:) = datatemp.two_theta;
+            data.data_fit(i,:) = datatemp.data_fit;
+            data.Temperature(i) = datatemp.Temperature;
+            data.KAlpha1(i) = datatemp.KAlpha1;
+            data.KAlpha2(i) = datatemp.KAlpha2;
+            data.KBeta(i) = datatemp.KBeta;
+            data.RKa1Ka2(i) = datatemp.RKa1Ka2;
+        end
         
         fclose(fid);
-
     end
-    
-    
-
-
 end
 % ==============================================================================
 
@@ -121,7 +118,6 @@ end
 end
 % ==============================================================================
 
-
 function readWithHeader(Stro,fileIndex,inFile)
 keyboard
 %TODO: NOT IMPLEMENTED
@@ -160,106 +156,87 @@ Stro.readFile(fileIndex,fid)
 end
 % ==============================================================================
 
-
-function data = parseXRDML(gui, index)
+function data = parseXRDML(filename)
 % TODO - NOT IMPLEMENTED
-keyboard
-DataIndex = 1;
 Data = {};
 Data{1,1} = 0;
 X = 0;
 Z = 0;
 fileIndex = 0;
 
-fileNumb=index;
-file = strcat(Stro.DataPath,Stro.Filename{fileNumb});
-[parthstr,name,ext] = fileparts(file);
-data = parseXML(file);
+
+data = utils.fileutils.parseXML(filename);
 for i = 1:length(data.Children)
-    if strcmp(data.Children(1,i).Name, 'xrdMeasurement')
-        dataIndex = i;
+    if strcmp(data.Children(i).Name, 'xrdMeasurement')
+        xrdMeasurements = data.Children(i);
+        break
     end
 end
 
-for i = 1:length(data.Children(1,dataIndex).Children)
-    if strcmp(data.Children(1,dataIndex).Children(1,i).Name, 'scan')
+for i=1:length(xrdMeasurements.Children)
+    if strcmp(xrdMeasurements.Children(i).Name, 'scan')
+        scans = xrdMeasurements.Children(i);
         tth = 0;
-        fileIndex = fileIndex + 1;
         scanIndex = i;
-        
-        
-        for PosI = 1:length(data.Children(1,dataIndex).Children(1,scanIndex).Children)
-            if strcmp(data.Children(1,dataIndex).Children(1,scanIndex).Children(1,PosI).Name, 'dataPoints')
-                for DataPointsi = 1:length(data.Children(1,dataIndex).Children(1,scanIndex).Children(1,PosI).Children)
-                    if strcmp(data.Children(1,dataIndex).Children(1,scanIndex).Children(1,PosI).Children(1,DataPointsi).Name, 'positions')
-                        if strcmp(data.Children(1,dataIndex).Children(1,scanIndex).Children(1,PosI).Children(1,DataPointsi).Attributes(1,1).Value, '2Theta')
-                            if strcmp(data.Children(1,dataIndex).Children(1,scanIndex).Children(1,PosI).Children(1,DataPointsi).Children(1,2).Name, 'listPositions')
-                                tth = strread(data.Children(1,dataIndex).Children(1,scanIndex).Children(1,PosI).Children(1,DataPointsi).Children(1,2).Children(1,1).Data,'%f');
-                            else
-                                ttho = strread(data.Children(1,dataIndex).Children(1,scanIndex).Children(1,PosI).Children(1,DataPointsi).Children(1,2).Children(1,1).Data,'%f');
-                                tthf = strread(data.Children(1,dataIndex).Children(1,scanIndex).Children(1,PosI).Children(1,DataPointsi).Children(1,4).Children(1,1).Data,'%f');
-                            end
-                        end
-                    end
-                    if strcmp(data.Children(1,dataIndex).Children(1,scanIndex).Children(1,PosI).Children(1,DataPointsi).Name, 'intensities')
-                        intensity = strread(data.Children(1,dataIndex).Children(1,scanIndex).Children(1,PosI).Children(1,DataPointsi).Children(1,1).Data,'%f');
+    elseif strcmp(xrdMeasurements.Children(i).Name, 'usedWavelength')
+        usedWavelength = xrdMeasurements.Children(i);
+    end
+end
+
+for PosI = 1:length(scans.Children)
+    if strcmp(scans.Children(PosI).Name, 'dataPoints')
+        dataPoints = scans.Children(PosI);
+        for DataPointsi = 1:length(dataPoints.Children)
+            if strcmp(dataPoints.Children(1,DataPointsi).Name, 'positions')
+                positions = dataPoints.Children(1,DataPointsi);
+                if strcmp(positions.Attributes(1,1).Value, '2Theta')
+                    if strcmp(positions.Children(1,2).Name, 'listPositions')
+                        tth = strread(positions.Children(1,2).Children(1,1).Data,'%f');
+                    else
+                        ttho = strread(positions.Children(1,2).Children(1,1).Data,'%f'); % startPosition
+                        tthf = strread(positions.Children(1,4).Children(1,1).Data,'%f'); % endPosition
                     end
                 end
-            end
-            if strcmp(data.Children(1,dataIndex).Children(1,scanIndex).Children(1,PosI).Name, 'nonAmbientPoints')
-                temperature(PosI,:) = mean(strread(data.Children(1,dataIndex).Children(1,scanIndex).Children(1,PosI).Children(1,4).Children(1,1).Data,'%f'))-273.15;
-            else
-                temperature(PosI,:) = 25;
-            end
-            
-        end
-        if tth == 0
-            step = (tthf - ttho) / (length( intensity )-1);
-            tth = ttho:step:tthf;
-            tth = tth';
-            if length(tth') ~= length( Data{DataIndex,1}(1,:))
-                DataIndex = DataIndex + 1;
-                Data{DataIndex,1} = 0;
-                fileIndex = 1;
+            elseif strcmp(dataPoints.Children(1,DataPointsi).Name, 'intensities')
+                intensity = strread(dataPoints.Children(1,DataPointsi).Children(1,1).Data,'%f');
             end
         end
-        
-        
-        
+    elseif strcmp(scans.Children(PosI).Name, 'nonAmbientPoints')
+        temperature(PosI,:) = mean(strread(dataPoints.Children(1,4).Children(1,1).Data,'%f'))-273.15;
+    else
+        temperature(PosI,:) = 25;
     end
     
 end
-
+if tth == 0
+    step = (tthf - ttho) / (length( intensity )-1);
+    tth = ttho:step:tthf;
+    tth = tth';
+end
+    
 % Reading Kalpha1, Kalpha2, Kbeta, and Ratio from XRDML
 % how to read XML, if the element is tabbed over twice,
 % you need two instances of Children to access it then
 % the Name, or Attribute. To read the value within it,
 % you will need another Children since it will be
 % tabbed over again.
-for p=1:scanIndex
-    if strcmp(data.Children(1,dataIndex).Children(1,p).Name, 'usedWavelength')
-        KAlpha1=data.Children(1,dataIndex).Children(1,4).Children(1,2).Children(1,1).Data;
-        KAlpha2=data.Children(1,dataIndex).Children(1,4).Children(1,4).Children(1,1).Data;
-        kBeta=data.Children(1,dataIndex).Children(1,4).Children(1,6).Children(1,1).Data;
-        Ratio_alph1_alph2=data.Children(1,dataIndex).Children(1,4).Children(1,8).Children(1,1).Data;
-        disp('1')
-    end
-    
-end
+KAlpha1 = usedWavelength.Children(2).Children(1).Data;
+KAlpha2 = usedWavelength.Children(4).Children(1).Data;
+kBeta = usedWavelength.Children(6).Children(1).Data;
+Ratio_alph1_alph2 = usedWavelength.Children(8).Children(1).Data;
 
+data.KAlpha1 = str2double(KAlpha1);
+data.KAlpha2 = str2double(KAlpha2);
+data.KBeta = str2double(kBeta);
+data.RKa1Ka2 = str2double(Ratio_alph1_alph2);
 
-Stro.KAlpha1(index,:)=str2double(KAlpha1);
-Stro.KAlpha2(index,:)=str2double(KAlpha2);
-Stro.KBeta(index,:)=str2double(kBeta);
-Stro.RKa1Ka2(index,:)=str2double(Ratio_alph1_alph2);
-
-Stro.two_theta = tth';
-Stro.data_fit(index,:) = intensity';
+data.two_theta = tth';
+data.data_fit = intensity';
 if length(unique(temperature))==2
     temperature=unique(temperature);
     temperature=temperature(2);
 else
     temperature=25;
 end
-Stro.Temperature(index,:) = temperature;
+data.Temperature = temperature;
 end

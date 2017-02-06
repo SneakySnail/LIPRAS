@@ -86,19 +86,18 @@ guidata(hObject, handles)
 % Executes on button press in push_newbkgd.
 function push_newbkgd_Callback(hObject, eventdata, handles)
 import utils.plotutils.*
-hold off
 plotX(handles, 'data');
-hold on
 
 if handles.profiles.xrd.hasBackground
-    plotX(handles, 'background');
+    plotX(handles, 'backgroundpoints');
 end
 
 selected = handles.group_bkgd_edit_mode.SelectedObject.String;
-
 if strcmpi(selected, 'Delete')
-    numpoints = length(handles.profiles.xrd.getBackgroundPoints);
-    points = selectPointsFromPlot(handles, numpoints);
+    oldpoints = handles.profiles.xrd.getBackgroundPoints;
+    numpoints = length(oldpoints);
+    points = selectPointsFromPlot(handles, selected, numpoints);
+    
 elseif strcmpi(selected, 'Add')
     oldpoints = handles.profiles.xrd.getBackgroundPoints;
     newpoints = selectPointsFromPlot(handles);
@@ -107,20 +106,42 @@ else
     points = selectPointsFromPlot(handles);
 end
 
-handles.profiles.xrd.setBackgroundPoints(points);
-ui.update(handles, 'backgroundpoints');
-
-function menu_plottype_Callback(o,e,handles)
-set(findobj(o.Parent), 'Checked', 'off'); % turn off checks in all plot menu items
-switch o.Tag
-    case 'menu_plottype1' % linear
-        utils.plotutils.plotX(handles, [], 'normal');
-    case 'menu_plottype2'% log
-        utils.plotutils.plotX(handles, [], 'log');
-    case 'menu_plottype3' % d-space
-        utils.plotutils.plotX(handles, [], 'dspace');
+try
+    handles.profiles.xrd.setBackgroundPoints(points);
+    ui.update(handles, 'backgroundpoints');
+catch 
+    err = lasterror;
+    if strcmp(identifier, 'MATLAB:polyfit:PolyNotUnique')
+        warndlg('Polynomial is not unique; degree >= number of data points.', 'Warning')
+    end
 end
+
+function menu_xplotscale_Callback(o,e,handles)
+set(findobj(o.Parent), 'Checked', 'off'); % turn off checks in all x plot menu items
 o.Checked = 'on';
+plotter = getappdata(handles.axes1, 'plotter');
+switch o.Tag
+    case 'menu_xlinear' % linear
+        plotter.XScale = 'linear';
+                
+    case 'menu_xdspace' % d-space
+        plotter.XScale = 'dspace';    
+end
+
+function menu_yplotscale_Callback(o,e,handles)
+set(findobj(o.Parent), 'Checked', 'off'); % turn off checks in all x plot menu items
+o.Checked = 'on';
+plotter = getappdata(handles.axes1, 'plotter');
+switch o.Tag
+    case 'menu_ylinear' % linear
+        plotter.YScale = 'linear';
+        
+    case 'menu_ylog'% log
+        plotter.YScale = 'log';
+        
+    case 'menu_yroot' % d-space
+        plotter.YScale = 'sqrt';    
+end
 
 % Plots the background points selected.
 function push_fitbkgd_Callback(hObject, ~, handles)
@@ -223,7 +244,7 @@ import utils.plotutils.*
 plotX(handles, 'data');
 plotX(handles, 'backgroundfit');
 peakcoeffs = find(contains(handles.profiles.xrd.getCoeffs, 'x'));
-points = selectPointsFromPlot(handles, length(peakcoeffs));
+points = selectPointsFromPlot(handles, [], length(peakcoeffs));
 if length(points) == length(peakcoeffs)
     handles.profiles.xrd.PeakPositions = points;
     % Generate new default bounds because of new peak positions
