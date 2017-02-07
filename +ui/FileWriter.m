@@ -55,7 +55,6 @@ classdef FileWriter < handle
        fclose(fid);
        end
        
-       
        function filename = saveAsParametersFile(this)
        %SAVEPARAMETERSTOFILE 
        %
@@ -140,9 +139,12 @@ classdef FileWriter < handle
        
        function printFmodelFiles(this, fits)
        profilenumber = this.Profiles.getCurrentProfileNumber;
+       if ~iscell(fits)
+           fits = {fits};
+       end
        for i=1:length(fits)
            filename = [this.OutputPath fits{i}.FileName '_Profile_' num2str(profilenumber) '_' ...
-                       num2str(i) '.Fmodel'];
+                       'file_' num2str(i) '.Fmodel'];
            fid = fopen(filename, 'w');
            printFmodelFile(fits{i}, fid);
            fclose(fid);

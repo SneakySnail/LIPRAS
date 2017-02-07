@@ -150,19 +150,31 @@ end
         fprintf(fid, '\n');
         end
 
-
         function printFmodelFile(this, fid)
-        
         fprintf(fid, 'This is an output file from a MATLAB routine.\n');
         fprintf(fid, 'The following peaks are all of the type: ');
         fprintf(fid, '%s; ', this.FunctionNames{:});      % write function names
+        fprintf(fid, '\n\n');
+        
         fprintf(fid, '%s\t', this.CoeffNames{:});         % write coefficient names
-        fprintf(fid, '%s\t', fieldnames(this.FmodelGOF)); % write GOF names
+        fields = fieldnames(this.FmodelGOF);
+        fprintf(fid, '%s\t', fields{:}); % write GOF names
 
         %third output Confidence Intervals (CI)
         for i=1:length(this.CoeffNames)
             fprintf(fid, '%s\t', ['LowCI:', this.CoeffNames{i}]); %write LB names
             fprintf(fid, '%s\t', ['UppCI:', this.CoeffNames{i}]); %write UB names
+        end
+        fprintf(fid, '\n');
+        
+        % print coeffvalues of Fmodel
+        fprintf(fid, '%.3f\t', coeffvalues(this.Fmodel));
+        % print FmodelGOF
+        fprintf(fid, '%.3f\t', struct2array(this.FmodelGOF));
+        
+        for i=1:size(this.FmodelCI, 2)
+            fprintf(fid, '%f\t', this.FmodelCI(1,i)); % write lower bound confidence interval
+            fprintf(fid, '%f\t', this.FmodelCI(2,i)); % write upper bound confidence interval
         end
         fprintf(fid, '\n');
         end

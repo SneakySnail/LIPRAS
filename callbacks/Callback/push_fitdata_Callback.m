@@ -29,6 +29,7 @@ try
     writer = ui.FileWriter(handles.profiles);
     writer.OutputPath = [writer.OutputPath 'Fdata' filesep];
     writer.printFdataFiles(fitresults);
+    writer.printFmodelFiles(fitresults);
     
     if exist('h', 'var') && ~getappdata(h, 'canceling')
         Stro.FitResults = fitresults;
