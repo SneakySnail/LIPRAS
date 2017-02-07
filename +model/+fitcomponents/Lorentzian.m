@@ -37,60 +37,68 @@ classdef Lorentzian < model.fitcomponents.FitFunctionInterface
         end
         
         end
+        % ==========================================================================================
     end
     
     methods
-        function str = getEqnStr(this)
+        function str = getEqnStr(this, xval)
         import utils.contains
         coeff = this.getCoeffs;
         Nidx = find(contains(coeff, 'N'), 1);
         xidx = find(contains(coeff, 'x'), 1);
         fidx = find(contains(coeff, 'f'), 1);
-        
+        if nargin > 1
+           coeff{xidx} = num2str(xval);
+        end
         str = [coeff{Nidx} '*1/pi* (0.5*' coeff{fidx} '/((xv-', ...
             coeff{xidx} ')^2+(0.5*' coeff{fidx} ')^2))'];
         end
+        % ==========================================================================================
         
         function value = getCoeffs(this)
         this.ConstrainedLogical(4:5) = false;
         value = getCoeffs@model.fitcomponents.FitFunctionInterface(this);
         end
+        % ==========================================================================================
        
-        function output = getDefaultInitialValues(this, data)
-        value = getDefaultInitialValues@model.fitcomponents.FitFunctionInterface(this, data);
+        function output = getDefaultInitialValues(this, data, peakpos)
+        value = getDefaultInitialValues@model.fitcomponents.FitFunctionInterface(this, data, peakpos);
+        output.N = value.N;
+        output.x = value.x;
+        output.f = value.f;
+        end
+        % ==========================================================================================
+        
+        function output = getDefaultLowerBounds(this, data, peakpos)
+        value = getDefaultLowerBounds@model.fitcomponents.FitFunctionInterface(this, data, peakpos);
+        output.N = value.N;
+        output.x = value.x;
+        output.f = value.f;
+        end
+        % ==========================================================================================
+        
+        function output = getDefaultUpperBounds(this, data, peakpos)
+        value = getDefaultUpperBounds@model.fitcomponents.FitFunctionInterface(this, data, peakpos);
         
         output.N = value.N;
         output.x = value.x;
         output.f = value.f;
         end
-        
-        function output = getDefaultLowerBounds(this, data)
-        value = getDefaultLowerBounds@model.fitcomponents.FitFunctionInterface(this, data);
-        
-        output.N = value.N;
-        output.x = value.x;
-        output.f = value.f;
-        end
-        
-        function output = getDefaultUpperBounds(this, data)
-        value = getDefaultUpperBounds@model.fitcomponents.FitFunctionInterface(this, data);
-        
-        output.N = value.N;
-        output.x = value.x;
-        output.f = value.f;
-        end
+        % ==========================================================================================
     end
     
     methods (Static)
-        
-        
         function result = isWConstrained()
+        %ISWCONSTRAINED overrides the parent class function to always return false.
         result = false;
         end
+        % ==========================================================================================
         
         function result = isMConstrained()
+        %ISMCONSTRAINED overrides the parent class function to always return false.
         result = false;
         end
+        % ==========================================================================================
         
     end
     

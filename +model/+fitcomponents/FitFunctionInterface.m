@@ -8,12 +8,6 @@ classdef FitFunctionInterface < handle
     
     properties (Dependent)
        PeakPosition
-       
-    end
-    
-    properties (Access = protected)
-        Primitive
-        
     end
     
     
@@ -55,6 +49,8 @@ classdef FitFunctionInterface < handle
     properties (Hidden)
         RawData
         
+        CuKa = false;
+        
         PeakPosition_
         
         ConstrainedLogical = false(1,5);
@@ -75,7 +71,6 @@ classdef FitFunctionInterface < handle
         
         this.ID = id;
         this = this.constrain(constraints);
-        this.Primitive = this;
         end
         
         function this = constrain(this, coeffs)
@@ -141,17 +136,15 @@ classdef FitFunctionInterface < handle
     
     
     methods (Abstract)
-        str = getEqnStr(this)
-        % Returns a string of the equation
+        str = getEqnStr(this, coeff)
+        %GETEQNSTR returns the equation of the current function as a string. The variables used in 
+        %   the equation are numbered with respect to the function order. If COEFF isn't specified,
+        %   the default coefficients are used.
         
     end
     
     methods
-        
-        function value = get.Primitive(this)
-        value = this;
-        end
-        
+                
         function result = getUnconstrainedCoeffs(this)
         coeffs = this.getCoeffs;
         
@@ -169,28 +162,25 @@ classdef FitFunctionInterface < handle
         result(idx) = [];
         end
         
-        function output = calculateFit(this, x, fitinitial)
-        %
+        function output = calculateFit(this, xdata, fitinitial)
         %
         %
         %FITINITIAL - The initial points to use for the coefficients. Each
         %   member in the numeric array corresponds to the coefficients in
         %   this.getCoeffs, respectively.
                 
-        output = this.calculate_(x, fitinitial);
+        output = this.calculate_(xdata, fitinitial);
         end
         
-        function output = getDefaultUnconstrainedValues(this, data)
+        function output = getDefaultUnconstrainedValues(this, data, peakpos)
         % Returns a structure with fields 'initial', 'lower', 'upper', and
         %   'coeff' all with the same length. The 'coeff' field contains the
         %   list of coefficients in order as the initial, lower, and upper
         %   fields.
-        
-        init = this.getDefaultInitialValues(data);
-        low = this.getDefaultLowerBounds(data);
-        up = this.getDefaultUpperBounds(data);
+        init = this.getDefaultInitialValues(data, peakpos);
+        low = this.getDefaultLowerBounds(data, peakpos);
+        up = this.getDefaultUpperBounds(data, peakpos);
         unconstrained = this.getUnConstrainedCoeffs;
-        
         initial = []; lower = []; upper = []; 
         
         for i=1:length(unconstrained)
@@ -206,21 +196,15 @@ classdef FitFunctionInterface < handle
         output.coeff = unconstrained;
         end
         
-        function output = getDefaultConstrainedValues(this, data)
+        function output = getDefaultConstrainedValues(this, data, peakpos)
         % Returns a structure with fields 'initial', 'lower', 'upper', and
         %   'coeff' all with the same length. The 'coeff' field contains the
         %   list of coefficients in order as the initial, lower, and upper
-        %   fields.
-        
-        if nargin < 2
-            data = this.RawData;
-        end
-        
-        init = this.getDefaultInitialValues(data);
-        low = this.getDefaultLowerBounds(data);
-        up = this.getDefaultUpperBounds(data);
+        %   fields. 
+        init = this.getDefaultInitialValues(data, peakpos);
+        low = this.getDefaultLowerBounds(data, peakpos);
+        up = this.getDefaultUpperBounds(data, peakpos);
         constrained = this.getConstrainedCoeffs;
-        
         initial = []; lower = []; upper = []; 
         
         for i=1:length(constrained)
@@ -238,7 +222,6 @@ classdef FitFunctionInterface < handle
         this.RawData = data;
         end
 
-        
         function set.ConstrainedCoeffs(this, value)
         constraints = this.ConstrainedLogical;
         
@@ -259,11 +242,11 @@ classdef FitFunctionInterface < handle
         end
         
         function set.PeakPosition(this, value)
-        this.setPeakPosition(value);
+        this.PeakPosition_ = value;
         end
         
         function value = get.PeakPosition(this)
-        value = this.getPeakPosition();
+        value = this.PeakPosition_();
         end
         
         function result = get.ConstrainedCoeffs(this)
@@ -293,32 +276,25 @@ classdef FitFunctionInterface < handle
         end
         
         function result = getCoeffs(this)
-        
+        %GETCOEFFS returns a cell array of strings with the coefficients to use in the fit equation.
         import utils.contains
         constraints = this.ConstrainedLogical;
         unconstrained = [];
-        
-        
         if ~constraints(1)
             unconstrained = [unconstrained {[this.CoeffNames{1} num2str(this.ID)]}];
-        end
-            
+        end    
         if ~constraints(2)
             unconstrained = [unconstrained {[this.CoeffNames{2} num2str(this.ID)]}];
         end
-        
         if ~constraints(3)
             unconstrained = [unconstrained {[this.CoeffNames{3} num2str(this.ID)]}];
         end
-        
         if ~constraints(4) && contains(this.Name, 'Pseudo')
             unconstrained = [unconstrained {[this.CoeffNames{4} num2str(this.ID)]}];
         end
-        
         if ~constraints(5) && contains(this.Name, 'Pearson VII')
             unconstrained = [unconstrained {[this.CoeffNames{4} num2str(this.ID)]}];
         end
-        
         result = [this.ConstrainedCoeffs, unconstrained];
         end
         
@@ -326,7 +302,7 @@ classdef FitFunctionInterface < handle
         output = this.ConstrainedCoeffs;
         end
         
-        function result = getDefaultInitialValues(this, data)
+        function result = getDefaultInitialValues(this, data, peakpos)
         %GETDEFAULTINITIALVALUES
         %
         %DATA - Numeric array of data to fit, assuming the background fit was
@@ -335,13 +311,11 @@ classdef FitFunctionInterface < handle
         %PEAKPOSITION - Two theta position of the estimated peak
         import utils.*
         import model.fitcomponents.*
-        
         xdata = data(1,:);
         ydata = data(2,:);
-        
         xoffset = (xdata(end) - xdata(1)) ./ 10;
-        result.x = this.PeakPosition;
-        xlow = result.x - xoffset;
+        result.x = peakpos;
+        xlow = peakpos - xoffset;
         if xlow < xdata(1)
             xlow = xdata(1);
         end
@@ -351,46 +325,35 @@ classdef FitFunctionInterface < handle
             xup = xdata(end);
         end
         xupi_ = findIndex(xdata, xup);
-        
         try
             result.N = trapz(xdata(xlowi_:xupi_), ydata(xlowi_:xupi_));
         catch
             result.N = trapz(xdata, ydata) / 2;
         end
-        
         result.f = 2*result.N / max(ydata);
-        
         result.w = FitFunctionInterface.DEFAULT_VALUE_W;
-        
         result.m = FitFunctionInterface.DEFAULT_VALUE_M;
         end
         
-        function result = getDefaultLowerBounds(this, data)
+        function result = getDefaultLowerBounds(this, data, peakpos)
         import model.fitcomponents.*
         import utils.*
-        initial = this.getDefaultInitialValues(data);
+        initial = this.getDefaultInitialValues(data, peakpos);
         
-        xoffset = (data(1,end) - data(1,1)) ./ 10;
-        result.x = this.PeakPosition - 2*xoffset;
-        
+        xoffset = (data(1,end) - data(1,1)) ./ 8;
+        result.x = peakpos - 2*xoffset;
         result.N = initial.N / 2;
-        
         result.f = initial.f / 2;
         result.w = FitFunctionInterface.DEFAULT_VALUE_W / 5;
         result.m = FitFunctionInterface.DEFAULT_VALUE_M / 5;
-        
-        
         end
         
-        function result = getDefaultUpperBounds(this, data)
+        function result = getDefaultUpperBounds(this, data, peakpos)
         import model.fitcomponents.*
         import utils.*
-        
-        initial = this.getDefaultInitialValues(data);
-        
-        xoffset = (data(1,end) - data(1,1)) ./ 10;
-        result.x = this.PeakPosition + 2*xoffset;
-        
+        initial = this.getDefaultInitialValues(data, peakpos);
+        xoffset = (data(1,end) - data(1,1)) ./ 8;
+        result.x = peakpos + 2*xoffset;
         result.N = initial.N * 1.5;
         result.f = initial.f * 1.5;
         result.w = FitFunctionInterface.DEFAULT_VALUE_W * 2;
@@ -427,22 +390,8 @@ classdef FitFunctionInterface < handle
         
     end
     
-    
-    methods (Access = protected)
-        function this = setPeakPosition(this, value)
-        this.PeakPosition_ = value;
-        end
-        
-        function value = getPeakPosition(this)
-        value = this.PeakPosition_;
-        end
-        
-        
-    end
-    
     methods (Abstract, Access = protected)
        output = calculate_(this, xdata, coeffvals);
-        
     end
     
 end

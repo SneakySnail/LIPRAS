@@ -54,8 +54,6 @@ classdef Asymmetric < model.fitcomponents.FitFunctionInterface
        this.CoeffNames = unique(coeffs, 'stable');
        this.Left.Name = ['Left ' this.Name];
        this.Right.Name = ['Right ' this.Name];
-       
-       
        this.constrain(constraints);
        end
        
@@ -72,9 +70,14 @@ classdef Asymmetric < model.fitcomponents.FitFunctionInterface
        value = [this.ConstrainedCoeffs, unconstrained];
        end
        
-       function str = getEqnStr(this)
-       leftEqn = this.Left.getEqnStr;
-       rightEqn = this.Right.getEqnStr;
+       function str = getEqnStr(this, coeffs)
+       if nargin < 2
+           leftEqn = this.Left.getEqnStr;
+           rightEqn = this.Right.getEqnStr;
+       else
+          leftEqn = this.Left.getEqnStr(coeffs);
+          rightEqn = this.Right.getEqnStr(coeffs);
+       end
        str = [leftEqn ' + ' rightEqn];
        end
        
@@ -94,56 +97,41 @@ classdef Asymmetric < model.fitcomponents.FitFunctionInterface
        end
        end
        
-       function output = getDefaultInitialValues(this, data)
-       if nargin < 2
-           data = this.RawData;
-       end
-       left = this.Left.getDefaultInitialValues(data);
-       
+       function output = getDefaultInitialValues(this, data, peakpos)
+       left = this.Left.getDefaultInitialValues(data, peakpos);
        output.N = left.N;
-       output.x = this.PeakPosition;
+       output.x = left.x;
        output.f = left.f;
-       
        if isfield(left, 'w') 
            output.w = left.w;
-           
        elseif isfield(left, 'm')
            output.m = left.m;
-           
        end
        end
        
-       function output = getDefaultLowerBounds(this, data)
-       left = this.Left.getDefaultLowerBounds(data);
-       
+       function output = getDefaultLowerBounds(this, data, peakpos)
+       left = this.Left.getDefaultLowerBounds(data, peakpos);
        output.N = left.N;
        output.x = this.PeakPosition;
        output.f = left.f;
        
        if isfield(left, 'w') 
            output.w = left.w;
-           
-     
        elseif isfield(left, 'm') 
            output.m = left.m;
-           
        end
        end
        
-       function output = getDefaultUpperBounds(this, data)
-       left = this.Left.getDefaultUpperBounds(data);
-       
+       function output = getDefaultUpperBounds(this, data, peakpos)
+       left = this.Left.getDefaultUpperBounds(data, peakpos);
        output.N = left.N;
        output.x = this.PeakPosition;
        output.f = left.f;
-       
        if isfield(left, 'w')
            output.w = left.w;
-      
        elseif isfield(left, 'm') 
            output.m = left.m;
        end
-       
        end
        
     end

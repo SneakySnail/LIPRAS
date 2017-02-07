@@ -7,6 +7,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         FitInitial
         
         AbsoluteRange
+        
     end
     
     properties (Access = protected)
@@ -23,9 +24,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         Results % An instance of FitResults
         
         DisplayName = '';
-        
-        Constraints_
-        
+                
         PeakPositions_
         
     end
@@ -45,16 +44,18 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
     
     properties (Dependent, Hidden)
         DataPath
+        
+        CuKaPositions_
     end
     
     properties (Hidden)
-        FitResults % cell array of fit outputs
         CuKa = false;
+        FitResults % cell array of fit outputs
         FullTwoThetaRange
         FullIntensityData
         Temperature
-        KAlpha1
-        KAlpha2
+        KAlpha1 = 1.540598; % nm
+        KAlpha2 = 1.544426; % nm
         KBeta
         RKa1Ka2
     end
@@ -84,16 +85,19 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             end
             Stro.DataSet = cell(1, length(filenames));
             [~, ~, ext] = fileparts(filenames{1});
+            if strcmpi(ext, '.xrdml')
+                Stro.Temperature = data.Temperature;
+                Stro.KAlpha1 = data.KAlpha1;
+                Stro.KAlpha2 = data.KAlpha2;
+                Stro.KBeta = data.KBeta;
+                Stro.RKa1Ka2 = data.RKa1Ka2;
+                Stro.CuKa = true;
+            end
             x = data.two_theta;
             y = data.data_fit;
             for i=1:size(y, 1)
-                if ~strcmpi(ext, '.xrdml')
-                    Stro.DataSet{i} = DiffractionData(data, filenames{i}, i);
-                else
-                    Stro.DataSet{i} = XRDMLData(data, filenames{i}, i);
-                end
+                Stro.DataSet{i} = model.DiffractionData(data, filenames{i}, i);
             end
-           
             Stro.AbsoluteRange = [x(1) x(end)];
             Stro.Background = model.Background(Stro);
         end
@@ -133,8 +137,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
         % ==================================================================== %
         
-        
-        
         function vals = get.PeakPositions(Stro)
         vals = zeros(1, Stro.NumFuncs);
         if ~isempty(Stro.PeakPositions_)
@@ -154,6 +156,39 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             pos(i) = val(i);
         end
         Stro.PeakPositions_ = pos;
+        end
+        
+        function coeffvals = startingValuesForPeak(Stro, fcnID)
+        %STARTINGVALUESFORPEAK returns the coefficient values stored in Stro.FitInitial for the peak
+        %   specified in FCNID. 
+        %
+        %   (Originally created to help with plotting CuKa2 peaks)
+        coeffs = Stro.getCoeffs;
+        start = Stro.FitInitial.start;
+        fcnCoeffNames = Stro.FitFunctions{fcnID}.getCoeffs;
+        coeffIdx = zeros(1, length(fcnCoeffNames));
+        for i=1:length(fcnCoeffNames)
+            coeffIdx(i) = find(strcmp(coeffs, fcnCoeffNames{i}),1);
+        end
+        coeffvals = start(coeffIdx);
+        end
+        
+        function val = get.CuKaPositions_(Stro)
+        pos = Stro.PeakPositions;
+        cukapos = zeros(1, length(pos));
+        for i=1:length(pos)
+            cukapos(i) = Stro.Ka2fromKa1(pos(i));
+        end
+        val = cukapos;
+        end
+        
+        function output = calculateCuKaPeak(Stro, fcnID)
+        fitinitial = Stro.startingValuesForPeak(fcnID);
+        xidx = find(utils.contains(Stro.FitFunctions{fcnID}.getCoeffs, 'x'),1);
+        Nidx = find(utils.contains(Stro.FitFunctions{fcnID}.getCoeffs, 'N'));
+        fitinitial(xidx) = Stro.Ka2fromKa1(Stro.PeakPositions(fcnID));
+        fitinitial(Nidx) = 1/1.9*fitinitial(Nidx);
+        output = Stro.FitFunctions{fcnID}.calculateFit(Stro.getTwoTheta, fitinitial);
         end
         
         function result = getCoeffs(Stro, fcnID)
@@ -189,7 +224,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         
         function value = getFunctionNames(Stro, file)
         value = [];
-        
         if nargin < 2
             if ~isempty(Stro.FitFunctions)
                 value = cell(1, length(Stro.FitFunctions));
@@ -201,7 +235,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
                         value{i} = Stro.FitFunctions{i}.Name;
                     end
                 end
-                
             end
         else
             value = Stro.FitFunctions{file}.Name;
@@ -233,10 +266,8 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         if nargin > 2 && fcnID > length(Stro.FitFunctions)
             error('fcnID out of bounds.')
         end
-        
         if nargin > 2
             Stro.FitFunctions{fcnID}.constrain(coeff);
-            
         else
             if ischar(coeff)
                 coeffcells = cell(1,Stro.NumFuncs);
@@ -260,8 +291,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
                 end
             end
         end
-        
-        
         end
         % ==================================================================== %
         
@@ -280,11 +309,8 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
                 if ~isempty(Stro.FitFunctions{i})
                     Stro.FitFunctions{i}.unconstrain(coeff);
                 end
-            end
-            
+            end 
         end
-        
-        
         end
         % ==================================================================== %
         
@@ -338,20 +364,25 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
         % ==================================================================== %
         
-        function result = getEqnStr(Stro)
+        function str = getEqnStr(Stro)
         %GETEQNSTR Returns a combined string equation of all the functions in the
         %   Functions cell array.
-        result = '';
+        str = '';
         fcns = Stro.FitFunctions;
-        
         for i=1:length(fcns)
-            result = [result fcns{i}.getEqnStr]; %#ok<*AGROW>
-            
+            if isempty(fcns{i})
+                str = ''; return
+            end
+            str = [str fcns{i}.getEqnStr]; %#ok<*AGROW>
+            if Stro.CuKa
+                % Append the 'x' coefficient with a 'k' for the CuKa2 peak position
+                xval = Stro.Ka2fromKa1(Stro.PeakPositions(i));
+                str = [str ' + (1/1.9)*' fcns{i}.getEqnStr(xval)];
+            end
             if i ~= length(fcns)
-                result = [result ' + '];
+                str = [str ' + '];
             end
         end
-        
         end
         % ==================================================================== %
         
@@ -393,7 +424,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
         end
 
-        
         function Stro = setBackgroundPoints(Stro, points, mode)
         %
         %
@@ -437,7 +467,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         value = Stro.Background.Model;
         end
         
-        function [result idx] = getBackgroundPoints(Stro)
+        function [result, idx] = getBackgroundPoints(Stro)
         if isempty(Stro.Background.InitialPoints)
             result = [];
             idx = [];
@@ -477,13 +507,10 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             result = [];
             return
         end
-        
         Stro.Background.update2T([Stro.Min2T Stro.Max2T]);
-        
         if nargin < 2
             file = 1;
         end
-        
         data = Stro.getData(file);
         bg = Stro.Background.calculateFit(file);
         result = data - bg;
@@ -493,144 +520,12 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         output = utils.contains(lower(name), 'asym');
         
         end
-        
-        function funcObj = setFunctions(Stro, fcnName, fcnID)
-        %SETFUNCTIONS Creates the FitFunction objects of type Gaussian, Lorentzian,
-        %   Pearson VII, and Pseudo-Voigt, or any of their corresponding
-        %   asymmetric functions. The function type is specified by the string
-        %   fcnNames.
-        %
-        %   SETFUNCTIONS(STRO, FCNNAME) creates a cell array of FitFunction 
-        %   objects specified in FCNNAME and saves it into the property 
-        %   FITFUNCTIONS.
-        %
-        %   SETFUNCTIONS(STRO, FCNNAME, FCNID)
-        %
-        %   FCNNAME = SETFUNCTIONS(STRO, FCNNAME, FCNID) 
-        %
-        %   FCNNAMES = A string cel array specifying the name of the fit functions
-        %   to use.
-        %
-        
-        %   Logical array of size shape specifying if the function is supposed to
-        %   be asymmetric
-        %
-        %   FCNNAME options:
-        %       Gaussian              -
-        %       Lorentzian            -
-        %       Pearson VII           -
-        %       Asymmetric Pearson VII-
-        %       Pseudo-Voigt          -
-        
-        if nargin > 2
-            % Assuming FCNNAME is a string with a valid function name
-            if ~isempty(fcnName)
-                funcObj = Stro.setFitFunction_(fcnName, fcnID);
-                Stro.FitFunctions{fcnID} = funcObj;
-            else
-                funcObj = [];
-                Stro.FitFunctions{fcnID} = funcObj;
-            end
-            
-        elseif isempty(fcnName)
-            Stro.FitFunctions = [];
-            return
-            
-        else
-            if ischar(fcnName)
-                fcnName = {fcnName};
-            end
-            newfcns = cell(1, length(fcnName));
-           if isempty(Stro.FitFunctions)
-               Stro.FitFunctions = newfcns;
-           end
-           
-           oldfcns = Stro.FitFunctions;
-           for i=1:length(fcnName)
-               if i > length(oldfcns)
-                   break
-               elseif isempty(oldfcns{i})
-                   newfcns{i} = Stro.setFunctions(fcnName{i}, i);
-
-               elseif isequal(oldfcns{i}.Name, fcnName{i})
-                   newfcns{i} = Stro.FitFunctions{i};
-               end
-           end
-           
-           Stro.FitFunctions = newfcns;
-           funcObj = newfcns;
-        end
-        end
-        
-        function fcnObj = setFitFunction_(Stro, fcnName, fcnID)
-        %SETFUNCTION Creates the FitFunction objects of type Gaussian, Lorentzian,
-        %   Pearson VII, and Pseudo-Voigt, or any of their corresponding
-        %   asymmetric functions. The function type is specified by the string
-        %   fcnNames.
-        %
-        %FCNNAMES - A string cel array specifying the name of the fit functions
-        %   to use.
-        %
-        import utils.contains
-        % Logical array of size shape specifying if the function is supposed to
-        %   be asymmetric
-        if isempty(fcnName)
-            fcnName = [];
-            return
-        end
-        
-        if ~isempty(Stro.FitFunctions) && ...
-                ~isempty(Stro.FitFunctions{fcnID}) && ...
-                isequal(Stro.FitFunctions{fcnID}.Name, fcnName)
-            fcnObj = Stro.FitFunctions{fcnID};
-            return
-        end
-        
-        allowedFcns = {'Gaussian' 'Lorentzian' 'Pearson VII' 'Pseudo-Voigt'};
-        allowedFcns_ = {'Gaussian' 'Lorentzian' 'PearsonVII' 'PseudoVoigt'};
-        
-        isAsym = Stro.isFuncAsymmetric(fcnName);
-        
-        % if the function name is asymmetrical, get function name without
-        %    'Asymmetrical' prefix
-        if isAsym
-            [~, fcnName] = strtok(fcnName);
-            fcnName = fcnName(2:end); % skip leading whitespace
-        end
-        
-        % Get the index of function name into list of allowed functions
-        idx = find(contains(allowedFcns, fcnName), 1);
-        
-        if isempty(idx)
-            msgID = ['LIPRAS:' class(Stro) ':setFunction:InvalidArgument'];
-            msg = ['The argument ''fcnNames'' must be contain the any of the functions: ', ...
-                ' ''Gaussian'', ''Lorentzian'', ''Pearson VII'', or ''Pseudo Voigt'''];
-            e = MException(msgID, msg);
-            throw(e)
-        end
-        
-        someFunc = allowedFcns_{idx};
-        
-        if isAsym
-            fcnObj = model.fitcomponents.Asymmetric(fcnID, '', someFunc);
-        else
-            fcnObj = model.fitcomponents.(someFunc)(fcnID); 
-        end
-        
-        if ~isempty(Stro.PeakPositions) && Stro.PeakPositions(fcnID) ~= 0
-            fcnObj.PeakPosition = Stro.PeakPositions(fcnID);
-        else
-            fcnObj.PeakPosition = [];
-        end
-        end
         % ==================================================================== %
         
         function output = getFunctions(Stro, fcnID)
         output = [];
-        
         if nargin > 1
             output = Stro.FitFunctions{fcnID};
-            
         else
             for i=1:length(Stro.FitFunctions)
                 output{i} = Stro.FitFunctions{i};
@@ -642,7 +537,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         % Assumes that Stro.FitFunctions is not empty
         coeffs = Stro.getCoeffs;
         eqnStr = Stro.getEqnStr;
-        
         result = fittype(eqnStr, 'coefficients', coeffs, 'independent', 'xv');
         end
         % ==================================================================== %
@@ -656,13 +550,8 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             for i=1:Stro.NumFiles
                 fitresults{i} = Stro.fitDataSet(i);
             end
-            
         else
             fitresults = {};
-            xdata = Stro.getTwoTheta;
-            ydata = Stro.getDataNoBackground(filenum);
-            fitType = Stro.getFitType();
-            fitOptions = Stro.getFitOptions();
             try
                 fitresults = model.FitResults(Stro, filenum);
             catch exception
@@ -674,99 +563,19 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         function output = getFitResults(Stro)
         output = Stro.FitResults;
         end
-        
-        function output = getFitInitial(Stro, bound, coeffs)
-        %
-        %
-        %   BOUND - 'start', 'lower', or 'upper'
-        fitinitial = Stro.FitInitial;
-        if ~isfield(fitinitial, 'start')
-            fitinitial.start = [];
-        end
-        if ~isfield(fitinitial, 'lower')
-            fitinitial.lower = [];
-        end
-        if ~isfield(fitinitial, 'upper')
-            fitinitial.upper = [];
-        end
-        if nargin == 1
-            output = fitinitial;
-            
-        elseif nargin == 2
-            bound = lower(bound);
-            output = fitinitial.(bound);
-            
-        elseif nargin == 3
-            if ischar(coeffs)
-                coeffs = {coeffs};
-            end
-            
-            coefflist = Stro.getCoeffs;
-            result = zeros(1, length(coeffs));
-            vals = Stro.FitInitial.(lower(bound));
-
-            for i=1:length(coeffs)
-                idx = find(strcmpi(coefflist, coeffs{i}),1);
-                result(i) = vals(idx);
-            end
-            
-            output = result;
-        end
-        end
-        
-        function setFitInitial(Stro, bound, coeffs, values)
-        %
-        %
-        %   BOUND - 'start', 'lower', or 'upper'
-        %
-        %   COEFFS - string or cell array of coefficients names. Must match the
-        %   length of VALUES.
-        bound = lower(bound);
-        
-        if isempty(bound)
-            Stro.FitInitial = [];
-            return
-        end
-        
-        if isempty(coeffs)
-            Stro.FitInitial.(bound) = [];
-            return
-        end
-        
-        if ischar(coeffs)
-            coeffs = {coeffs};
-        end
-        
-        if length(values) ~= length(coeffs)
-            error('Values and coeffs argument length must match.')
-        end
-        
-        currentvals = Stro.getFitInitial(bound);
-        coefflist = Stro.getCoeffs;
-        
-        for i=1:length(coeffs)
-            idx = find(strcmpi(coefflist, coeffs{i}), 1);
-            currentvals(idx) = values(i);
-        end
-        
-        Stro.FitInitial.(bound) = currentvals;
-        
-        end
-        
+                        
         function s = getFitOptions(Stro)
         %FITDATA_ Helper function for fitDataSet. Fits a single file.
-        SP = Stro.getFitInitial('start');
-        LB = Stro.getFitInitial('lower');
-        UB = Stro.getFitInitial('upper');
+        SP = Stro.FitInitial.start;
+        LB = Stro.FitInitial.lower;
+        UB = Stro.FitInitial.upper;
         weight = Stro.FitWeight;
-        
         s = fitoptions('Method', 'NonlinearLeastSquares', ...
             'StartPoint', SP, ...
             'Lower', LB, ...
             'Upper', UB, ...
             'Weight',weight);
         end
-        
         
         function values = generateDefaultFitBounds(Stro)
         % Generates the default starting, lower, and upper bounds based on the peak
@@ -776,12 +585,23 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         if ~isempty(find(Stro.PeakPositions==0,1)) || ~isempty(find(cellfun(@isempty,Stro.FitFunctions),1))
             return
         end
-        Stro.FitInitial.start = Stro.getDefaultStartingBounds;
-        Stro.FitInitial.lower = Stro.getDefaultLowerBounds;
-        Stro.FitInitial.upper = Stro.getDefaultUpperBounds;
+        Stro.FitInitial.start = Stro.getDefaultBounds('start');
+        Stro.FitInitial.lower = Stro.getDefaultBounds('lower');
+        Stro.FitInitial.upper = Stro.getDefaultBounds('upper');
         values = Stro.FitInitial;
         end
+        
+        function position2 = Ka2fromKa1(Stro, position1)
+        %KA2FROMKA1 calculates the second peak position using KAlpha1 and KAlpha2.
+        %
+        %   POSITION1 is the 2theta position of the first peak.
+        lambda1 = Stro.KAlpha1; %Ka1
+        lambda2 = Stro.KAlpha2; %Ka2
+        position2 = 180 / pi * (2*asin(lambda2/lambda1*sin(pi / 180 * (position1/2))));
+        end
+        % ==================================================================== %
     end
+   
          
     
     % ==================================================================== %
@@ -822,14 +642,12 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
         % ==================================================================== %
         
-        
         function a = hasFit(Stro)
         if isempty(Stro.FitResults)
             a = false;
         else
             a = true;
         end
-        
         end
         
         function a = hasBackground(Stro)
@@ -843,21 +661,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
     end
     
     methods(Static)
-        
-        function position2=Ka2fromKa1(position1)
-        if nargin==0
-            error('Incorrect number of arguments')
-        elseif ~isreal(position1)
-            warning('Imaginary parts of INPUT ignored')
-            position1 = real(position1);
-        end
-        
-        lambda1 = 1.540598; %Ka1
-        lambda2 = 1.544426; %Ka2
-        position2 = 180 / pi * (2*asin(lambda2/lambda1*sin(pi / 180 * (position1/2))));
-        end
-        % ==================================================================== %
-        
         
         
         function [x]=SaveFitData(filename,dataMatrix)

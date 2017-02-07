@@ -150,7 +150,7 @@ classdef FileWriter < handle
        end
 
        function printFdataFiles(this, fits)
-       profilenumber = this.Profiles.getCurrentProfileNumber;
+       %PRINTFDATAFILES prints the results of the fit to a file.
        if ~exist(this.OutputPath, 'dir')
            mkdir(this.OutputPath);
        end
@@ -165,15 +165,7 @@ classdef FileWriter < handle
    end
    
    methods (Static)
-%        function singleObj = getInstance()
-%        persistent localObj;
-%        if isempty(localObj) || ~isvalid(localObj)
-%            pathname = strsplit(which('LIPRAS'), filesep);
-%            pathname = fullfile(pathname{1:end-1}, filesep);
-%            localObj = ui.FileWriter(pathname);
-%        end
-%        singleObj = localObj;
-%        end
+
        
    end
    

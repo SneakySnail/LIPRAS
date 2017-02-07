@@ -5,11 +5,11 @@
 %   into the base workspace.
 import utils.contains
 %% Constructor
-if ~exist('data', 'var') || ~exist('filename', 'var')
+if ~exist('data', 'var') || isempty(data)
     [data, filename, path] = utils.fileutils.newDataSet();
 end
-
-xrd = PackageFitDiffractionData(data.two_theta, data.data_fit, filename);
+xrd = PackageFitDiffractionData(data, filename);
+xrd.DataPath = path;
 
 for i=1:length(xrd.NumFiles)-1
     assert(isequal(xrd.getTwoTheta(i), xrd.getTwoTheta(i+1)));
@@ -17,14 +17,9 @@ for i=1:length(xrd.NumFiles)-1
 end
 
 %% getFileNames
-
 filenames = xrd.getFileNames();
 assert(isequal(filenames, filename));
-
 xrd.Min2T = 3.6;
-xrd.Max2T = 3.9;
-
-
 %% setFunctions
 fcns = {'Asymmetric Pearson VII', 'Pseudo-Voigt', 'Pearson VII', 'Gaussian', 'Lorentzian'};
 
@@ -104,4 +99,18 @@ xrd.fitDataSet;
 
 %% saveProfileParametersFile
 xrd.saveProfileParametersFile;
+
+%% Test xrdml file
+filename = 'C:\Users\klari\OneDrive\GitHub\LIPRAS\SampleData\XRDDataKlarissa\Gio sample-12-22-2016.xrdml';
+xrdml = PackageFitDiffractionData(xmldata, filename);
+xrdml.DataPath = path;
+xrdml.Min2T = 40;
+xrdml.Max2T = 60;
+assert(xrdml.CuKa);
+xrdml.setBackgroundPoints([40.7568   46.3449   52.3898   57.8021]);
+xrdml.setFunctions({'Pseudo-Voigt', 'Pearson VII', 'Asymmetric Pearson VII'});
+xrdml.PeakPositions =  [43.8496, 49.5782, 54.9554];
+xrdml.generateDefaultFitBounds;
+
+
 

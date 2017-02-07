@@ -29,14 +29,16 @@ classdef PseudoVoigt < model.fitcomponents.FitFunctionInterface
         end
         end
         
-        function str = getEqnStr(this)
+        function str = getEqnStr(this, xval)
         import utils.contains
         coeff = this.getCoeffs;
         Nidx = find(contains(coeff, 'N'), 1);
         xidx = find(contains(coeff, 'x'), 1);
         fidx = find(contains(coeff, 'f'), 1);
         widx = find(contains(coeff, 'w'), 1);
-        
+        if nargin > 1
+           coeff{xidx} = num2str(xval);
+        end
         str = [coeff{Nidx} '*((' coeff{widx} '*(2/pi)*(1/' coeff{fidx} ')*1/(1+(4*(xv-' coeff{xidx} ...
             ')^2/' coeff{fidx} '^2))) + ((1-' coeff{widx} ')*(2*sqrt(log(2))/(sqrt(pi)))*1/' ...
             coeff{fidx} '*exp(-log(2)*4*(xv-' coeff{xidx} ')^2/' coeff{fidx} '^2)))'];
@@ -47,8 +49,8 @@ classdef PseudoVoigt < model.fitcomponents.FitFunctionInterface
         value = getCoeffs@model.fitcomponents.FitFunctionInterface(this);
         end
         
-        function output = getDefaultInitialValues(this, data)
-        value = getDefaultInitialValues@model.fitcomponents.FitFunctionInterface(this, data);
+        function output = getDefaultInitialValues(this, data, peakpos)
+        value = getDefaultInitialValues@model.fitcomponents.FitFunctionInterface(this, data, peakpos);
         
         output.N = value.N;
         output.x = value.x;
@@ -56,8 +58,8 @@ classdef PseudoVoigt < model.fitcomponents.FitFunctionInterface
         output.w = value.w;
         end
         
-        function output = getDefaultLowerBounds(this, data)
-        value = getDefaultLowerBounds@model.fitcomponents.FitFunctionInterface(this, data);
+        function output = getDefaultLowerBounds(this, data, peakpos)
+        value = getDefaultLowerBounds@model.fitcomponents.FitFunctionInterface(this, data, peakpos);
         
         output.N = value.N;
         output.x = value.x;
@@ -65,8 +67,8 @@ classdef PseudoVoigt < model.fitcomponents.FitFunctionInterface
         output.w = value.w;
         end
         
-        function output = getDefaultUpperBounds(this, data)
-        value = getDefaultUpperBounds@model.fitcomponents.FitFunctionInterface(this, data);
+        function output = getDefaultUpperBounds(this, data, peakpos)
+        value = getDefaultUpperBounds@model.fitcomponents.FitFunctionInterface(this, data, peakpos);
         
         output.N = value.N;
         output.x = value.x;

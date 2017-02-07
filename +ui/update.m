@@ -69,6 +69,7 @@ function onTabPanelChange(handles)
 
 
 function newDataSet(handles)
+clear(['+utils' filesep '+plotutils' filesep 'plotX'])
 xrd = handles.profiles.xrd;
 handles.gui.FileNames = xrd.getFileNames;
 handles.gui.DataPath = handles.profiles.DataPath;
@@ -107,7 +108,7 @@ bkgdpoints = profiles.xrd.getBackgroundPoints;
 peakpos = profiles.xrd.PeakPositions;
 constraints = profiles.xrd.getConstraints;
 coeffs = profiles.xrd.getCoeffs;
-fitinitial = handles.profiles.xrd.getFitInitial;
+fitinitial = handles.profiles.xrd.FitInitial;
 
 handles.gui.Min2T = profiles.xrd.Min2T;
 handles.gui.Max2T = profiles.xrd.Max2T;

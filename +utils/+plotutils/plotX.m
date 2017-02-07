@@ -189,9 +189,7 @@ end
         setappdata(data(i), 'xdata', data(i).XData);
         setappdata(data(i), 'ydata', data(i).YData);
     end
-    
-    handles.gui.DisplayName = {data.DisplayName};
-   
+       
     handles.gui.Legend = 'on';
     end
 % ==============================================================================
@@ -221,28 +219,37 @@ end
     if isempty(initialValues) || ~isempty(find(utils.contains(handles.gui.FcnNames, []),1))
         return
     end
+    try
     twotheta = xrd.getTwoTheta;
     % Plot background fit
     background = plotBackgroundFit(handles);
     % Use initial coefficient values to plot fit
     fitsample = xrd.calculateFitInitial(handles.gui.FitInitial.start);
+    datafit = zeros(1,length(xrd.NumFuncs));
+    fcns = handles.profiles.xrd.getFunctions;
+    cukaPeakLine = zeros(1,length(fcns));
     for i=1:xrd.NumFuncs
         datafit(i) = plot(handles.axes1, twotheta, fitsample(i,:) + background, ...
             '--',...
             'LineWidth',1,...
             'DisplayName', ['Peak ' num2str(i) ' (' handles.gui.FcnNames{i} ')']);
-%         if xrd.CuKa
-%             datafit(i)=plot(x2th,CuKaPeak(i,:)+bkgArray,':','LineWidth',2,...
-%                 'DisplayName',['Cu-K\alpha2 (Peak ', num2str(i), ')']);
-%         end
+        if xrd.CuKa
+            cukaPeak = xrd.calculateCuKaPeak(i);
+            cukaPeakLine(i) = plot(handles.axes1, twotheta,cukaPeak+background,':','LineWidth',2,...
+                        'DisplayName',['Cu-K\alpha2 (Peak ', num2str(i), ')']); 
+            setappdata(cukaPeakLine(i), 'xdata', twotheta);
+            setappdata(cukaPeakLine(i), 'ydata', cukaPeak+background);
+        end
+
         setappdata(datafit(i), 'xdata', twotheta);
         setappdata(datafit(i), 'ydata', fitsample(i,:) + background);
     end
-    dispname = {datafit.DisplayName};
-    handles.gui.DisplayName = [handles.gui.DisplayName, dispname];
-    handles.gui.Legend = 'on';
     utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
     updateLim(handles, [twotheta(1) twotheta(end)])
+    handles.gui.Legend = 'on';
+
+    catch
+    end
     end
 % ==============================================================================
 
