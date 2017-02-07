@@ -112,7 +112,7 @@ classdef Asymmetric < model.fitcomponents.FitFunctionInterface
        function output = getDefaultLowerBounds(this, data, peakpos)
        left = this.Left.getDefaultLowerBounds(data, peakpos);
        output.N = left.N;
-       output.x = this.PeakPosition;
+       output.x = left.x;
        output.f = left.f;
        
        if isfield(left, 'w') 
@@ -125,7 +125,7 @@ classdef Asymmetric < model.fitcomponents.FitFunctionInterface
        function output = getDefaultUpperBounds(this, data, peakpos)
        left = this.Left.getDefaultUpperBounds(data, peakpos);
        output.N = left.N;
-       output.x = this.PeakPosition;
+       output.x = left.x;
        output.f = left.f;
        if isfield(left, 'w')
            output.w = left.w;
