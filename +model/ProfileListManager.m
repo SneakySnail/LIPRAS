@@ -4,15 +4,20 @@ classdef ProfileListManager < matlab.mixin.Copyable
     %   existing ProfileListManager instance, call the static method
     %   ProfileListManager.getInstance.
    properties
+       FileNames 
+       
        xrdContainer
        
        DataPath
        
        OutputPath
+       
    end
    
    properties (Dependent)
        xrd
+       
+       CuKa
    end
    
    properties (Hidden)
@@ -51,9 +56,18 @@ classdef ProfileListManager < matlab.mixin.Copyable
                xrd = this.initialXRD_;
                this.DataPath = xrd.DataPath;
                xrd.OutputPath = [xrd.DataPath 'FitOutputs' filesep];
+               this.FileNames = xrd.getFileNames;
                this.OutputPath = xrd.OutputPath;
                this.addProfile;
            end
+       end
+       
+       function set.CuKa(this, value)
+       this.xrd.CuKa = value;
+       end
+       
+       function val = get.CuKa(this)
+       val = this.xrd.CuKa;
        end
        
        
@@ -88,6 +102,14 @@ classdef ProfileListManager < matlab.mixin.Copyable
             output = true;
         end
        end 
+       
+       function a = hasFit(this)
+        if isempty(this.xrd.FitResults)
+            a = false;
+        else
+            a = true;
+        end
+        end
        
        function this = setCurrentProfileNumber(this, id)
        % Check if within bounds
@@ -128,12 +150,6 @@ classdef ProfileListManager < matlab.mixin.Copyable
        else
            value = this.xrd.NumFiles;
        end
-       end
-       
-       function this = setCoeffInitialValue(this, coeff, value)
-       %SETCOEFFINITIAL Sets the fit initial value of the coefficient specified
-       %   in the argument. Also updates table_fitinitial to display the
-       %   updated value.
        end
        
        function output = getFileNames(this, file)

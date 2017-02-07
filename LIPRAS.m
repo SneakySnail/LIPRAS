@@ -56,7 +56,6 @@ varargout{1} = handles.output;
 %  Executes on button press in button_browse.
 function button_browse_Callback(hObject, ~, handles)
 handles.gui.Status = 'Browsing for dataset... ';
-clear(['+utils' filesep '+plotutils' filesep 'plotX'])
 handles.profiles.newXRD();
 model.ProfileListManager.getInstance(handles.profiles);
 if handles.profiles.hasData
@@ -157,20 +156,55 @@ function edit_min2t_Callback(~, ~, handles)
 xrd = handles.profiles.xrd;
 newValue = handles.gui.Min2T;
 if ~isnan(newValue)
-    model.update(handles, 'Min2T', newValue);
-else
-    handles.gui.Min2T = xrd.Min2T;
+    boundswarnmsg = '<html><font color="red">The inputted value is not within bounds.';
+    if newValue < xrd.AbsoluteRange(1)
+        newValue = xrd.AbsoluteRange(1);
+        handles.gui.Status = boundswarnmsg;
+        
+    elseif newValue > xrd.AbsoluteRange(2)
+        newValue = xrd.AbsoluteRange(2) - 0.5;
+        handles.gui.Max2T = xrd.AbsoluteRange(2);
+        handles.gui.Status = boundswarnmsg;
+        
+    elseif newValue >= xrd.Max2T
+        max = newValue + 0.5;
+        if max > xrd.AbsoluteRange(2)
+            max = xrd.AbsoluteRange(2);
+        end
+        handles.gui.Max2T = max;
+        xrd.Max2T = max;
+    end
+xrd.Min2T = newValue;
 end
+handles.gui.Min2T = xrd.Min2T;
 utils.plotutils.plotX(handles, 'sample');
 
 function edit_max2t_Callback(~, ~, handles)
 xrd = handles.profiles.xrd;
 newValue = handles.gui.Max2T;
 if ~isnan(newValue)
-    model.update(handles, 'Max2T', newValue);
-else
-    handles.gui.Max2T = xrd.Max2T;
+    boundswarnmsg = '<html><font color="red">The inputted value is not within bounds.';
+    
+    if newValue < xrd.AbsoluteRange(1)
+        newValue = xrd.AbsoluteRange(1) + 0.5;
+        handles.gui.Min2T = xrd.AbsoluteRange(1);
+        handles.gui.Status = boundswarnmsg;
+        
+    elseif newValue > xrd.AbsoluteRange(2)
+        newValue = xrd.AbsoluteRange(2);
+        handles.gui.Status = boundswarnmsg;
+        
+    elseif newValue <= xrd.Min2T
+        min = newValue - 0.5;
+        if min < xrd.AbsoluteRange(1)
+            min = xrd.AbsoluteRange(1);
+        end
+        handles.gui.Min2T = min;
+        xrd.Min2T = min;
+    end
+    xrd.Max2T = newValue;
 end
+handles.gui.Max2T = xrd.Max2T;
 utils.plotutils.plotX(handles, 'sample');
 
 function edit_polyorder_Callback(src, ~, handles)

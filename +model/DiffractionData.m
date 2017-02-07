@@ -6,6 +6,7 @@ classdef DiffractionData
         DataPath
         Min2T
         Max2T
+        
     end
     
     properties (Hidden, GetAccess = protected, SetAccess = immutable)
@@ -23,7 +24,9 @@ classdef DiffractionData
         % Constructor
         this.FullTwoTheta = data.two_theta(fileIndex,:);
         this.FullIntensityData = data.data_fit(fileIndex,:);
-        this.FileName = filename;
+        [path, name, ext] = fileparts(filename);
+        this.DataPath = path;
+        this.FileName = [name ext];
         this.Min2T = this.FullTwoTheta(1);
         this.Max2T = this.FullTwoTheta(end);
         end
@@ -60,7 +63,6 @@ classdef DiffractionData
         
         result = this.FullTwoTheta(indices(1):indices(2));
         end
-        
         
     end
     

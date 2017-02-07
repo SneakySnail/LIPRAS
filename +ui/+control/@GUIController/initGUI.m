@@ -44,6 +44,8 @@ set(handles.figure1, 'visible', 'off'); % To prevent error
          0.502  0     0.502;    % violet
          0      0     1;        % royal blue
          0.502  0.502 0]);      % dark yellow
+     z=zoom(handles.figure1);
+     z.setAllowAxesZoom(handles.axes2, false);
      handles.gui.Legend = 'on';
      set(handles.panel_setup, 'parent', handles.uipanel3);
      set(handles.panel_parameters,'parent', handles.uipanel3);

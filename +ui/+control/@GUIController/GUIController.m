@@ -248,7 +248,7 @@ classdef GUIController < handle
         end
         
         function set.Min2T(this, value)
-        profiles = model.ProfileListManager.getInstance;
+        profiles = this.hg.profiles;
         % Check if within range
         absRange = profiles.xrd.AbsoluteRange;
         if value < absRange(1)

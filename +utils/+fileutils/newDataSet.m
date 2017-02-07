@@ -11,18 +11,16 @@ catch
 end
 
 if nargin < 1
-    path = [];
-    data = [];
     allowedFiles = {'*.csv; *.txt; *.xy; *.fxye; *.dat; *.xrdml; *.chi; *.spr'};
     title = 'Select Diffraction Pattern to Fit';
     [filename, path, ~] = uigetfile(allowedFiles, title, 'MultiSelect', 'on', data_path);
 end
 
 if ~isequal(filename, 0)
-    data = readNewDataFile(filename, path);
-        
+    data = readNewDataFile(filename, path);   
 else
-    
+    data = [];
+
 end
 
 end
@@ -157,14 +155,7 @@ end
 % ==============================================================================
 
 function data = parseXRDML(filename)
-% TODO - NOT IMPLEMENTED
-Data = {};
-Data{1,1} = 0;
-X = 0;
-Z = 0;
-fileIndex = 0;
-
-
+%PARSEXRDML reads an xml file with the extension .xrdml.
 data = utils.fileutils.parseXML(filename);
 for i = 1:length(data.Children)
     if strcmp(data.Children(i).Name, 'xrdMeasurement')
@@ -177,7 +168,6 @@ for i=1:length(xrdMeasurements.Children)
     if strcmp(xrdMeasurements.Children(i).Name, 'scan')
         scans = xrdMeasurements.Children(i);
         tth = 0;
-        scanIndex = i;
     elseif strcmp(xrdMeasurements.Children(i).Name, 'usedWavelength')
         usedWavelength = xrdMeasurements.Children(i);
     end
@@ -202,9 +192,9 @@ for PosI = 1:length(scans.Children)
             end
         end
     elseif strcmp(scans.Children(PosI).Name, 'nonAmbientPoints')
-        temperature(PosI,:) = mean(strread(dataPoints.Children(1,4).Children(1,1).Data,'%f'))-273.15;
+        temperature = mean(strread(dataPoints.Children(1,4).Children(1,1).Data,'%f'))-273.15; %#ok<*DSTRRD>
     else
-        temperature(PosI,:) = 25;
+        temperature = 25;
     end
     
 end
@@ -220,23 +210,47 @@ end
 % the Name, or Attribute. To read the value within it,
 % you will need another Children since it will be
 % tabbed over again.
-KAlpha1 = usedWavelength.Children(2).Children(1).Data;
-KAlpha2 = usedWavelength.Children(4).Children(1).Data;
-kBeta = usedWavelength.Children(6).Children(1).Data;
-Ratio_alph1_alph2 = usedWavelength.Children(8).Children(1).Data;
-
-data.KAlpha1 = str2double(KAlpha1);
-data.KAlpha2 = str2double(KAlpha2);
-data.KBeta = str2double(kBeta);
-data.RKa1Ka2 = str2double(Ratio_alph1_alph2);
-
+data.KAlpha1 = str2double(usedWavelength.Children(2).Children(1).Data);
+data.KAlpha2 = str2double(usedWavelength.Children(4).Children(1).Data);
+data.KBeta = str2double(usedWavelength.Children(6).Children(1).Data);
+data.RKa1Ka2 = str2double(usedWavelength.Children(8).Children(1).Data);
 data.two_theta = tth';
 data.data_fit = intensity';
-if length(unique(temperature))==2
-    temperature=unique(temperature);
-    temperature=temperature(2);
-else
-    temperature=25;
-end
 data.Temperature = temperature;
+
+
+% ===== 
+% dom = xmlread(filename);
+% intensitiesElement = dom.getElementsByTagName('intensities').item(0);
+% intensitiesValue = textscan(char(intensitiesElement.getTextContent), '%f');
+% listPosElement = dom.getElementsByTagName('listPositions').item(0);
+% if isempty(listPosElement)
+%     % Assuming the first item under the element 'positions' has the attribute '2Theta'
+%     pos2thetaElement = dom.getElementsByTagName('positions').item(0);
+%     startPosElement = pos2thetaElement.getElementsByTagName('startPosition').item(0);
+%     startPosValue = str2double(startPosElement.getTextContent);
+%     endPosElement = pos2thetaElement.getElementsByTagName('endPosition').item(0);
+%     endPosValue = str2double(endPosElement.getTextContent);
+%     step = (endPosValue - startPosValue) / (length(intensitiesValue)-1);
+%     listPosValue = (startPosValue:step:endPosValue)';
+% else
+%     listPosValue = textscan(char(listPosElement.getTextContext), '%f');
+%     listPosValue = listPosValue{1}';
+% end
+% % get temperature
+% tempElement = dom.getElementsByTagName('nonAmbientPoints').item(0);
+% if isempty(tempElement)
+%     temp = 25;
+% else % TODO
+% %     temp =  mean(strread(dataPoints.Children(1,4).Children(1,1).Data,'%f'))-273.15;
+% end
+% 
+% data.KAlpha1 = str2double(dom.getElementsByTagName('kAlpha1').item(0).getTextContent);
+% data.KAlpha2 = str2double(dom.getElementsByTagName('kAlpha2').item(0).getTextContent);
+% data.kBeta = str2double(dom.getElementsByTagName('kBeta').item(0).getTextContent);
+% data.RKa1Ka2 = str2double(dom.getElementsByTagName('ratioKAlpha2KAlpha1').item(0).getTextContent);
+% data.two_theta = listPosValue;
+% data.data_fit = intensitiesValue{1}';
+% data.Temperature = temp;
+
 end
