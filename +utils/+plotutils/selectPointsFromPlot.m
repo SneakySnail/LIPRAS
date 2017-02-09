@@ -34,6 +34,9 @@ while (true)
         set(bkgdplot, 'XData', bkgdx, 'YData', bkgdy);
         points = bkgdx;
     else
+        if strcmpi(mode, 'New')
+            utils.plotutils.plotX(handles, 'data');
+        end
         xidx = utils.findIndex(xdata, p);
         plot(handles.axes1, p, ydata(xidx), '*r');
         points = [points p]; %#ok<AGROW>

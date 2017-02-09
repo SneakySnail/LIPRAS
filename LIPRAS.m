@@ -57,7 +57,6 @@ varargout{1} = handles.output;
 function button_browse_Callback(hObject, ~, handles)
 handles.gui.Status = 'Browsing for dataset... ';
 handles.profiles.newXRD();
-model.ProfileListManager.getInstance(handles.profiles);
 if handles.profiles.hasData
     ui.update(handles, 'dataset');
 else
@@ -102,14 +101,13 @@ elseif strcmpi(selected, 'Add')
     newpoints = selectPointsFromPlot(handles);
     points = sort([oldpoints newpoints]);
 else
-    points = selectPointsFromPlot(handles);
+    points = selectPointsFromPlot(handles, selected);
 end
 
 try
     handles.profiles.xrd.setBackgroundPoints(points);
     ui.update(handles, 'backgroundpoints');
 catch 
-    err = lasterror;
     if strcmp(identifier, 'MATLAB:polyfit:PolyNotUnique')
         warndlg('Polynomial is not unique; degree >= number of data points.', 'Warning')
     end
@@ -128,6 +126,8 @@ switch o.Tag
 end
 
 function menu_yplotscale_Callback(o,e,handles)
+%MENU_YPLOTSCALE_CALLBACK executes when any option under 'Plot'->'Y-Axis Scale' menu is clicked. The
+%   default selection is 'menu_ylinear'.
 set(findobj(o.Parent), 'Checked', 'off'); % turn off checks in all x plot menu items
 o.Checked = 'on';
 plotter = getappdata(handles.axes1, 'plotter');
@@ -153,6 +153,7 @@ end
 
 
 function edit_min2t_Callback(~, ~, handles)
+%EDIT_MIN2T_CALLBACK executes when the minimum 2theta value is changed in the GUI. 
 xrd = handles.profiles.xrd;
 newValue = handles.gui.Min2T;
 if ~isnan(newValue)
@@ -493,6 +494,12 @@ if filename ~= 0
     handles.profiles.importProfileParametersFile([pathName filename]);
     ui.update(handles, 'parameters');
 end
+
+function menu_restart_Callback(o,e,handles)
+delete(handles.figure1);
+LIPRAS;
+handles = guidata(LIPRAS);
+guidata(handles.figure1, handles);
 
 % Executes when the menu item 'Export->As Image' is clicked.
 function menu_saveasimage_Callback(o,e,handles)
