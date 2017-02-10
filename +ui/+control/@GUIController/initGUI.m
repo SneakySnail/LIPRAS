@@ -2,6 +2,9 @@
 function handles = initGUI(handles)
 clear(['+utils' filesep '+plotutils' filesep 'plotX'])
 
+screensize = get(0, 'ScreenSize');
+handles.figure1.Position(2) =  screensize(4) - handles.figure1.Position(4) - 100;
+
 set(handles.figure1, 'visible', 'on');
 
 addToExecPath();
@@ -13,12 +16,6 @@ createJavaStatusBar();
 guidata(handles.figure1, handles);
 
 addControlListeners();
-
-handles.figure1.Position(1) = 0;
-
-drawnow;
-
-set(handles.figure1, 'visible', 'off'); % To prevent error
 
 % ==============================================================================
 

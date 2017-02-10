@@ -6,7 +6,8 @@ import utils.plotutils.*
 try
     h = waitbar(0, '1', 'Name', 'Fitting dataset...', ...
         'CreateCancelBtn', ...
-        'setappdata(gcbf,''canceling'', 1)');
+        'setappdata(gcbf,''canceling'', 1)', ...
+        'CloseRequestFcn', 'delete(gcbf)');
     setappdata(h, 'canceling', 0);
 catch
 end
@@ -25,24 +26,16 @@ try
         end
         fitresults{i} = Stro.fitDataSet(i);
     end
-    
-    writer = ui.FileWriter(handles.profiles);
-    writer.OutputPath = [writer.OutputPath 'Fdata' filesep];
-    writer.printFdataFiles(fitresults);
-    writer.printFmodelFiles(fitresults);
-    
     if exist('h', 'var') && ~getappdata(h, 'canceling')
         Stro.FitResults = fitresults;
-        status = true;
+        writer = ui.FileWriter(handles.profiles);
+        writer.printFitOutputs(fitresults);
     end
     ui.update(handles, 'results');
 catch ME
-    delete(h)
     errordlg(ME.message)
 end
-
 delete(h)
-   
 
 
 

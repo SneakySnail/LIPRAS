@@ -53,6 +53,13 @@ function varargout = LIPRAS_OutputFcn(~, ~, handles)
 varargout{1} = handles.output;
 %===============================================================================
 
+function LIPRAS_DeleteFcn(hObject, eventdata, handles)
+% Executes before closing the GUI, even if the function delete() is called instead of manually 
+%   closing the figure. Cleans up the workspace.
+delete(handles.gui);
+delete(handles.profiles);
+clear('handles', 'var');
+
 %  Executes on button press in button_browse.
 function button_browse_Callback(hObject, ~, handles)
 handles.gui.Status = 'Browsing for dataset... ';
@@ -63,45 +70,31 @@ else
     handles.gui.Status = '';
 end
 
-% Executes on button press in push_addprofile.
-function push_addprofile_Callback(hObject, eventdata, handles)
-handles = add_profile(handles);
-assignin('base','handles',handles)
-guidata(hObject, handles)
-%===============================================================================
-
-% Executes on button press in push_removeprofile.
-function push_removeprofile_Callback(hObject, eventdata, handles)
-handles = remove_profile(find(handles.uipanel3==handles.profiles), handles);
-assert(handles.profiles(7).UserData==handles.guidata.numProfiles);
-if handles.profiles(7).UserData<=1
-    set(hObject, 'enable', 'off');
-end
-
-guidata(hObject, handles)
-%===============================================================================
-
 % Executes on button press in push_newbkgd.
 function push_newbkgd_Callback(hObject, eventdata, handles)
+%   EVENTDATA can be used to pass test values to this function to avoid any blocking calls like
+%   ginput.
 import utils.plotutils.*
 plotX(handles, 'data');
-
 if handles.profiles.xrd.hasBackground
     plotX(handles, 'backgroundpoints');
 end
 
-selected = handles.group_bkgd_edit_mode.SelectedObject.String;
-if strcmpi(selected, 'Delete')
-    oldpoints = handles.profiles.xrd.getBackgroundPoints;
-    numpoints = length(oldpoints);
-    points = selectPointsFromPlot(handles, selected, numpoints);
-    
-elseif strcmpi(selected, 'Add')
-    oldpoints = handles.profiles.xrd.getBackgroundPoints;
-    newpoints = selectPointsFromPlot(handles);
-    points = sort([oldpoints newpoints]);
+if isfield(eventdata, 'test')
+    points = eventdata.test;
 else
-    points = selectPointsFromPlot(handles, selected);
+    selected = handles.group_bkgd_edit_mode.SelectedObject.String;
+    if strcmpi(selected, 'Delete')
+        oldpoints = handles.profiles.xrd.getBackgroundPoints;
+        numpoints = length(oldpoints);
+        points = selectPointsFromPlot(handles, selected, numpoints);
+    elseif strcmpi(selected, 'Add')
+        oldpoints = handles.profiles.xrd.getBackgroundPoints;
+        newpoints = selectPointsFromPlot(handles);
+        points = sort([oldpoints newpoints]);
+    else
+        points = selectPointsFromPlot(handles, selected);
+    end
 end
 
 try
@@ -292,10 +285,18 @@ else
 end
 
 % Executes when the handles.edit_numpeaks spinner value is changed.
-function edit_numpeaks_Callback(src, ~, handles)
+function edit_numpeaks_Callback(src, eventdata, handles)
 %NUMBEROFPEAKSCHANGED Callback function that executes when the value of the
 %   JSpinner object changes. 
-value = round(src.getValue);
+% 
+%   EVENTDATA can be used to pass test values to this function by creating a structure with a
+%   field 'test' containing the value(s) to use.
+if isfield(eventdata, 'test')
+    value = eventdata.test;
+    src.setValue(value);
+else
+    value = round(src.getValue);
+end
 oldfcns = handles.profiles.xrd.getFunctions;
 newfcns = cell(1, value);
 for i=1:value

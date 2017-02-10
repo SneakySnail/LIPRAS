@@ -76,7 +76,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
     
     % ======================================================================== %
     methods
-        function Stro = PackageFitDiffractionData(data, filenames)
+        function Stro = PackageFitDiffractionData(data, filenames, path)
         % Constructor
         import model.*
         if nargin >= 1
@@ -100,6 +100,11 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             end
             Stro.AbsoluteRange = [x(1) x(end)];
             Stro.Background = model.Background(Stro);
+        end
+        
+        if nargin > 2
+            Stro.DataPath = path;
+            Stro.OutputPath = [path Stro.OutputPath];
         end
         end
         
@@ -265,6 +270,9 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         %   function at the same index. 
         if nargin > 2 && fcnID > length(Stro.FitFunctions)
             error('fcnID out of bounds.')
+        end
+        if isempty(coeff)
+            return
         end
         if nargin > 2
             Stro.FitFunctions{fcnID}.constrain(coeff);

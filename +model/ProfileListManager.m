@@ -6,11 +6,9 @@ classdef ProfileListManager < matlab.mixin.Copyable
    properties
        FileNames 
        
-       xrdContainer
-       
        DataPath
        
-       OutputPath
+       OutputPath = ['FitOutputs' filesep];
        
    end
    
@@ -22,6 +20,8 @@ classdef ProfileListManager < matlab.mixin.Copyable
    
    properties (Hidden)
        ValidFunctions = {'Gaussian', 'Lorentzian', 'Pearson VII', 'Pseudo-Voigt', 'Asymmetric Pearson VII'};
+       
+       xrdContainer
        
        initialXRD_
        
