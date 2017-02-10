@@ -17,7 +17,7 @@ function update(handles, varargin)
 %                         currently selected options in the GUI.
 %       'FitInitial'    - VALUE is a cell array {'BOUNDS', 'COEFF', COEFFVAL}.
 %
-
+model.ProfileListManager.getInstance(handles.profiles);
 if isfield(handles, 'gui') && handles.gui.isFitDirty
     set(handles.panel_coeffs.Children, 'enable', 'off');
 else
@@ -33,6 +33,8 @@ end
 for i=1:length(varargin)
     property = varargin{i};
     switch lower(property)
+        case 'reset'
+            reset(handles)
         case 'dataset'
             newDataSet(handles);
         case 'tabchange'
@@ -65,7 +67,51 @@ assignin('base', 'handles', handles);
 guidata(handles.figure1, handles);
 % ==============================================================================
 
-function onTabPanelChange(handles)
+function reset(handles)
+clear(['+utils' filesep '+plotutils' filesep 'plotX'])
+set(handles.figure1.Children, 'visible', 'off');
+set([handles.text22, handles.edit8, handles.button_browse, handles.checkbox_reverse], ...
+         'Visible', 'on');
+set(findobj(handles.figure1.Children, 'type', 'uimenu'), 'visible', 'on');
+set(findobj(handles.figure1.Children, 'type', 'uitoolbar'), 'visible', 'on');
+handles.gui.DataPath = '';
+
+% Reset enabled menu controls
+handles.menu_parameter.Enable = 'off';
+handles.menu_plot.Enable = 'off';
+handles.menu_command.Enable = 'off';
+
+% Reset enabled controls
+set([handles.push_prevprofile, handles.push_nextprofile, handles.push_removeprofile], ...
+    'visible', 'off');
+set(handles.tabpanel, 'TabEnables', {'on', 'off', 'off'}, 'Selection', 1);
+set(findobj(handles.figure1, 'style', 'checkbox'), 'Value', false);
+
+resetSetupTabView(handles);
+resetOptionsTabView(handles);
+resetResultsTabView(handles);
+
+
+function resetSetupTabView(handles)
+% Resets the setup tab view as if the user had just launched the GUI. Helper function for reset(). 
+set(findobj(handles.panel_setup.Children, 'type', 'uicontrol'), 'enable', 'on');
+handles.radiobutton15_delete.Enable = 'off';
+handles.push_fitbkgd.Enable = 'off';
+handles.group_bkgd_edit_mode.SelectedObject = handles.radio_newbkgd;
+handles.tab1_next.Visible = 'off';
+
+function resetOptionsTabView(handles)
+% Reset the Options tab view as if the user had just launched the GUI. Helper function for reset().
+handles.gui.NumPeaks = 0;
+handles.table_fitinitial.Data = cell(size(handles.table_fitinitial));
+
+function resetResultsTabView(handles)
+% Reset Results tab view
+handles.table_results.Data = cell([4 4]);
+handles.btns3.SelectedObject = handles.radio_peakeqn;
+
+
+function onTabChangeClick(handles)
 
 
 function newDataSet(handles)
@@ -96,6 +142,8 @@ set(handles.tabpanel, 'TabEnables', {'on' 'off' 'off'}, 'Selection', 1);
 set(handles.panel_rightside,'visible','on');
 set(handles.uipanel3, 'visible', 'on');
 set(handles.push_removeprofile, 'enable', 'off');
+handles.menu_plot.Enable = 'on';
+handles.menu_command.Enable = 'on';
 % utils.plotutils.plotX(handles, 'data');
 % ==============================================================================
 
