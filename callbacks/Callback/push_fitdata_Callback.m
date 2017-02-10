@@ -23,8 +23,9 @@ try
         if exist('h', 'var') && getappdata(h, 'canceling')
             break
         end
-        handles.profiles.fitDataSet(i);
+        fitresults{i} = handles.profiles.fitDataSet(i);
     end
+    handles.profiles.Writer.printFitOutputs(fitresults);
     ui.update(handles, 'results');
 catch ME
     errordlg(ME.message)

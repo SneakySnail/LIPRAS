@@ -181,38 +181,41 @@ classdef ProfileListManager < handle
           a = strsplit(line,' ');
           switch a{1}
               case '2ThetaRange:'
-                  this.xrd.Min2T = str2double(a{2});
-                  this.xrd.Max2T = str2double(a{3});
+                  min = str2double(a{2});
+                  max = str2double(a{3});
               case 'BackgroundModel:'
-                  this.xrd.setBackgroundModel(a{2});
+                  model = a{2};
               case 'PolynomialOrder:'
                   polyorder = str2double(a{2});
-                  this.xrd.setBackgroundOrder(polyorder);
               case 'BackgroundPoints:'
                 bkgdpoints = str2double(a(2:end));
-                this.xrd.setBackgroundPoints(bkgdpoints);
               case 'FitFunction(s):'
                 line = fgetl(fid);
                 fxn = strsplit(line, '; ');
                 if isempty(fxn{end})
                     fxn(end) = [];
                 end
-                this.xrd.setFunctions(fxn);
               case 'PeakPosition(s):'
                 peakpos = str2double(a(2:end));
-                peakpos = peakpos(1:length(this.xrd.getFunctions));
-                this.xrd.PeakPositions = peakpos;
+                peakpos = peakpos(1:length(fxn));
               case 'Constraints:'
                   this.xrd.unconstrain('Nxfwm');
                   str = a(2:end);
-                  for i=1:length(str)
-                     cons = strtok(str{i}, '{''''}'); 
-                     this.xrd.constrain(cons, i);
-                  end
             case '=='
                 break
               otherwise
           end
+       end
+       this.xrd.Min2T = min;
+       this.xrd.Max2T = max;
+       this.xrd.setBackgroundModel(model);
+       this.xrd.setBackgroundOrder(polyorder);
+       this.xrd.setBackgroundPoints(bkgdpoints);
+       this.xrd.setFunctions(fxn);
+       this.xrd.PeakPositions = peakpos;
+       for i=1:length(str)
+           cons = strtok(str{i}, '{''''}');
+           this.xrd.constrain(cons, i);
        end
        % Read coefficient names
        line  = fgetl(fid);

@@ -376,13 +376,13 @@ if profiles.hasFit
     set(handles.push_fitdata, 'enable', 'on');
     set(handles.tab2_next, 'visible', 'on');
     set(handles.menu_save,'Enable','on');
-    set(handles.tabpanel, 'TabEnables', {'on', 'on', 'on'}, 'Selection', 3);
+    set(handles.tabpanel, 'TabEnables', {'on', 'on', 'on'});
     set(handles.push_viewall, 'enable', 'on', 'visible', 'on');
     
     handles.gui.onPlotFitChange('peakfit');
 else
     set(handles.push_fitdata, 'enable', 'on');
     set(handles.menu_save,'Enable','off');
-    set(handles.tabpanel, 'TabEnables', {'on', 'on', 'off'}, 'Selection', 2);
+    set(handles.tabpanel, 'TabEnables', {'on', 'on', 'off'});
     set(handles.tab2_next, 'visible', 'off');
 end

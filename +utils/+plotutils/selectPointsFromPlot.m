@@ -10,11 +10,13 @@ if nargin < 2
 end
 hold(handles.axes1, 'on')
 
+if strcmpi(mode, 'New')
+    utils.plotutils.plotX(handles, 'data');
+end
 while (true)
     if nargin > 2 && numpoints == 0
         break;
     end
-    
     [p key] = selectPoint(handles.axes1);
     if isempty(key) || key == KEY_ENTER
         break
@@ -34,9 +36,6 @@ while (true)
         set(bkgdplot, 'XData', bkgdx, 'YData', bkgdy);
         points = bkgdx;
     else
-        if strcmpi(mode, 'New')
-            utils.plotutils.plotX(handles, 'data');
-        end
         xidx = utils.findIndex(xdata, p);
         plot(handles.axes1, p, ydata(xidx), '*r');
         points = [points p]; %#ok<AGROW>

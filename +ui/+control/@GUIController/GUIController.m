@@ -134,7 +134,7 @@ classdef GUIController < handle
         %ISFITDIRTY returns TRUE if the selected options above the 'UPDATE' button (i.e. the fit
         %   parameters) don't match the table_fitinitial coefficients.
         xrd = this.hg.profiles.xrd;
-        if isequal(this.FcnNames, xrd.getFunctionNames) && ...
+        if ~isempty(xrd) && isequal(this.FcnNames, xrd.getFunctionNames) && ...
                 isequal(this.Coefficients, xrd.getCoeffs) && ...
                 isequal(this.FitInitial, xrd.FitInitial)
             result = false;
@@ -337,7 +337,11 @@ classdef GUIController < handle
             ht.Data = olddata(1:length(value), :);
         elseif length(value) > size(olddata, 1)
             extras = length(value) - size(olddata, 1);
-            ht.Data = [value; cell(1:extras, size(olddata,2))];
+            if size(olddata,2) > 1
+                ht.Data = [value', cell(extras, size(olddata,2)-1)];
+            else
+                ht.Data = value';
+            end
         end
         ht.Data(:, 1) = value';
         end

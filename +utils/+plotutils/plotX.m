@@ -122,9 +122,11 @@ end
     x = xrd.getTwoTheta;
     y = xrd.getData(filenum);
     cla(handles.axes1)
-    plot(handles.axes1, x,y, '-o', 'LineWidth', 1, ...
+    line = plot(handles.axes1, x,y, '-o', 'LineWidth', 1, ...
             'MarkerSize', 5, 'MarkerFaceColor', [1 1 1], ...
             'MarkerEdgeColor', [0 0 0], 'displayname', 'Raw Data', 'tag', 'raw');
+    setappdata(line, 'xdata', line.XData);
+    setappdata(line, 'ydata', line.YData);
     handles.gui.DisplayName = handles.gui.getFileNames(filenum);
     
     updateLim(handles, [x(1) x(end)]);
