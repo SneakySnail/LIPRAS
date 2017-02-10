@@ -56,6 +56,7 @@ varargout{1} = handles.output;
 function LIPRAS_DeleteFcn(hObject, eventdata, handles)
 % Executes before closing the GUI, even if the function delete() is called instead of manually 
 %   closing the figure. Cleans up the workspace.
+ui.update(handles,'reset');
 delete(handles.gui);
 delete(handles.profiles);
 clear('handles', 'var');

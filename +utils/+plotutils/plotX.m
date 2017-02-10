@@ -30,6 +30,7 @@ persistent plotter
 if isempty(plotter)
     plotter = utils.plotutils.AxPlotter(handles.axes1, filenames);
     setappdata(handles.axes1, 'plotter', plotter);
+    handles.gui.Plotter = plotter;
 end
 
 % try
@@ -81,7 +82,12 @@ switch lower(mode)
     case 'stats' %TODO
         plotFitStats(handles);
 end
-
+if ~strcmpi(plotter.XScale, 'linear')
+    plotter.XScale = plotter.XScale; % update the plot to display the current Xscale
+end
+if ~strcmpi(plotter.XScale, 'linear')
+    plotter.YScale = plotter.YScale;
+end
 
 
 
@@ -115,15 +121,10 @@ end
     % PLOTDATA Plots the raw data for a specified file number in axes1.
     x = xrd.getTwoTheta;
     y = xrd.getData(filenum);
-    hold(handles.axes1, 'off');
-    if isempty(getappdata(handles.axes1, 'rawdata'))
-        rawdata = utils.plotutils.DataLinePlot('rawdata');
-        setappdata(handles.axes1, 'rawdata', rawdata);
-    else
-        rawdata = getappdata(handles.axes1, 'rawdata');
-    end
-    plotter.RawData(x, y, rawdata, 'DisplayName', filenames{filenum});
-    
+    cla(handles.axes1)
+    plot(handles.axes1, x,y, '-o', 'LineWidth', 1, ...
+            'MarkerSize', 5, 'MarkerFaceColor', [1 1 1], ...
+            'MarkerEdgeColor', [0 0 0], 'displayname', 'Raw Data', 'tag', 'raw');
     handles.gui.DisplayName = handles.gui.getFileNames(filenum);
     
     updateLim(handles, [x(1) x(end)]);
@@ -139,9 +140,11 @@ end
     % Plots the current fit in handles.axes1
     import utils.plotutils.*
     
+    
     if nargin < 2
         ax = handles.axes1;
         fileID = filenum;
+        cla(ax);
     end
     
     fitted = handles.profiles.getProfileResult{fileID};
@@ -157,7 +160,8 @@ end
     set(ax, 'XLim', [fitted.TwoTheta(1) fitted.TwoTheta(end)]);
     hold(ax, 'on');
     if isequal(ax, handles.axes1)
-        linkaxes([handles.axes1 handles.axes2], 'x');
+        set(handles.axes2, 'XLim', [fitted.TwoTheta(1) fitted.TwoTheta(end)]);
+        linkaxes([handles.axes2 handles.axes1], 'x');
         hold(handles.axes2, 'on');
     end
     % Background
@@ -179,7 +183,6 @@ end
             'LineWidth',1, ...
             'DisplayName',['(' num2str(i) ') ' fcns{i}], ...
             'Tag', ['f' num2str(i)]);
-
 %         if xrd.CuKa
 %             data(3+2*i-1) = plot(x2th',peakfit(i,:)+background',...
 %                 'LineWidth',1, ...

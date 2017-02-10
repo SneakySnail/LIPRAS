@@ -16,9 +16,9 @@ classdef AxPlotter < matlab.mixin.SetGet
         
         CurrentFile
 
-        XScale
+        XScale % 'linear' or 'dspace'
         
-        YScale
+        YScale % 'linear', 'log', or 'sqrt'
         
     end
     properties (Hidden)
@@ -41,8 +41,12 @@ classdef AxPlotter < matlab.mixin.SetGet
         % ======================================================================
         
         function RawData(this, xdata, ydata, lineprefs, varargin)
-        hold(this.ax, 'off');
-        line = plot(this.ax, xdata, ydata, varargin{1:2:end}, varargin{2:2:end});
+        cla(this.ax)
+        if length(varargin) > 2
+            line = plot(this.ax, xdata, ydata, varargin{1:2:end}, varargin{3:2:end});
+        else
+            line = plot(this.ax, xdata, ydata, varargin{1:2:end}, varargin{2:2:end});
+        end
         setappdata(line, 'xdata', xdata);
         setappdata(line, 'ydata', ydata);
         lineprefs.update(line);

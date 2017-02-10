@@ -11,8 +11,7 @@ classdef GUIController < handle
     %   components of the GUI. 
         
     properties
-        % True if the range was changed after choosing background points
-%         DirtyPlot = false; 
+        Plotter
     end
     
     % The values we want from the GUI
@@ -22,6 +21,10 @@ classdef GUIController < handle
         SelectedCoeffResult
         
         SelectedPlotViewResult
+        
+        YPlotScale
+        
+        XPlotScale
         
         Legend
         
@@ -121,6 +124,7 @@ classdef GUIController < handle
         end
         
         this.Profiles = this.hg.profiles;
+        this.Plotter = utils.plotutils.AxPlotter(this.hg.axes1, this.getFileNames);
         end
     end
         
@@ -154,7 +158,27 @@ classdef GUIController < handle
         end
         end
         
+        function set.YPlotScale(this, mode)
+        %   MODE is 'linear', 'log', or 'sqrt'
+        this.Plotter.YScale = mode;
+        end
+        
+        function mode = get.YPlotScale(this)
+        mode = this.Plotter.YScale;
+        end
+        
+        function set.XPlotScale(this, mode)
+        this.Plotter.XScale = mode;
+        end
+        
+        function mode = get.XPlotScale(this)
+        mode = this.Plotter.XScale;
+        end
+        
         function set.Legend(this, mode)
+        if isempty(this.hg.axes1.Children)
+            mode = 'off';
+        end
         switch mode
             case 'on'
                 this.hg.toolbar_legend.State = 'on';

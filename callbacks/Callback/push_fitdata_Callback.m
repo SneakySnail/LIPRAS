@@ -3,6 +3,7 @@
 function push_fitdata_Callback(~, ~, handles)
 import utils.plotutils.*
 % Create waitbar dialog
+h = [];
 try
     h = waitbar(0, '1', 'Name', 'Fitting dataset...', 'CreateCancelBtn', ...
         'setappdata(gcbf,''canceling'',1)', 'CloseRequestFcn', 'delete(gcbf)');

@@ -13,6 +13,7 @@ classdef LiprasGuiChiDataTest < matlab.unittest.TestCase
         %   a singleton program, it will create a new figure only if one does not exist. Otherwise,
         %   it will bring to focus the currently open figure.
         delete(findall(0,'tag', 'figure1'));
+        clear('handles', 'var');
         fig = LIPRAS;
         testCase.hg = guidata(fig);
         gui = testCase.hg.gui;
