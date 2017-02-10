@@ -42,7 +42,7 @@ while (true)
         points = [points p]; %#ok<AGROW>
     end
     
-    if nargin > 1 && numpoints > 0
+    if nargin > 2 && numpoints > 0
          numpoints = numpoints - 1;
     end
 end
