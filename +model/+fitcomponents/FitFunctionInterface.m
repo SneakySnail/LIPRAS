@@ -340,24 +340,24 @@ classdef FitFunctionInterface < handle
         import utils.*
         initial = this.getDefaultInitialValues(data, peakpos);
         
-        xoffset = (data(1,end) - data(1,1)) ./ 8;
-        result.x = peakpos - 2*xoffset;
-        result.N = initial.N / 2;
-        result.f = initial.f / 2;
-        result.w = FitFunctionInterface.DEFAULT_VALUE_W / 5;
-        result.m = FitFunctionInterface.DEFAULT_VALUE_M / 5;
+        xoffset = (data(1,end) - data(1,1)) ./ 4;
+        result.x = peakpos - xoffset;
+        result.N = 0;
+        result.f = 0;
+        result.w = 0;
+        result.m = 0;
         end
         
         function result = getDefaultUpperBounds(this, data, peakpos)
         import model.fitcomponents.*
         import utils.*
         initial = this.getDefaultInitialValues(data, peakpos);
-        xoffset = (data(1,end) - data(1,1)) ./ 8;
-        result.x = peakpos + 2*xoffset;
-        result.N = initial.N * 1.5;
-        result.f = initial.f * 1.5;
-        result.w = FitFunctionInterface.DEFAULT_VALUE_W * 2;
-        result.m = FitFunctionInterface.DEFAULT_VALUE_M * 5;
+        xoffset = (data(1,end) - data(1,1)) ./ 4;
+        result.x = peakpos + xoffset;
+        result.N = initial.N * 2;
+        result.f = initial.f * 2;
+        result.w = 1;
+        result.m = FitFunctionInterface.DEFAULT_VALUE_M * 10;
         end
         
         function result = isAsymmetric(this)
