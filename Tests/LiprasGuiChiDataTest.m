@@ -40,7 +40,8 @@ classdef LiprasGuiChiDataTest < matlab.unittest.TestCase
     
     % Unit test functions
     methods (Test)
-        function editMinProfileRange(testcase)
+        
+        function editMinProfileRangeTest(testcase)
         %EDITMINPROFILERANGE changes the minimum profile range to 3.4.
         handles = testcase.hg;
         handles.tabpanel.Selection = 1;
@@ -52,7 +53,7 @@ classdef LiprasGuiChiDataTest < matlab.unittest.TestCase
         testcase.verifyLessThan(handles.axes1.XAxis.Limits(1)-value, testcase.AxisLimTolerance);
         end
         
-        function editMaxProfileRange(testcase)
+        function editMaxProfileRangeTest(testcase)
         handles = testcase.hg;
         handles.tabpanel.Selection = 1;
         value = 5;
@@ -63,7 +64,7 @@ classdef LiprasGuiChiDataTest < matlab.unittest.TestCase
         testcase.verifyLessThan(handles.axes1.XAxis.Limits(2)-value, testcase.AxisLimTolerance);
         end
         
-        function editBackgroundModel(testcase)
+        function editBackgroundModelTest(testcase)
         %EDITBACKGROUNDOPTIONS
         %
         %   Changes:
@@ -78,7 +79,7 @@ classdef LiprasGuiChiDataTest < matlab.unittest.TestCase
         testcase.verifyEqual(handles.profiles.xrd.getBackgroundModel, 'Spline');
         end
         
-        function backgroundPoints(testcase)
+        function backgroundPointsTest(testcase)
         %BACKGROUNDPOINTS
         %       Background Points = [3.5, 4, 4.2, 4.7, 4.8, 4.3]
         handles = testcase.hg;
@@ -90,7 +91,7 @@ classdef LiprasGuiChiDataTest < matlab.unittest.TestCase
         testcase.verifyEqual(sort(evt.test), handles.profiles.xrd.getBackgroundPoints);
         end
         
-        function numberOfPeaks(testcase)
+        function numberOfPeaksTest(testcase)
         %NUMBEROFPEAKS
         handles = testcase.hg;
         handles.tabpanel.Selection = 2;
@@ -109,6 +110,17 @@ classdef LiprasGuiChiDataTest < matlab.unittest.TestCase
         testcase.verifyLength(handles.gui.Constraints, evt.test);
         end
         
+        function importParameterFileTest(testcase)
+        handles = testcase.hg;
+        evt.test = 'Fit_Parameters_355_chi_Series_000_Profile_1.txt';
+        evt.path = handles.profiles.OutputPath;
+        LIPRAS('menu_parameter_Callback',handles.menu_parameter,evt,handles);
+        end
+        
+        function fitDataSetTest(testcase)
+        handles = testcase.hg;
+        push_fitdata_Callback(handles.push_fitdata,[],handles);
+        end
     end
     
     methods

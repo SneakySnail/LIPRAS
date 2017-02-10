@@ -17,6 +17,13 @@ classdef FileWriter < handle
        function this = FileWriter(profiles)
        this.Profiles = profiles;
        this.OutputPath = profiles.OutputPath;
+       if exist(this.OutputPath, 'dir') ~= 7
+           mkdir(this.OutputPath);
+       end
+       fitoutpath = [this.OutputPath 'FitData' filesep];
+       if exist(fitoutpath, 'dir') ~= 7
+           mkdir(fitoutpath);
+       end
        end
    end 
    
@@ -72,26 +79,23 @@ classdef FileWriter < handle
        str = [str ext];
        end
        
-       function filename = saveAsParametersFile(this)
+   end
+   
+   methods (Static)
+       function filename = printFitParameters(fits)
        %SAVEPARAMETERSTOFILE 
        %
-       %FILENAME
-       
-       if ~exist(this.OutputPath, 'dir')
-           mkdir(this.OutputPath);
-       end
-       profiles = this.Profiles;
-       fits = profiles.xrd.getFitResults;
+       %FILENAME      
+       names = cell(1,length(fits));
        fitted = fits{1};
-       
-       filename = this.getFileName(['Fit_Parameters_' fitted.FileName], '.txt');
-       
+       filename = this.getFullFileName(fitted.OutputPath, fitted.FileName, 'Parameters', '.txt');
+       for i=1:length(fits)
+           names{i} = fits{i}.FileName;
+       end
        %the name of the file it will write containing the statistics of the fit
        fid = fopen(filename, 'w'); 
-       
-       
        fprintf(fid, 'Filenames: ');
-       fprintf(fid, '%s ', profiles.getFileNames{:});
+       fprintf(fid, '%s ', names{:});
        fprintf(fid, '\n\n');
        
        fprintf(fid, '2ThetaRange: %f %f\n\n',fitted.TwoTheta(1), fitted.TwoTheta(end));
@@ -107,8 +111,6 @@ classdef FileWriter < handle
        fprintf(fid, '\nPeakPosition(s): ');
        fprintf(fid, '%f ', fitted.PeakPositions);
        
-       
-       
        fprintf(fid, '\n\n== Initial Fit Parameters ==\n');
        fprintf(fid, '%s ', fitted.CoeffNames{:}); %write coefficient names
        fprintf(fid, '\nSP: ');
@@ -120,12 +122,6 @@ classdef FileWriter < handle
        
        fclose(fid);
        end
-       
-   end
-   
-   methods (Static)
-       
-       
         
        function printFmodelValues(fitted, fid)
        % print coeffvalues of Fmodel

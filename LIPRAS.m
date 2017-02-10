@@ -481,15 +481,20 @@ handles.gui.Legend = 'on';
 %% Menu callback functions
 
 function menu_save_Callback(~, ~, handles)
-if handles.profiles.xrd.hasFit
+if handles.profiles.hasFit
     handles.profiles.exportProfileParametersFile();
 end
 
 % ---
-function menu_parameter_Callback(~, ~, handles)
+function menu_parameter_Callback(~, evt, handles)
 filename = 0;
-if handles.profiles.hasData
-    [filename, pathName, ~]  = uigetfile({'*.txt;','*.txt'},'Select Input File','MultiSelect', 'off');
+if isfield(evt, 'test')
+    filename = evt.test;
+    pathName = evt.path;
+else
+    if handles.profiles.hasData
+        [filename, pathName, ~]  = uigetfile({'*.txt;','*.txt'},'Select Input File','MultiSelect', 'off');
+    end
 end
 if filename ~= 0
     handles.profiles.importProfileParametersFile([pathName filename]);

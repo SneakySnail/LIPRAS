@@ -47,6 +47,8 @@ classdef FitResults
         Constraints
         
         FitOptions
+        
+        OutputPath
 
     end
 
@@ -63,12 +65,15 @@ CONFIDENCE_LEVEL = 0.95;
 end
     
     methods
-        function this = FitResults(xrd, filenumber)
+        function this = FitResults(profile, filenumber)
         %FITRESULTS constructor for fitting the data. It saves the fit results and also the fit
         %   parameters that were used.
         %
         %   
+        xrd = profile.xrd;
         this.FileName      = strrep(xrd.getFileNames{filenumber}, '.', '_');
+        this.ProfileNum    = profile.getCurrentProfileNumber;
+        this.OutputPath    = profile.OutputPath;
         this.FunctionNames = xrd.getFunctionNames;
         this.TwoTheta      = xrd.getTwoTheta;
         this.Intensity     = xrd.getData(filenumber);

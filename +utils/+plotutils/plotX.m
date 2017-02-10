@@ -62,8 +62,8 @@ switch lower(mode)
         plotSuperimposed(handles);
         utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
     case 'fit'
-        plotFit(handles);
         utils.plotutils.resizeAxes1ForErrorPlot(handles, 'fit');
+        plotFit(handles);
         plotFitError(handles);
     case 'sample'
         hold(handles.axes1, 'off');
@@ -81,6 +81,8 @@ switch lower(mode)
     case 'stats' %TODO
         plotFitStats(handles);
 end
+
+
 
 
 % ==============================================================================
@@ -142,18 +144,22 @@ end
         fileID = filenum;
     end
     
-    fitted = xrd.getFitResults{fileID};
-    hold(ax, 'off');
+    fitted = handles.profiles.getProfileResult{fileID};
+    cla
     % Raw Data
     data(1) = plot(ax, ...
         fitted.TwoTheta, fitted.Intensity, 'o', ...
-        'LineWidth',1, ...
-        'MarkerSize',3, ...
+        'LineWidth',0.6, ...
+        'MarkerSize',5, ...
         'DisplayName','Raw Data', ...
         'MarkerFaceColor', [1 1 1], ...%[.08 .17 .55],...
-        'MarkerEdgeColor',[0.3 0.3 0.3]); 
-    hold(ax, 'on');
+        'MarkerEdgeColor',[.08 .17 .55]); 
     set(ax, 'XLim', [fitted.TwoTheta(1) fitted.TwoTheta(end)]);
+    hold(ax, 'on');
+    if isequal(ax, handles.axes1)
+        linkaxes([handles.axes1 handles.axes2], 'x');
+        hold(handles.axes2, 'on');
+    end
     % Background
     data(2) = plot(ax, ...
         fitted.TwoTheta, fitted.Background, '--', ...
@@ -161,9 +167,9 @@ end
         'Tag', 'Background');
     data(3) = plot(ax, ...
         fitted.TwoTheta, fitted.FData+fitted.Background, 'k', ...
-        'LineWidth',1.5, ...
+        'LineWidth',1, ...
         'DisplayName','Overall Fit',...
-        'Color',[0 .5 0], ...
+        'Color',[0 0 0], ...
         'Tag', 'OverallFit'); % Overall Fit
     
     fcns = fitted.FunctionNames;
@@ -198,16 +204,15 @@ end
     function plotFitError(handles)
     import utils.plotutils.*
     
-    fitted = xrd.getFitResults{filenum};
+    fitted = handles.profiles.getProfileResult{filenum};
     
+    cla(handles.axes2);
     err = plot(handles.axes2, ...
         fitted.TwoTheta, fitted.Intensity - (fitted.FData+fitted.Background), ...
         'r', ...
         'LineWidth', .50, ...
         'Tag', 'Error'); % Error
     
-    linkaxes([handles.axes1 handles.axes2], 'x');
-    updateLim(handles, [fitted.TwoTheta(1) fitted.TwoTheta(end)]);
     end
 % ==============================================================================
 
@@ -324,9 +329,9 @@ end
 % Makes a new figure and plots each fit for the entire dataset.
     function plotAllFits(handles)
     import utils.plotutils.*
-    fits = xrd.getFitResults;
 
-    f = figure(5);
+    screen = get(0, 'ScreenSize');
+    f = figure('Units', 'pixels', 'Position', [150 50 min(900,screen(3)) min(700,screen(4))]);
     m = floor(sqrt(xrd.NumFiles));
     n = ceil(xrd.NumFiles/m);
     for j=1:xrd.NumFiles
@@ -373,8 +378,7 @@ end
 % plots the statistics of all the fits, when 'Fit Statistics' is selected
     function plotFitStats(handles)
     hTable = handles.table_results;
-    fits = handles.profiles.xrd.getFitResults;
-    
+    fits = handles.profiles.getProfileResult{fileID};
     numfiles = length(fits);
     
     for i=1:numfiles

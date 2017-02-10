@@ -1,4 +1,4 @@
-classdef ProfileListManager < matlab.mixin.Copyable
+classdef ProfileListManager < handle
     %PROFILELISTMANAGER Maintains a list of PackageFitDiffractionData objects.
     %   Only a single instance is allowed. To get the handle to the currently
     %   existing ProfileListManager instance, call the static method
@@ -6,9 +6,13 @@ classdef ProfileListManager < matlab.mixin.Copyable
    properties
        FileNames 
        
+       NumFiles = 0;
+       
        DataPath
        
        OutputPath = ['FitOutputs' filesep];
+       
+       FitResults % each profile results in a cell
        
    end
    
@@ -26,8 +30,9 @@ classdef ProfileListManager < matlab.mixin.Copyable
        initialXRD_
        
        Writer
-       
+              
       CurrentProfileNumber_ = 0;
+      
    end
    
    
@@ -57,8 +62,12 @@ classdef ProfileListManager < matlab.mixin.Copyable
                this.DataPath = xrd.DataPath;
                xrd.OutputPath = [xrd.DataPath 'FitOutputs' filesep];
                this.FileNames = xrd.getFileNames;
+               this.NumFiles = length(this.FileNames);
                this.OutputPath = xrd.OutputPath;
                this.addProfile;
+               this.Writer = ui.FileWriter(this);
+           else
+               this.reset;
            end
        end
        
@@ -93,6 +102,9 @@ classdef ProfileListManager < matlab.mixin.Copyable
        function this = reset(this)
        this.xrdContainer = [];
        this.CurrentProfileNumber_ = 0;
+       this.NumFiles = 0;
+       delete(this.Writer);
+       this.Writer = [];
        end
        
        function output = hasData(this)
@@ -104,7 +116,7 @@ classdef ProfileListManager < matlab.mixin.Copyable
        end 
        
        function a = hasFit(this)
-        if isempty(this.xrd.FitResults)
+        if isempty(this.FitResults) || isempty(this.FitResults{this.getCurrentProfileNumber})
             a = false;
         else
             a = true;
@@ -152,19 +164,9 @@ classdef ProfileListManager < matlab.mixin.Copyable
        end
        end
        
-       function output = getFileNames(this, file)
-       % Assuming listbox_files and popup_filename values are identical.
-       if nargin > 1
-           output = this.xrd.getFileNames(file);
-       else
-           output = this.xrd.getFileNames;
-       end
-       end
-       
        function this = exportProfileParametersFile(this)
-       writer = ui.FileWriter(this);
-       writer.OutputPath = this.OutputPath;
-       writer.saveAsParametersFile();
+       % Assuming there is already a fit
+       this.Writer.printFitParameters(this.getProfileResult);
        end
         
        function this = importProfileParametersFile(this, filename)
@@ -238,15 +240,35 @@ classdef ProfileListManager < matlab.mixin.Copyable
        fclose(fid);
        end
        
-       function this = exportProfileMasterFile(this)
-       writer = ui.FileWriter(this);
-       writer.saveAsMasterFile();
+       
+       function results = getProfileResult(this, num)
+       if nargin < 2
+           num = this.getCurrentProfileNumber;
+       end
+       results = this.FitResults{num};
        end
        
-       function filename = exportFdataFiles(this)
-       writer = ui.FileWriter(this);
-
-       end
+       function fitresults = fitDataSet(this, filenum, prfn)
+        % Fits the entire dataset for the current profile and saves it as a cell array of FitResults.
+        if nargin < 3
+            prfn = this.getCurrentProfileNumber;
+        end
+        fitresults = [];
+        if nargin < 2
+            try
+                fitresults = cell(1, this.NumFiles);
+                for i=1:this.NumFiles
+                    fitresults{i} = this.fitDataSet(i);
+                end
+                this.Writer.printFitOutputs(fitresults);
+            catch exception
+                errordlg(exception.message, 'Fit Error')
+            end
+        else
+            fitresults = model.FitResults(this, filenum);
+            this.FitResults{prfn}{filenum} = fitresults;
+        end
+        end
    end
    
    methods

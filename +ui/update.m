@@ -372,7 +372,7 @@ utils.plotutils.plotX(handles,'sample');
 
 function newFitResults(handles)
 profiles = handles.profiles;
-if profiles.xrd.hasFit
+if profiles.hasFit
     set(handles.push_fitdata, 'enable', 'on');
     set(handles.tab2_next, 'visible', 'on');
     set(handles.menu_save,'Enable','on');
