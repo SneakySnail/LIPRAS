@@ -1,4 +1,4 @@
-function output = getDefaultBounds(Stro, boundname)
+function output = getDefaultBounds(Stro, boundname, varargin)
 %GETDEFAULTBOUNDS returns the default values of the bounds specified by BOUNDNAME.
 %
 %   BOUNDNAME can be 'start', 'lower', or 'upper'

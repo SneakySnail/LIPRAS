@@ -42,6 +42,8 @@ guidata(hObject, handles);
 handles.gui = GUIController.getInstance(hObject);
 handles = GUIController.initGUI(handles);
 
+handles.validator = utils.Validator(handles);
+
 assignin('base','handles',handles);
 % Update handles structure
 guidata(hObject, handles);
@@ -56,37 +58,55 @@ varargout{1} = handles.output;
 function LIPRAS_DeleteFcn(hObject, eventdata, handles)
 % Executes before closing the GUI, even if the function delete() is called instead of manually 
 %   closing the figure. Cleans up the workspace.
-ui.update(handles,'reset');
-delete(handles.gui);
-delete(handles.profiles);
+try
+    delete(handles.gui);
+    delete(handles.profiles);
+catch
+end
 clear('handles', 'var');
 
 %  Executes on button press in button_browse.
-function button_browse_Callback(hObject, ~, handles)
+function button_browse_Callback(hObject, evt, handles)
 handles.gui.Status = 'Browsing for dataset... ';
-handles.profiles.newXRD();
-if handles.profiles.hasData
+filenames = handles.profiles.FileNames;
+if isfield(evt, 'test')
+    handles.profiles.newXRD(evt.test);
+else
+    handles.profiles.newXRD();
+end
+if ~isequal(filenames, handles.profiles.FileNames) % if not the same dataset as before
+    answer = NewDatasetView;
+    if isnumeric(answer)
+        handles.profiles.KAlpha1 = answer;
+        handles.gui.KAlpha1 = answer; % automatically makes panel_cuka visible
+        handles.gui.KAlpha1 = []; % setting it to empty brings it back to invisible, but doesn't remove the updated string
+        handles.gui.Plotter.XScale = 'dspace';
+        handles.gui.Plotter.YScale = 'linear';
+    else
+        handles.gui.KAlpha1 = [];
+        handles.gui.Plotter.XScale = 'linear';
+        handles.gui.Plotter.YScale = 'linear';
+    end
+    
+    ui.update(handles,'reset');
     ui.update(handles, 'dataset');
+    
 else
     handles.gui.Status = '';
 end
 
-% Executes on button press in push_newbkgd.
+%  Executes on button press in push_newbkgd.
 function push_newbkgd_Callback(hObject, eventdata, handles)
 %   EVENTDATA can be used to pass test values to this function to avoid any blocking calls like
 %   ginput.
 import utils.plotutils.*
-plotX(handles, 'data');
-if handles.profiles.xrd.hasBackground
-    plotX(handles, 'backgroundpoints');
-end
 
 if isfield(eventdata, 'test')
     points = eventdata.test;
 else
     selected = handles.group_bkgd_edit_mode.SelectedObject.String;
     if strcmpi(selected, 'Delete')
-        oldpoints = handles.profiles.xrd.getBackgroundPoints;
+        oldpoints = handles.profiles.xrd.getBackgroundPoints;   
         numpoints = length(oldpoints);
         points = selectPointsFromPlot(handles, selected, numpoints);
     elseif strcmpi(selected, 'Add')
@@ -101,8 +121,9 @@ end
 try
     handles.profiles.xrd.setBackgroundPoints(points);
     ui.update(handles, 'backgroundpoints');
-catch 
-    if strcmp(identifier, 'MATLAB:polyfit:PolyNotUnique')
+catch exception
+    
+    if strcmp(exception.identifier, 'MATLAB:polyfit:PolyNotUnique')
         warndlg('Polynomial is not unique; degree >= number of data points.', 'Warning')
     end
 end
@@ -124,7 +145,7 @@ function menu_yplotscale_Callback(o,e,handles)
 %   default selection is 'menu_ylinear'.
 set(findobj(o.Parent), 'Checked', 'off'); % turn off checks in all x plot menu items
 o.Checked = 'on';
-plotter = getappdata(handles.axes1, 'plotter');
+plotter = handles.gui.Plotter;
 switch o.Tag
     case 'menu_ylinear' % linear
         plotter.YScale = 'linear';
@@ -261,7 +282,7 @@ if handles.gui.isFitDirty
     % Make sure all peak positions are valid
     if isempty(find(handles.profiles.xrd.PeakPositions == 0,1))
         % Generate new values for the start, lower, and upper bounds
-        handles.profiles.xrd.generateDefaultFitBounds;
+        handles.profiles.xrd.FitInitial = handles.validator.updatedFitBounds;
     end
 end
 ui.update(handles, 'fitinitial');
@@ -272,6 +293,7 @@ import utils.contains
 import utils.plotutils.*
 plotX(handles, 'data');
 plotX(handles, 'backgroundfit');
+
 peakcoeffs = find(contains(handles.profiles.xrd.getCoeffs, 'x'));
 points = selectPointsFromPlot(handles, [], length(peakcoeffs));
 if length(points) == length(peakcoeffs)
@@ -350,11 +372,6 @@ function push_default_Callback(hObject, eventdata, handles)
 status='Clearing the table... ';
 handles.xrd.Status=status;
 
-% 	try call.overwriteExistingFit(handles);
-% 	catch
-% 		return
-% 	end
-
 handles.xrd.Fmodel=[];
 len = size(handles.table_fitinitial.Data,1);
 handles.table_fitinitial.Data = cell(len,3);
@@ -363,9 +380,6 @@ set(handles.push_selectpeak,'Enable','on', 'string', 'Select Peak(s)');
 set(handles.table_fitinitial,'Enable','on');
 plotX(handles, 'Data');
 
-% 	if strcmpi(handles.uitoggletool5.State,'on')
-% 		legend(handles.xrd.DisplayName,'box','off')
-% 	end
 
 set(handles.axes2,'Visible','off');
 set(handles.axes2.Children,'Visible','off');
@@ -404,24 +418,15 @@ end
 % Superimpose raw data.
 function checkbox_superimpose_Callback(hObject, eventdata, handles)
 
-axes(handles.axes1)
-cla
+cla(handles.axes1)
 % If box is checked, turn on hold in axes1
 if get(hObject,'Value')
-    handles.xrd.DisplayName = {};
-    plotX(handles, 'superimpose');
-    set(handles.axes2,'Visible','off');
-    set(handles.popup_filename, 'enable', 'on');
-    set(handles.listbox_files, 'enable', 'on');
-    set(handles.axes2.Children,'Visible','off');
-    % 		handles.uitoggletool5.UserData=handles.uitoggletool5.State;
-    toolbar_legend_OnCallback(handles.toolbar_legend, eventdata, guidata(hObject));
+    hold(handles.axes1, 'on')
+    utils.plotutils.plotX(handles, 'superimpose');
 else
-    hold off
-    plotX(handles);
-    
+    utils.plotutils.plotX(handles);
 end
-handles.xrd.Status='Superimposing raw data... Done.';
+handles.xrd.Status='Superimposing raw data...';
 
 
 
@@ -436,19 +441,9 @@ superimposed = get(handles.checkbox_superimpose, 'Value');
 
 % If superimpose box is checked, plot any subsequent data sets together
 if superimposed
-    numLines = length(handles.axes1.Children);
-    
-    isSameFile = strcmpi(handles.gui.getFileNames(filenum), handles.gui.DisplayName);
-    
-    % If there is only one dataset plotted and % if the same dataset is chosen
-    if numLines > 1 && ~isSameFile
-        plotX(handles, 'superimpose');    
-    end
-    
+    plotX(handles, 'superimpose');
 else
     plotX(handles);
-    
-    
 end
 
 guidata(hObject, handles)
