@@ -66,6 +66,10 @@ classdef GUIController < handle
         FileNames
             
         PeakPositions
+        
+        KAlpha1
+        
+        KAlpha2
     end
     
     properties (Hidden, Dependent)
@@ -124,7 +128,7 @@ classdef GUIController < handle
         end
         
         this.Profiles = this.hg.profiles;
-        this.Plotter = utils.plotutils.AxPlotter(this.hg.axes1, this.getFileNames);
+        this.Plotter = utils.plotutils.AxPlotter(this.hg);
         end
     end
         
@@ -180,6 +184,10 @@ classdef GUIController < handle
             mode = 'off';
         end
         switch mode
+            case 'reset'
+                legend(this.hg.axes1, 'off');
+                this.hg.toolbar_legend.State = 'on';
+                legend(this.hg.axes1, 'show');
             case 'on'
                 this.hg.toolbar_legend.State = 'on';
                 legend(this.hg.axes1, 'show');
@@ -205,6 +213,33 @@ classdef GUIController < handle
         else
             result = 'off';
         end
+        end
+        
+        function set.KAlpha1(this, wavelength)
+        if isempty(wavelength)
+            this.hg.checkbox_lambda.Value = 0;
+            this.hg.panel_cuka.Visible = 'off';
+        else
+            component = this.hg.edit_kalpha1;
+            component.String = sprintf('%.4f',wavelength);
+            this.hg.checkbox_lambda.Value = 1;
+            this.hg.panel_cuka.Visible = 'on';
+        end
+        end
+        
+        function wavelength = get.KAlpha1(this)
+        wavelength = str2double(this.hg.edit_kalpha1.String);
+        end
+        
+        function set.KAlpha2(this, wavelength)
+        component = this.hg.edit_kalpha2;
+        component.String = sprintf('%.4f',wavelength);
+        this.hg.checkbox_lambda.Value = 1;
+        this.hg.panel_cuka.Visible = 'on';
+        end
+        
+        function wavelength = get.KAlpha2(this)
+        wavelength = str2double(this.hg.edit_kalpha2.String);
         end
         
         function set.SelectedCoeffResult(this, coeff)
@@ -253,7 +288,6 @@ classdef GUIController < handle
         numfiles = this.hg.profiles.getNumFiles;
         this.hg.popup_filename.Value = value;
         this.hg.text_filenum.String = [num2str(value) ' of ' num2str(numfiles)];
-        clear('utils.plotutils.plotX')
         utils.plotutils.plotX(this.hg);
         end 
         

@@ -17,58 +17,58 @@ if nargin < 1
 end
 
 if ~isequal(filename, 0)
-    data = readNewDataFile(filename, path);   
+    data = readNewDataFile(filename, path);
+    [~, ~, ext] = fileparts(filename{1});
+    data.ext = ext;
 else
     data = [];
-
 end
-
 end
 
 
 function data = readNewDataFile(filename, path)
 % DATA - First row is the 2theta, second row and above are the intensities
 
-    if isa(filename,'char')
-        filename = {filename};
+if isa(filename,'char')
+    filename = {filename};
+end
+
+for i=1:length(filename)
+    fullFileName = strcat(path, filename{i});
+    [~, ~, ext] = fileparts(fullFileName);
+    fid = fopen(fullFileName, 'r');
+    
+    if strcmp(ext, '.csv')
+        datatemp = readSpreadsheet(fullFileName);
+    elseif strcmp(ext, '.txt')
+        datatemp = readWithHeader(i,fullFileName);
+    elseif strcmp(ext, '.xy')
+        datatemp = readFile(fid, ext);
+    elseif strcmp(ext, '.fxye')
+        datatemp = readWithHeader(i,fullFileName);
+    elseif strcmp(ext, '.chi')
+        datatemp = readFile(fid, ext);
+    elseif strcmp(ext, '.dat')
+        datatemp = readFile(fid, ext);
+    elseif strcmp(ext, '.xrdml')
+        datatemp = parseXRDML(fullFileName);
     end
     
-    for i=1:length(filename)
-        fullFileName = strcat(path, filename{i});
-        [~, ~, ext] = fileparts(fullFileName);
-        fid = fopen(fullFileName, 'r');
-        
-        if strcmp(ext, '.csv')
-            datatemp = readSpreadsheet(fullFileName);
-        elseif strcmp(ext, '.txt')
-            datatemp = readWithHeader(i,fullFileName);
-        elseif strcmp(ext, '.xy')
-            datatemp = readFile(fid, ext);
-        elseif strcmp(ext, '.fxye')
-            datatemp = readWithHeader(i,fullFileName);
-        elseif strcmp(ext, '.chi')
-            datatemp = readFile(fid, ext);
-        elseif strcmp(ext, '.dat')
-            datatemp = readFile(fid, ext);
-        elseif strcmp(ext, '.xrdml')
-            datatemp = parseXRDML(fullFileName);
-        end
-        
-        if ~strcmp(ext, '.xrdml')
-            data.two_theta(i,:) = datatemp(1, :);
-            data.data_fit(i, :) = datatemp(2,:);
-        else
-            data.two_theta(i,:) = datatemp.two_theta;
-            data.data_fit(i,:) = datatemp.data_fit;
-            data.Temperature(i) = datatemp.Temperature;
-            data.KAlpha1(i) = datatemp.KAlpha1;
-            data.KAlpha2(i) = datatemp.KAlpha2;
-            data.KBeta(i) = datatemp.KBeta;
-            data.RKa1Ka2(i) = datatemp.RKa1Ka2;
-        end
-        
-        fclose(fid);
+    if ~strcmp(ext, '.xrdml')
+        data.two_theta(i,:) = datatemp(1, :);
+        data.data_fit(i, :) = datatemp(2,:);
+    else
+        data.two_theta(i,:) = datatemp.two_theta;
+        data.data_fit(i,:) = datatemp.data_fit;
+        data.Temperature(i) = datatemp.Temperature;
+        data.KAlpha1(i) = datatemp.KAlpha1;
+        data.KAlpha2(i) = datatemp.KAlpha2;
+        data.KBeta(i) = datatemp.KBeta;
+        data.RKa1Ka2(i) = datatemp.RKa1Ka2;
     end
+    
+    fclose(fid);
+end
 end
 % ==============================================================================
 
@@ -78,7 +78,7 @@ data = xlsread(filename);
 % twotheta and intensity
 cc=isnan(data(:,1)); % checks if any NaN were read in
 
-% Sums the results of cc if after summing 5 rows and the sum is 0, then it 
+% Sums the results of cc if after summing 5 rows and the sum is 0, then it
 %   re-shapes the data read in with xlsread
 for i=1:length(cc)
     s= sum(cc(i:i+5),1);
@@ -92,7 +92,7 @@ end
 data = data(p:end,:);
 
 % now takes the first two columns of intesity and 2-theta and transpose
-data = data(:,1:2)'; 
+data = data(:,1:2)';
 end
 
 
@@ -112,7 +112,6 @@ elseif strcmp( ext, '.chi')
 else
     data = fscanf(fid,'%f',[2 ,inf]);
 end
-
 end
 % ==============================================================================
 
@@ -203,7 +202,7 @@ if tth == 0
     tth = ttho:step:tthf;
     tth = tth';
 end
-    
+
 % Reading Kalpha1, Kalpha2, Kbeta, and Ratio from XRDML
 % how to read XML, if the element is tabbed over twice,
 % you need two instances of Children to access it then
@@ -219,7 +218,7 @@ data.data_fit = intensity';
 data.Temperature = temperature;
 
 
-% ===== 
+% =====
 % dom = xmlread(filename);
 % intensitiesElement = dom.getElementsByTagName('intensities').item(0);
 % intensitiesValue = textscan(char(intensitiesElement.getTextContent), '%f');
@@ -244,7 +243,7 @@ data.Temperature = temperature;
 % else % TODO
 % %     temp =  mean(strread(dataPoints.Children(1,4).Children(1,1).Data,'%f'))-273.15;
 % end
-% 
+%
 % data.KAlpha1 = str2double(dom.getElementsByTagName('kAlpha1').item(0).getTextContent);
 % data.KAlpha2 = str2double(dom.getElementsByTagName('kAlpha2').item(0).getTextContent);
 % data.kBeta = str2double(dom.getElementsByTagName('kBeta').item(0).getTextContent);

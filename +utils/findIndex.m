@@ -14,25 +14,33 @@ for i=1:length(pattern)
     % conditional to increase the accuracy of the selected cell
     greater = find(data >= pattern(i));
     less = find(data <= pattern(i));
-    
+
     % 'less' or 'greater' can be empty if the value sits at the edge
     % of a data set
     if isempty(greater)
         greater = less;
-        
     elseif isempty(less)
         less = greater;
     end
     
+    greatest = greater(1);
+    least = less(end);
     % Find closest point to value2theta
-    right = abs(data(greater(1))-pattern(i));
-    
-    left = abs(pattern(i) - data(less(end)));
+    right = abs(data(greatest)-pattern(i));
+    if abs(data(greater(end))-pattern(i)) < right
+        greatest = greater(end);
+        right = data(greatest)-pattern(i);
+    end
+    left = abs(pattern(i) - data(least));
+    if abs(pattern(i)-data(less(1))) < left
+        least = less(1);
+        left = abs(pattern(i)-data(least));
+    end
     
     if right <= left
-        position(i) = greater(1);
+        position(i) = greatest;
     else
-        position(i) = less(end);
+        position(i) = least;
     end
 end
 

@@ -14,6 +14,7 @@ end
 Stro = handles.profiles.xrd;
 try
     prfn = handles.profiles.getCurrentProfileNumber;
+    fitresults = cell(1, Stro.NumFiles);
     for i=1:Stro.NumFiles
         % Report current status of fitting dataset
         msg = ['Fitting Profile ' num2str(prfn) ': Dataset ' num2str(i) ' of ' num2str(Stro.NumFiles)];

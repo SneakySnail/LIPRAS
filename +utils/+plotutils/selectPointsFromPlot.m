@@ -8,11 +8,12 @@ points = [];
 if nargin < 2
     mode = 'Add';
 end
-hold(handles.axes1, 'on')
 
-if strcmpi(mode, 'New')
-    utils.plotutils.plotX(handles, 'data');
+utils.plotutils.plotX(handles, 'data');
+if ~strcmpi(mode, 'New') && handles.profiles.xrd.hasBackground
+    utils.plotutils.plotX(handles, 'backgroundpoints');
 end
+
 while (true)
     if nargin > 2 && numpoints == 0
         break;
@@ -24,8 +25,15 @@ while (true)
         return
     end
         
-    xdata = handles.profiles.xrd.getTwoTheta;
-    ydata = handles.profiles.xrd.getData(handles.gui.CurrentFile);
+    dataline = findobj(handles.axes1.Children, 'tag', 'raw');
+%     xdata = handles.profiles.xrd.getTwoTheta;
+%     ydata = handles.profiles.xrd.getData(handles.gui.CurrentFile);
+%     if isequal(handles.gui.Plotter.XScale,'dspace')
+%         ydata = handles.profiles
+%     end
+
+    xdata = dataline.XData;
+    ydata = dataline.YData;
     if strcmpi(mode, 'Delete')
         bkgdplot = findobj(handles.axes1.Children, 'DisplayName', 'Background Points');
         bkgdx = bkgdplot.XData;
@@ -44,5 +52,9 @@ while (true)
     if nargin > 2 && numpoints > 0
          numpoints = numpoints - 1;
     end
+end
+
+if strcmpi(handles.gui.Plotter.XScale, 'dspace')
+    points = sort(handles.profiles.twotheta(points));
 end
 

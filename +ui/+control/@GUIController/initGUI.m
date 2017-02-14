@@ -56,7 +56,6 @@ addControlListeners();
      handles.edit_polyorder = utils.uispinner(handles.edit_polyorder, 3, 1, 25, 1);
      handles.edit_numpeaks = utils.uispinner(handles.edit_numpeaks, 0, 0, 20, 1);
      
-     set(handles.menu_xaxis.Children, 'Callback', @(o,e)LIPRAS('menu_xplotscale_Callback',o,e,guidata(o)));
      set(handles.menu_yaxis.Children, 'Callback', @(o,e)LIPRAS('menu_yplotscale_Callback',o,e,guidata(o)));
      
      % Clear persistent variables

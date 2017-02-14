@@ -58,6 +58,18 @@ classdef FileWriter < handle
        fclose(fidmaster);
        end
        
+       function saveAsFitParameters(this, fits)
+       fitted = fits{1};
+       fullfile = this.getFullFileName(fitted.OutputPath, fitted.FileName, 'Parameters', '.txt');
+       fid = fopen(fullfile,'w');
+       this.printFitParameters(fits, fid);
+       fclose(fid);
+       
+       [~, filename, ext] = fileparts(fullfile);
+       msg = ['Fit parameters were successfully saved as the file ' filename ext '.'];
+       msgbox(msg, 'Saved')
+       end
+       
        function str = getFullFileName(this, outpath, fitname, varargin)
        % If FILENAME already exists, append it with ' (n)' where n is the number of files with the
        % name FILENAME that already exists.
@@ -72,7 +84,7 @@ classdef FileWriter < handle
        end
        ext = varargin{end};
        n = 1;
-       while exist([str ext], 'dir') == 2
+       while exist([str ext], 'file') == 2
            str = [str ' (' num2str(n) ')']; %#ok<AGROW>
            n=n+1;
        end
@@ -82,18 +94,16 @@ classdef FileWriter < handle
    end
    
    methods (Static)
-       function filename = printFitParameters(fits)
+       function printFitParameters(fits, fid)
        %SAVEPARAMETERSTOFILE 
        %
        %FILENAME      
        names = cell(1,length(fits));
        fitted = fits{1};
-       filename = this.getFullFileName(fitted.OutputPath, fitted.FileName, 'Parameters', '.txt');
        for i=1:length(fits)
            names{i} = fits{i}.FileName;
        end
        %the name of the file it will write containing the statistics of the fit
-       fid = fopen(filename, 'w'); 
        fprintf(fid, 'Filenames: ');
        fprintf(fid, '%s ', names{:});
        fprintf(fid, '\n\n');
@@ -119,8 +129,6 @@ classdef FileWriter < handle
        fprintf(fid, '%#.5g ', fitted.FitOptions.Lower);
        fprintf(fid, '\nUB: ');
        fprintf(fid, '%#.5g ', fitted.FitOptions.Upper);
-       
-       fclose(fid);
        end
         
        function printFmodelValues(fitted, fid)

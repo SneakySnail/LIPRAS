@@ -80,12 +80,14 @@ handles.gui.DataPath = '';
 handles.menu_parameter.Enable = 'off';
 handles.menu_plot.Enable = 'off';
 handles.menu_command.Enable = 'off';
+handles.gui.Legend = 'off';
 
 % Reset enabled controls
 set([handles.push_prevprofile, handles.push_nextprofile, handles.push_removeprofile], ...
     'visible', 'off');
 set(handles.tabpanel, 'TabEnables', {'on', 'off', 'off'}, 'Selection', 1);
 set(findobj(handles.figure1, 'style', 'checkbox'), 'Value', false);
+set(handles.popup_filename, 'enable', 'on');
 
 resetSetupTabView(handles);
 resetOptionsTabView(handles);
@@ -103,7 +105,7 @@ handles.tab1_next.Visible = 'off';
 function resetOptionsTabView(handles)
 % Reset the Options tab view as if the user had just launched the GUI. Helper function for reset().
 handles.gui.NumPeaks = 0;
-handles.table_fitinitial.Data = cell(size(handles.table_fitinitial));
+handles.table_fitinitial.Data = cell(1,3);
 
 function resetResultsTabView(handles)
 % Reset Results tab view
@@ -144,7 +146,9 @@ set(handles.uipanel3, 'visible', 'on');
 set(handles.push_removeprofile, 'enable', 'off');
 handles.menu_plot.Enable = 'on';
 handles.menu_command.Enable = 'on';
-% utils.plotutils.plotX(handles, 'data');
+
+
+
 % ==============================================================================
 
 function newParameterFile(handles)
