@@ -8,6 +8,8 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         
         AbsoluteRange
         
+        XData
+        
     end
     
     properties (Access = protected)
@@ -30,9 +32,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
     end
     
     properties (Dependent)
-        Min2T
-        
-        Max2T
         
         NumFiles
         
@@ -46,6 +45,9 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         DataPath
         
         CuKaPositions_
+        
+        Min2T
+        Max2T
     end
     
     properties (Hidden)
@@ -84,15 +86,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
                 filenames = {filenames};
             end
             Stro.DataSet = cell(1, length(filenames));
-            [~, ~, ext] = fileparts(filenames{1});
-            if strcmpi(ext, '.xrdml')
-                Stro.Temperature = data.Temperature;
-                Stro.KAlpha1 = data.KAlpha1;
-                Stro.KAlpha2 = data.KAlpha2;
-                Stro.KBeta = data.KBeta;
-                Stro.RKa1Ka2 = data.RKa1Ka2;
-                Stro.CuKa = true;
-            end
             x = data.two_theta;
             y = data.data_fit;
             for i=1:size(y, 1)
@@ -162,6 +155,8 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
         Stro.PeakPositions_ = pos;
         end
+        
+        
         
         function coeffvals = startingValuesForPeak(Stro, fcnID)
         %STARTINGVALUESFORPEAK returns the coefficient values stored in Stro.FitInitial for the peak

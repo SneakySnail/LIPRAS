@@ -20,9 +20,18 @@ classdef ProfileListManager < handle
        xrd
        
        CuKa
+       
    end
    
    properties (Hidden)
+       FullTwoThetaRange
+       FullIntensityData
+       Temperature
+       KAlpha1 = 1.540598; % nm
+       KAlpha2 = 1.544426; % nm
+       KBeta
+       RKa1Ka2
+       
        ValidFunctions = {'Gaussian', 'Lorentzian', 'Pearson VII', 'Pseudo-Voigt', 'Asymmetric Pearson VII'};
        
        xrdContainer
@@ -50,6 +59,15 @@ classdef ProfileListManager < handle
                    this.reset();
                    this.initialXRD_ = PackageFitDiffractionData(data, filename);
                    this.initialXRD_.DataPath = path;
+                   
+                   if strcmpi(data.ext, '.xrdml')
+                       this.Temperature = data.Temperature;
+                       this.KAlpha1 = data.KAlpha1;
+                       this.KAlpha2 = data.KAlpha2;
+                       this.KBeta = data.KBeta;
+                       this.RKa1Ka2 = data.RKa1Ka2;
+                       this.CuKa = true;
+                   end
                end
                
            else % if xrd was already created, just save as the new xrd
@@ -59,6 +77,7 @@ classdef ProfileListManager < handle
            
            if ~isempty(this.initialXRD_) && this.initialXRD_.hasData
                xrd = this.initialXRD_;
+               this.FullTwoThetaRange = xrd.getTwoTheta;
                this.DataPath = xrd.DataPath;
                xrd.OutputPath = [xrd.DataPath 'FitOutputs' filesep];
                this.FileNames = xrd.getFileNames;
@@ -166,7 +185,7 @@ classdef ProfileListManager < handle
        
        function this = exportProfileParametersFile(this)
        % Assuming there is already a fit
-       this.Writer.printFitParameters(this.getProfileResult);
+       this.Writer.saveAsFitParameters(this.getProfileResult);
        end
         
        function this = importProfileParametersFile(this, filename)
@@ -286,9 +305,18 @@ classdef ProfileListManager < handle
        function set.xrd(this, xrd)
        this.xrdContainer(this.CurrentProfileNumber_) = xrd;
        end
+       
+       function xdata = dspace(this, twotheta)
+        xdata = this.KAlpha1 ./ (2*sind(twotheta));
+       end
+       
+       function xdata = twotheta(this, dspace)
+       xdata = asind(this.KAlpha1 ./ (2*dspace));
+       end
    end
    
    methods (Static)
+       
        function singleObj = getInstance(obj)
        persistent localObj;
        if nargin > 0
