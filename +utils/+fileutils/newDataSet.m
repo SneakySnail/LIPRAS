@@ -19,14 +19,12 @@ else
 end
 
 if nargin < 2
-    [filename, datapath, ext] = uigetfile(filterspec, title, 'MultiSelect', 'on', data_path);
-else
-    [~,~,ext] = fileparts(filename);
+    [filename, datapath] = uigetfile(filterspec, title, 'MultiSelect', 'on');
 end
 
 if ~isequal(filename, 0)
     data = readNewDataFile(filename, datapath);
-    data.ext = ext;
+    
 else
     data = [];
 end
@@ -35,11 +33,17 @@ end
 
 function data = readNewDataFile(filename, path)
 % DATA - First row is the 2theta, second row and above are the intensities
-
 if isa(filename,'char')
     filename = {filename};
 end
 
+% preallocate the structure array 
+[~,~,ext] = fileparts(filename{1});
+initializer = struct('two_theta',[],'data_fit',[],'KAlpha1',[],'KAlpha2',[],...
+    'kBeta',[],'RKa1Ka2',[],'Temperature',[],'ext','');
+data(length(filename)) = initializer;
+
+% iterate through all files
 for i=1:length(filename)
     fullFileName = strcat(path, filename{i});
     [~, ~, ext] = fileparts(fullFileName);
@@ -61,18 +65,8 @@ for i=1:length(filename)
         datatemp = parseXRDML(fullFileName);
     end
     
-    if ~strcmp(ext, '.xrdml')
-        data.two_theta(i,:) = datatemp(1, :);
-        data.data_fit(i, :) = datatemp(2,:);
-    else
-        data.two_theta(i,:) = datatemp.two_theta;
-        data.data_fit(i,:) = datatemp.data_fit;
-        data.Temperature(i) = datatemp.Temperature;
-        data.KAlpha1(i) = datatemp.KAlpha1;
-        data.KAlpha2(i) = datatemp.KAlpha2;
-        data.KBeta(i) = datatemp.KBeta;
-        data.RKa1Ka2(i) = datatemp.RKa1Ka2;
-    end
+    data(i) = datatemp;
+    data(i).ext = ext;
     
     fclose(fid);
 end
@@ -80,10 +74,12 @@ end
 % ==============================================================================
 
 function data = readSpreadsheet(filename)
-data = xlsread(filename);
+data = struct('two_theta',[],'data_fit',[],'KAlpha1',[],'KAlpha2',[],...
+    'kBeta',[],'RKa1Ka2',[],'Temperature',[],'ext',ext);
+temp = xlsread(filename);
 % Method for reading of data that does not start with numerial
 % twotheta and intensity
-cc=isnan(data(:,1)); % checks if any NaN were read in
+cc=isnan(temp(:,1)); % checks if any NaN were read in
 
 % Sums the results of cc if after summing 5 rows and the sum is 0, then it
 %   re-shapes the data read in with xlsread
@@ -96,29 +92,31 @@ for i=1:length(cc)
 end
 
 % reshapes based on for loop results
-data = data(p:end,:);
+temp = temp(p:end,:);
 
 % now takes the first two columns of intesity and 2-theta and transpose
-data = data(:,1:2)';
+temp = temp(:,1:2)';
+data.two_theta = temp(1,:);
+data.data_fit = temp(2,:);
 end
 
 
 function data = readFile(fid, ext)
-
+data = struct('two_theta',[],'data_fit',[],'KAlpha1',[],'KAlpha2',[],...
+    'kBeta',[],'RKa1Ka2',[],'Temperature',[], 'ext',ext);
 if strcmp(ext, '.xy')
-    data = fscanf(fid,'%f',[2 ,inf]);
-    
+    temp = fscanf(fid,'%f',[2 ,inf]);
 elseif strcmp( ext, '.fxye')
-    data = fscanf(fid,'%f',[3 ,inf]);
-    data(1,:) = data(1,:) ./ 100;
-    
+    temp = fscanf(fid,'%f',[3 ,inf]);
+    temp(1,:) = temp(1,:) ./ 100;
 elseif strcmp( ext, '.chi')
     fgetl(fid);fgetl(fid);fgetl(fid);fgetl(fid);
-    data = fscanf(fid,'%f',[2 ,inf]);
-    
+    temp = fscanf(fid,'%f',[2 ,inf]);
 else
-    data = fscanf(fid,'%f',[2 ,inf]);
+    temp = fscanf(fid,'%f',[2 ,inf]);
 end
+data.two_theta = temp(1,:);
+data.data_fit = temp(2,:);
 end
 % ==============================================================================
 
@@ -161,7 +159,8 @@ end
 % ==============================================================================
 
 function data = parseXRDML(filename)
-%PARSEXRDML reads an xml file with the extension .xrdml.
+%PARSEXRDML reads an xml file with the extension .xrdml. If there are multiple scans in one file,
+%this function assumes that the 2theta range is the same for all scans.
 
 % data = utils.fileutils.parseXML(filename);
 % for i = 1:length(data.Children)
@@ -228,8 +227,30 @@ function data = parseXRDML(filename)
 
 % =====
 dom = xmlread(filename);
-intensitiesElement = dom.getElementsByTagName('intensities').item(0);
-intensitiesValue = textscan(char(intensitiesElement.getTextContent), '%f');
+
+intensityElements = dom.getElementsByTagName('intensities');
+ilen = textscan(char(intensityElements.item(0).getTextContent),'%f');
+ilen = length(ilen{1});
+intensity = zeros(intensityElements.getLength, ilen);
+temperature = zeros(1,intensityElements.getLength);
+
+for i=1:intensityElements.getLength 
+    % Get the intensity values for each scan
+    item = intensityElements.item(i-1);
+    intensVal = textscan(char(item.getTextContent), '%f');
+    intensity(i,:) = intensVal{1}';
+    
+    % Get the average temperature for each scan
+    tempItem = dom.getElementsByTagName('nonAmbientPoints').item(0);
+    if isempty(tempItem)
+        temperature(i) = 25;
+    else 
+        temp = textscan(char(tempItem.getTextContent),'%f');
+        temperature(i) = mean(temp{1}) - 273.15;
+    end
+end
+
+% Get the two theta values for each intensity
 listPosElement = dom.getElementsByTagName('listPositions').item(0);
 if isempty(listPosElement)
     % Assuming the first item under the element 'positions' has the attribute '2Theta'
@@ -238,26 +259,25 @@ if isempty(listPosElement)
     startPosValue = str2double(startPosElement.getTextContent);
     endPosElement = pos2thetaElement.getElementsByTagName('endPosition').item(0);
     endPosValue = str2double(endPosElement.getTextContent);
-    step = (endPosValue - startPosValue) / (length(intensitiesValue)-1);
-    listPosValue = (startPosValue:step:endPosValue)';
+    step = (endPosValue - startPosValue) / (ilen-1);
+    listPosValue = (startPosValue:step:endPosValue);
 else
     listPosValue = textscan(char(listPosElement.getTextContext), '%f');
     listPosValue = listPosValue{1}';
 end
-% get temperature
-tempElement = dom.getElementsByTagName('nonAmbientPoints').item(0);
-if isempty(tempElement)
-    temp = 25;
-else % TODO
-%     temp =  mean(strread(dataPoints.Children(1,4).Children(1,1).Data,'%f'))-273.15;
+
+twotheta = zeros(intensityElements.getLength,ilen);
+for i=1:intensityElements.getLength
+    twotheta(i,:) = listPosValue;
 end
+    
+% Get KAlpha1, KAlpha2, kBeta, and RKa1Ka2
+ka1 = str2double(dom.getElementsByTagName('kAlpha1').item(0).getTextContent);
+ka2 = str2double(dom.getElementsByTagName('kAlpha2').item(0).getTextContent);
+kbeta = str2double(dom.getElementsByTagName('kBeta').item(0).getTextContent);
+ratio = str2double(dom.getElementsByTagName('ratioKAlpha2KAlpha1').item(0).getTextContent);
 
-data.KAlpha1 = str2double(dom.getElementsByTagName('kAlpha1').item(0).getTextContent);
-data.KAlpha2 = str2double(dom.getElementsByTagName('kAlpha2').item(0).getTextContent);
-data.kBeta = str2double(dom.getElementsByTagName('kBeta').item(0).getTextContent);
-data.RKa1Ka2 = str2double(dom.getElementsByTagName('ratioKAlpha2KAlpha1').item(0).getTextContent);
-data.two_theta = listPosValue;
-data.data_fit = intensitiesValue{1}';
-data.Temperature = temp;
-
+% Save values into a struct
+data = struct('KAlpha1',ka1,'KAlpha2',ka2,'kBeta',kbeta,'RKa1Ka2',ratio,'two_theta',twotheta,...
+    'data_fit',intensity,'Temperature',temperature,'ext','');
 end

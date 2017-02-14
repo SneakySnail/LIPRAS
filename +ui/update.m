@@ -147,7 +147,10 @@ set(handles.push_removeprofile, 'enable', 'off');
 handles.menu_plot.Enable = 'on';
 handles.menu_command.Enable = 'on';
 
-
+if handles.profiles.CuKa
+    handles.gui.KAlpha1 = handles.profiles.KAlpha1;
+    handles.gui.KAlpha2 = handles.profiles.KAlpha2;
+end
 
 % ==============================================================================
 

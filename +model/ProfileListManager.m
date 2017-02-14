@@ -29,7 +29,7 @@ classdef ProfileListManager < handle
        Temperature
        KAlpha1 = 1.540598; % nm
        KAlpha2 = 1.544426; % nm
-       KBeta
+       kBeta
        RKa1Ka2
        
        ValidFunctions = {'Gaussian', 'Lorentzian', 'Pearson VII', 'Pseudo-Voigt', 'Asymmetric Pearson VII'};
@@ -52,42 +52,37 @@ classdef ProfileListManager < handle
    end
    
    methods
-       function this = newXRD(this, xrd)
+       function this = newXRD(this, path, filename)
            if nargin < 2
                [data, filename, path] = utils.fileutils.newDataSet(this.DataPath);
-               if ~isempty(data)
-                   this.reset();
-                   this.initialXRD_ = PackageFitDiffractionData(data, filename);
-                   this.initialXRD_.DataPath = path;
-                   
-                   if strcmpi(data.ext, '.xrdml')
-                       this.Temperature = data.Temperature;
-                       this.KAlpha1 = data.KAlpha1;
-                       this.KAlpha2 = data.KAlpha2;
-                       this.KBeta = data.KBeta;
-                       this.RKa1Ka2 = data.RKa1Ka2;
-                       this.CuKa = true;
-                   end
+               if isempty(data)
+                   return
                end
-               
            else % if xrd was already created, just save as the new xrd
-               this.reset();
-               this.initialXRD_ = xrd;
+               data = utils.fileutils.newDataSet(path,filename);
+           end
+           this.reset();
+           this.initialXRD_ = PackageFitDiffractionData(data, filename);
+           this.initialXRD_.DataPath = path;
+           
+           if strcmpi(data.ext, '.xrdml')
+               this.Temperature = data.Temperature;
+               this.KAlpha1 = data.KAlpha1;
+               this.KAlpha2 = data.KAlpha2;
+               this.kBeta = data.kBeta;
+               this.RKa1Ka2 = data.RKa1Ka2;
            end
            
-           if ~isempty(this.initialXRD_) && this.initialXRD_.hasData
-               xrd = this.initialXRD_;
-               this.FullTwoThetaRange = xrd.getTwoTheta;
-               this.DataPath = xrd.DataPath;
-               xrd.OutputPath = [xrd.DataPath 'FitOutputs' filesep];
-               this.FileNames = xrd.getFileNames;
-               this.NumFiles = length(this.FileNames);
-               this.OutputPath = xrd.OutputPath;
-               this.addProfile;
-               this.Writer = ui.FileWriter(this);
-           else
-               this.reset;
-           end
+           xrdItem = this.initialXRD_;
+           this.FullTwoThetaRange = xrdItem.getTwoTheta;
+           this.DataPath = xrdItem.DataPath;
+           xrdItem.OutputPath = [xrdItem.DataPath 'FitOutputs' filesep];
+           this.FileNames = xrdItem.getFileNames;
+           this.NumFiles = length(this.FileNames);
+           this.OutputPath = xrdItem.OutputPath;
+           this.addProfile;
+           this.CuKa = true;
+           this.Writer = ui.FileWriter(this);
        end
        
        function set.CuKa(this, value)

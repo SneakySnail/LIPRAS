@@ -71,7 +71,7 @@ function button_browse_Callback(hObject, evt, handles)
 handles.gui.Status = 'Browsing for dataset... ';
 filenames = handles.profiles.FileNames;
 if isfield(evt, 'test')
-    handles.profiles.newXRD(evt.test);
+    handles.profiles.newXRD(evt.path, evt.filename);
 else
     handles.profiles.newXRD();
 end
@@ -125,18 +125,6 @@ catch exception
     if strcmp(exception.identifier, 'MATLAB:polyfit:PolyNotUnique')
         warndlg('Polynomial is not unique; degree >= number of data points.', 'Warning')
     end
-end
-
-function menu_xplotscale_Callback(o,e,handles)
-set(findobj(o.Parent), 'Checked', 'off'); % turn off checks in all x plot menu items
-o.Checked = 'on';
-plotter = getappdata(handles.axes1, 'plotter');
-switch o.Tag
-    case 'menu_xlinear' % linear
-        plotter.XScale = 'linear';
-                
-    case 'menu_xdspace' % d-space
-        plotter.XScale = 'dspace';    
 end
 
 function menu_yplotscale_Callback(o,e,handles)

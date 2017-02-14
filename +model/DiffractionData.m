@@ -67,8 +67,9 @@ classdef DiffractionData
     end
     
     methods (Static)
-        
-        
+        function answer = isXRDML()
+        answer = false;
+        end
         
     end
     
