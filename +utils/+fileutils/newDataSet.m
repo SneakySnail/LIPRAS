@@ -1,6 +1,5 @@
-%% newDataSet(handles, filename, path)
 % Imports new data.
-function [data, filename, datapath] = newDataSet(datapath)
+function [data, filename, datapath] = newDataSet(datapath, filename)
 %   DATAPATH is the folder to initially open.
 try
     PrefFile=fopen('Preference File.txt','r');
@@ -19,7 +18,12 @@ else
     filterspec = fullfile(datapath,allowedFiles{1});
 end
 
-[filename, datapath, ext] = uigetfile(filterspec, title, 'MultiSelect', 'on', data_path);
+if nargin < 2
+    [filename, datapath, ext] = uigetfile(filterspec, title, 'MultiSelect', 'on', data_path);
+else
+    [~,~,ext] = fileparts(filename);
+end
+
 if ~isequal(filename, 0)
     data = readNewDataFile(filename, datapath);
     data.ext = ext;
@@ -158,101 +162,102 @@ end
 
 function data = parseXRDML(filename)
 %PARSEXRDML reads an xml file with the extension .xrdml.
-data = utils.fileutils.parseXML(filename);
-for i = 1:length(data.Children)
-    if strcmp(data.Children(i).Name, 'xrdMeasurement')
-        xrdMeasurements = data.Children(i);
-        break
-    end
-end
 
-for i=1:length(xrdMeasurements.Children)
-    if strcmp(xrdMeasurements.Children(i).Name, 'scan')
-        scans = xrdMeasurements.Children(i);
-        tth = 0;
-    elseif strcmp(xrdMeasurements.Children(i).Name, 'usedWavelength')
-        usedWavelength = xrdMeasurements.Children(i);
-    end
-end
-
-for PosI = 1:length(scans.Children)
-    if strcmp(scans.Children(PosI).Name, 'dataPoints')
-        dataPoints = scans.Children(PosI);
-        for DataPointsi = 1:length(dataPoints.Children)
-            if strcmp(dataPoints.Children(1,DataPointsi).Name, 'positions')
-                positions = dataPoints.Children(1,DataPointsi);
-                if strcmp(positions.Attributes(1,1).Value, '2Theta')
-                    if strcmp(positions.Children(1,2).Name, 'listPositions')
-                        tth = strread(positions.Children(1,2).Children(1,1).Data,'%f');
-                    else
-                        ttho = strread(positions.Children(1,2).Children(1,1).Data,'%f'); % startPosition
-                        tthf = strread(positions.Children(1,4).Children(1,1).Data,'%f'); % endPosition
-                    end
-                end
-            elseif strcmp(dataPoints.Children(1,DataPointsi).Name, 'intensities')
-                intensity = strread(dataPoints.Children(1,DataPointsi).Children(1,1).Data,'%f');
-            end
-        end
-    elseif strcmp(scans.Children(PosI).Name, 'nonAmbientPoints')
-        temperature = mean(strread(dataPoints.Children(1,4).Children(1,1).Data,'%f'))-273.15; %#ok<*DSTRRD>
-    else
-        temperature = 25;
-    end
-    
-end
-if tth == 0
-    step = (tthf - ttho) / (length( intensity )-1);
-    tth = ttho:step:tthf;
-    tth = tth';
-end
-
-% Reading Kalpha1, Kalpha2, Kbeta, and Ratio from XRDML
-% how to read XML, if the element is tabbed over twice,
-% you need two instances of Children to access it then
-% the Name, or Attribute. To read the value within it,
-% you will need another Children since it will be
-% tabbed over again.
-data.KAlpha1 = str2double(usedWavelength.Children(2).Children(1).Data);
-data.KAlpha2 = str2double(usedWavelength.Children(4).Children(1).Data);
-data.KBeta = str2double(usedWavelength.Children(6).Children(1).Data);
-data.RKa1Ka2 = str2double(usedWavelength.Children(8).Children(1).Data);
-data.two_theta = tth';
-data.data_fit = intensity';
-data.Temperature = temperature;
+% data = utils.fileutils.parseXML(filename);
+% for i = 1:length(data.Children)
+%     if strcmp(data.Children(i).Name, 'xrdMeasurement')
+%         xrdMeasurements = data.Children(i);
+%         break
+%     end
+% end
+% 
+% for i=1:length(xrdMeasurements.Children)
+%     if strcmp(xrdMeasurements.Children(i).Name, 'scan')
+%         scans = xrdMeasurements.Children(i);
+%         tth = 0;
+%     elseif strcmp(xrdMeasurements.Children(i).Name, 'usedWavelength')
+%         usedWavelength = xrdMeasurements.Children(i);
+%     end
+% end
+% 
+% for PosI = 1:length(scans.Children)
+%     if strcmp(scans.Children(PosI).Name, 'dataPoints')
+%         dataPoints = scans.Children(PosI);
+%         for DataPointsi = 1:length(dataPoints.Children)
+%             if strcmp(dataPoints.Children(1,DataPointsi).Name, 'positions')
+%                 positions = dataPoints.Children(1,DataPointsi);
+%                 if strcmp(positions.Attributes(1,1).Value, '2Theta')
+%                     if strcmp(positions.Children(1,2).Name, 'listPositions')
+%                         tth = strread(positions.Children(1,2).Children(1,1).Data,'%f');
+%                     else
+%                         ttho = strread(positions.Children(1,2).Children(1,1).Data,'%f'); % startPosition
+%                         tthf = strread(positions.Children(1,4).Children(1,1).Data,'%f'); % endPosition
+%                     end
+%                 end
+%             elseif strcmp(dataPoints.Children(1,DataPointsi).Name, 'intensities')
+%                 intensity = strread(dataPoints.Children(1,DataPointsi).Children(1,1).Data,'%f');
+%             end
+%         end
+%     elseif strcmp(scans.Children(PosI).Name, 'nonAmbientPoints')
+%         temperature = mean(strread(dataPoints.Children(1,4).Children(1,1).Data,'%f'))-273.15; %#ok<*DSTRRD>
+%     else
+%         temperature = 25;
+%     end
+%     
+% end
+% if tth == 0
+%     step = (tthf - ttho) / (length( intensity )-1);
+%     tth = ttho:step:tthf;
+%     tth = tth';
+% end
+% 
+% % Reading Kalpha1, Kalpha2, Kbeta, and Ratio from XRDML
+% % how to read XML, if the element is tabbed over twice,
+% % you need two instances of Children to access it then
+% % the Name, or Attribute. To read the value within it,
+% % you will need another Children since it will be
+% % tabbed over again.
+% data.KAlpha1 = str2double(usedWavelength.Children(2).Children(1).Data);
+% data.KAlpha2 = str2double(usedWavelength.Children(4).Children(1).Data);
+% data.KBeta = str2double(usedWavelength.Children(6).Children(1).Data);
+% data.RKa1Ka2 = str2double(usedWavelength.Children(8).Children(1).Data);
+% data.two_theta = tth';
+% data.data_fit = intensity';
+% data.Temperature = temperature;
 
 
 % =====
-% dom = xmlread(filename);
-% intensitiesElement = dom.getElementsByTagName('intensities').item(0);
-% intensitiesValue = textscan(char(intensitiesElement.getTextContent), '%f');
-% listPosElement = dom.getElementsByTagName('listPositions').item(0);
-% if isempty(listPosElement)
-%     % Assuming the first item under the element 'positions' has the attribute '2Theta'
-%     pos2thetaElement = dom.getElementsByTagName('positions').item(0);
-%     startPosElement = pos2thetaElement.getElementsByTagName('startPosition').item(0);
-%     startPosValue = str2double(startPosElement.getTextContent);
-%     endPosElement = pos2thetaElement.getElementsByTagName('endPosition').item(0);
-%     endPosValue = str2double(endPosElement.getTextContent);
-%     step = (endPosValue - startPosValue) / (length(intensitiesValue)-1);
-%     listPosValue = (startPosValue:step:endPosValue)';
-% else
-%     listPosValue = textscan(char(listPosElement.getTextContext), '%f');
-%     listPosValue = listPosValue{1}';
-% end
-% % get temperature
-% tempElement = dom.getElementsByTagName('nonAmbientPoints').item(0);
-% if isempty(tempElement)
-%     temp = 25;
-% else % TODO
-% %     temp =  mean(strread(dataPoints.Children(1,4).Children(1,1).Data,'%f'))-273.15;
-% end
-%
-% data.KAlpha1 = str2double(dom.getElementsByTagName('kAlpha1').item(0).getTextContent);
-% data.KAlpha2 = str2double(dom.getElementsByTagName('kAlpha2').item(0).getTextContent);
-% data.kBeta = str2double(dom.getElementsByTagName('kBeta').item(0).getTextContent);
-% data.RKa1Ka2 = str2double(dom.getElementsByTagName('ratioKAlpha2KAlpha1').item(0).getTextContent);
-% data.two_theta = listPosValue;
-% data.data_fit = intensitiesValue{1}';
-% data.Temperature = temp;
+dom = xmlread(filename);
+intensitiesElement = dom.getElementsByTagName('intensities').item(0);
+intensitiesValue = textscan(char(intensitiesElement.getTextContent), '%f');
+listPosElement = dom.getElementsByTagName('listPositions').item(0);
+if isempty(listPosElement)
+    % Assuming the first item under the element 'positions' has the attribute '2Theta'
+    pos2thetaElement = dom.getElementsByTagName('positions').item(0);
+    startPosElement = pos2thetaElement.getElementsByTagName('startPosition').item(0);
+    startPosValue = str2double(startPosElement.getTextContent);
+    endPosElement = pos2thetaElement.getElementsByTagName('endPosition').item(0);
+    endPosValue = str2double(endPosElement.getTextContent);
+    step = (endPosValue - startPosValue) / (length(intensitiesValue)-1);
+    listPosValue = (startPosValue:step:endPosValue)';
+else
+    listPosValue = textscan(char(listPosElement.getTextContext), '%f');
+    listPosValue = listPosValue{1}';
+end
+% get temperature
+tempElement = dom.getElementsByTagName('nonAmbientPoints').item(0);
+if isempty(tempElement)
+    temp = 25;
+else % TODO
+%     temp =  mean(strread(dataPoints.Children(1,4).Children(1,1).Data,'%f'))-273.15;
+end
+
+data.KAlpha1 = str2double(dom.getElementsByTagName('kAlpha1').item(0).getTextContent);
+data.KAlpha2 = str2double(dom.getElementsByTagName('kAlpha2').item(0).getTextContent);
+data.kBeta = str2double(dom.getElementsByTagName('kBeta').item(0).getTextContent);
+data.RKa1Ka2 = str2double(dom.getElementsByTagName('ratioKAlpha2KAlpha1').item(0).getTextContent);
+data.two_theta = listPosValue;
+data.data_fit = intensitiesValue{1}';
+data.Temperature = temp;
 
 end

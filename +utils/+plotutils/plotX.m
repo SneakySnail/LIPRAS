@@ -1,5 +1,7 @@
 % Properties needed: datatype, DisplayName, ColorOrder
 function  plotX(handles, mode, varargin)
+% All lines that would require re-plotting in d-space are initially not visible. They become visible
+% after calling plotter.XScale.
 xrd = handles.profiles.xrd;
 persistent previousPlot_
 % persistent plotConversion_
@@ -37,11 +39,9 @@ switch lower(mode)
         previousPlot_ = 'background';
     case 'backgroundpoints'
         plotBackgroundPoints(handles);
-%         handles = plot_sample_fit(handles);
-        utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
+        
     case 'backgroundfit'
         plotBackgroundFit(handles);
-        utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
     case 'limits'
         updateLim(handles);
     case 'superimpose'
@@ -68,7 +68,7 @@ switch lower(mode)
         plotFitStats(handles);
 end
 
-
+set(handles.axes1.Children,'visible','on');
 
 
 % ==============================================================================
@@ -395,21 +395,25 @@ end
     function result = plotBackgroundFit(handles)
     %UNTITLED9 Summary of this function goes here
     %   Detailed explanation goes here
+    utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
     xdata = xrd.getTwoTheta;
     % Get Background
     bkgdArray = xrd.calculateBackground();
     line = plot(handles.axes1, xdata, bkgdArray,'--', ...
         'LineWidth',1,...
         'DisplayName','Background Fit', ...
+        'tag','backgroundfit',...
         'Visible', 'off');
     setappdata(line, 'xdata', xdata);
     setappdata(line, 'ydata', bkgdArray);
     result = bkgdArray;
+    plotter.XScale = plotter.XScale; % update the plot to display the current Xscale
     end
 
 
     function plotBackgroundPoints(handles) % plots points and BkgFit
     % The current file TODO: "getCurrentFile(handles.popup_filename)"
+    utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
     xdata = xrd.getTwoTheta;
     ydata = xrd.getData(handles.gui.CurrentFile);
     
