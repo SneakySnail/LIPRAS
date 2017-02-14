@@ -154,7 +154,7 @@ classdef AxPlotter < matlab.mixin.SetGet
                 set(this.ax.XLabel, 'Interpreter', 'tex', 'String', '2\theta (\circ)');
         end
         
-        set(this.ax, 'XLim', [min([lines.XData]) max([lines.XData])]);
+        set(this.ax, 'XLim', [min([lines.XData]) max([lines.XData])],'XTickMode','auto');
         for i=1:length(lines)
             lines(i).Visible = 'on';
         end
@@ -197,7 +197,7 @@ classdef AxPlotter < matlab.mixin.SetGet
         %         end
         raw = findobj(this.ax,'tag','raw');
         if ~isempty(raw)
-            ylim(this.ax,[0.8*min(raw.YData) 1.1*max(raw.YData)]);
+            ylim(this.ax,[0.8*min([raw(1).YData]) 1.1*max([raw(1).YData])]);
         end
         %         this.ax.YLimMode = 'auto';
         warning(state.state, state.identifier);

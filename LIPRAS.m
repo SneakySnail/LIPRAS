@@ -61,6 +61,7 @@ function LIPRAS_DeleteFcn(hObject, eventdata, handles)
 try
     delete(handles.gui);
     delete(handles.profiles);
+    delete(handles.validator);
 catch
 end
 clear('handles', 'var');
@@ -79,21 +80,19 @@ if ~isequal(filenames, handles.profiles.FileNames) % if not the same dataset as 
     if isnumeric(answer)
         handles.profiles.KAlpha1 = answer;
         handles.gui.KAlpha1 = answer; % automatically makes panel_cuka visible
-        handles.gui.KAlpha1 = []; % setting it to empty brings it back to invisible, but doesn't remove the updated string
-        handles.gui.Plotter.XScale = 'dspace';
-        handles.gui.Plotter.YScale = 'linear';
+        handles.gui.XPlotScale = 'dspace';
     else
-        handles.gui.KAlpha1 = [];
-        handles.gui.Plotter.XScale = 'linear';
-        handles.gui.Plotter.YScale = 'linear';
+        handles.gui.XPlotScale = 'linear';
     end
-    
+    handles.gui.KAlpha1 = []; % setting it to empty brings it back to invisible, but doesn't remove the updated string
+    handles.gui.YPlotScale = 'linear';
     ui.update(handles,'reset');
     ui.update(handles, 'dataset');
-    
 else
     handles.gui.Status = '';
 end
+
+guidata(hObject, handles)
 
 %  Executes on button press in push_newbkgd.
 function push_newbkgd_Callback(hObject, eventdata, handles)
@@ -489,7 +488,8 @@ if isfield(evt, 'test')
     pathName = evt.path;
 else
     if handles.profiles.hasData
-        [filename, pathName, ~]  = uigetfile({'*.txt;','*.txt'},'Select Input File','MultiSelect', 'off');
+        filespec = fullfile(handles.profiles.OutputPath,'*.txt');
+        [filename, pathName, ~]  = uigetfile(filespec,'Select Input File','MultiSelect', 'off');
     end
 end
 if filename ~= 0

@@ -63,15 +63,10 @@ switch lower(mode)
         utils.plotutils.resizeAxes1ForErrorPlot(handles, 'fit');
     case 'coeff' %TODO
         plotCoefficients(handles);
-        utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
         previousPlot_ = 'coeff';
     case 'stats' %TODO
         plotFitStats(handles);
 end
-
-plotter.XScale = plotter.XScale; % update the plot to display the current Xscale
-
-
 
 
 
@@ -109,6 +104,7 @@ plotter.XScale = plotter.XScale; % update the plot to display the current Xscale
     hold(handles.axes1, 'on');
     updateLim(handles);
     handles.gui.Legend = 'reset';
+    plotter.XScale = plotter.XScale; % update the plot to display the current Xscale
     end
 % ==============================================================================
 
@@ -180,6 +176,7 @@ plotter.XScale = plotter.XScale; % update the plot to display the current Xscale
     end
        
     handles.gui.Legend = 'reset';
+    plotter.XScale = plotter.XScale; % update the plot to display the current Xscale
     end
 % ==============================================================================
 
@@ -197,6 +194,7 @@ plotter.XScale = plotter.XScale; % update the plot to display the current Xscale
         'Tag', 'Error', 'visible','off'); % Error
     setappdata(err, 'xdata', err.XData);
     setappdata(err, 'ydata', err.YData);
+    plotter.XScale = plotter.XScale; % update the plot to display the current Xscale
     end
 % ==============================================================================
 
@@ -239,6 +237,7 @@ plotter.XScale = plotter.XScale; % update the plot to display the current Xscale
         utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
         updateLim(handles, [twotheta(1) twotheta(end)])
         handles.gui.Legend = 'reset';
+        plotter.XScale = plotter.XScale; % update the plot to display the current Xscale
     catch
     end
     end
@@ -257,7 +256,7 @@ plotter.XScale = plotter.XScale; % update the plot to display the current Xscale
         x = xrd.getTwoTheta;
         y = xrd.getData(filenum);
         line = plot(handles.axes1,x,y,'-o','DisplayName',filenames{filenum},'LineWidth',0.5,...
-            'MarkerSize',5,'Visible','off');
+            'MarkerSize',5,'tag','raw','Visible','off');
         setappdata(line,'xdata',x);
         setappdata(line,'ydata',y);
     else
@@ -267,6 +266,7 @@ plotter.XScale = plotter.XScale; % update the plot to display the current Xscale
         end
     end
     handles.gui.Legend = 'reset';
+    plotter.XScale = plotter.XScale; % update the plot to display the current Xscale
     end
 % ==============================================================================
 
@@ -298,6 +298,7 @@ plotter.XScale = plotter.XScale; % update the plot to display the current Xscale
 
     function plotCoefficients(handles)
     cla(handles.axes1)
+    utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
     hTable = handles.table_results;
     row = find(cell2mat(hTable.Data(:,1)),1);
     rowvals = cell2mat(hTable.Data(row, 2:end));
@@ -421,6 +422,7 @@ plotter.XScale = plotter.XScale; % update the plot to display the current Xscale
         'Visible', 'off');
     setappdata(line, 'xdata', line.XData);
     setappdata(line,'ydata', line.YData);
+    plotter.XScale = plotter.XScale; % update the plot to display the current Xscale
     end
 end
 

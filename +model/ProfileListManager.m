@@ -8,7 +8,7 @@ classdef ProfileListManager < handle
        
        NumFiles = 0;
        
-       DataPath
+       DataPath = [];
        
        OutputPath = ['FitOutputs' filesep];
        
@@ -54,7 +54,7 @@ classdef ProfileListManager < handle
    methods
        function this = newXRD(this, xrd)
            if nargin < 2
-               [data, filename, path] = utils.fileutils.newDataSet();
+               [data, filename, path] = utils.fileutils.newDataSet(this.DataPath);
                if ~isempty(data)
                    this.reset();
                    this.initialXRD_ = PackageFitDiffractionData(data, filename);

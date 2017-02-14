@@ -10,7 +10,7 @@ classdef GUIController < handle
     % The set methods of the dependent properties directly updates the relevant 
     %   components of the GUI. 
         
-    properties
+    properties (Hidden)
         Plotter
     end
     
@@ -173,6 +173,15 @@ classdef GUIController < handle
         
         function set.XPlotScale(this, mode)
         this.Plotter.XScale = mode;
+        set(this.hg.menu_yaxis.Children,'Checked','off');
+        switch mode
+            case 'linear'
+                set(this.hg.menu_ylinear,'Checked','on');
+            case 'log'
+                set(this.hg.menu_ylog,'Checked','on');
+            case 'sqrt'
+                set(this.hg.menu_yroot,'Checked','on');
+        end
         end
         
         function mode = get.XPlotScale(this)

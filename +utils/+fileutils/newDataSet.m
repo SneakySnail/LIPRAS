@@ -1,6 +1,7 @@
 %% newDataSet(handles, filename, path)
 % Imports new data.
-function [data, filename, path] = newDataSet(filename, path)
+function [data, filename, datapath] = newDataSet(datapath)
+%   DATAPATH is the folder to initially open.
 try
     PrefFile=fopen('Preference File.txt','r');
     data_path=fscanf(PrefFile,'%c');
@@ -10,15 +11,17 @@ catch
     data_path=cd;
 end
 
-if nargin < 1
-    allowedFiles = {'*.csv; *.txt; *.xy; *.fxye; *.dat; *.xrdml; *.chi; *.spr'};
-    title = 'Select Diffraction Pattern to Fit';
-    [filename, path, ~] = uigetfile(allowedFiles, title, 'MultiSelect', 'on', data_path);
+allowedFiles = {'*.csv; *.txt; *.xy; *.fxye; *.dat; *.xrdml; *.chi; *.spr'};
+title = 'Select Diffraction Pattern to Fit';
+if nargin < 1    
+    filterspec = allowedFiles;
+else
+    filterspec = fullfile(datapath,allowedFiles{1});
 end
 
+[filename, datapath, ext] = uigetfile(filterspec, title, 'MultiSelect', 'on', data_path);
 if ~isequal(filename, 0)
-    data = readNewDataFile(filename, path);
-    [~, ~, ext] = fileparts(filename{1});
+    data = readNewDataFile(filename, datapath);
     data.ext = ext;
 else
     data = [];
