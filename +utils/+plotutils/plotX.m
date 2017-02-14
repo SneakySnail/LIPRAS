@@ -48,7 +48,6 @@ switch lower(mode)
         plotSuperimposed(handles);
         utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
     case 'fit'
-        utils.plotutils.resizeAxes1ForErrorPlot(handles, 'fit');
         plotFit(handles);
         plotFitError(handles);
         previousPlot_ = 'fit';
@@ -152,6 +151,7 @@ set(handles.axes1.Children,'visible','on');
         'Visible', 'off'); % Overall Fit
     
     fcns = fitted.FunctionNames;
+    cukaPeakLine = gobjects(1,xrd.NumFuncs);
     for i=1:xrd.NumFuncs
         data(3+i) = plot(ax, ...
             fitted.TwoTheta, fitted.FPeaks(i,:) + fitted.Background, ...
@@ -159,15 +159,14 @@ set(handles.axes1.Children,'visible','on');
             'DisplayName',['(' num2str(i) ') ' fcns{i}], ...
             'Tag', ['f' num2str(i)], ...
             'Visible', 'off');
-%         if xrd.CuKa
-%             data(3+2*i-1) = plot(x2th',peakfit(i,:)+background',...
-%                 'LineWidth',1, ...
-%                 'DisplayName',['Cu-K\alpha1 (',num2str(i),')']);
-%             data(3+2*i)=plot(x2th',CuKaPeak(i,:)+background', ...
-%                 'LineWidth',1, ...
-%                 'DisplayName',['Cu-K\alpha2 (',num2str(i),')']);
-%         else
-%         end
+        if xrd.CuKa
+            cukaPeak = xrd.calculateCuKaPeak(i);
+            cukaPeakLine(i) = plot(ax,fitted.TwoTheta,cukaPeak+fitted.Background,':','LineWidth',2,...
+                'DisplayName',['Cu-K\alpha2 (Peak ', num2str(i), ')'], ...
+                'Visible', 'off');
+            setappdata(cukaPeakLine(i), 'xdata', fitted.TwoTheta);
+            setappdata(cukaPeakLine(i), 'ydata', cukaPeak+fitted.Background);
+        end
     end
     
     for i=1:length(data)
@@ -185,6 +184,7 @@ set(handles.axes1.Children,'visible','on');
     import utils.plotutils.*
     
     fitted = handles.profiles.getProfileResult{filenum};
+    utils.plotutils.resizeAxes1ForErrorPlot(handles, 'fit');
     
     cla(handles.axes2);
     err = plot(handles.axes2, ...

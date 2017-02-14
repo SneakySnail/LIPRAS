@@ -30,6 +30,12 @@ classdef FitResults
         FData           % Numeric array result after fitting TwoTheta with Fmodel
 
         FPeaks          % Numeric array result of each function's fits
+        
+        FCuKa2Peaks     % Empty if no Cu-Ka2 
+    end
+    
+    properties
+        CuKa = false;
     end
     
     
@@ -70,6 +76,9 @@ end
         %   parameters that were used.
         %
         %   
+        if profile.CuKa
+            this.CuKa = true;
+        end
         xrd = profile.xrd;
         this.FileName      = strrep(xrd.getFileNames{filenumber}, '.', '_');
         this.ProfileNum    = profile.getCurrentProfileNumber;
@@ -103,6 +112,9 @@ end
 
         for i=1:length(this.FitFunctions)
             this.FPeaks(i,:) = this.calculatePeakFit(i);
+            if this.CuKa
+                this.FCuKa2Peaks(i,:) = xrd.calculateCuKaPeak(i, this.CoeffValues);
+            end
         end
 
         this.FitInitial.start = this.FitOptions.StartPoint;
@@ -124,34 +136,18 @@ end
         if nargin > 1
             twotheta = this.TwoTheta;
             fcnCoeffNames = this.FitFunctions{fcnID}.getCoeffs;
-            
             for i=1:length(fcnCoeffNames)
                 idx(i) = find(strcmpi(this.CoeffNames, fcnCoeffNames{i}),1);
             end
-            
             coeffvals = this.CoeffValues(idx);
             output = this.FitFunctions{fcnID}.calculateFit(twotheta, coeffvals);
-        
         else
-             for i=1:length(this.FitFunctions)
+            for i=1:length(this.FitFunctions)
                 output(i,:) = this.calculatePeakFit(i);
             end
         end
         end
-
         
-        
-        function printMasterFile(this, fid)
-        %PRINTMASTERFILE print
-        GOFvals = struct2cell(this.FmodelGOF);
-        fprintf(fid, '%#.5g\t', GOFvals{:});
-        fprintf(fid, '%#.5g\t', this.FmodelCI(1,:));
-        fprintf(fid, '%#.5g\t', this.FmodelCI(2,:));
-        fprintf(fid, '\n');
         end
-
-       
-
-    end
 end
 

@@ -3,12 +3,12 @@
 function push_fitdata_Callback(~, ~, handles)
 import utils.plotutils.*
 % Create waitbar dialog
-h = [];
 try
     h = waitbar(0, '1', 'Name', 'Fitting dataset...', 'CreateCancelBtn', ...
         'setappdata(gcbf,''canceling'',1)', 'CloseRequestFcn', 'delete(gcbf)');
     setappdata(h, 'canceling', 0);
 catch
+    h = gobjects;
 end
 
 Stro = handles.profiles.xrd;
@@ -29,6 +29,7 @@ try
     handles.profiles.Writer.printFitOutputs(fitresults);
     ui.update(handles, 'results');
 catch ME
+    ME.getReport
     errordlg(ME.message)
 end
 delete(h)

@@ -187,13 +187,15 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         val = cukapos;
         end
         
-        function output = calculateCuKaPeak(Stro, fcnID)
-        fitinitial = Stro.startingValuesForPeak(fcnID);
+        function output = calculateCuKaPeak(Stro, fcnID, coeffvals)
+        if nargin < 3
+            coeffvals = Stro.startingValuesForPeak(fcnID); 
+        end
         xidx = find(utils.contains(Stro.FitFunctions{fcnID}.getCoeffs, 'x'),1);
         Nidx = find(utils.contains(Stro.FitFunctions{fcnID}.getCoeffs, 'N'));
-        fitinitial(xidx) = Stro.Ka2fromKa1(Stro.PeakPositions(fcnID));
-        fitinitial(Nidx) = 1/1.9*fitinitial(Nidx);
-        output = Stro.FitFunctions{fcnID}.calculateFit(Stro.getTwoTheta, fitinitial);
+        coeffvals(xidx) = Stro.Ka2fromKa1(Stro.PeakPositions(fcnID));
+        coeffvals(Nidx) = 1/1.9*coeffvals(Nidx);
+        output = Stro.FitFunctions{fcnID}.calculateFit(Stro.getTwoTheta, coeffvals);
         end
         
         function result = getCoeffs(Stro, fcnID)
