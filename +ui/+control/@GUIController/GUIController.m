@@ -86,7 +86,7 @@ classdef GUIController < handle
         Profiles
     end
    
-    properties (Constant)
+    properties (Constant, Hidden)
         FUNCTION_COLUMN_WIDTH = 250;
         CONSTRAINTS_COLUMN_WIDTH = 30;
         
@@ -122,13 +122,13 @@ classdef GUIController < handle
         function this = GUIController(figure1)
         %   handles - the handles structure to the GUI components 
         if nargin < 1
-            this.hg = guidata(findall(get(0,'CurrentFigure'),'tag', 'figure1'));
+            this.hg = guidata(findall(0,'tag', 'figure1'));
         else
             this.hg = guidata(figure1);
         end
         
         this.Profiles = this.hg.profiles;
-        this.Plotter = utils.plotutils.AxPlotter(this.hg);
+        this.Plotter = utils.plotutils.AxPlotter(this.hg, this);
         end
     end
         
@@ -310,8 +310,7 @@ classdef GUIController < handle
         
         function set.NumPeaks(this, value)
         % Update the View
-        jh = this.hg.edit_numpeaks.JavaPeer;
-        jh.setValue(value);
+        this.hg.edit_numpeaks.setValue(value);
         end
         
         function set.Min2T(this, value)
@@ -361,8 +360,7 @@ classdef GUIController < handle
         function set.PolyOrder(this, value)
         profiles = this.hg.profiles;
         profiles.xrd.setBackgroundOrder(value);
-        jh = this.hg.edit_polyorder.JavaPeer;
-        jh.setValue(value);
+        this.hg.edit_polyorder.setValue(value);
         end
         
         function set.FcnNames(this, value)
@@ -530,22 +528,23 @@ classdef GUIController < handle
     methods
         
         function value = get.hg(this)
-        value = guidata(this.hg_.figure1);
+        % Returns empty if 
+        if isempty(this.hg_) || ~isvalid(this.hg_.figure1)
+            fig = findall(0,'tag', 'figure1');
+        else
+            fig = this.hg_.figure1;
         end
-        
+        if ~isempty(fig)
+            value = guidata(fig);
+        else
+            value = fig;
+        end
+        end
         
         function value = get.CurrentFile(this)
         value = this.hg.popup_filename.Value;
         end
-        
-
-        % Returns the 2theta range for the current fit as a 1x2 numeric array.
-        function value = get.Range2t(this)
-        min2t = str2double(this.hg.edit_min2t.String);
-        max2t = str2double(this.hg.edit_max2t.String);
-        value = [min2t, max2t];
-        end
-        
+ 
         function value = get.Min2T(this)
         value = str2double(this.hg.edit_min2t.String);
         end
@@ -555,8 +554,7 @@ classdef GUIController < handle
         end
         
         function value = get.NumPeaks(this)
-        jh = this.hg.edit_numpeaks.JavaPeer;
-        value = jh.getValue();
+        value = this.hg.edit_numpeaks.getValue();
         end
         
         
@@ -568,8 +566,7 @@ classdef GUIController < handle
         
         % Returns the polynomial order of the background fit as an integer.
         function value = get.PolyOrder(this)
-        jh = this.hg.edit_polyorder.JavaPeer;
-        value = jh.getValue();
+        value = this.hg.edit_polyorder.getValue();
         end
         
         

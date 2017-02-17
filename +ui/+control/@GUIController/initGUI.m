@@ -43,7 +43,6 @@ addControlListeners();
          0.502  0.502 0]);      % dark yellow
      z=zoom(handles.figure1);
      z.setAllowAxesZoom(handles.axes2, false);
-     handles.gui.Legend = 'on';
      set(handles.panel_setup, 'parent', handles.uipanel3);
      set(handles.panel_parameters,'parent', handles.uipanel3);
      set(handles.panel_results, 'parent', handles.uipanel3);
@@ -53,12 +52,14 @@ addControlListeners();
      set(findobj(handles.uipanel3,'tag','panel_results'), 'parent', handles.tabpanel, 'visible', 'on', 'title','');
      set(handles.tabpanel, 'tabtitles', {'1. Setup', '2. Options', '3. Results'}, ...
          'tabenables', {'on','off','off'}, 'fontsize', 11, 'tabwidth', 75);
+     
      handles.edit_polyorder = utils.uispinner(handles.edit_polyorder, 3, 1, 25, 1);
      handles.edit_numpeaks = utils.uispinner(handles.edit_numpeaks, 0, 0, 20, 1);
      
      set(handles.menu_yaxis.Children, 'Callback', @(o,e)LIPRAS('menu_yplotscale_Callback',o,e,guidata(o)));
-     
-     % Clear persistent variables
+    handles.text4.String = ['2' char(952) ' Range (' char(176) '): ']; % 2T Range label
+    handles.text46.String = ['Cu-K' char(945) '1:'];
+    handles.text47.String = ['Cu-K' char(945) '2:'];
     end
 % ==========================================================================
 
@@ -70,9 +71,9 @@ addControlListeners();
         'PostSet', @(o,e)statusChange(o,e,handles));
     addlistener(handles.axes1, 'ColorOrderIndex', ...
         'PostSet', @(o,e)colorOrderIndexChanged(o,e,guidata(e.AffectedObject)));
-    set(handles.edit_numpeaks.JavaPeer, ...
+    set(handles.edit_numpeaks, ...
         'StateChangedCallback', @(o,e)LIPRAS('edit_numpeaks_Callback',o,e,guidata(handles.figure1)));
-    set(handles.edit_polyorder.JavaPeer, ...
+    set(handles.edit_polyorder, ...
         'StateChangedCallback', @(o,e)LIPRAS('edit_polyorder_Callback',o,e,guidata(handles.figure1)));
     % Requires a Java status bar to exist
     if ~isfield(handles, 'statusbarObj')
@@ -90,20 +91,21 @@ addControlListeners();
     function createJavaStatusBar()
     % When calling for the underlying java window, it will return empty unless
     % the figure is visible
-    import javax.swing.border.EtchedBorder
-    import javax.swing.BorderFactory
-    import java.awt.BorderLayout
-    import java.awt.Color
     try
         % left status bar
-        handles.statusbarObj = javacomponent('com.mathworks.mwswing.MJStatusBar', 'South', handles.figure1);
-        handles.statusbarObj = handles.statusbarObj.getComponent(0);
-        handles.statusbarObj.setBackground(Color.white);
+        jstatusbar = com.mathworks.mwswing.MJStatusBar;
+        jstatusbar = javaObjectEDT(jstatusbar);
+        jstatusbar = javacomponent(jstatusbar, 'South', handles.figure1);
+        
+        handles.statusbarObj = handle(jstatusbar, 'CallbackProperties');
+        handles.statusbarObj.getComponent(0).setBackground(javaObjectEDT(java.awt.Color.white));
         handles.statusbarObj.setText('To start, import file(s) from your computer to fit.');
-        handles.statusbarObj = handles.statusbarObj.getParent;
-    catch
+    catch ME
+        ME.getReport
+        
+        handles = rmfield(handles,'statusbarObj');
         msgId = 'LIPRAS:initGUI:JavaObjectCreation';
-        msg = 'Could not create the Java status bar';
+        msg = ['Could not create the Java status bar. ' ME.message];
         throw(MException(msgId, msg));
     end
 end

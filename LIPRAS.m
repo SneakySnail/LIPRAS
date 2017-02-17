@@ -32,10 +32,6 @@ import utils.fileutils.*
 % Choose default command line output for FDGUI
 handles.output = hObject;
 
-if ~isempty(GUIController.getInstance())
-    delete(GUIController.getInstance());
-end
-
 handles.profiles = ProfileListManager.getInstance();
 guidata(hObject, handles);
 
@@ -69,23 +65,12 @@ clear('handles', 'var');
 %  Executes on button press in button_browse.
 function button_browse_Callback(hObject, evt, handles)
 handles.gui.Status = 'Browsing for dataset... ';
-filenames = handles.profiles.FileNames;
 if isfield(evt, 'test')
-    handles.profiles.newXRD(evt.path, evt.filename);
+    isNew = handles.profiles.newXRD(evt.path, evt.filename);
 else
-    handles.profiles.newXRD();
+    isNew = handles.profiles.newXRD();
 end
-if ~isequal(filenames, handles.profiles.FileNames) % if not the same dataset as before
-    answer = NewDatasetView;
-    if isnumeric(answer)
-        handles.profiles.KAlpha1 = answer;
-        handles.gui.KAlpha1 = answer; % automatically makes panel_cuka visible
-        handles.gui.XPlotScale = 'dspace';
-    else
-        handles.gui.XPlotScale = 'linear';
-    end
-    handles.gui.KAlpha1 = []; % setting it to empty brings it back to invisible, but doesn't remove the updated string
-    handles.gui.YPlotScale = 'linear';
+if isNew % if not the same dataset as before
     ui.update(handles,'reset');
     ui.update(handles, 'dataset');
 else
