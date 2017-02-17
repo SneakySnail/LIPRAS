@@ -17,6 +17,8 @@ classdef ProfileListManager < handle
    end
    
    properties (Dependent)
+       ActiveProfile
+       
        xrd
        
        CuKa
@@ -70,14 +72,6 @@ classdef ProfileListManager < handle
        this.initialXRD_.DataPath = path;
        this.ext = data(1).ext;
        
-       if strcmpi(this.ext, '.xrdml')
-           this.Temperature = {data.Temperature};
-           this.KAlpha1 = data(1).KAlpha1;
-           this.KAlpha2 = data(1).KAlpha2;
-           this.kBeta = data(1).kBeta;
-           this.RKa1Ka2 = data(1).RKa1Ka2;
-       end
-       
        xrdItem = this.initialXRD_;
        this.FullTwoThetaRange = xrdItem.getTwoTheta;
        this.DataPath = xrdItem.DataPath;
@@ -86,8 +80,18 @@ classdef ProfileListManager < handle
        this.NumFiles = length(this.FileNames);
        this.OutputPath = xrdItem.OutputPath;
        this.addProfile;
-       this.CuKa = true;
        this.Writer = ui.FileWriter(this);
+       
+       if strcmpi(this.ext, '.xrdml')
+           this.Temperature = {data.Temperature};
+           this.KAlpha1 = data(1).KAlpha1;
+           this.KAlpha2 = data(1).KAlpha2;
+           this.kBeta = data(1).kBeta;
+           this.RKa1Ka2 = data(1).RKa1Ka2;
+           this.CuKa = true;
+       else
+           this.CuKa = false;
+       end
        end
        
        function set.CuKa(this, value)
@@ -98,6 +102,19 @@ classdef ProfileListManager < handle
        val = this.xrd.CuKa;
        end
        
+       function set.ActiveProfile(this, number)
+       if number < 1
+           this.CurrentProfileNumber_ = 1;
+       elseif number > this.getNumProfiles
+           this.CurrentProfileNumber_ = this.getNumProfiles;
+       else
+           this.CurrentProfileNumber_ = number;
+       end
+       end
+       
+       function number = get.ActiveProfile(this)
+       number = this.CurrentProfileNumber_;
+       end
        
        function this = addProfile(this)
        %ADDPROFILE Adds a profile to the GUI.
@@ -122,7 +139,7 @@ classdef ProfileListManager < handle
        this.xrdContainer = [];
        this.CurrentProfileNumber_ = 0;
        this.NumFiles = 0;
-       delete(this.Writer);
+%        this.CuKa = false;
        this.Writer = [];
        end
        

@@ -408,6 +408,8 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         %CALCULATEFITINITIAL calculates the current functions and returns an
         %   array, where each row is the fit for each function for the current
         %   two theta region. 
+        %
+        %   If FITINITIAL isn't specified, it uses the starting fit initial values.
         output = [];
         if nargin < 2
             fitinitial = Stro.FitInitial.start;

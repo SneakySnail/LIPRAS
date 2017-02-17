@@ -71,7 +71,6 @@ else
     isNew = handles.profiles.newXRD();
 end
 if isNew % if not the same dataset as before
-    ui.update(handles,'reset');
     ui.update(handles, 'dataset');
 else
     handles.gui.Status = '';

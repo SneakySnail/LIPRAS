@@ -105,6 +105,8 @@ function resetOptionsTabView(handles)
 % Reset the Options tab view as if the user had just launched the GUI. Helper function for reset().
 handles.gui.NumPeaks = 0;
 handles.table_fitinitial.Data = cell(1,3);
+handles.gui.KAlpha2 = 'off';
+
 
 function resetResultsTabView(handles)
 % Reset Results tab view
@@ -117,8 +119,8 @@ function onTabChangeClick(handles)
 
 function newDataSet(handles)
 clear(['+utils' filesep '+plotutils' filesep 'plotX'])
+reset(handles);
 xrd = handles.profiles.xrd;
-
 answer = NewDatasetView;
 if isnumeric(answer)
     handles.profiles.KAlpha1 = answer;
@@ -127,7 +129,6 @@ if isnumeric(answer)
 else
     handles.gui.XPlotScale = 'linear';
 end
-handles.gui.KAlpha1 = []; % setting it to empty brings it back to invisible, but doesn't remove the updated string
 handles.gui.YPlotScale = 'linear';
 
 handles.gui.FileNames = xrd.getFileNames;
@@ -158,8 +159,8 @@ set(handles.push_removeprofile, 'enable', 'off');
 handles.menu_plot.Enable = 'on';
 handles.menu_command.Enable = 'on';
 
+handles.gui.KAlpha1 = handles.profiles.KAlpha1;
 if handles.profiles.CuKa
-    handles.gui.KAlpha1 = handles.profiles.KAlpha1;
     handles.gui.KAlpha2 = handles.profiles.KAlpha2;
 end
 

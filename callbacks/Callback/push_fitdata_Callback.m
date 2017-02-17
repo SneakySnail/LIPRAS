@@ -26,8 +26,10 @@ try
         end
         fitresults{i} = handles.profiles.fitDataSet(i);
     end
-    handles.profiles.Writer.printFitOutputs(fitresults);
-    ui.update(handles, 'results');
+    if ~getappdata(h, 'canceling')
+        handles.profiles.Writer.printFitOutputs(fitresults);
+        ui.update(handles, 'results');
+    end
 catch ME
     ME.getReport
     errordlg(ME.message)

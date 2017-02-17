@@ -225,14 +225,11 @@ classdef GUIController < handle
         end
         
         function set.KAlpha1(this, wavelength)
-        if isempty(wavelength)
+        if isempty(wavelength) || strcmpi(wavelength, 'off')
             this.hg.checkbox_lambda.Value = 0;
             this.hg.panel_cuka.Visible = 'off';
         else
-            component = this.hg.edit_kalpha1;
-            component.String = sprintf('%.4f',wavelength);
-            this.hg.checkbox_lambda.Value = 1;
-            this.hg.panel_cuka.Visible = 'on';
+            this.hg.edit_kalpha1.String = sprintf('%.4f',wavelength);
         end
         end
         
@@ -241,10 +238,15 @@ classdef GUIController < handle
         end
         
         function set.KAlpha2(this, wavelength)
-        component = this.hg.edit_kalpha2;
-        component.String = sprintf('%.4f',wavelength);
-        this.hg.checkbox_lambda.Value = 1;
-        this.hg.panel_cuka.Visible = 'on';
+        if isempty(wavelength) || strcmpi(wavelength, 'off')
+            this.hg.checkbox_lambda.Value = 0;
+            this.hg.panel_cuka.Visible = 'off';
+        else
+            component = this.hg.edit_kalpha2;
+            component.String = sprintf('%.4f',wavelength);
+            this.hg.checkbox_lambda.Value = 1;
+            this.hg.panel_cuka.Visible = 'on';
+        end
         end
         
         function wavelength = get.KAlpha2(this)
