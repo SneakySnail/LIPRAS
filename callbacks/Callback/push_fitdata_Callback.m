@@ -19,19 +19,21 @@ try
         % Report current status of fitting dataset
         msg = ['Fitting Profile ' num2str(prfn) ': Dataset ' num2str(i) ' of ' num2str(Stro.NumFiles)];
         if exist('h', 'var')
-            waitbar(i/Stro.NumFiles, h, msg);
+            waitbar(i/Stro.NumFiles-1, h, msg);
         end
         if exist('h', 'var') && getappdata(h, 'canceling')
             break
         end
         fitresults{i} = handles.profiles.fitDataSet(i);
     end
+    
     if ~getappdata(h, 'canceling')
         handles.profiles.Writer.printFitOutputs(fitresults);
         ui.update(handles, 'results');
     end
 catch ME
     ME.getReport
+    assignin('base','lastException',ME)
     errordlg(ME.message)
 end
 delete(h)
