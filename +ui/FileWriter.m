@@ -1,4 +1,5 @@
 classdef FileWriter < handle
+%FILEWRITER writes output files of the fit results for PackageFitDiffractionData.
    properties
        OutputPath
        
@@ -96,18 +97,7 @@ classdef FileWriter < handle
    methods (Static)
        function printFitParameters(fits, fid)
        %SAVEPARAMETERSTOFILE 
-       %
-       %FILENAME      
-       names = cell(1,length(fits));
        fitted = fits{1};
-       for i=1:length(fits)
-           names{i} = fits{i}.FileName;
-       end
-       %the name of the file it will write containing the statistics of the fit
-       fprintf(fid, 'Filenames: ');
-       fprintf(fid, '%s ', names{:});
-       fprintf(fid, '\n\n');
-       
        fprintf(fid, '2ThetaRange: %f %f\n\n',fitted.TwoTheta(1), fitted.TwoTheta(end));
        fprintf(fid, 'BackgroundModel: %s\n', fitted.BackgroundModel);
        fprintf(fid, 'PolynomialOrder: %i\n', fitted.BackgroundOrder);
@@ -132,33 +122,26 @@ classdef FileWriter < handle
        end
         
        function printFmodelValues(fitted, fid)
+       fprintf(fid, '%s\t',fitted.FileName);
        % print coeffvalues of Fmodel
-       fprintf(fid, '%.3f\t', coeffvalues(fitted.Fmodel));
+       fprintf(fid, '%.5g\t', '%.5g\t', coeffvalues(fitted.Fmodel), fitted.CoeffError);
        % print FmodelGOF
-       fprintf(fid, '%.3f\t', struct2array(fitted.FmodelGOF));
-       
-       for i=1:size(fitted.FmodelCI, 2)
-           fprintf(fid, '%f\t', fitted.FmodelCI(1,i)); % write lower bound confidence interval
-           fprintf(fid, '%f\t', fitted.FmodelCI(2,i)); % write upper bound confidence interval
-       end
+       fprintf(fid, '%.5g\t', struct2array(fitted.FmodelGOF));
        fprintf(fid, '\n');
        end
        
        function printFmodelHeader(fitted, fid)
        fprintf(fid, 'This is an output file from a MATLAB routine.\n');
        fprintf(fid, 'The following peaks are all of the type: ');
-       fprintf(fid, '%s; ', fitted.FunctionNames{:});      % write function names
+       fprintf(fid, '%s; ', fitted.FunctionNames{:});     
        fprintf(fid, '\n\n');
        
-       fprintf(fid, '%s\t', fitted.CoeffNames{:});         % write coefficient names
+       % Write column headers in the order: 
+       %    FileName, N1, N1_Error, x1, x1_Error, (more coeffs)..., sse, rsquare, dfe, adjrsquare, rmse
+       fprintf(fid, 'FileName\t');
+       fprintf(fid,'%s\t%s_Error\t',fitted.CoeffNames{:},fitted.CoeffNames{:});
        fields = fieldnames(fitted.FmodelGOF);
        fprintf(fid, '%s\t', fields{:}); % write GOF names
-       
-       %third output Confidence Intervals (CI)
-       for i=1:length(fitted.CoeffNames)
-           fprintf(fid, '%s\t', ['LowCI:', fitted.CoeffNames{i}]); %write LB names
-           fprintf(fid, '%s\t', ['UppCI:', fitted.CoeffNames{i}]); %write UB names
-       end
        fprintf(fid, '\n');
        end
        
