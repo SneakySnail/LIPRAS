@@ -118,14 +118,17 @@ function varargout = NewDatasetView_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 if strcmpi(handles.output, 'dspace')
-    prompt = 'Enter Cu-K\alpha1 wavelength (in Angstroms):';
+    prompt = 'Enter wavelength (in Angstroms):';
     dlg_title = 'Input Wavelength:';
     num_lines = 1;
     defaultans = {'1.5406'};
     options.Interpreter = 'tex';
-    
     answer = inputdlg(prompt,dlg_title,num_lines,defaultans,options);
-    handles.output = str2double(answer{1});
+    if isempty(answer)
+        handles.output = [];
+    else
+        handles.output = str2double(answer{1});
+    end
 end
 
 varargout{1} = handles.output;

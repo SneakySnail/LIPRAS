@@ -2,10 +2,12 @@
 function  plotX(handles, mode, varargin)
 % All lines that would require re-plotting in d-space are initially not visible. They become visible
 % after calling plotter.XScale.
+plotter = handles.gui.Plotter;
+filenum = handles.gui.CurrentFile;
+filenames = handles.gui.getFileNames;
 xrd = handles.profiles.xrd;
-persistent previousPlot_
-% persistent plotConversion_
 
+persistent previousPlot_
 if nargin < 2
     if isempty(previousPlot_)
         mode = 'data';
@@ -20,9 +22,6 @@ else
     end
 end
 
-filenum = handles.gui.CurrentFile;
-filenames = handles.gui.getFileNames;
-plotter = handles.gui.Plotter;
 handles.checkbox_superimpose.Value = 0;
 
 % try
@@ -77,8 +76,7 @@ set(handles.axes1.Children,'visible','on');
         range = [min(xrd.getTwoTheta) max(xrd.getTwoTheta)];
     end
     
-    title(handles.axes1, [filenames{filenum} ' (' num2str(filenum) ' of ' ...
-        num2str(length(filenames)) ')'], 'FontSize', 15, 'FontName','default');
+    
     
 %     handles.gui.Plotter.XScale = handles.gui.Plotter.XScale;
     end
@@ -87,23 +85,13 @@ set(handles.axes1.Children,'visible','on');
     function plotData(handles)
     import utils.plotutils.*
     % PLOTDATA Plots the raw data for a specified file number in axes1.
-    x = xrd.getTwoTheta;
-    y = xrd.getData(filenum);
-    cla(handles.axes1)
-    line = plot(handles.axes1, x,y, '-o', 'LineWidth', 1, ...
+    
+    cla(handles.axes1), hold(handles.axes1, 'on');
+    plotter.plotRawData('-o', 'LineWidth', 1, ...
             'MarkerSize', 5, 'MarkerFaceColor', [1 1 1], ...
-            'MarkerEdgeColor', [0 0 0], 'displayname', 'Raw Data', 'tag', 'raw',...
-            'visible', 'off');
-    setappdata(line, 'xdata', line.XData);
-    setappdata(line, 'ydata', line.YData);
-    handles.gui.DisplayName = handles.gui.getFileNames(filenum);
-        
-    set(handles.axes1, 'XTickMode', 'auto', 'XTickLabelMode', 'auto');
+            'MarkerEdgeColor', [0 0 0]);
+%     handles.gui.DisplayName = handles.gui.getFileNames(filenum);
     utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
-    hold(handles.axes1, 'on');
-    updateLim(handles);
-    handles.gui.Legend = 'reset';
-    plotter.XScale = plotter.XScale; % update the plot to display the current Xscale
     end
 % ==============================================================================
 
@@ -119,15 +107,14 @@ set(handles.axes1.Children,'visible','on');
     end
     
     fitted = handles.profiles.getProfileResult{fileID};
-    cla
     % Raw Data
     data(1) = plot(ax, ...
         fitted.TwoTheta, fitted.Intensity, 'o', ...
         'MarkerSize',3.5, ...
         'DisplayName','Raw Data', ...
         'Tag', 'raw',...
-        'MarkerFaceColor', [.08 .17 .55], ...%[.08 .17 .55],...
-        'MarkerEdgeColor',[0 0 0], ...
+        'MarkerFaceColor', [0, 0.18, 0.65], ...%[.08 .17 .55],...
+        'MarkerEdgeColor', 'none', ...
         'Visible', 'off'); 
     set(ax, 'XLim', [fitted.TwoTheta(1) fitted.TwoTheta(end)]);
     hold(ax, 'on');
@@ -308,11 +295,10 @@ set(handles.axes1.Children,'visible','on');
         'MarkerFaceColor', [0 0 0], ...
         'DisplayName', hTable.RowName{row});
     
+    set(handles.axes1, 'XTickMode', 'auto');
     xlim(handles.axes1,[0 xrd.NumFiles+1])
     ylim(handles.axes1,'auto')
-    set(handles.axes1, ...
-        'XTick', 1:xrd.NumFiles, ...
-        'XTickLabel', 1:xrd.NumFiles);
+    handles.axes1.XAxis.TickLabelsMode = 'auto';
     handles.axes1.XLabel.String = 'File Number';
     handles.axes1.YLabel.String = [];
     handles.gui.Legend = 'reset';

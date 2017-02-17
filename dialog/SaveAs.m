@@ -111,6 +111,7 @@ set(handles.figSaveAs,'WindowStyle','normal', 'visible', 'on', ...
     'Units', 'pixels', 'Position', [140 300 186 215])
 if strcmpi(handles.figSaveAs.Visible, 'on')
     jf = utils.javaGetFigureFrame(handles.figSaveAs);
+    jf = handle(jf, 'CallbackProperties');
     container = jf.getFigurePanelContainer;
     drawnow
     root = container.getRootPane;
@@ -144,6 +145,7 @@ newfigcopy.PaperPosition = [0 0 6 3];
 
 % Enable docking for deployed figures
 jframe = utils.javaGetFigureFrame(newfigcopy);
+jframe = handle(jframe, 'CallbackProperties');
 jframe.fHG2Client.setClientDockable(true);
 jframe.fHG2Client.setClientWindowStyle(true, false); % initially dock the figure
 setappdata(newfigcopy, 'JavaFrame', jframe);
@@ -167,6 +169,7 @@ end
 
 % Update jframe and pe variables in case property editor was undocked
 jframe = utils.javaGetFigureFrame(newfigcopy);
+jframe = handle(jframe, 'CallbackProperties');
 setappdata(newfigcopy, 'JavaFrame', jframe);
 pe = propertyeditor(newfigcopy, 'on');
 

@@ -30,39 +30,38 @@ else
     set(handles.push_selectpeak, 'enable', 'off');
     set(handles.push_update, 'enable', 'off');
 end
-for i=1:length(varargin)
-    property = varargin{i};
-    switch lower(property)
-        case 'reset'
-            reset(handles)
-        case 'dataset'
-            newDataSet(handles);
-        case 'tabchange'
-            
-        case 'filenumber'
-            fileNumberChanged(handles);
-        case 'parameters'
-            newParameterFile(handles);
-        case 'newrange'
-            new2TRange(handles);
-        case 'backgroundmodel'
-            newBackgroundModel(handles);
-        case 'backgroundpoints'
-            newBackgroundPoints(handles);
-        case 'numpeaks'
-            newNumberOfPeaks(handles);
-        case 'peakposition'
-            newPeakPositions(handles);
-        case 'functions'
-            newFitFunctions(handles);
-        case 'constraints'
-            constraints(handles);
-        case 'fitinitial'
-            updateFitBoundsTable(handles);
-        case 'results'
-            newFitResults(handles);
-    end
+
+switch lower(varargin{1})
+    case 'reset'
+        reset(handles)
+    case 'dataset'
+        newDataSet(handles);
+    case 'tabchange'
+        
+    case 'filenumber'
+        fileNumberChanged(handles);
+    case 'parameters'
+        newParameterFile(handles);
+    case 'newrange'
+        new2TRange(handles);
+    case 'backgroundmodel'
+        newBackgroundModel(handles);
+    case 'backgroundpoints'
+        newBackgroundPoints(handles);
+    case 'numpeaks'
+        newNumberOfPeaks(handles);
+    case 'peakposition'
+        newPeakPositions(handles);
+    case 'functions'
+        newFitFunctions(handles);
+    case 'constraints'
+        constraints(handles);
+    case 'fitinitial'
+        updateFitBoundsTable(handles);
+    case 'results'
+        newFitResults(handles);
 end
+
 assignin('base', 'handles', handles);
 guidata(handles.figure1, handles);
 % ==============================================================================
@@ -119,6 +118,18 @@ function onTabChangeClick(handles)
 function newDataSet(handles)
 clear(['+utils' filesep '+plotutils' filesep 'plotX'])
 xrd = handles.profiles.xrd;
+
+answer = NewDatasetView;
+if isnumeric(answer)
+    handles.profiles.KAlpha1 = answer;
+    handles.gui.KAlpha1 = answer; % automatically makes panel_cuka visible
+    handles.gui.XPlotScale = 'dspace';
+else
+    handles.gui.XPlotScale = 'linear';
+end
+handles.gui.KAlpha1 = []; % setting it to empty brings it back to invisible, but doesn't remove the updated string
+handles.gui.YPlotScale = 'linear';
+
 handles.gui.FileNames = xrd.getFileNames;
 handles.gui.DataPath = handles.profiles.DataPath;
 handles.gui.Min2T = xrd.Min2T;
