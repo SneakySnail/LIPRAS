@@ -24,6 +24,8 @@ classdef ProfileListManager < handle
    end
    
    properties (Hidden)
+       ext
+       
        FullTwoThetaRange
        FullIntensityData
        Temperature
@@ -52,37 +54,40 @@ classdef ProfileListManager < handle
    end
    
    methods
-       function this = newXRD(this, path, filename)
-           if nargin < 2
-               [data, filename, path] = utils.fileutils.newDataSet(this.DataPath);
-               if isempty(data)
-                   return
-               end
-           else % if xrd was already created, just save as the new xrd
-               data = utils.fileutils.newDataSet(path,filename);
+       function isNew = newXRD(this, path, filename)
+       isNew = false;
+       if nargin < 2
+           [data, filename, path] = utils.fileutils.newDataSet(this.DataPath);
+           if isempty(data)
+               return
            end
-           this.reset();
-           this.initialXRD_ = PackageFitDiffractionData(data, filename);
-           this.initialXRD_.DataPath = path;
-           
-           if strcmpi(data.ext, '.xrdml')
-               this.Temperature = data.Temperature;
-               this.KAlpha1 = data.KAlpha1;
-               this.KAlpha2 = data.KAlpha2;
-               this.kBeta = data.kBeta;
-               this.RKa1Ka2 = data.RKa1Ka2;
-           end
-           
-           xrdItem = this.initialXRD_;
-           this.FullTwoThetaRange = xrdItem.getTwoTheta;
-           this.DataPath = xrdItem.DataPath;
-           xrdItem.OutputPath = [xrdItem.DataPath 'FitOutputs' filesep];
-           this.FileNames = xrdItem.getFileNames;
-           this.NumFiles = length(this.FileNames);
-           this.OutputPath = xrdItem.OutputPath;
-           this.addProfile;
-           this.CuKa = true;
-           this.Writer = ui.FileWriter(this);
+       else % if xrd was already created, just save as the new xrd
+           data = utils.fileutils.newDataSet(path,filename);
+       end
+       isNew = true;
+       this.reset();
+       this.initialXRD_ = PackageFitDiffractionData(data, filename);
+       this.initialXRD_.DataPath = path;
+       this.ext = data(1).ext;
+       
+       if strcmpi(this.ext, '.xrdml')
+           this.Temperature = {data.Temperature};
+           this.KAlpha1 = data(1).KAlpha1;
+           this.KAlpha2 = data(1).KAlpha2;
+           this.kBeta = data(1).kBeta;
+           this.RKa1Ka2 = data(1).RKa1Ka2;
+       end
+       
+       xrdItem = this.initialXRD_;
+       this.FullTwoThetaRange = xrdItem.getTwoTheta;
+       this.DataPath = xrdItem.DataPath;
+       xrdItem.OutputPath = [xrdItem.DataPath 'FitOutputs' filesep];
+       this.FileNames = xrdItem.getFileNames;
+       this.NumFiles = length(this.FileNames);
+       this.OutputPath = xrdItem.OutputPath;
+       this.addProfile;
+       this.CuKa = true;
+       this.Writer = ui.FileWriter(this);
        end
        
        function set.CuKa(this, value)

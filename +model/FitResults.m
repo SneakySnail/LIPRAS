@@ -3,7 +3,7 @@ classdef FitResults
     %   Detailed explanation goes here
     
     properties (SetAccess = protected)
-        FileName
+        FileName        % Name used when printing out to a file
 
         ProfileNum 
         

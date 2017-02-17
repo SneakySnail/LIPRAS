@@ -39,14 +39,12 @@ end
 
 % preallocate the structure array 
 [~,~,ext] = fileparts(filename{1});
-initializer = struct('two_theta',[],'data_fit',[],'KAlpha1',[],'KAlpha2',[],...
-    'kBeta',[],'RKa1Ka2',[],'Temperature',[],'ext','');
-data(length(filename)) = initializer;
+data = struct('two_theta',[],'data_fit',[],'KAlpha1',[],'KAlpha2',[],...
+    'kBeta',[],'RKa1Ka2',[],'Temperature',[],'ext',ext);
 
 % iterate through all files
 for i=1:length(filename)
     fullFileName = strcat(path, filename{i});
-    [~, ~, ext] = fileparts(fullFileName);
     fid = fopen(fullFileName, 'r');
     
     if strcmp(ext, '.csv')
@@ -65,8 +63,13 @@ for i=1:length(filename)
         datatemp = parseXRDML(fullFileName);
     end
     
-    data(i) = datatemp;
-    data(i).ext = ext;
+    if strcmpi(ext, '.xrdml')
+        data(i) = datatemp;
+        data(i).ext = ext;
+    else
+        data.two_theta(i,:) = datatemp.two_theta;
+        data.data_fit(i,:) = datatemp.data_fit;
+    end    
     
     fclose(fid);
 end
@@ -74,8 +77,6 @@ end
 % ==============================================================================
 
 function data = readSpreadsheet(filename)
-data = struct('two_theta',[],'data_fit',[],'KAlpha1',[],'KAlpha2',[],...
-    'kBeta',[],'RKa1Ka2',[],'Temperature',[],'ext',ext);
 temp = xlsread(filename);
 % Method for reading of data that does not start with numerial
 % twotheta and intensity
@@ -161,68 +162,6 @@ end
 function data = parseXRDML(filename)
 %PARSEXRDML reads an xml file with the extension .xrdml. If there are multiple scans in one file,
 %this function assumes that the 2theta range is the same for all scans.
-
-% data = utils.fileutils.parseXML(filename);
-% for i = 1:length(data.Children)
-%     if strcmp(data.Children(i).Name, 'xrdMeasurement')
-%         xrdMeasurements = data.Children(i);
-%         break
-%     end
-% end
-% 
-% for i=1:length(xrdMeasurements.Children)
-%     if strcmp(xrdMeasurements.Children(i).Name, 'scan')
-%         scans = xrdMeasurements.Children(i);
-%         tth = 0;
-%     elseif strcmp(xrdMeasurements.Children(i).Name, 'usedWavelength')
-%         usedWavelength = xrdMeasurements.Children(i);
-%     end
-% end
-% 
-% for PosI = 1:length(scans.Children)
-%     if strcmp(scans.Children(PosI).Name, 'dataPoints')
-%         dataPoints = scans.Children(PosI);
-%         for DataPointsi = 1:length(dataPoints.Children)
-%             if strcmp(dataPoints.Children(1,DataPointsi).Name, 'positions')
-%                 positions = dataPoints.Children(1,DataPointsi);
-%                 if strcmp(positions.Attributes(1,1).Value, '2Theta')
-%                     if strcmp(positions.Children(1,2).Name, 'listPositions')
-%                         tth = strread(positions.Children(1,2).Children(1,1).Data,'%f');
-%                     else
-%                         ttho = strread(positions.Children(1,2).Children(1,1).Data,'%f'); % startPosition
-%                         tthf = strread(positions.Children(1,4).Children(1,1).Data,'%f'); % endPosition
-%                     end
-%                 end
-%             elseif strcmp(dataPoints.Children(1,DataPointsi).Name, 'intensities')
-%                 intensity = strread(dataPoints.Children(1,DataPointsi).Children(1,1).Data,'%f');
-%             end
-%         end
-%     elseif strcmp(scans.Children(PosI).Name, 'nonAmbientPoints')
-%         temperature = mean(strread(dataPoints.Children(1,4).Children(1,1).Data,'%f'))-273.15; %#ok<*DSTRRD>
-%     else
-%         temperature = 25;
-%     end
-%     
-% end
-% if tth == 0
-%     step = (tthf - ttho) / (length( intensity )-1);
-%     tth = ttho:step:tthf;
-%     tth = tth';
-% end
-% 
-% % Reading Kalpha1, Kalpha2, Kbeta, and Ratio from XRDML
-% % how to read XML, if the element is tabbed over twice,
-% % you need two instances of Children to access it then
-% % the Name, or Attribute. To read the value within it,
-% % you will need another Children since it will be
-% % tabbed over again.
-% data.KAlpha1 = str2double(usedWavelength.Children(2).Children(1).Data);
-% data.KAlpha2 = str2double(usedWavelength.Children(4).Children(1).Data);
-% data.KBeta = str2double(usedWavelength.Children(6).Children(1).Data);
-% data.RKa1Ka2 = str2double(usedWavelength.Children(8).Children(1).Data);
-% data.two_theta = tth';
-% data.data_fit = intensity';
-% data.Temperature = temperature;
 
 
 % =====

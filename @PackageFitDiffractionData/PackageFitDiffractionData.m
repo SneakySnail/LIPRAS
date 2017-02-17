@@ -85,11 +85,10 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             if ischar(filenames)
                 filenames = {filenames};
             end
-            x = data.two_theta;
-            y = data.data_fit;
-            Stro.DataSet = cell(1, size(y,1));
-            for i=1:size(y,1)
-                if isequal(data.ext,'.xrdml')
+            x = data(1).two_theta;
+            Stro.DataSet = cell(1, size(x,1));
+            for i=1:size(x,1)
+                if isequal(data(1).ext,'.xrdml')
                     fn = [filenames{1} ' (scan ' num2str(i) ')'];
                     Stro.DataSet{i} = model.XRDMLData(data, fn, i);
                 else

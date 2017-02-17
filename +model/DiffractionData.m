@@ -15,7 +15,7 @@ classdef DiffractionData
     end
     
     properties (Hidden)
-        
+        FileIndex
         
     end
     
@@ -27,8 +27,9 @@ classdef DiffractionData
         [path, name, ext] = fileparts(filename);
         this.DataPath = path;
         this.FileName = [name ext];
-        this.Min2T = this.FullTwoTheta(1);
-        this.Max2T = this.FullTwoTheta(end);
+        this.Min2T = min(this.FullTwoTheta);
+        this.Max2T = max(this.FullTwoTheta);
+        this.FileIndex = fileIndex;
         end
     end
     
