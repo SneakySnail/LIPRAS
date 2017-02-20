@@ -44,7 +44,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
     properties (Dependent, Hidden)
         DataPath
         
-        CuKaPositions_
         
         Min2T
         Max2T
@@ -68,6 +67,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
     
     properties(Hidden)
         suffix   = '';
+        CuKa2Peak
         symdata = 0;
         binID = 1:1:24;
         lambda = 1.5405980;
@@ -128,6 +128,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
         
         function result = getFileNames(Stro, file)
+        result = [];
         if nargin < 2
             for i=1:length(Stro.DataSet)
                 names{i} = Stro.DataSet{i}.FileName;
@@ -177,24 +178,12 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         coeffvals = start(coeffIdx);
         end
         
-        function val = get.CuKaPositions_(Stro)
-        pos = Stro.PeakPositions;
-        cukapos = zeros(1, length(pos));
-        for i=1:length(pos)
-            cukapos(i) = Stro.Ka2fromKa1(pos(i));
-        end
-        val = cukapos;
-        end
         
         function output = calculateCuKaPeak(Stro, fcnID, coeffvals)
         if nargin < 3
             coeffvals = Stro.startingValuesForPeak(fcnID); 
         end
-        xidx = find(utils.contains(Stro.FitFunctions{fcnID}.getCoeffs, 'x'),1);
-        Nidx = find(utils.contains(Stro.FitFunctions{fcnID}.getCoeffs, 'N'));
-        coeffvals(xidx) = Stro.Ka2fromKa1(Stro.PeakPositions(fcnID));
-        coeffvals(Nidx) = 1/1.9*coeffvals(Nidx);
-        output = Stro.FitFunctions{fcnID}.calculateFit(Stro.getTwoTheta, coeffvals);
+        output = Stro.CuKa2Peak{fcnID}.calculateFit(Stro.getTwoTheta, coeffvals);
         end
         
         function result = getCoeffs(Stro, fcnID)
@@ -384,9 +373,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             end
             str = [str fcns{i}.getEqnStr]; %#ok<*AGROW>
             if Stro.CuKa
-                % Append the 'x' coefficient with a 'k' for the CuKa2 peak position
-                xval = Stro.Ka2fromKa1(Stro.PeakPositions(i));
-                str = [str ' + (1/1.9)*' fcns{i}.getEqnStr(xval)];
+                str = [str ' + ' Stro.CuKa2Peak{i}.getEqnStr];
             end
             if i ~= length(fcns)
                 str = [str ' + '];

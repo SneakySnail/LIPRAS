@@ -60,9 +60,18 @@ else
             newfcns{i} = Stro.FitFunctions{i};
         end
     end
-    
     Stro.FitFunctions = newfcns;
+    Stro.CuKa2Peak = cell(1,length(newfcns));
     funcObj = newfcns;
+end
+if Stro.CuKa
+    for i=1:length(Stro.FitFunctions)
+        fcn = Stro.FitFunctions{i};
+        if ~isempty(fcn)
+            fcn.CuKa = true;
+            Stro.CuKa2Peak{i} = model.fitcomponents.CuKalpha2(fcn, Stro.KAlpha1, Stro.KAlpha2);
+        end
+    end
 end
 
 function fcnObj = setFitFunction_(Stro, fcnName, fcnID)

@@ -98,6 +98,7 @@ function resetSetupTabView(handles)
 set(findobj(handles.panel_setup.Children, 'type', 'uicontrol'), 'enable', 'on');
 handles.radiobutton15_delete.Enable = 'off';
 handles.push_fitbkgd.Enable = 'off';
+handles.gui.PolyOrder = 3;
 handles.group_bkgd_edit_mode.SelectedObject = handles.radio_newbkgd;
 handles.tab1_next.Visible = 'off';
 

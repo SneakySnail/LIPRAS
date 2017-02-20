@@ -98,7 +98,7 @@ classdef FileWriter < handle
        function printFitParameters(fits, fid)
        %SAVEPARAMETERSTOFILE 
        fitted = fits{1};
-       fprintf(fid, '2ThetaRange: %f %f\n\n',fitted.TwoTheta(1), fitted.TwoTheta(end));
+       fprintf(fid, '2ThetaRange: %.3f %.3f\n\n',fitted.TwoTheta(1), fitted.TwoTheta(end));
        fprintf(fid, 'BackgroundModel: %s\n', fitted.BackgroundModel);
        fprintf(fid, 'PolynomialOrder: %i\n', fitted.BackgroundOrder);
        fprintf(fid, 'BackgroundPoints:');
@@ -114,19 +114,21 @@ classdef FileWriter < handle
        fprintf(fid, '\n\n== Initial Fit Parameters ==\n');
        fprintf(fid, '%s ', fitted.CoeffNames{:}); %write coefficient names
        fprintf(fid, '\nSP: ');
-       fprintf(fid, '%#.5g ', fitted.FitOptions.StartPoint);
+       fprintf(fid, '%#.3f ', fitted.FitOptions.StartPoint);
        fprintf(fid, '\nLB: ');
-       fprintf(fid, '%#.5g ', fitted.FitOptions.Lower);
+       fprintf(fid, '%#.3f ', fitted.FitOptions.Lower);
        fprintf(fid, '\nUB: ');
-       fprintf(fid, '%#.5g ', fitted.FitOptions.Upper);
+       fprintf(fid, '%#.3f ', fitted.FitOptions.Upper);
        end
         
        function printFmodelValues(fitted, fid)
        fprintf(fid, '%s\t',fitted.FileName);
        % print coeffvalues of Fmodel
-       fprintf(fid, '%.5g\t', '%.5g\t', coeffvalues(fitted.Fmodel), fitted.CoeffError);
+       for i=1:length(fitted.CoeffValues)
+           fprintf(fid, '%.3f\t%.3f\t', fitted.CoeffValues(i), fitted.CoeffError(i));
+       end
        % print FmodelGOF
-       fprintf(fid, '%.5g\t', struct2array(fitted.FmodelGOF));
+       fprintf(fid, '%.3f\t', struct2array(fitted.FmodelGOF));
        fprintf(fid, '\n');
        end
        
@@ -139,7 +141,9 @@ classdef FileWriter < handle
        % Write column headers in the order: 
        %    FileName, N1, N1_Error, x1, x1_Error, (more coeffs)..., sse, rsquare, dfe, adjrsquare, rmse
        fprintf(fid, 'FileName\t');
-       fprintf(fid,'%s\t%s_Error\t',fitted.CoeffNames{:},fitted.CoeffNames{:});
+       for i=1:length(fitted.CoeffValues)
+           fprintf(fid, '%s\t%s\t', fitted.CoeffNames{i}, [fitted.CoeffNames{i} '_Error']);
+       end
        fields = fieldnames(fitted.FmodelGOF);
        fprintf(fid, '%s\t', fields{:}); % write GOF names
        fprintf(fid, '\n');
@@ -156,7 +160,8 @@ classdef FileWriter < handle
        background = fitted.Background';
        peaks = zeros(length(twotheta), length(fitted.FunctionNames));
        for j=1:length(fitted.FunctionNames)
-           peaks(:,j) = fitted.calculatePeakFit(j)';
+           peakCalculated = fitted.calculatePeakFit(j);
+           peaks(:,j) = peakCalculated(1,:)';
        end
        for i=1:length(twotheta)
            line = [twotheta(i), intmeas(i), background(i), peaks(i,:)];

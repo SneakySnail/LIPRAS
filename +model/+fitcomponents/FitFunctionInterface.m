@@ -163,12 +163,12 @@ classdef FitFunctionInterface < handle
         end
         
         function output = calculateFit(this, xdata, fitinitial)
-        %
+        % calculateFit  Returns the calculated array of values for the x values in xdata using the
+        %    coefficient values of fitinitial.
         %
         %FITINITIAL - The initial points to use for the coefficients. Each
         %   member in the numeric array corresponds to the coefficients in
         %   this.getCoeffs, respectively.
-                
         output = this.calculate_(xdata, fitinitial);
         end
         
@@ -388,6 +388,24 @@ classdef FitFunctionInterface < handle
         result = this.ConstrainedLogical(5);
         end
         
+        function lineObj = plot(this, xdata, coeffvals)
+        ydata = this.calculateFit(xdata, coeffvals);
+        lineObj = line(xdata, ydata, 'visible', 'off', 'Tag', ['f' num2str(this.ID)], ...
+            'DisplayName', ['(' num2str(this.ID) ') ' this.Name]);
+        setappdata(lineObj, 'xdata', xdata);
+        setappdata(lineObj, 'ydata', ydata);
+        end
+        
+        function coefficient = coeff(this, letter)
+        %coeff Returns the coefficient starting with 'letter' used for the equation in the fit.
+        %   'letter' must be either: {'N', 'x', 'f', 'w', 'm'}.
+        coeffs = this.getCoeffs;
+        idx = utils.contains(coeffs, letter);
+        coefficient = coeffs(idx);
+        if length(coefficient) == 1
+            coefficient = coefficient{1};
+        end
+        end
     end
     
     methods (Abstract, Access = protected)

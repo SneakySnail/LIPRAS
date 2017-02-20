@@ -56,13 +56,14 @@ classdef FitResults
         
         OutputPath
 
+        FitType
+        FitFunctions
+        CuKa2Functions
     end
 
 properties (Access = protected)
-    FitType
-
-
-    FitFunctions
+%     FitType
+%     FitFunctions
 
 end
 
@@ -78,6 +79,7 @@ end
         %   
         if profile.CuKa
             this.CuKa = true;
+            this.CuKa2Functions = profile.xrd.CuKa2Peak;
         end
         xrd = profile.xrd;
         this.FileName      = strrep(xrd.getFileNames{filenumber}, '.', '_');
@@ -107,13 +109,16 @@ end
         this.FmodelCI  = fmodelci;
         
         this.FData       = fmodel(this.TwoTheta)';
+        this.FPeaks      = zeros(length(xrd.getFunctions),length(this.FData));
+        this.FCuKa2Peaks = zeros(length(xrd.getFunctions),length(this.FData));
         this.CoeffValues = coeffvalues(fmodel);
         this.CoeffError  = 0.5 * (fmodelci(2,:) - fmodelci(1,:));
 
         for i=1:length(this.FitFunctions)
-            this.FPeaks(i,:) = this.calculatePeakFit(i);
+             peak = this.calculatePeakFit(i);
+             this.FPeaks(i,:) = peak(1,:);
             if this.CuKa
-                this.FCuKa2Peaks(i,:) = xrd.calculateCuKaPeak(i, this.CoeffValues);
+                this.FCuKa2Peaks(i,:) = peak(2,:);
             end
         end
 
@@ -132,22 +137,19 @@ end
         end
 
         function output = calculatePeakFit(this, fcnID)
-        output = [];
-        if nargin > 1
-            twotheta = this.TwoTheta;
-            fcnCoeffNames = this.FitFunctions{fcnID}.getCoeffs;
-            for i=1:length(fcnCoeffNames)
-                idx(i) = find(strcmpi(this.CoeffNames, fcnCoeffNames{i}),1);
-            end
-            coeffvals = this.CoeffValues(idx);
-            output = this.FitFunctions{fcnID}.calculateFit(twotheta, coeffvals);
-        else
-            for i=1:length(this.FitFunctions)
-                output(i,:) = this.calculatePeakFit(i);
-            end
+        % calculatePeakFit  
+        twotheta = this.TwoTheta;
+        fcnCoeffNames = this.FitFunctions{fcnID}.getCoeffs;
+        idx = zeros(1,length(fcnCoeffNames));
+        for i=1:length(fcnCoeffNames)
+            idx(i) = find(strcmpi(this.CoeffNames, fcnCoeffNames{i}),1);
+        end
+        coeffvals = this.CoeffValues(idx);
+        output = this.FitFunctions{fcnID}.calculateFit(twotheta, coeffvals);
+        if this.CuKa
+            output(2,:) = this.CuKa2Functions{fcnID}.calculateFit(twotheta,coeffvals);
         end
         end
-        
         end
 end
 

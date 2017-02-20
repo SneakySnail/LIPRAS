@@ -23,16 +23,16 @@ classdef ProfileListManager < handle
        
        CuKa
        
+       KAlpha1 = 1.540598; % nm
+       KAlpha2 = 1.544426; % nm
    end
    
    properties (Hidden)
-       ext
-       
+       ext % file type for this dataset
        FullTwoThetaRange
        FullIntensityData
        Temperature
-       KAlpha1 = 1.540598; % nm
-       KAlpha2 = 1.544426; % nm
+       
        kBeta
        RKa1Ka2
        
@@ -96,12 +96,38 @@ classdef ProfileListManager < handle
        
        function set.CuKa(this, value)
        this.xrd.CuKa = value;
+      
        end
        
        function val = get.CuKa(this)
        val = this.xrd.CuKa;
        end
        
+       function set.KAlpha1(this, value)
+       if ~isempty(this.xrd)
+           this.xrd.KAlpha1 = value;
+       end
+       end
+       
+       function val = get.KAlpha1(this)
+       val = [];
+       if ~isempty(this.xrd)
+           val = this.xrd.KAlpha1;
+       end
+       end
+       
+       function set.KAlpha2(this, value)
+       if ~isempty(this.xrd)
+           this.xrd.KAlpha2 = value;
+       end
+       end
+       
+       function val = get.KAlpha2(this)
+       val = [];
+       if ~isempty(this.xrd)
+           val = this.xrd.KAlpha2;
+       end
+       end
        function set.ActiveProfile(this, number)
        if number < 1
            this.CurrentProfileNumber_ = 1;
@@ -139,7 +165,6 @@ classdef ProfileListManager < handle
        this.xrdContainer = [];
        this.CurrentProfileNumber_ = 0;
        this.NumFiles = 0;
-%        this.CuKa = false;
        this.Writer = [];
        end
        
@@ -280,36 +305,41 @@ classdef ProfileListManager < handle
        end
        
        
-       function results = getProfileResult(this, num)
+       function results = getProfileResult(this, profnum)
        if nargin < 2
-           num = this.getCurrentProfileNumber;
+           profnum = this.getCurrentProfileNumber;
        end
-       results = this.FitResults{num};
+       results = this.FitResults{profnum};
        end
        
-       function fitresults = fitDataSet(this, filenum, prfn)
+       function fitresults = fitDataSet(this, gui, prfn)
         % Fits the entire dataset for the current profile and saves it as a cell array of FitResults.
         if nargin < 3
             prfn = this.getCurrentProfileNumber;
         end
-        fitresults = [];
-        if nargin < 2
+        gui.Status = ['Fitting dataset ' num2str(1) ' of ' num2str(this.NumFiles)];
+        fitresults = cell(1, this.NumFiles);
+        msg = msgbox('Please wait... Press OK to stop the fit.', 'Fitting Dataset...');
+        for i=1:this.NumFiles
             try
-                fitresults = cell(1, this.NumFiles);
-                for i=1:this.NumFiles
-                    fitresults{i} = this.fitDataSet(i);
-                end
-                this.Writer.printFitOutputs(fitresults);
-            catch exception
-                errordlg(exception.message, 'Fit Error')
+            % stop the fit if the user closes the msgbox
+            if ~isvalid(msg)
+                return
             end
-        else
-            fitresults = model.FitResults(this, filenum);
-            this.FitResults{prfn}{filenum} = fitresults;
+            fitresults{i} = model.FitResults(this, i);
+            gui.Status = ['Fitting dataset ' num2str(i) ' of ' num2str(this.NumFiles)];
+            catch exception
+               delete(msg)
+               exception.getReport
+               rethrow(exception)
+            end
         end
+        delete(msg);
+        this.FitResults{prfn} = fitresults;
+        this.Writer.printFitOutputs(fitresults);
         end
    end
-   
+        
    methods
        function value = get.xrd(this)
        if isempty(this.xrdContainer)

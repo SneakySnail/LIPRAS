@@ -265,6 +265,9 @@ classdef AxPlotter < matlab.mixin.SetGet
         function line = plotBgFit(this)
         end
         
+        function line = plotPeak(this)
+        end
+        
         function line = plotSample(this, coeffvals)
         end
         

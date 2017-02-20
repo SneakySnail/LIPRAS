@@ -583,10 +583,9 @@ classdef GUIController < handle
         end
         
         function value = get.PeakPositions(this)
-        import utils.contains
         h = this.hg.table_fitinitial;
         coeffs = this.Coefficients;
-        idx = contains(coeffs, 'x');
+        idx = utils.contains(coeffs, 'x');
         value = cell2mat(h.Data(idx, 1)');
         end
         

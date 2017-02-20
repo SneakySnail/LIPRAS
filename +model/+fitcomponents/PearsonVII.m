@@ -40,9 +40,9 @@ classdef PearsonVII < model.fitcomponents.FitFunctionInterface
         if nargin > 1
            coeff{xidx} = num2str(xval);
         end
-        str = [coeff{Nidx} '*2*((2^(1/' coeff{midx} ')-1)^0.5)/' coeff{fidx} ...
-            '/(pi^0.5)*gamma(' coeff{midx} ')/gamma(' coeff{midx} '-0.5)*(1+4*(2^(1/' ...
-            coeff{midx} ')-1)*((xv-' coeff{xidx} ')^2)/' coeff{fidx} '^2)^(-' coeff{midx} ')'];
+                    
+        str = [coeff{Nidx} '*model.fitcomponents.PearsonVII.C4(' coeff{midx} ')/' coeff{fidx} ...
+            '*(1+4*(2^(1/' coeff{midx} ')-1)*(xv-' coeff{xidx} ')^2/' coeff{fidx} '^2)^(-' coeff{midx} ')'];
         end
         
         function value = getCoeffs(this)
@@ -92,7 +92,6 @@ classdef PearsonVII < model.fitcomponents.FitFunctionInterface
     methods (Access = protected)
         function output = calculate_(this, xdata, coeffvals)
         coeffs = this.getCoeffs;
-        
         for i=1:length(coeffs)
            c = coeffs{i}(1);
            if c == 'N'
@@ -105,9 +104,7 @@ classdef PearsonVII < model.fitcomponents.FitFunctionInterface
                m = coeffvals(i);
            end
         end
-        
-        output = N .* this.C4(m) ./ f .*(1+4 .* (2.^(1/m)-1) .* (xdata-xv).^2 / f.^2) .^(-m);
-        
+        output = N .* this.C4(m) ./ f .*(1+4.*(2.^(1/m)-1).*(xdata-xv).^2/f.^2).^(-m);
         end
         
     end
