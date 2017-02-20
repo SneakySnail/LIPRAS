@@ -200,26 +200,15 @@ classdef Asymmetric < model.fitcomponents.FitFunctionInterface
    
     methods (Static)
         function Y = AsymmCutoff(x, side, xdata)
-        numPts=length(xdata);
-        step = zeros(1,numPts);
-        if side == 1
-            for i=1:numPts
-                if xdata(i) < x
-                    step(i)=1;
-                else
-                    step(i)=0;
-                end
-            end
-        elseif side == 2
-            for i=1:numPts
-                if xdata(i) < x
-                    step(i)=0;
-                else
-                    step(i)=1;
-                end
-            end
+        if size(xdata, 2) > 1
+            xdata = xdata';
         end
-        Y=step';
+        if side == 1
+            step = xdata < x;
+        elseif side == 2
+            step = xdata > x;
+        end
+        Y=step;
         end
         % ==================================================================== %
     end

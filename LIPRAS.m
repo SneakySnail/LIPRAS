@@ -83,16 +83,22 @@ function push_newbkgd_Callback(hObject, eventdata, handles)
 %   EVENTDATA can be used to pass test values to this function to avoid any blocking calls like
 %   ginput.
 import utils.plotutils.*
+utils.plotutils.plotX(handles, 'data');
+if ~ishold(handles.axes1)
+    hold(handles.axes1, 'on');
+end
 
 if isfield(eventdata, 'test')
     points = eventdata.test;
 else
     selected = handles.group_bkgd_edit_mode.SelectedObject.String;
     if strcmpi(selected, 'Delete')
+        utils.plotutils.plotX(handles, 'backgroundpoints');
         oldpoints = handles.profiles.xrd.getBackgroundPoints;   
         numpoints = length(oldpoints);
         points = selectPointsFromPlot(handles, selected, numpoints);
     elseif strcmpi(selected, 'Add')
+        utils.plotutils.plotX(handles, 'backgroundpoints');
         oldpoints = handles.profiles.xrd.getBackgroundPoints;
         newpoints = selectPointsFromPlot(handles);
         points = sort([oldpoints newpoints]);
@@ -110,6 +116,29 @@ catch exception
         warndlg('Polynomial is not unique; degree >= number of data points.', 'Warning')
     end
 end
+
+function menu_xplotscale_Callback(o,e,handles)
+plotter = handles.gui.Plotter;
+switch o.Tag
+    case 'menu_xaxis_linear'
+        plotter.XScale = 'linear';
+    case 'menu_xaxis_dspace'
+        if isempty(handles.profiles.KAlpha1)
+            answer = inputdlg('Enter wavelength (in Angstroms):', 'Input Wavelength', ...
+                1, {'1.5406'}, struct('Interpreter', 'tex'));
+            if ~isnan(str2double(answer{1}))
+                handles.profiles.KAlpha1 = str2double(answer{1});
+            else
+                errordlg('You did not input a valid number.', 'Invalid Wavelength')
+                return
+            end
+            
+        end
+        plotter.XScale = 'dspace';
+end
+
+set(findobj(o.Parent), 'Checked', 'off'); % turn off checks in all x plot menu items
+o.Checked = 'on';
 
 function menu_yplotscale_Callback(o,e,handles)
 %MENU_YPLOTSCALE_CALLBACK executes when any option under 'Plot'->'Y-Axis Scale' menu is clicked. The
@@ -263,7 +292,6 @@ function push_selectpeak_Callback(hObject, ~, handles)
 import utils.contains
 import utils.plotutils.*
 plotX(handles, 'data');
-plotX(handles, 'backgroundfit');
 
 peakcoeffs = find(contains(handles.profiles.xrd.getCoeffs, 'x'));
 points = selectPointsFromPlot(handles, [], length(peakcoeffs));

@@ -75,6 +75,9 @@ addControlListeners();
         'StateChangedCallback', @(o,e)LIPRAS('edit_numpeaks_Callback',o,e,guidata(handles.figure1)));
     set(handles.edit_polyorder, ...
         'StateChangedCallback', @(o,e)LIPRAS('edit_polyorder_Callback',o,e,guidata(handles.figure1)));
+    set(handles.toolbar_legend, 'OnCallback', @(o,e)LIPRAS('toolbar_legend_OnCallback',o,e,guidata(o)),...
+        'ClickedCallback', @(o,e)LIPRAS('toolbar_legend_ClickedCallback',o,e,guidata(o)), ...
+        'OffCallback', @(o,e)LIPRAS('toolbar_legend_OffCallback',o,e,guidata(o)));
     % Requires a Java status bar to exist
     if ~isfield(handles, 'statusbarObj')
         msgId = 'LIPRAS:initGUI:InvalidJavaStatusBar';

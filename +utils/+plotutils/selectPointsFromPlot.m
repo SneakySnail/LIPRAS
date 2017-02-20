@@ -8,12 +8,9 @@ points = [];
 if nargin < 2
     mode = 'Add';
 end
-
-utils.plotutils.plotX(handles, 'data');
-if ~strcmpi(mode, 'New') && handles.profiles.xrd.hasBackground
-    utils.plotutils.plotX(handles, 'backgroundpoints');
+if ~ishold(handles.axes1)
+    hold(handles.axes1, 'on');
 end
-
 while (true)
     if nargin > 2 && numpoints == 0
         break;
@@ -26,11 +23,6 @@ while (true)
     end
         
     dataline = findobj(handles.axes1.Children, 'tag', 'raw');
-%     xdata = handles.profiles.xrd.getTwoTheta;
-%     ydata = handles.profiles.xrd.getData(handles.gui.CurrentFile);
-%     if isequal(handles.gui.Plotter.XScale,'dspace')
-%         ydata = handles.profiles
-%     end
 
     xdata = dataline.XData;
     ydata = dataline.YData;
