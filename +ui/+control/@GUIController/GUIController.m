@@ -18,6 +18,8 @@ classdef GUIController < handle
     properties (Dependent)
         DataPath
         
+        Status 
+        
         SelectedCoeffResult
         
         SelectedPlotViewResult
@@ -101,12 +103,6 @@ classdef GUIController < handle
         
     end
     
-    properties (SetObservable)
-       Status 
-       
-       DisplayName
-    end
-    
     % The properties
     properties (SetAccess = protected, GetAccess = protected)
         hg_
@@ -161,8 +157,22 @@ classdef GUIController < handle
         function answer = isFitRangeDirty(this)
         %isFitRangeDirty Returns true if there are background points or peak positions out of the
         %   current two theta range.
+        end
         
-        
+        function set.Status(this, text)
+        % Sets the text in the status bar. The Status property of ProfileListManager has priority
+        % over this Status. Setting text to this property checks whether or not there is already
+        % text in the status bar and if it has been displayed for at least 2 seconds before
+        % overriding it.
+        persistent timerStart
+        previousText = char(this.hg.statusbarObj.getText);
+        if isempty(timerStart)
+            timerStart = tic;
+        end
+        if ~isempty(previousText) && toc(timerStart) < 2
+            return
+        end
+        this.hg.statusbarObj.setText(text);
         end
         
         function set.DataPath(this, pathname)
@@ -337,6 +347,9 @@ classdef GUIController < handle
         
         function set.Min2T(this, value)
         profiles = this.hg.profiles;
+        if isempty(profiles.xrd)
+            return
+        end
         % Check if within range
         absRange = profiles.xrd.AbsoluteRange;
         if value < absRange(1)
@@ -348,7 +361,10 @@ classdef GUIController < handle
         end
         
         function set.Max2T(this, value)
-        profiles = model.ProfileListManager.getInstance;
+        profiles = this.hg.profiles;
+        if isempty(profiles.xrd)
+            return
+        end
         absRange = profiles.xrd.AbsoluteRange;
         if value < absRange(1)
             value = absRange(2);

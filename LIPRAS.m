@@ -58,6 +58,9 @@ try
     delete(handles.gui);
     delete(handles.profiles);
     delete(handles.validator);
+    
+    % Restore previous search path
+    path(getappdata(handles.figure1, 'oldpath'));
 catch
 end
 clear('handles', 'var');
@@ -88,7 +91,9 @@ catch
     end
 end
 
-
+function LIPRAS_StatusChangedFcn(o, e, handles)
+%STATUSCHANGE executes when the ProfileListManager property 'Status' is changed. 
+handles.statusbarObj.setText(handles.profiles.Status);
 
 
 
@@ -117,7 +122,6 @@ utils.plotutils.plotX(handles, 'data');
 if ~ishold(handles.axes1)
     hold(handles.axes1, 'on');
 end
-
 if isfield(eventdata, 'test')
     points = eventdata.test;
 else
@@ -125,8 +129,7 @@ else
     if strcmpi(selected, 'Delete')
         utils.plotutils.plotX(handles, 'backgroundpoints');
         oldpoints = handles.profiles.xrd.getBackgroundPoints;   
-        numpoints = length(oldpoints);
-        points = selectPointsFromPlot(handles, selected, numpoints);
+        points = selectPointsFromPlot(handles, selected, length(oldpoints));
     elseif strcmpi(selected, 'Add')
         utils.plotutils.plotX(handles, 'backgroundpoints');
         oldpoints = handles.profiles.xrd.getBackgroundPoints;
@@ -141,7 +144,6 @@ try
     handles.profiles.xrd.setBackgroundPoints(points);
     ui.update(handles, 'backgroundpoints');
 catch exception
-    
     if strcmp(exception.identifier, 'MATLAB:polyfit:PolyNotUnique')
         warndlg('Polynomial is not unique; degree >= number of data points.', 'Warning')
     end
@@ -199,74 +201,28 @@ end
 
 function edit_min2t_Callback(~, ~, handles)
 %EDIT_MIN2T_CALLBACK executes when the minimum 2theta value is changed in the GUI. 
-xrd = handles.profiles.xrd;
-newValue = handles.gui.Min2T;
-if ~isnan(newValue)
-    boundswarnmsg = '<html><font color="red">The inputted value is not within bounds.';
-    if newValue < xrd.AbsoluteRange(1)
-        newValue = xrd.AbsoluteRange(1);
-        handles.gui.Status = boundswarnmsg;
-        
-    elseif newValue > xrd.AbsoluteRange(2)
-        newValue = xrd.AbsoluteRange(2) - 0.5;
-        handles.gui.Max2T = xrd.AbsoluteRange(2);
-        handles.gui.Status = boundswarnmsg;
-        
-    elseif newValue >= xrd.Max2T
-        max = newValue + 0.5;
-        if max > xrd.AbsoluteRange(2)
-            max = xrd.AbsoluteRange(2);
-        end
-        handles.gui.Max2T = max;
-        xrd.Max2T = max;
-    end
-xrd.Min2T = newValue;
-end
-handles.gui.Min2T = xrd.Min2T;
+newValue = handles.validator.min2T(handles.gui.Min2T);
+handles.profiles.xrd.Min2T = newValue;
+handles.gui.Min2T = newValue;
 utils.plotutils.plotX(handles, 'sample');
 
 function edit_max2t_Callback(~, ~, handles)
-xrd = handles.profiles.xrd;
-newValue = handles.gui.Max2T;
-if ~isnan(newValue)
-    boundswarnmsg = '<html><font color="red">The inputted value is not within bounds.';
-    
-    if newValue < xrd.AbsoluteRange(1)
-        newValue = xrd.AbsoluteRange(1) + 0.5;
-        handles.gui.Min2T = xrd.AbsoluteRange(1);
-        handles.gui.Status = boundswarnmsg;
-        
-    elseif newValue > xrd.AbsoluteRange(2)
-        newValue = xrd.AbsoluteRange(2);
-        handles.gui.Status = boundswarnmsg;
-        
-    elseif newValue <= xrd.Min2T
-        min = newValue - 0.5;
-        if min < xrd.AbsoluteRange(1)
-            min = xrd.AbsoluteRange(1);
-        end
-        handles.gui.Min2T = min;
-        xrd.Min2T = min;
-    end
-    xrd.Max2T = newValue;
-end
-handles.gui.Max2T = xrd.Max2T;
+newValue = handles.validator.max2T(handles.gui.Max2T);
+handles.profiles.xrd.Max2T = newValue;
+handles.gui.Max2T = newValue;
 utils.plotutils.plotX(handles, 'sample');
 
 function edit_polyorder_Callback(src, ~, handles)
 %BACKGROUNDORDERCHANGED Summary of this function goes here
 %   Detailed explanation goes here
 value = round(src.getValue);
-
 if value == 1 && strcmpi(handles.gui.BackgroundModel, 'Spline')
    value = 2;
    handles.gui.Status = '<html><font color="red"><b>Spline Order must be > 1.';
 end
-
 xrd = handles.profiles.xrd;
 xrd.setBackgroundOrder(value);
 handles.gui.PolyOrder = value;
-
 
 function popup_bkgdmodel_Callback(o, ~, handles)
 handles.profiles.xrd.setBackgroundModel(o.String{o.Value});
@@ -313,7 +269,7 @@ if handles.gui.isFitDirty
     % Make sure all peak positions are valid
     if isempty(find(handles.profiles.xrd.PeakPositions == 0,1))
         % Generate new values for the start, lower, and upper bounds
-        handles.profiles.xrd.FitInitial = handles.validator.updatedFitBounds;
+        handles.profiles.xrd.FitInitial = handles.validator.fitBounds;
     end
 end
 ui.update(handles, 'fitinitial');

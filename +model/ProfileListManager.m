@@ -24,7 +24,12 @@ classdef ProfileListManager < handle
        CuKa
        
        KAlpha1
+       
        KAlpha2 = 1.544426; 
+   end
+   
+   properties (SetObservable)
+       Status % has priority over the GUIController status
    end
    
    properties (Hidden)
@@ -317,14 +322,14 @@ classdef ProfileListManager < handle
        results = this.FitResults{profnum};
        end
        
-       function fitresults = fitDataSet(this, gui, prfn)
+       function fitresults = fitDataSet(this, prfn)
         % Fits the entire dataset for the current profile and saves it as a cell array of FitResults.
-        if nargin < 3
+        if nargin < 2
             prfn = this.getCurrentProfileNumber;
         end
-        gui.Status = ['Fitting dataset ' num2str(1) ' of ' num2str(this.NumFiles)];
+        this.Status = ['Fitting dataset ' num2str(1) ' of ' num2str(this.NumFiles)];
         fitresults = cell(1, this.NumFiles);
-        msg = msgbox('Please wait... Press OK to stop the fit.', 'Fitting Dataset...');
+        msg = LiprasDialog.fittingDataSet;
         for i=1:this.NumFiles
             try
             % stop the fit if the user closes the msgbox
@@ -332,7 +337,7 @@ classdef ProfileListManager < handle
                 return
             end
             fitresults{i} = model.FitResults(this, i);
-            gui.Status = ['Fitting dataset ' num2str(i) ' of ' num2str(this.NumFiles)];
+            this.Status = ['Fitting dataset ' num2str(i) ' of ' num2str(this.NumFiles)];
             catch exception
                delete(msg)
                exception.getReport
