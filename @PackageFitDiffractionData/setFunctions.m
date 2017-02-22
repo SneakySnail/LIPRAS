@@ -61,11 +61,11 @@ else
         end
     end
     Stro.FitFunctions = newfcns;
-    Stro.CuKa2Peak = cell(1,length(newfcns));
     funcObj = newfcns;
 end
 if Stro.CuKa
-    for i=1:length(Stro.FitFunctions)
+    Stro.CuKa2Peak = cell(1,Stro.NumFuncs);
+    for i=1:Stro.NumFuncs
         fcn = Stro.FitFunctions{i};
         if ~isempty(fcn)
             fcn.CuKa = true;

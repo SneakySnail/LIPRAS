@@ -62,6 +62,36 @@ catch
 end
 clear('handles', 'var');
 
+function LIPRAS_WindowButtonMotionFcn(hObject, evt, handles)
+% Executes when the mouse moves inside the figure.
+%
+%   If it is not empty, display the TooltipString for an object in statusbarObj even when it's
+%   disabled.
+msg = '';
+try
+    obj = hittest(hObject);
+    if  ~isempty(obj.TooltipString)
+        msg = obj.TooltipString;
+    end
+    handles.gui.Status = msg;
+catch
+    try
+        xx = num2str(handles.axes1.CurrentPoint(1,1));
+        yy = sprintf('%2.3G', handles.axes1.CurrentPoint(1,2));
+        if strcmpi(class(obj), 'matlab.graphics.chart.primitive.Line')
+            msg = ['Current point: [' xx ', ' yy ']'];
+            handles.statusbarObj.setText(msg);
+        else
+            handles.gui.Status = msg;
+        end
+    catch
+    end
+end
+
+
+
+
+
 %  Executes on button press in button_browse.
 function button_browse_Callback(hObject, evt, handles)
 handles.gui.Status = 'Browsing for dataset... ';
@@ -266,10 +296,11 @@ end
 function edit_kalpha_Callback(hObject, eventdata, handles)
 ka1 = str2double(get(handles.edit_kalpha1, 'String'));
 ka2 = str2double(get(handles.edit_kalpha2, 'String'));
-set(handles.edit_kalpha1, 'String', sprintf('%.4f', ka1));
-set(handles.edit_kalpha2, 'String', sprintf('%.4f', ka2));
 handles.profiles.xrd.KAlpha1 = ka1;
 handles.profiles.xrd.KAlpha2 = ka2;
+handles.gui.KAlpha1 = ka1;
+handles.gui.KAlpha2 = ka2;
+utils.plotutils.plotX(handles);
 handles.gui.Status = ['<html>' hObject.TooltipString ' wavelength set to ' hObject.String '.'];
 
 
@@ -292,7 +323,7 @@ function push_selectpeak_Callback(hObject, ~, handles)
 import utils.contains
 import utils.plotutils.*
 plotX(handles, 'data');
-
+plotX(handles, 'backgroundfit');
 peakcoeffs = find(contains(handles.profiles.xrd.getCoeffs, 'x'));
 points = selectPointsFromPlot(handles, [], length(peakcoeffs));
 if length(points) == length(peakcoeffs)
@@ -333,24 +364,6 @@ ui.update(handles, 'NumPeaks');
 ui.update(handles, 'functions');
 ui.update(handles, 'constraints');
 
-% Executes on button press in push_prevprofile.
-function push_prevprofile_Callback(hObject, eventdata, handles)
-i = find(handles.uipanel3==handles.profiles, 1) - 1;
-if i<1; i=1; end
-handles = change_profile(i, handles);
-handles.xrd.Status = ['<html>Now editing <b>Profile ', num2str(i), '.</b></html>'];
-
-assignin('base','handles',handles)
-guidata(hObject,handles)
-
-% Executes on button press in push_nextprofile.
-function push_nextprofile_Callback(hObject, eventdata, handles)
-i = find(handles.uipanel3==handles.profiles, 1) + 1;
-handles = change_profile(i, handles);
-handles.xrd.Status = ['<html>Now editing <b>Profile ', num2str(i), '.</b></html>'];
-
-assignin('base','handles',handles)
-guidata(hObject,handles)
 
 function push_fitstats_Callback(~, ~, handles)
 handles.gui.onPlotFitChange('stats');
@@ -365,27 +378,6 @@ utils.plotutils.plotX(handles, 'coeff');
 % Executes on button press in push_viewall.
 function push_viewall_Callback(hObject, eventdata, handles)
 utils.plotutils.plotX(handles, 'allfits');
-
-% Executes on button press in push_default.
-function push_default_Callback(hObject, eventdata, handles)
-status='Clearing the table... ';
-handles.xrd.Status=status;
-
-handles.xrd.Fmodel=[];
-len = size(handles.table_fitinitial.Data,1);
-handles.table_fitinitial.Data = cell(len,3);
-set(hObject.Parent.Children,'Enable','off');
-set(handles.push_selectpeak,'Enable','on', 'string', 'Select Peak(s)');
-set(handles.table_fitinitial,'Enable','on');
-plotX(handles, 'Data');
-
-
-set(handles.axes2,'Visible','off');
-set(handles.axes2.Children,'Visible','off');
-handles.xrd.Status=[status,'Done.'];
-
-guidata(hObject,handles)
-
 
 % Switches between different tabs in the current profile.
 function push_tabswitch_Callback(hObject, e, handles)
@@ -416,7 +408,6 @@ end
 
 % Superimpose raw data.
 function checkbox_superimpose_Callback(hObject, eventdata, handles)
-
 cla(handles.axes1)
 % If box is checked, turn on hold in axes1
 if get(hObject,'Value')
@@ -426,8 +417,6 @@ else
     utils.plotutils.plotX(handles);
 end
 handles.xrd.Status='Superimposing raw data...';
-
-
 
 
 %% Popup callback functions
@@ -449,9 +438,7 @@ guidata(hObject, handles)
 
 function listbox_files_Callback(hObject,evt, handles)
 set(handles.popup_filename,'value',hObject.Value(1));
-
-LIPRAS('popup_filename_Callback',handles.popup_filename,[],guidata(hObject));
-
+popup_filename_Callback(handles.popup_filename,[],handles);
 
 
 %% Toobar callback functions
@@ -460,7 +447,6 @@ function toolbar_legend_ClickedCallback(hObject, eventdata, handles)
 % Toggles the legend.
 if strcmpi(hObject.State,'on')
     toolbar_legend_OnCallback(hObject, eventdata, handles);
-
 else
     toolbar_legend_OffCallback(hObject, eventdata, handles);
 end
@@ -472,6 +458,7 @@ handles.gui.Legend = 'off';
 function toolbar_legend_OnCallback(~, ~, handles)
 % Turns on the legend.
 handles.gui.Legend = 'on';
+handles.gui.Legend = 'reset';
 
 %% Menu callback functions
 
@@ -532,25 +519,8 @@ c=get(ah,'Children');
 set(c,'FontSize',11);
 
 
-function menu_clearall_Callback(hObject, eventdata, handles)
-% If there is data loaded, confirm
-ans=questdlg('This will reset the figure and your data will be lost.','Warning','Continue','Cancel','Cancel');
-if strcmp(ans,'Continue')
-    handles.xrd = PackageFitDiffractionData;
-    handles.xrdContainer = handles.xrd;
-    set(handles.panel_rightside,'Visible','off');
-    set(handles.edit8,...
-        'String', 'Upload new file(s)...',...
-        'FontAngle', 'italic',...
-        'ForegroundColor', [0.5 0.5 0.5]);
-end
-
-
 %% Close request functions
 function figure1_CloseRequestFcn(~, ~, handles)
 requestClose(handles);
-
-function noplotfit_Callback(hObject,~,handles)
-handles.noplotfit=get(hObject,'Value');
 
 

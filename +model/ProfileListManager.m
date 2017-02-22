@@ -23,8 +23,8 @@ classdef ProfileListManager < handle
        
        CuKa
        
-       KAlpha1 = 1.540598; % nm
-       KAlpha2 = 1.544426; % nm
+       KAlpha1
+       KAlpha2 = 1.544426; 
    end
    
    properties (Hidden)
@@ -95,11 +95,16 @@ classdef ProfileListManager < handle
        end
        
        function set.CuKa(this, value)
-       this.xrd.CuKa = value;
-      
+       if ~isempty(this.xrd)
+           this.xrd.CuKa = value;
+       end
        end
        
        function val = get.CuKa(this)
+       val = [];
+       if isempty(this.xrd)
+           return
+       end
        val = this.xrd.CuKa;
        end
        
