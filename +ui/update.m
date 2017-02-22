@@ -61,33 +61,31 @@ switch lower(varargin{1})
     case 'results'
         newFitResults(handles);
 end
-
 assignin('base', 'handles', handles);
 guidata(handles.figure1, handles);
 % ==============================================================================
 
 function reset(handles)
 clear(['+utils' filesep '+plotutils' filesep 'plotX'])
+handles.gui.Plotter.Mode = 'data';
 set(handles.figure1.Children, 'visible', 'off');
 set([handles.text22, handles.edit8, handles.button_browse, handles.checkbox_reverse], ...
          'Visible', 'on');
 set(findobj(handles.figure1.Children, 'type', 'uimenu'), 'visible', 'on');
 set(findobj(handles.figure1.Children, 'type', 'uitoolbar'), 'visible', 'on');
 handles.gui.DataPath = '';
-
 % Reset enabled menu controls
 handles.menu_parameter.Enable = 'off';
 handles.menu_plot.Enable = 'off';
 handles.menu_command.Enable = 'off';
 handles.gui.Legend = 'off';
-
 % Reset enabled controls
 set([handles.push_prevprofile, handles.push_nextprofile, handles.push_removeprofile], ...
     'visible', 'off');
 set(handles.tabpanel, 'TabEnables', {'on', 'off', 'off'}, 'Selection', 1);
 set(findobj(handles.figure1, 'style', 'checkbox'), 'Value', false);
 set(handles.popup_filename, 'enable', 'on');
-
+handles.gui.Legend = 'on';
 resetSetupTabView(handles);
 resetOptionsTabView(handles);
 resetResultsTabView(handles);
@@ -98,6 +96,7 @@ function resetSetupTabView(handles)
 set(findobj(handles.panel_setup.Children, 'type', 'uicontrol'), 'enable', 'on');
 handles.radiobutton15_delete.Enable = 'off';
 handles.push_fitbkgd.Enable = 'off';
+handles.gui.BackgroundModel = 'Polynomial';
 handles.gui.PolyOrder = 3;
 handles.group_bkgd_edit_mode.SelectedObject = handles.radio_newbkgd;
 handles.tab1_next.Visible = 'off';
@@ -107,41 +106,26 @@ function resetOptionsTabView(handles)
 handles.gui.NumPeaks = 0;
 handles.table_fitinitial.Data = cell(1,3);
 handles.gui.KAlpha2 = 'off';
-
+handles.gui.ConstraintsInPanel = '';
+handles.gui.ConstraintsInTable = [];
 
 function resetResultsTabView(handles)
 % Reset Results tab view
 handles.table_results.Data = cell([4 4]);
 handles.btns3.SelectedObject = handles.radio_peakeqn;
 
-
-function onTabChangeClick(handles)
-
-
 function newDataSet(handles)
 clear(['+utils' filesep '+plotutils' filesep 'plotX'])
 reset(handles);
 xrd = handles.profiles.xrd;
-answer = NewDatasetView;
-if isnumeric(answer)
-    handles.profiles.KAlpha1 = answer;
-    handles.gui.KAlpha1 = answer; % automatically makes panel_cuka visible
-    handles.gui.XPlotScale = 'dspace';
-else
-    handles.gui.XPlotScale = 'linear';
-end
+handles.gui.XPlotScale = 'linear';
 handles.gui.YPlotScale = 'linear';
-
 handles.gui.FileNames = xrd.getFileNames;
 handles.gui.DataPath = handles.profiles.DataPath;
 handles.gui.Min2T = xrd.Min2T;
 handles.gui.Max2T = xrd.Max2T;
 handles.gui.CurrentFile = 1;
 handles.gui.CurrentProfile = 1;
-handles.gui.ConstraintsInPanel = '';
-handles.gui.ConstraintsInTable = [];
-handles.gui.NumPeaks = 0;
-handles.gui.BackgroundModel = 1;
 if xrd.NumFiles > 1
     set(handles.checkbox_superimpose,'Visible','on', 'enable', 'on'); % Superimpose Raw Data
     set(handles.push_viewall,'Visible','on', 'enable', 'on'); % View All
@@ -159,7 +143,6 @@ set(handles.uipanel3, 'visible', 'on');
 set(handles.push_removeprofile, 'enable', 'off');
 handles.menu_plot.Enable = 'on';
 handles.menu_command.Enable = 'on';
-
 handles.gui.KAlpha1 = handles.profiles.KAlpha1;
 if handles.profiles.CuKa
     handles.gui.KAlpha2 = handles.profiles.KAlpha2;
@@ -172,12 +155,8 @@ function newParameterFile(handles)
 %   the GUI to display the new parameters.
 profiles = model.ProfileListManager.getInstance(handles.profiles);
 fcns = profiles.xrd.getFunctionNames;
-bkgdpoints = profiles.xrd.getBackgroundPoints;
-peakpos = profiles.xrd.PeakPositions;
 constraints = profiles.xrd.getConstraints;
 coeffs = profiles.xrd.getCoeffs;
-fitinitial = handles.profiles.xrd.FitInitial;
-
 handles.gui.Min2T = profiles.xrd.Min2T;
 handles.gui.Max2T = profiles.xrd.Max2T;
 handles.gui.BackgroundModel = profiles.xrd.getBackgroundModel;
@@ -254,6 +233,9 @@ if numpeaks == 0
     handles.container_numpeaks.Visible = 'on';
     % Number of peaks uicomponent
     set(handles.tab2_prev, 'visible', 'on');
+    if handles.checkbox_lambda.Value
+        handles.panel_cuka.Visible = 'on';
+    end
 else
     set([handles.container_fitfunctions, handles.panel_constraints handles.checkbox_lambda], ...
         'visible', 'on');

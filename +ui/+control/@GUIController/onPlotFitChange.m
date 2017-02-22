@@ -4,7 +4,7 @@ import utils.plotutils.*
 handles = this.hg;
 fitresults = handles.profiles.getProfileResult;
 fitted = fitresults{handles.gui.CurrentFile};
-
+coeffvals = zeros(length(fitresults), length(fitted.CoeffNames));
 for i=1:length(fitresults)
     coeffvals(i, :) = fitresults{i}.CoeffValues;
 end

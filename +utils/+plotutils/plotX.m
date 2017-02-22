@@ -2,96 +2,108 @@
 function  plotX(handles, mode, varargin)
 % All lines that would require re-plotting in d-space are initially not visible. They become visible
 % after calling plotter.XScale.
-plotter = handles.gui.Plotter;
-filenum = handles.gui.CurrentFile;
-filenames = handles.gui.getFileNames;
-xrd = handles.profiles.xrd;
-
 persistent previousPlot_
-if nargin < 2
-    if isempty(previousPlot_)
-        mode = 'data';
-    else
-        mode = previousPlot_;
-    end
-else
-    if isempty(previousPlot_) && isempty(mode)
-        mode = 'data';
-    elseif isempty(mode)
-        mode = previousPlot_;
-    end
-end
-
-handles.checkbox_superimpose.Value = 0;
-
-% try
-switch lower(mode)
-    case 'data'
-        plotData(handles);
-        previousPlot_ = 'data';
-    case 'background'
-        plotData(handles);
-        if handles.profiles.xrd.hasBackground
-            plotBackgroundPoints(handles);
-            plotBackgroundFit(handles);
+try
+    % Disable the figure while its plotting
+    focusedObj = gcbo;
+    enabledObjs = findobj(handles.figure1, 'Enable', 'on');
+    for ii=1:length(enabledObjs)
+        try
+            set(enabledObjs(ii), 'Enable', 'inactive');
+        catch
         end
-        previousPlot_ = 'background';
-    case 'backgroundpoints'
-        plotBackgroundPoints(handles);
-        
-    case 'backgroundfit'
-        plotBackgroundFit(handles);
-    case 'limits'
-        updateLim(handles);
-    case 'superimpose'
-        plotSuperimposed(handles);
-        utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
-    case 'fit'
-        plotFit(handles);
-        plotFitError(handles);
-        previousPlot_ = 'fit';
-    case 'sample'
-        plotData(handles);
-        plot_sample_fit(handles);
-        previousPlot_ = 'sample';
-    case 'allfits'
-        plotAllFits(handles);
-    case 'error'
-        plotFitError(handles);
-        utils.plotutils.resizeAxes1ForErrorPlot(handles, 'fit');
-    case 'coeff' %TODO
-        plotCoefficients(handles);
-        previousPlot_ = 'coeff';
-    case 'stats' %TODO
-        plotFitStats(handles);
+    end
+    plotter = handles.gui.Plotter;
+    filenum = handles.gui.CurrentFile;
+    filenames = handles.gui.getFileNames;
+    xrd = handles.profiles.xrd;
+    if nargin < 2
+        if isempty(previousPlot_)
+            mode = plotter.Mode;
+        else
+            mode = previousPlot_;
+        end
+    else
+        if isempty(previousPlot_) && isempty(mode)
+            mode = 'data';
+        elseif isempty(mode)
+            mode = previousPlot_;
+        end
+    end
+    
+    if strcmpi(mode, 'fit') && (~handles.profiles.hasFit || handles.gui.isFitDirty)
+        mode = 'sample';
+    end
+    
+    handles.checkbox_superimpose.Value = 0;
+    % try
+    switch lower(mode)
+        case 'data'
+            plotData(handles);
+            previousPlot_ = 'data';
+        case 'background'
+            plotData(handles);
+            if handles.profiles.xrd.hasBackground
+                plotBackgroundPoints(handles);
+                plotBackgroundFit(handles);
+            end
+            previousPlot_ = 'background';
+        case 'backgroundpoints'
+            plotBackgroundPoints(handles);
+            
+        case 'backgroundfit'
+            plotBackgroundFit(handles);
+        case 'limits'
+            updateLim(handles);
+        case 'superimpose'
+            plotSuperimposed(handles);
+            utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
+        case 'fit'
+            plotFitError(handles);
+            plotFit(handles);
+            set(handles.axes2.Children, 'Visible', 'on');
+            previousPlot_ = 'fit';
+        case 'sample'
+            plotData(handles);
+            plotSampleFit(handles);
+            previousPlot_ = 'sample';
+        case 'allfits'
+            plotAllFits(handles);
+        case 'error'
+            plotFitError(handles);
+            utils.plotutils.resizeAxes1ForErrorPlot(handles, 'fit');
+        case 'coeff' %TODO
+            plotCoefficients(handles);
+            previousPlot_ = 'coeff';
+        case 'stats' %TODO
+            plotFitStats(handles);
+    end
+    plotter.Mode = previousPlot_;
+    set(handles.axes1.Children,'visible','on');
+    set(enabledObjs, 'Enable', 'on');
+    currentFig = get(0,'CurrentFigure');
+    if ~isempty(currentFig) && contains(currentFig.Name, 'LIPRAS') && ~isempty(focusedObj)
+        if strcmpi(focusedObj.Type, 'uicontrol')
+            uicontrol(focusedObj);
+        elseif strcmpi(focusedObj.Type, 'uitable')
+            uitable(focusedObj);
+        end
+    end
+catch ex
+    ex.getReport
+    set(enabledObjs, 'Enable', 'on');
+    errordlg(ex.message)
 end
 
-set(handles.axes1.Children,'visible','on');
-
-
-% ==============================================================================
-
-    function updateLim(handles, range)
-    if nargin < 2
-        range = [min(xrd.getTwoTheta) max(xrd.getTwoTheta)];
-    end
-    
-    
-    
-%     handles.gui.Plotter.XScale = handles.gui.Plotter.XScale;
-    end
 % ==============================================================================
 
     function plotData(handles)
-    import utils.plotutils.*
     % PLOTDATA Plots the raw data for a specified file number in axes1.
-    
-    cla(handles.axes1), hold(handles.axes1, 'on');
-    plotter.plotRawData('-o', 'LineWidth', 1, ...
-            'MarkerSize', 5, 'MarkerFaceColor', [1 1 1], ...
-            'MarkerEdgeColor', [0 0 0]);
-%     handles.gui.DisplayName = handles.gui.getFileNames(filenum);
+    cla(handles.axes1)
+    plotter.plotRawData(handles.axes1, 'LineStyle', '-', 'LineWidth', 1, 'MarkerFaceColor', [1 1 1]);
     utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
+    handles.gui.Legend = 'reset';
+    plotter.updateAxis(handles.axes1);
     end
 % ==============================================================================
 
@@ -99,173 +111,108 @@ set(handles.axes1.Children,'visible','on');
     function plotFit(handles, ax, fileID)
     % Plots the current fit in handles.axes1
     import utils.plotutils.*
-    
     if nargin < 2
         ax = handles.axes1;
         fileID = filenum;
-        cla(ax);
+        cla(ax)
     end
-    
     fitted = handles.profiles.getProfileResult{fileID};
     % Raw Data
-    data(1) = plot(ax, ...
-        fitted.TwoTheta, fitted.Intensity, 'o', ...
-        'MarkerSize',3.5, ...
-        'DisplayName','Raw Data', ...
-        'Tag', 'raw',...
-        'MarkerFaceColor', [0, 0.18, 0.65], ...%[.08 .17 .55],...
-        'MarkerEdgeColor', 'none', ...
-        'Visible', 'off'); 
-    set(ax, 'XLim', [fitted.TwoTheta(1) fitted.TwoTheta(end)]);
-    hold(ax, 'on');
+    plotter.plotRawData(ax, 'MarkerSize', 3.5, 'MarkerFaceColor', [0 0.18 0.65]);
     if isequal(ax, handles.axes1)
-        set(handles.axes2, 'XLim', [fitted.TwoTheta(1) fitted.TwoTheta(end)]);
         linkaxes([handles.axes2 handles.axes1], 'x');
-        hold(handles.axes2, 'on');
     end
-    data(2) = plot(ax, ... % Background
-        fitted.TwoTheta, fitted.Background, '--','DisplayName', 'Background', ...
-        'Tag', 'Background','Visible', 'off');
-    data(3) = plot(ax, ... % Overall Fit
-        fitted.TwoTheta, fitted.FData+fitted.Background, 'k', ...
-        'LineWidth',1,'DisplayName','Overall Fit','Color',[0 0 0], ...
-        'Tag', 'OverallFit','Visible', 'off'); % Overall Fit
-    fcns = fitted.FunctionNames; cukaPeakLine = gobjects(1,xrd.NumFuncs);
-    for i=1:xrd.NumFuncs
-        data(3+i) = plot(ax, ...
-            fitted.TwoTheta, fitted.FPeaks(i,:) + fitted.Background, ...
-            'LineWidth',1,'DisplayName',['(' num2str(i) ') ' fcns{i}], ...
-            'Tag', ['f' num2str(i)],'Visible', 'off');
-        if xrd.CuKa
-            cukaPeakLine(i) = plot(ax,fitted.TwoTheta,fitted.FCuKa2Peaks(i,:)+fitted.Background, ...
-                ':','LineWidth',2,'DisplayName',['Cu-K\alpha2 (Peak ', num2str(i), ')'], ...
-                'Visible', 'off');
-            setappdata(cukaPeakLine(i), 'xdata', fitted.TwoTheta);
-            setappdata(cukaPeakLine(i), 'ydata', fitted.FCuKa2Peaks(i,:)+fitted.Background);
-        end
-    end
-    for i=1:length(data)
-        setappdata(data(i), 'xdata', data(i).XData);
-        setappdata(data(i), 'ydata', data(i).YData);
+    plotter.plotBgFit(ax);
+    plotter.plotOverallFit(ax,fitted);
+    for ii=1:xrd.NumFuncs
+        plotter.plotFittedPeak(ax,fitted,ii);
     end
     handles.gui.Legend = 'reset';
-    plotter.XScale = plotter.XScale; % update the plot to display the current Xscale
+    if nargin < 2
+        utils.plotutils.resizeAxes1ForErrorPlot(handles, 'fit');
+        plotter.updateAxis(handles.axes1);
+    end
     end
 % ==============================================================================
 
 %
     function plotFitError(handles)
-    import utils.plotutils.*
-    
     fitted = handles.profiles.getProfileResult{filenum};
-    utils.plotutils.resizeAxes1ForErrorPlot(handles, 'fit');
+    plotter.plotFitErr(handles.axes2, fitted);
     
-    cla(handles.axes2);
-    err = plot(handles.axes2, ...
-        fitted.TwoTheta, fitted.Intensity - (fitted.FData+fitted.Background), ...
-        'r', ...
-        'LineWidth', .50, ...
-        'Tag', 'Error', 'visible','off'); % Error
-    setappdata(err, 'xdata', err.XData);
-    setappdata(err, 'ydata', err.YData);
-    plotter.XScale = plotter.XScale; % update the plot to display the current Xscale
     end
 % ==============================================================================
 
 % Plot an example fit using the starting values from table.
-    function handles = plot_sample_fit(handles)
+    function handles = plotSampleFit(handles)
     import ui.control.*
     import utils.plotutils.*
-    initialValues = handles.gui.FitInitial;
-    if isempty(initialValues) || isempty(initialValues.start) || ...
-            ~isempty(find(utils.contains(handles.gui.FcnNames, []),1))
+    if ~plotter.canPlotSample
         return
     end
-    try
-        twotheta = xrd.getTwoTheta;
-        % Plot background fit
-        background = plotBackgroundFit(handles);
-        % Use initial coefficient values to plot fit
-        fitsample = xrd.calculateFitInitial(handles.gui.FitInitial.start);
-        datafit = zeros(1,length(xrd.NumFuncs));
-        fcns = handles.profiles.xrd.getFunctions;
-        cukaPeakLine = zeros(1,length(fcns));
-        for i=1:xrd.NumFuncs
-            datafit(i) = plot(handles.axes1, twotheta, fitsample(i,:) + background, ...
-                '--','LineWidth',1,...
-                'DisplayName', ['Peak ' num2str(i) ' (' handles.gui.FcnNames{i} ')'], ...
-                'Visible', 'off');
-            if xrd.CuKa
-                cukaPeak = xrd.calculateCuKaPeak(i);
-                cukaPeakLine(i) = plot(handles.axes1, twotheta,cukaPeak+background,':','LineWidth',2,...
-                    'DisplayName',['Cu-K\alpha2 (Peak ', num2str(i), ')'], ...
-                    'Visible', 'off');
-                setappdata(cukaPeakLine(i), 'xdata', twotheta);
-                setappdata(cukaPeakLine(i), 'ydata', cukaPeak+background);
-            end
-            
-            setappdata(datafit(i), 'xdata', twotheta);
-            setappdata(datafit(i), 'ydata', fitsample(i,:) + background);
-        end
-        utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
-        updateLim(handles, [twotheta(1) twotheta(end)])
-        handles.gui.Legend = 'reset';
-        plotter.XScale = plotter.XScale; % update the plot to display the current Xscale
-    catch
+    % Plot background fit
+    plotter.plotBgFit(handles.axes1);
+    for i=1:xrd.NumFuncs
+        plotter.plotSamplePeak(handles.axes1, i);
     end
+    utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
+    handles.gui.Legend = 'reset';
+    plotter.updateAxis(handles.axes1);
     end
 % ==============================================================================
 
-% Like plotData, except turns on hold to enable multiple
-%    data to be plotted in handles.axes1.
     function plotSuperimposed(handles)
+    % Like plotData, except turns on hold to enable multiple
+    %    data to be plotted in handles.axes1.
     import utils.plotutils.*
-    hold(handles.axes1, 'on');
+    if ~ishold(handles.axes1)
+        hold(handles.axes1, 'on');
+    end
     handles.checkbox_superimpose.Value = 1;
-     
-    line = findobj(handles.axes1.Children, 'DisplayName', filenames{filenum});
+    line = findobj(handles.axes1.Children,'DisplayName', filenames{filenum});
     if isempty(line)
-        % plot it
-        x = xrd.getTwoTheta;
-        y = xrd.getData(filenum);
-        line = plot(handles.axes1,x,y,'-o','DisplayName',filenames{filenum},'LineWidth',0.5,...
-            'MarkerSize',5,'tag','raw','Visible','off');
-        setappdata(line,'xdata',x);
-        setappdata(line,'ydata',y);
+        % If not already plotted, add to plot
+        plotter.plotRawData(handles.axes1,'LineStyle','-','DisplayName',filenames{filenum});
     else
-        % delete it
+        % If already plotted && is not the only plotted data, delete line
         if length(handles.axes1.Children) > 1
             delete(line);
         end
     end
     handles.gui.Legend = 'reset';
-    plotter.XScale = plotter.XScale; % update the plot to display the current Xscale
+    plotter.updateAxis(handles.axes1);
     end
 % ==============================================================================
 
 % Makes a new figure and plots each fit for the entire dataset.
     function plotAllFits(handles)
     import utils.plotutils.*
-
-    screen = get(0, 'ScreenSize');
-    f = figure('Units', 'pixels', 'Position', [150 50 min(900,screen(3)) min(700,screen(4))]);
-    m = floor(sqrt(xrd.NumFiles));
-    n = ceil(xrd.NumFiles/m);
-    for j=1:xrd.NumFiles
-        ax(j) = subplot(m, n, j);
-        hold(ax(j), 'on');
-        plotFit(handles, ax(j), j);
-        xlabel(ax(j), '2\theta','FontSize',11);
-        ylabel(ax(j), 'Intensity','FontSize',11);
-        filename = [xrd.getFileNames{j} ' (' num2str(j) ' of ' ...
-                    num2str(xrd.NumFiles) ')'];
-        title(ax(j), filename);
-        a = ax(j);
+    try
+        screen = get(0, 'ScreenSize');
+        nRows = floor(sqrt(xrd.NumFiles));
+        nColumns = ceil(xrd.NumFiles/nRows);
+        fWidth = min(400*nColumns, screen(3));
+        fHeight = min(400*nRows, screen(4));
+        wPos = (screen(3)-fWidth)/4;
+        hPos = (screen(4)-fHeight)/4;
+        f = figure('Units', 'pixels', 'Position', [wPos hPos fWidth fHeight], ...
+            'Visible', 'off');
+        ax = gobjects(1,xrd.NumFiles);
+        for j=1:xrd.NumFiles
+            ax(j) = subplot(nRows, nColumns, j);
+            if ~ishold(ax(j))
+                hold(ax(j), 'on');
+            end
+            plotFit(handles, ax(j), j);
+        end
+        linkaxes(ax,'xy');
+        plotter.updateAxis(ax);
+        set(findobj(f), 'Visible', 'on');
+    catch exception
+        delete(f);
+        rethrow(exception)
     end
-    linkaxes(ax,'xy');
-    xlim(ax, [xrd.Min2T xrd.Max2T]);
-    ylim(ax, 'auto');
-    end
+end
 % ==============================================================================
 
 
@@ -297,24 +244,24 @@ set(handles.axes1.Children,'visible','on');
     fits = handles.profiles.getProfileResult;
     numfiles = length(fits);
     
-    for i=1:numfiles
-        fitted = fits{i};
-        rsquared(i) = fitted.FmodelGOF.rsquare;
-        adjrsquared(i) = fitted.FmodelGOF.adjrsquare;
-        rmse(i) = fitted.FmodelGOF.rmse;
+    for ii=1:numfiles
+        fitted = fits{ii};
+        rsquared(ii) = fitted.FmodelGOF.rsquare;
+        adjrsquared(ii) = fitted.FmodelGOF.adjrsquare;
+        rmse(ii) = fitted.FmodelGOF.rmse;
         obs = fitted.Intensity';
         calc = fitted.Background' + fitted.FData';
-        Rp(i) = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
+        Rp(ii) = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
         w = (1./obs); %defines the weighing parameter for Rwp
-        Rwp(i) = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
+        Rwp(ii) = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
         DOF = fitted.FmodelGOF.dfe; % degrees of freedom from error
-        Rexp(i)=sqrt(DOF/sum(w.*obs.^2)); % Rexpected
-        Rchi2(i)=(Rwp/Rexp)/100; % reduced chi-squared, GOF
+        Rexp(ii)=sqrt(DOF/sum(w.*obs.^2)); % Rexpected
+        Rchi2(ii)=(Rwp/Rexp)/100; % reduced chi-squared, GOF
     end
 %     
 %     close(figure(5))
     scrsz = get(groot,'ScreenSize');
-    figure('Position',[scrsz(3)/4 scrsz(4)/4 scrsz(3)/2 scrsz(4)/2]);
+    figure('Name', 'Fit Statistics', 'tag', 'fitstats', 'Position',[scrsz(3)/4 scrsz(4)/4 scrsz(3)/2 scrsz(4)/2]);
     hold on
     for j=1:6
         ax(j)=subplot(2, 3, j);
@@ -356,8 +303,8 @@ set(handles.axes1.Children,'visible','on');
         'DisplayName', 'Reduced \chi^2')
     ylabel(ax(6),'Reduced \chi^2','FontSize',14)
     
-    for i=1:length(ax)
-        xlabel(ax(i),'File Number');
+    for ii=1:length(ax)
+        xlabel(ax(ii),'File Number');
     end
     xlim(ax, [0 numfiles+1]);
     linkaxes(ax, 'x')
@@ -367,38 +314,14 @@ set(handles.axes1.Children,'visible','on');
     function result = plotBackgroundFit(handles)
     %UNTITLED9 Summary of this function goes here
     %   Detailed explanation goes here
-    utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
-    xdata = xrd.getTwoTheta;
-    % Get Background
-    bkgdArray = xrd.calculateBackground();
-    line = plot(handles.axes1, xdata, bkgdArray,'--', ...
-        'LineWidth',1,...
-        'DisplayName','Background Fit', ...
-        'tag','backgroundfit',...
-        'Visible', 'off');
-    setappdata(line, 'xdata', xdata);
-    setappdata(line, 'ydata', bkgdArray);
-    result = bkgdArray;
-    plotter.XScale = plotter.XScale; % update the plot to display the current Xscale
+    line = plotter.plotBgFit(handles.axes1);
+    result = line.YData;
     end
 
 
     function plotBackgroundPoints(handles) % plots points and BkgFit
     % The current file TODO: "getCurrentFile(handles.popup_filename)"
-    utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
-    xdata = xrd.getTwoTheta;
-    ydata = xrd.getData(handles.gui.CurrentFile);
-    
-    points = xrd.getBackgroundPoints;
-    idx = utils.findIndex(xdata, points);
-    
-    % plot(handles.axes1,data(1,:),data(2,:),'-o','LineWidth',0.5,'MarkerSize',4, 'MarkerFaceColor', [0 0 0])
-    line = plot(handles.axes1, points, ydata(idx), 'rd', 'markersize', 5, ...
-        'markeredgecolor', 'r', 'markerfacecolor','r', 'DisplayName', 'Background Points', ...
-        'Visible', 'off');
-    setappdata(line, 'xdata', line.XData);
-    setappdata(line,'ydata', line.YData);
-    plotter.XScale = plotter.XScale; % update the plot to display the current Xscale
+    plotter.plotBgPoints(handles.axes1);
     end
 end
 

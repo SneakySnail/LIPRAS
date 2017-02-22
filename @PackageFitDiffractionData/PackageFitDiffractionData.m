@@ -43,8 +43,8 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
     
     properties (Dependent, Hidden)
         DataPath
-        
-        
+        KAlpha1
+        KAlpha2 = 1.544426; % nm
         Min2T
         Max2T
     end
@@ -55,8 +55,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         FullTwoThetaRange
         FullIntensityData
         Temperature
-        KAlpha1 = 1.540598; % nm
-        KAlpha2 = 1.544426; % nm
         KBeta
         RKa1Ka2
     end
@@ -68,6 +66,8 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
     properties(Hidden)
         suffix   = '';
         CuKa2Peak
+        KAlpha1_ = [];
+        KAlpha2_ = 1.544426; % nm
         symdata = 0;
         binID = 1:1:24;
         lambda = 1.5405980;
@@ -115,12 +115,38 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             end
         end
         
+        function set.KAlpha1(Stro, value)
+        for i=1:Stro.NumFuncs
+           if ~isempty(Stro.CuKa2Peak{i})
+               Stro.CuKa2Peak{i}.KAlpha1 = value;
+           end
+        end
+        Stro.KAlpha1_ = value;
+        end
+        
+        function value = get.KAlpha1(Stro)
+        value = Stro.KAlpha1_;
+        end
+        
+        function set.KAlpha2(Stro, value)
+        for i=1:Stro.NumFuncs
+           if ~isempty(Stro.CuKa2Peak{i})
+               Stro.CuKa2Peak{i}.KAlpha2 = value;
+           end
+        end
+        Stro.KAlpha2_ = value;
+        end
+        
+        function value = get.KAlpha2(Stro)
+        value = Stro.KAlpha2_;
+        end
+        
         function datapath = get.DataPath(Stro)
         datapath = Stro.DataSet{1}.DataPath;
         end
         
         function result = hasCuKa(Stro)
-        if ~isempty(Stro.KAlpha2)
+        if Stro.CuKa
             result = true;
         else
             result = false;
@@ -162,12 +188,15 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
         
         
-        
         function coeffvals = startingValuesForPeak(Stro, fcnID)
         %STARTINGVALUESFORPEAK returns the coefficient values stored in Stro.FitInitial for the peak
         %   specified in FCNID. 
         %
         %   (Originally created to help with plotting CuKa2 peaks)
+        coeffvals = [];
+        if isempty(Stro.FitInitial) 
+            return
+        end
         coeffs = Stro.getCoeffs;
         start = Stro.FitInitial.start;
         fcnCoeffNames = Stro.FitFunctions{fcnID}.getCoeffs;
@@ -180,8 +209,12 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         
         
         function output = calculateCuKaPeak(Stro, fcnID, coeffvals)
+        output = [];
         if nargin < 3
             coeffvals = Stro.startingValuesForPeak(fcnID); 
+        end
+        if isempty(coeffvals)
+            return
         end
         output = Stro.CuKa2Peak{fcnID}.calculateFit(Stro.getTwoTheta, coeffvals);
         end

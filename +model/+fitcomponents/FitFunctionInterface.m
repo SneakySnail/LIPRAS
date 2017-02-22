@@ -64,11 +64,9 @@ classdef FitFunctionInterface < handle
         if nargin < 1
             id = 1;
         end
-        
         if nargin < 2
             constraints = '';
         end
-        
         this.ID = id;
         this = this.constrain(constraints);
         end
@@ -147,17 +145,13 @@ classdef FitFunctionInterface < handle
                 
         function result = getUnconstrainedCoeffs(this)
         coeffs = this.getCoeffs;
-        
         for i=1:length(coeffs)
             coeffs{i} = coeffs{i}(1);
         end
-        
         idx = zeros(1, length(this.ConstrainedCoeffs));
-        
         for i=1:length(this.ConstrainedCoeffs)
             idx(i) = find(strcmpi(this.ConstrainedCoeffs{i}, coeffs), 1);
         end
-        
         result = this.getCoeffs;
         result(idx) = [];
         end
@@ -213,32 +207,25 @@ classdef FitFunctionInterface < handle
            lower = [lower low.(ch)];
            upper = [upper up.(ch)];
         end
-        
         output.initial = initial;
         output.lower = lower;
         output.upper = upper;
         output.coeff = constrained;
-        
         this.RawData = data;
         end
 
         function set.ConstrainedCoeffs(this, value)
         constraints = this.ConstrainedLogical;
-        
         if isnumeric(value)
             this.ConstrainedLogical(value) = ~constraints(value);
-            
         elseif ischar(value) || iscell(value)
-            constraints = this.constrain(value);
-            
+            constraints = this.constrain(value); 
         elseif ~ischar(value) || ~islogical(value)
             keyboard
         else
             keyboard
         end
-        
         this.ConstrainedLogical = constraints;
-        
         end
         
         function set.PeakPosition(this, value)
@@ -251,25 +238,19 @@ classdef FitFunctionInterface < handle
         
         function result = get.ConstrainedCoeffs(this)
         constraints = this.ConstrainedLogical;
-            
         result = {};
-        
         if constraints(1)
             result = [result, 'N'];
         end
-        
         if constraints(2)
             result = [result, 'x'];
         end
-        
         if constraints(3)
             result = [result, 'f'];
         end
-        
         if constraints(4) 
             result = [result, 'w'];
         end
-        
         if constraints(5)
             result = [result, 'm'];
         end
@@ -279,21 +260,29 @@ classdef FitFunctionInterface < handle
         %GETCOEFFS returns a cell array of strings with the coefficients to use in the fit equation.
         import utils.contains
         constraints = this.ConstrainedLogical;
-        unconstrained = [];
+        num = num2str(this.ID);
+        unconstrained = cell(1, length(this.CoeffNames)); i=1;
         if ~constraints(1)
-            unconstrained = [unconstrained {[this.CoeffNames{1} num2str(this.ID)]}];
+            unconstrained{i} = [this.CoeffNames{1} num];
+            i=i+1;
         end    
         if ~constraints(2)
-            unconstrained = [unconstrained {[this.CoeffNames{2} num2str(this.ID)]}];
+            unconstrained{i} = [this.CoeffNames{2} num];
+            i=i+1;        
         end
         if ~constraints(3)
-            unconstrained = [unconstrained {[this.CoeffNames{3} num2str(this.ID)]}];
+            unconstrained{i} = [this.CoeffNames{3} num];
+            i=i+1;
         end
         if ~constraints(4) && contains(this.Name, 'Pseudo')
-            unconstrained = [unconstrained {[this.CoeffNames{4} num2str(this.ID)]}];
+            unconstrained{i} = [this.CoeffNames{4} num];
+            i=i+1;
+        elseif ~constraints(5) && contains(this.Name, 'Pearson VII')
+            unconstrained{i} = [this.CoeffNames{4} num];
+            i=i+1;
         end
-        if ~constraints(5) && contains(this.Name, 'Pearson VII')
-            unconstrained = [unconstrained {[this.CoeffNames{4} num2str(this.ID)]}];
+        if i <= length(unconstrained)
+            unconstrained(i:end) = [];
         end
         result = [this.ConstrainedCoeffs, unconstrained];
         end

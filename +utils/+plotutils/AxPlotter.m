@@ -1,15 +1,9 @@
 classdef AxPlotter < matlab.mixin.SetGet
     %AXPLOTTER manages the different types of plot scales. Also plots individual data lines.
-    properties (SetAccess = immutable)
+    properties 
         ax
         
         axerr
-        
-        FileNames
-        
-        profiles
-        
-        gui
     end
     
     properties
@@ -19,6 +13,8 @@ classdef AxPlotter < matlab.mixin.SetGet
     properties (Dependent)
         Mode  % can be data, background, sample, fit, coeff, stats
         
+        FileNames
+        
         Title
         
         CurrentFile
@@ -26,9 +22,14 @@ classdef AxPlotter < matlab.mixin.SetGet
         XScale % 'linear' or 'dspace'
         
         YScale % 'linear', 'log', or 'sqrt'
-        
-        
     end
+    
+    properties (Dependent, Hidden)
+        profiles
+        
+        gui
+    end
+    
     properties (Hidden)
         
         Mode_ = 'data';
@@ -36,6 +37,8 @@ classdef AxPlotter < matlab.mixin.SetGet
         XScale_ = 'linear';
         
         YScale_ = 'linear';
+        
+        XLim
         
         XData
         
@@ -49,17 +52,20 @@ classdef AxPlotter < matlab.mixin.SetGet
     end
     
     methods
-        function this = AxPlotter(handles, gui)
+        function this = AxPlotter(handles)
         this.hg_ = handles;
         this.ax = handles.axes1;
         this.axerr = handles.axes2;
-        this.profiles = handles.profiles;
-        this.gui = gui;
-        this.FileNames = handles.profiles.FileNames;
+        set(handles.axes1,'ColorOrder',get(handles.axes1,'DefaultAxesColorOrder'), 'LineWidth', 1);
+        set([handles.axes1.XLabel], 'Interpreter', 'tex');
+        set([handles.axes1.YLabel], 'Interpreter', 'tex');
         end
         % ======================================================================
         
         function set.Mode(this, mode)
+        if isempty(mode)
+            return
+        end
         switch mode
             case 'data'
                 
@@ -72,8 +78,12 @@ classdef AxPlotter < matlab.mixin.SetGet
             case 'coeff'
                 
             case 'stats'
-                
         end
+        this.Mode_ = mode;
+        end
+        
+        function value = get.Mode(this)
+        value = this.Mode_;
         end
         
         function name = get.Title(this)
@@ -89,6 +99,7 @@ classdef AxPlotter < matlab.mixin.SetGet
         %   VAL = an integer 
         this.CurrentFileNumber_ = val;
         this.gui.CurrentFile = val;
+        this.title;
         end
         
         function num = get.CurrentFile(this)
@@ -124,17 +135,17 @@ classdef AxPlotter < matlab.mixin.SetGet
         
         function set.XScale(this, type)
         this.XScale_ = type;
-        this.convertXData;
-        this.convertYData;
-        this.convertXErr;
+        this.transform(this.ax.Children);
+        this.transformXData_(this.axerr.Children);
+        this.updateXAxis(this.ax);
         end
         % ======================================================================
         
         function set.YScale(this, type)
         this.YScale_ = type;
         
-        this.convertXData;
-        this.convertYData;
+        this.transform(this.ax.Children);
+        this.updateYAxis(this.ax);
         end
         % ======================================================================
         
@@ -142,81 +153,39 @@ classdef AxPlotter < matlab.mixin.SetGet
         name = this.YScale_;
         end
         
-        function convertXErr(this)
-        line = this.axerr.Children;
-        if isempty(line)
-            return
-        end
-        type = this.XScale;
-        switch type
+        function transformXData_(this, line)
+        if isempty(line), return, end
+        xdata = getappdata(line, 'xdata');
+        switch this.XScale
+            case 'linear'
+                line.XData = xdata;
             case 'dspace'
-                x = getappdata(line,'xdata');
-                line.XData = this.profiles.dspace(x);
-            otherwise
-                set(line,'XData',getappdata(line,'xdata'));
+                line.XData = this.profiles.dspace(xdata);
         end
-        line.Visible = 'on';
         end
         
-        function convertXData(this)
-        state = warning('query', 'MATLAB:handle_graphics:exceptions:SceneNode');
-        warning('off', state.identifier);
-        lines = this.ax.Children;
-        type = this.XScale;
-        if isempty(lines)
-            return
-        elseif isempty(getappdata(lines(1), 'xdata'))
-            delete(lines(1));
-        end
-        lines = this.ax.Children; % update the lines object array
-        switch type
-            case 'dspace'
-                for i=1:length(lines)
-                    x = getappdata(lines(i), 'xdata');
-                    lines(i).XData = this.profiles.dspace(x);
-                end
-            otherwise % don't do anything to XData
-                for i=1:length(lines)
-                    set(lines(i),'XData', getappdata(lines(i), 'xdata'));
-                end
-        end
-        
-        if isempty(lines)
-            set(this.ax,'XLimMode','auto');
-        elseif ~isequal(this.ax.XLim, [min([lines.XData]) max([lines.XData])])
-            set(this.ax, 'XLim', [min([lines.XData]) max([lines.XData])],'XTickMode','auto');
-        end
-        warning(state.state, state.identifier);
-        end
-    
-        
-        function convertYData(this)
-        lines = this.ax.Children;
-        state = warning('query', 'MATLAB:handle_graphics:exceptions:SceneNode');
-        warning('off', state.identifier);
-        if isempty(lines)
-            return
-        elseif isempty(getappdata(lines(1), 'ydata'))
-            delete(lines(1));
-        end
-        lines = this.ax.Children; % update the lines object array
+        function transformYData_(this, line)
+        if isempty(line), return, end
+        ydata = getappdata(line, 'ydata');
         switch this.YScale
+            case 'linear'
+                line.YData = ydata;
             case 'log'
-                for i=1:length(lines)
-                    y = getappdata(lines(i), 'ydata');
-                    lines(i).YData = log(y);
-                end
+                line.YData = log(ydata);
             case 'sqrt'
-                for i=1:length(lines)
-                    y = getappdata(lines(i), 'ydata');
-                    lines(i).YData = sqrt(y);
-                end
-            otherwise % linear
-                for i=1:length(lines)
-                    lines(i).YData = getappdata(lines(i), 'ydata');
-                end
+                line.YData = sqrt(ydata);
         end
-       
+        end
+        
+        function transform(this, lines)
+        %transform transforms the line object into the appropriate scale.
+        if isempty(lines), return, end
+        state = warning('query', 'MATLAB:handle_graphics:exceptions:SceneNode');
+        warning('off', state.identifier);
+        for i=1:length(lines)
+            this.transformXData_(lines(i));
+            this.transformYData_(lines(i));
+        end
         warning(state.state, state.identifier);
         end
         
@@ -250,31 +219,103 @@ classdef AxPlotter < matlab.mixin.SetGet
         else
             axx = this.ax;
         end
-        line = plot(axx,x,y,varargin{:});
-        set(line, 'displayname', 'Raw Data', 'tag', 'raw','visible', 'off');
+        line = plot(axx,x,y,'o', 'DisplayName', 'Raw Data', 'tag', 'raw', ...
+            'MarkerFaceColor', [1 1 1], 'MarkerEdgeColor', 'auto', 'MarkerSize', 5, ...
+            'visible', 'off');
+        if length(varargin) > 1
+            set(line, varargin{:});
+        end
         setappdata(line, 'xdata', line.XData);
         setappdata(line, 'ydata', line.YData);
-        this.gui.Legend = 'reset';
-        this.updateAxis(axx);
-        set(axx.Children, 'visible', 'on');
+        this.transform(line);
         end
         
-        function line = plotBgPoints(this)
+        function line = plotBgPoints(this, ax)
+        xdata = this.profiles.xrd.getTwoTheta;
+        ydata = this.profiles.xrd.getData(this.gui.CurrentFile);
+        points = this.profiles.xrd.getBackgroundPoints;
+        idx = utils.findIndex(xdata, points);
+        line = plot(ax, points, ydata(idx), 'rd', 'MarkerSize', 5, ...
+            'MarkerEdgeColor', 'r', 'MarkerFaceColor', 'r', 'DisplayName', 'Background Points',...
+            'Visible', 'off');
+        setappdata(line, 'xdata', line.XData);
+        setappdata(line, 'ydata', line.YData);
+        this.transform(line);
         end
         
-        function line = plotBgFit(this)
+        function line = plotBgFit(this, ax)
+        line = plot(ax, this.profiles.xrd.getTwoTheta, this.profiles.xrd.calculateBackground, ...
+            '--','LineWidth', 1, 'DisplayName', 'Background', 'Tag', 'Background', 'Visible', 'off');
+        setappdata(line,'xdata',line.XData);
+        setappdata(line,'ydata',line.YData);
+        this.transform(line);
         end
         
-        function line = plotPeak(this)
+        function line = plotSamplePeak(this, ax, fcnID)
+        line = gobjects;
+        try
+            xdata = this.profiles.xrd.getTwoTheta;
+            fitsample = this.profiles.xrd.calculateFitInitial(this.gui.FitInitial.start);
+            background = this.profiles.xrd.calculateBackground;
+            line = plot(ax, xdata, fitsample(fcnID,:)+background, '--', 'LineWidth', 1, ...
+                'DisplayName', ['(' num2str(fcnID) ') ' this.gui.FcnNames{fcnID}], ...
+                'Visible', 'off');
+            if this.profiles.xrd.hasCuKa
+                cuKalpha2 = this.profiles.xrd.calculateCuKaPeak(fcnID);
+                line(2) = plot(ax, xdata, cuKalpha2+background, ':','LineWidth',2,...
+                    'DisplayName',['(' num2str(fcnID) ') Cu-K\alpha2'], ...
+                    'Tag', ['cuka' num2str(fcnID)], 'Visible', 'off');
+            end
+            for i=1:length(line)
+                setappdata(line(i),'xdata',line(i).XData);
+                setappdata(line(i),'ydata',line(i).YData);
+            end
+        catch ex
+            ex.getReport
+        end
+        this.transform(line);
         end
         
-        function line = plotSample(this, coeffvals)
+        function line = plotFittedPeak(this, ax, fitted, fcnID)
+        %plotFittedPeak     Returns a line object that represents the fit for the function number
+        %   specified by fcnID.
+        fcns = fitted.FunctionNames;
+        line = plot(ax, fitted.TwoTheta, fitted.FPeaks(fcnID,:)+fitted.Background, ...
+            'LineWidth',1,'DisplayName',['(' num2str(fcnID) ') ' fcns{fcnID}], ...
+            'Tag', ['f' num2str(fcnID)],'Visible', 'off');
+        if fitted.CuKa
+            line(2) = plot(ax,fitted.TwoTheta,fitted.FCuKa2Peaks(fcnID,:)+fitted.Background,...
+                ':', 'LineWidth', 2, 'DisplayName', ['Cu-K\alpha2 (Peak ', num2str(fcnID), ')'], ...
+                'Visible', 'off');
+        end
+        for i=1:length(line)
+            setappdata(line(i),'xdata',line(i).XData);
+            setappdata(line(i),'ydata',line(i).YData);
+        end
+        this.transform(line);
         end
         
-        function line = plotFit(this, ax, fileID)
-        end
         
-        function line = plotFitErr(this)
+        
+        function line = plotOverallFit(this, ax, fitted)
+        line = plot(ax, fitted.TwoTheta, fitted.FData+fitted.Background, ...
+            'k','LineWidth',1,'DisplayName','Overall Fit','Color',[0 0 0], ...
+            'Tag', 'OverallFit','Visible', 'off'); % Overall Fit
+        setappdata(line,'xdata',line.XData);
+        setappdata(line,'ydata',line.YData);
+        this.transform(line);
+        end
+       
+        function line = plotFitErr(this, ax, fitted)
+        if nargin < 2
+            ax = this.axerr;
+        end
+        cla(ax)
+        line = plot(ax,fitted.TwoTheta, fitted.Intensity - (fitted.FData+fitted.Background), ...
+            'r', 'LineWidth', .50, 'Tag', 'Error', 'visible','off'); % Error
+        setappdata(line,'xdata',line.XData);
+        setappdata(line,'ydata',line.YData);
+        this.transformXData_(line);
         end
         
         function line = plotCoeffValues(this)
@@ -283,61 +324,109 @@ classdef AxPlotter < matlab.mixin.SetGet
         function plotFitStats(this)
         end
         
+        function updateXAxis(this, axx)
+        if isempty([axx.Children]), return, end
+        xrange = [min(this.profiles.xrd.getTwoTheta) max(this.profiles.xrd.getTwoTheta)];
+        set(axx, 'XTickMode', 'auto', 'XTickLabelMode', 'auto');
+        if ~ishold(axx), hold(axx, 'on'); end
+        switch this.XScale
+            case 'linear'
+                set([axx.XLabel], 'String', '2\theta (\circ)');
+                set(axx, 'XLim', xrange);
+            case 'dspace'
+                set([axx.XLabel], 'String', ['D-Space (' char(197) ')']);
+                set(axx, 'XLim', sort(this.profiles.dspace(xrange)));
+        end
+        end
+        
+        function updateYAxis(this, axx)
+        %updateYAxis modifies the y-axis limits based on the minimum and maximum values of the
+        %   plotted lines.
+        if isempty([axx.Children]), return, end
+        switch this.YScale
+            case 'linear'
+                set([axx.YLabel], 'String', 'Intensity (a.u.)');
+            case 'log'
+                set([axx.YLabel], 'String', 'ln{I} (a.u.)');
+            case 'sqrt'
+                set([axx.YLabel], 'String', '\sqrt{I} (a.u.)');
+        end
+        ydata = get([axx.Children], 'YData');
+        if iscell(ydata)
+            ydata = [ydata{:}];
+        end
+        ydiff = max(ydata) - min(ydata);
+        ymin = min(ydata)-0.05*ydiff;
+        ymax = max(ydata)+0.2*ydiff;
+        set(axx, 'YLim', [ymin ymax]);
+        end
+        
         function updateAxis(this, axx)
         %UPDATEXYLIM makes sure the plot is within range and displayed in the appropriate size.
         if nargin < 2
             axx = this.ax;
         end
-        range = [min(this.profiles.xrd.getTwoTheta) max(this.profiles.xrd.getTwoTheta)];
-        set(axx, 'XTickMode', 'auto', 'XTickLabelMode', 'auto', 'XLim', range);
-        axx.XLabel.Interpreter = 'tex';
-        switch this.XScale
-            case 'linear'
-                set(axx.XLabel, 'String', '2\theta (\circ)');
-            case 'dspace'
-                set(axx.XLabel, 'String', ['D-Space (' char(197) ')']);
-        end
-        
-        axx.YLabel.Interpreter = 'latex';
-        raw = findobj(axx,'tag','raw');
-        switch this.YScale
-            case 'linear'
-                axx.YLabel.Interpreter = 'tex';
-                set(axx.YLabel, 'String', 'Intensity (a.u.)');
-                if ~isempty(raw)
-                    ylim(axx,[0.8*min([raw(1).YData]) 1.1*max([raw(1).YData])]);
-                end
-            case 'log'
-                set(axx.YLabel, 'String', '$$ln(I)$$ (a.u.)');
-                if ~isempty(raw)
-                    ylim(axx,[0.96*min([raw(1).YData]) 1.04*max([raw(1).YData])]);
-                end
-            case 'sqrt'
-                set(axx.YLabel, 'String', 'textsf{$$\sqrt(I)$$ (a.u.)}');
-                if ~isempty(raw)
-                    ylim(axx,[0.9*min([raw(1).YData]) 1.1*max([raw(1).YData])]);
-                end
-        end
-        
-        this.XScale = this.XScale;
+        this.updateXAxis(axx);
+        this.updateYAxis(axx);
+        this.title;
         end
         
         function title(this, varargin)
+        %title Names the title of the axes.
+        %
+        %   TITLE(AXX) changes the title of the axes specified by AXX to the currently viewing
+        %   file's name.
+        %
+        %   TITLE(AXX, 'FILENAME') overrides the default naming of the axes and names the axes
+        %   'FILENAME' instead.
         
         if nargin > 1 && isa(varargin{1}, 'matlab.graphics.axis.Axes')
             axx = varargin{1};
+            if length(varargin) > 1
+                varargin = varargin(2:end);
+            else
+                varargin = [];
+            end
         else 
             axx = this.ax;
         end
-        title(axx, [this.FileNames{this.CurrentFile} ' (' num2str(this.CurrentFile) ' of ' ...
-            num2str(length(this.FileNames)) ')'], 'Interpreter', 'none');
-        if length(varargin) > 1
-            title(axx, varargin);
-        else
-            title(axx, 'FontSize', 15, 'FontName','default');
+        for i=1:length(axx)
+            filenum = this.CurrentFile;
+            filename = this.FileNames{filenum};
+            title(axx, [filename ' (' num2str(filenum) ' of ' ...
+                num2str(length(this.FileNames)) ')'], 'Interpreter', 'none', ...
+                'FontSize', 14, 'FontName','default');
+            if ~isempty(varargin)
+                title(axx, varargin{:});
+            end
         end
         end
             
+        
+        function answer = canPlotSample(this)
+        % canPlotSample returns true if the Fit Bounds table has all cells filled.
+        answer = false;
+        fitInitialValues = this.gui.FitInitial;
+        if isempty(fitInitialValues)
+            return
+        end
+        if isfield(fitInitialValues, 'start')
+            noInput = find(fitInitialValues.start == -1, 1);
+            if isempty(noInput)
+                answer = true;
+            end
+        end 
+        end
+        
+        function answer = canPlotFit(this)
+        % canPlotFit returns true only if the dataset has been fit and the Fit Bounds table
+        %   wasn't modified afterwards.
+        end
+        
+        function answer = canPlotBackground(this)
+        % canPlotBackground returns true if background points have been selected.
+        end
+        
         function resizePlot(this, size)
         end
         
@@ -345,7 +434,19 @@ classdef AxPlotter < matlab.mixin.SetGet
     
     methods 
         function handles = get.hg(this)
-        handles = guidata(this.hg_);
+        handles = guidata(this.hg_.figure1);
+        end
+        
+        function gui = get.gui(this)
+        gui = this.hg.gui;
+        end
+        
+        function profiles = get.profiles(this)
+        profiles = this.hg.profiles;
+        end
+        
+        function filenames = get.FileNames(this)
+        filenames = this.profiles.FileNames;
         end
     end
 end

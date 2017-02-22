@@ -22,8 +22,9 @@ for i=1:length(str)
         output(i) = false;
     else
         % If any cell in PATTERN matches str{i}, return TRUE
+        val = false(1, length(pattern));
         for j=1:length(pattern)
-            val(j) = contains(str{i}, pattern{j}); %#ok<AGROW>
+            val(j) = contains(str{i}, pattern{j});
         end
         if ~isempty(find(val,1))
             output(i) = true;

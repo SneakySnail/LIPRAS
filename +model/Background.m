@@ -72,6 +72,11 @@ classdef Background
         twotheta = this.xrd.getTwoTheta();
         value = utils.findIndex(twotheta, this.InitialPoints);
         end
+        
+        function answer = hasValidPoints(this)
+        %hasValidPoints returns true if the number of points within the 2theta range is greater than
+        %   the polynomial order.
+        end
     end
     
     methods (Hidden)

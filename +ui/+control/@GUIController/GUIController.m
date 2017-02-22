@@ -128,7 +128,7 @@ classdef GUIController < handle
         end
         
         this.Profiles = this.hg.profiles;
-        this.Plotter = utils.plotutils.AxPlotter(this.hg, this);
+        this.Plotter = utils.plotutils.AxPlotter(this.hg);
         end
     end
         
@@ -137,14 +137,32 @@ classdef GUIController < handle
         function result = isFitDirty(this)
         %ISFITDIRTY returns TRUE if the selected options above the 'UPDATE' button (i.e. the fit
         %   parameters) don't match the table_fitinitial coefficients.
+        result = false;
         xrd = this.hg.profiles.xrd;
-        if ~isempty(xrd) && isequal(this.FcnNames, xrd.getFunctionNames) && ...
+        if isempty(xrd)
+            return
+        end
+        if this.Profiles.hasFit
+            fitted = this.Profiles.getProfileResult{1};
+            if ~isequal(fitted.FunctionNames, this.FcnNames) || ...
+                    ~isequal(fitted.CoeffNames, this.Coefficients) || ...
+                    ~isequal(fitted.FitInitial, this.FitInitial)
+                result = true;
+            end
+        elseif isequal(this.FcnNames, xrd.getFunctionNames) && ...
                 isequal(this.Coefficients, xrd.getCoeffs) && ...
                 isequal(this.FitInitial, xrd.FitInitial)
             result = false;
         else
             result = true;
         end
+        end
+        
+        function answer = isFitRangeDirty(this)
+        %isFitRangeDirty Returns true if there are background points or peak positions out of the
+        %   current two theta range.
+        
+        
         end
         
         function set.DataPath(this, pathname)
@@ -194,9 +212,11 @@ classdef GUIController < handle
         end
         switch mode
             case 'reset'
-                legend(this.hg.axes1, 'off');
-                this.hg.toolbar_legend.State = 'on';
-                legend(this.hg.axes1, 'show');
+                if strcmpi(this.hg.toolbar_legend.State, 'on')
+                    legend(this.hg.axes1, 'off');
+                    this.hg.toolbar_legend.State = 'on';
+                    legend(this.hg.axes1, 'show');
+                end
             case 'on'
                 this.hg.toolbar_legend.State = 'on';
                 legend(this.hg.axes1, 'show');
@@ -477,18 +497,27 @@ classdef GUIController < handle
             hObject.Data = input;
             
         elseif isstruct(input)
-            if ~isempty(input.start)
-                hObject.Data(:, 1) = num2cell(input.start)';
+            if isfield(input, 'start') && ~isempty(input.start)
+                 startpoints = num2cell(input.start)';
+                 emptyIdx = cellfun(@(c)c<0, startpoints);
+                 startpoints(emptyIdx) = {[]};
+                 hObject.Data(:, 1) = startpoints;
             else
                 hObject.Data(:, 1) = cell(size(hObject.Data,1),1);
             end
-            if ~isempty(input.lower)
-                hObject.Data(:, 2) = num2cell(input.lower)';
+            if isfield(input, 'lower') && ~isempty(input.lower)
+                lower = num2cell(input.lower)';
+                emptyIdx = cellfun(@(c)c<0, lower);
+                lower(emptyIdx) = {[]};
+                hObject.Data(:, 2) = lower;
             else
                 hObject.Data(:, 2) = cell(size(hObject.Data,1),1);
             end
-            if ~isempty(input.upper)
-                hObject.Data(:, 3) = num2cell(input.upper)';
+            if isfield(input, 'upper') && ~isempty(input.upper)
+                upper = num2cell(input.upper)';
+                emptyIdx = cellfun(@(c)c<0, upper);
+                upper(emptyIdx) = {[]};
+                hObject.Data(:, 3) = upper;
             else
                 hObject.Data(:, 3) = cell(size(hObject.Data,1),1);
             end
@@ -497,6 +526,29 @@ classdef GUIController < handle
             msg = 'Value must be a numeric array.';
             throw(MException('LIPRAS:ProfileGUIManager:FitInitial:InvalidType', msg))
         end
+        end
+        
+        function output = get.FitInitial(this)
+        % Gets the values in table_fitinitial and returns it as a numeric array of doubles. If the
+        %   cell is empty, it returns a -1.
+        hObject = this.hg.table_fitinitial;
+        start = hObject.Data(:, 1)';
+        lower = hObject.Data(:, 2)';
+        upper = hObject.Data(:, 3)';
+        for i=1:length(start)
+            if isempty(start{i})
+                start{i} = -1;
+            end
+            if isempty(lower{i})
+                lower{i} = -1;
+            end
+            if isempty(upper{i})
+                upper{i} = -1;
+            end
+        end
+        output.start = cell2mat(start);
+        output.lower = cell2mat(lower);
+        output.upper = cell2mat(upper);
         end
         
         function set.FitResults(this, value)
@@ -752,27 +804,7 @@ classdef GUIController < handle
         end
         end
             
-        function output = get.FitInitial(this)
-        % Gets the values in table_fitinitial
-        hObject = this.hg.table_fitinitial;
-        start = hObject.Data(:, 1)';
-        lower = hObject.Data(:, 2)';
-        upper = hObject.Data(:, 3)';
-        for i=1:length(start)
-            if isempty(start{i})
-                start{i} = 0;
-            end
-            if isempty(lower{i})
-                lower{i} = 0;
-            end
-            if isempty(upper{i})
-                upper{i} = 0;
-            end
-        end
-        output.start = cell2mat(start);
-        output.lower = cell2mat(lower);
-        output.upper = cell2mat(upper);
-        end
+        
         
         
         % Returns the coefficients row name as a 1xN cell array of strings.
@@ -816,6 +848,10 @@ classdef GUIController < handle
         
         function result = findCoeffIndex(this, coeff)
         result = find(strcmpi(this.Coefficients, coeff));
+        end
+        
+        function result = hasFitInitial(this)
+        %hasFitInitial Returns true if 
         end
  
     end
