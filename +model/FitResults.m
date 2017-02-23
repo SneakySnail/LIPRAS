@@ -121,7 +121,7 @@ end
                 this.FCuKa2Peaks(i,:) = peak(2,:);
             end
         end
-
+        this.FitInitial.coeffs = this.CoeffNames;
         this.FitInitial.start = this.FitOptions.StartPoint;
         this.FitInitial.lower = this.FitOptions.Lower;
         this.FitInitial.upper = this.FitOptions.Upper;

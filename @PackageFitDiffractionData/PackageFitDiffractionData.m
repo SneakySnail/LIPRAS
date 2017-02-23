@@ -53,7 +53,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         CuKa = false;
         FitResults % cell array of fit outputs
         FullTwoThetaRange
-        FullIntensityData
+%         FullIntensityData
         Temperature
         KBeta
         RKa1Ka2
@@ -116,11 +116,18 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
         
         function set.KAlpha1(Stro, value)
+        CuKAlphaPeaks = Stro.CuKa2Peak;
+        if isempty(CuKAlphaPeaks)
+            CuKAlphaPeaks = cell(1, Stro.NumFuncs);
+        end
         for i=1:Stro.NumFuncs
-           if ~isempty(Stro.CuKa2Peak{i})
-               Stro.CuKa2Peak{i}.KAlpha1 = value;
+           if isempty(CuKAlphaPeaks{i})
+               CuKAlphaPeaks{i} = model.fit.CuKalpha2(Stro.FitFunctions{i}, value);
+           else
+               CuKAlphaPeaks{i}.KAlpha1 = value;
            end
         end
+        Stro.CuKa2Peak = CuKAlphaPeaks;
         Stro.KAlpha1_ = value;
         end
         
@@ -175,6 +182,11 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
                 end
             end
         end
+        end
+        
+        function reverseDataSetOrder(Stro)
+        % Dataset will fit in reverse.
+        Stro.DataSet = flip(Stro.DataSet);
         end
         
         function set.PeakPositions(Stro, val)
@@ -455,7 +467,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         %MODE - 'new', 'add', 'delete'
         Stro.Background = Stro.Background.update2T([Stro.Min2T, Stro.Max2T]);
         Stro.Background.InitialPoints = points;
-        end
         end
         % ======================================================================
         

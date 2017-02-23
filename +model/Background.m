@@ -56,16 +56,17 @@ classdef Background
         function bkgdArray = calculateFit(this, file)
         % Calculates the resulting background fit.
         twotheta = this.xrd.getTwoTheta();
-        
+        bkgdArray = [];
+        if length(this.InitialPoints) < this.Order
+            return
+        end
         if strcmpi(this.Model, this.ModelNames{1})
             [P, S, U] = this.getPolyFit(file);
             bkgdArray = polyval(P, twotheta, S, U);
-            
         elseif strcmpi(this.Model, this.ModelNames{2})
             P = this.getSplineFit(file);
             bkgdArray = fnval(P, twotheta);
         end
-        
         end
         
         function value = get.InitialPointsIdx(this)
@@ -92,12 +93,9 @@ classdef Background
         function [p, s, u] = getPolyFit(this, file)
             
         intensity = this.xrd.getData(file);
-        
         x = this.InitialPoints;
-        
         y = intensity(this.InitialPointsIdx);
         order = this.Order;
-        
         [p, s, u] = polyfit(x, y, order);
         end
         

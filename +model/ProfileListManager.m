@@ -4,9 +4,6 @@ classdef ProfileListManager < handle
     %   existing ProfileListManager instance, call the static method
     %   ProfileListManager.getInstance.
    properties
-       FileNames 
-       
-       NumFiles = 0;
        
        DataPath = [];
        
@@ -17,6 +14,10 @@ classdef ProfileListManager < handle
    end
    
    properties (Dependent)
+       FileNames 
+       
+       NumFiles
+       
        ActiveProfile
        
        xrd
@@ -35,9 +36,8 @@ classdef ProfileListManager < handle
    properties (Hidden)
        ext % file type for this dataset
        FullTwoThetaRange
-       FullIntensityData
+%        FullIntensityData
        Temperature
-       
        kBeta
        RKa1Ka2
        
@@ -81,8 +81,6 @@ classdef ProfileListManager < handle
        this.FullTwoThetaRange = xrdItem.getTwoTheta;
        this.DataPath = xrdItem.DataPath;
        xrdItem.OutputPath = [xrdItem.DataPath 'FitOutputs' filesep];
-       this.FileNames = xrdItem.getFileNames;
-       this.NumFiles = length(this.FileNames);
        this.OutputPath = xrdItem.OutputPath;
        this.addProfile;
        this.Writer = ui.FileWriter(this);
@@ -97,6 +95,22 @@ classdef ProfileListManager < handle
        else
            this.CuKa = false;
        end
+       end
+       
+       function files = get.FileNames(this)
+       if isempty(this.xrd)
+           files = '';
+           return
+       end
+       files = this.xrd.getFileNames;
+       end
+       
+       function numfiles = get.NumFiles(this)
+       if isempty(this.xrd)
+           numfiles = 0;
+           return
+       end
+       numfiles = length(this.xrd.getFileNames);
        end
        
        function set.CuKa(this, value)
@@ -174,7 +188,6 @@ classdef ProfileListManager < handle
        function this = reset(this)
        this.xrdContainer = [];
        this.CurrentProfileNumber_ = 0;
-       this.NumFiles = 0;
        this.Writer = [];
        end
        
@@ -226,14 +239,7 @@ classdef ProfileListManager < handle
        end
        end
        
-       function value = getNumFiles(this)
-       %GETNUMFILES Returns the total number of Diffraction Data files.
-       if isempty(this.xrdContainer)
-           value = 0;
-       else
-           value = this.xrd.NumFiles;
-       end
-       end
+       
        
        function this = exportProfileParametersFile(this)
        % Assuming there is already a fit
@@ -327,21 +333,22 @@ classdef ProfileListManager < handle
         if nargin < 2
             prfn = this.getCurrentProfileNumber;
         end
-        this.Status = ['Fitting dataset ' num2str(1) ' of ' num2str(this.NumFiles) '...'];
         fitresults = cell(1, this.NumFiles);
         msg = LiprasDialog.fittingDataSet;
         for i=1:this.NumFiles
+            this.Status = ['Fitting dataset ' num2str(i) ' of ' num2str(this.NumFiles) '...'];
             try
-            % stop the fit if the user closes the msgbox
-            if ~isvalid(msg)
-                return
-            end
-            fitresults{i} = model.FitResults(this, i);
-            this.Status = ['Fitting dataset ' num2str(i) ' of ' num2str(this.NumFiles)];
+                % stop the fit if the user closes the msgbox
+                if ~isvalid(msg)
+                    this.Status = 'Stopped fitting dataset.';
+                    fitresults = [];
+                    return
+                end
+                fitresults{i} = model.FitResults(this, i);
             catch exception
-               delete(msg)
-               exception.getReport
-               rethrow(exception)
+                delete(msg)
+                exception.getReport
+                rethrow(exception)
             end
         end
         delete(msg);

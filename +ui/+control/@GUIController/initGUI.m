@@ -1,7 +1,6 @@
 % Initialize GUI controls
 function handles = initGUI(handles)
 clear(['+utils' filesep '+plotutils' filesep 'plotX'])
-
 screensize = get(0, 'ScreenSize');
 handles.figure1.Position(2) =  screensize(4) - handles.figure1.Position(4) - 100;
 set(handles.figure1, 'visible', 'on');
@@ -51,19 +50,6 @@ addControlListeners();
     end
 
     function initComponents()
-    % Default color order for plotting data series
-    set(get(handles.axes1, 'Parent'), 'DefaultAxesColorOrder', ...
-        [0      0     0;        % black
-        1      0     0;        % red
-        1      0.4   0;        % orange
-        0.2    0.5   0;        % olive green
-        0      0     0.502;    % navy blue
-        0.502  0     0.502;    % violet
-        0      0     1;        % royal blue
-        0.502  0.502 0]);      % dark yellow
-    z=zoom(handles.figure1);
-    z.setAllowAxesZoom(handles.axes2, false);
-    
     set(handles.panel_setup, 'parent', handles.uipanel3);
     set(handles.panel_parameters,'parent', handles.uipanel3);
     set(handles.panel_results, 'parent', handles.uipanel3);
@@ -80,6 +66,9 @@ addControlListeners();
     handles.text4.String = ['2' char(952) ' Range (' char(176) '): ']; % 2T Range label
     handles.text46.String = ['Cu-K' char(945) '1:'];
     handles.text47.String = ['Cu-K' char(945) '2:'];
+    set([handles.axes1 handles.axes2], 'Units', 'normalized');
+    setappdata(handles.axes1, 'OriginalSize', handles.axes1.OuterPosition);
+    setappdata(handles.axes2, 'OriginalSize', handles.axes2.OuterPosition);
     end
 % ==========================================================================
 

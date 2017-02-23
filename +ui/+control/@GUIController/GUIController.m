@@ -18,7 +18,9 @@ classdef GUIController < handle
     properties (Dependent)
         DataPath
         
-        Status 
+        Status % Sets the statusbar text if there is no text or if at least 2 seconds have passed
+        
+        PriorityStatus % Sets the statusbar text regardless of whether there is text 
         
         SelectedCoeffResult
         
@@ -122,7 +124,6 @@ classdef GUIController < handle
         else
             this.hg = guidata(figure1);
         end
-        
         this.Profiles = this.hg.profiles;
         this.Plotter = utils.plotutils.AxPlotter(this.hg);
         end
@@ -157,16 +158,26 @@ classdef GUIController < handle
         function set.Status(this, text)
         % Sets the text in the status bar. The Status property of ProfileListManager has priority
         % over this Status. Setting text to this property checks whether or not there is already
-        % text in the status bar and if it has been displayed for at least 2 seconds before
+        % text in the status bar and if it has been displayed for at least 1 second before
         % overriding it.
         persistent timerStart
         previousText = char(this.hg.statusbarObj.getText);
-        if isempty(timerStart)
+        if isempty(timerStart) 
             timerStart = tic;
         end
-        if ~isempty(previousText) && toc(timerStart) < 2
+        timeElapsed = toc(timerStart);
+        if ~isempty(previousText) && timeElapsed < 2
             return
         end
+        this.hg.statusbarObj.setText(text);
+        timerStart = [];
+        end
+        
+        function text = get.Status(this)
+        text = this.hg.statusbarObj.getText;
+        end
+        
+        function set.PriorityStatus(this, text)
         this.hg.statusbarObj.setText(text);
         end
         
@@ -213,7 +224,7 @@ classdef GUIController < handle
         
         function set.Legend(this, mode)
         if isempty(this.hg.axes1.Children)
-            mode = 'off';
+            return
         end
         switch mode
             case 'reset'
@@ -341,13 +352,6 @@ classdef GUIController < handle
         profiles = this.hg.profiles;
         if isempty(profiles.xrd)
             return
-        end
-        % Check if within range
-        absRange = profiles.xrd.AbsoluteRange;
-        if value < absRange(1)
-            value = absRange(1);
-        elseif value > absRange(2)
-            value = absRange(1);
         end        
         this.hg.edit_min2t.String = sprintf('%.3f', value);
         end
@@ -356,15 +360,8 @@ classdef GUIController < handle
         profiles = this.hg.profiles;
         if isempty(profiles.xrd)
             return
-        end
-        absRange = profiles.xrd.AbsoluteRange;
-        if value < absRange(1)
-            value = absRange(2);
-        elseif value > absRange(2)
-            value = absRange(2);
-        end        
-        this.hg.edit_max2t.String = sprintf('%.3f', value);        
-        % Check to make sure value < absolute maximum 2theta
+        end      
+        this.hg.edit_max2t.String = sprintf('%.3f', value);       
         end
         
         function set.BackgroundModel(this, value)
@@ -554,6 +551,7 @@ classdef GUIController < handle
                 upper{i} = -1;
             end
         end
+        output.coeffs = this.Coefficients;
         output.start = cell2mat(start);
         output.lower = cell2mat(lower);
         output.upper = cell2mat(upper);
@@ -591,10 +589,10 @@ classdef GUIController < handle
         
         function value = get.hg(this)
         % Returns empty if 
-        if isempty(this.hg_) || ~isvalid(this.hg_.figure1)
-            fig = findall(0,'tag', 'figure1');
-        else
+        try
             fig = this.hg_.figure1;
+        catch
+            fig = [];
         end
         if ~isempty(fig)
             value = guidata(fig);
@@ -798,7 +796,6 @@ classdef GUIController < handle
         end
         
         function set.ConstrainedCoeffs(this, coeffs)
-
         for i=1:length(coeffs)
             if ischar(coeffs)
                 c = coeffs(i);
@@ -811,9 +808,14 @@ classdef GUIController < handle
             end
         end
         end
-            
         
-        
+        function reverseDataSetOrder(this)
+        this.Plotter.title(this.hg.axes1);
+        filenames = this.hg.popup_filename.String;
+        filenames = flip(filenames);
+        set(this.hg.popup_filename, 'String', filenames);
+        this.hg.listbox_files.String = filenames;
+        end
         
         % Returns the coefficients row name as a 1xN cell array of strings.
         function value = get.Coefficients(this)
@@ -822,9 +824,7 @@ classdef GUIController < handle
         end 
     end
     
-    
     methods
-        
         function this = setCoeffInitialValue(this, coeff, value)
         %SETCOEFFINITIAL Sets the fit initial value of the coefficient specified
         %   in the argument. Also updates table_fitinitial to display the
@@ -857,11 +857,7 @@ classdef GUIController < handle
         function result = findCoeffIndex(this, coeff)
         result = find(strcmpi(this.Coefficients, coeff));
         end
-        
-        function result = hasFitInitial(this)
-        %hasFitInitial Returns true if 
-        end
- 
+  
     end
     
     methods (Static)
