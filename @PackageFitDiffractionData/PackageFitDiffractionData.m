@@ -441,34 +441,21 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
                 idx(j) = find(strcmpi(coeffnames, fcnCoeffNames{j}),1);
             end
             output(i,:) = Stro.FitFunctions{i}.calculateFit(Stro.getTwoTheta, fitinitial(idx));
+            invalidNums = isnan(output(i,:));
+            output(i,invalidNums) = 0;
         end
         end
         % ==================================================================== %
 
-        function Stro = setBackgroundPoints(Stro, points, mode)
+        function Stro = setBackgroundPoints(Stro, points)
         %
         %
         %X - The 2theta position
         %
         %MODE - 'new', 'add', 'delete'
-        bg = Stro.Background;
-        Stro.Background = bg.update2T([Stro.Min2T, Stro.Max2T]);
-        
-        if nargin < 3 || isempty(bg.InitialPoints)
-            mode = 'new';
+        Stro.Background = Stro.Background.update2T([Stro.Min2T, Stro.Max2T]);
+        Stro.Background.InitialPoints = points;
         end
-        
-        if strcmpi(mode, 'new')
-            Stro.Background.InitialPoints = points;
-            
-        elseif strcmpi(mode, 'append')
-            Stro.Background.InitialPoints = [bg.InitialPoints points];
-            
-        elseif strcmpi(mode, 'delete')
-            idx = utils.findIndex(bg.InitialPoints, points);
-            Stro.Background.InitialPoints(idx) = [];
-        end
-        
         end
         % ======================================================================
         

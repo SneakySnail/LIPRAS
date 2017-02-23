@@ -189,12 +189,6 @@ function new2TRange(handles)
 utils.plotutils.plotX(handles, 'data');
 % ==============================================================================
 
-function fileNumberChanged(handles)
-plottitle = [num2str(handles.gui.CurrentFile) ' of ' num2str(handles.profiles.xrd.NumFiles)];
-set(handles.text_filenum, 'String', plottitle);
-set(handles.listbox_files, 'Value', handles.gui.CurrentFile);
-% ==============================================================================
-
 function newBackgroundModel(handles)
 if isequal(handles.gui.BackgroundModel, 'Spline') && handles.gui.PolyOrder == 1
     handles.gui.PolyOrder = 2;
@@ -380,11 +374,5 @@ if profiles.hasFit
     set(handles.menu_save,'Enable','on');
     set(handles.tabpanel, 'TabEnables', {'on', 'on', 'on'});
     set(handles.push_viewall, 'enable', 'on', 'visible', 'on');
-    
     handles.gui.onPlotFitChange('peakfit');
-else
-    set(handles.push_fitdata, 'enable', 'on');
-    set(handles.menu_save,'Enable','off');
-    set(handles.tabpanel, 'TabEnables', {'on', 'on', 'off'});
-    set(handles.tab2_next, 'visible', 'off');
 end

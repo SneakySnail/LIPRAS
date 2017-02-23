@@ -98,7 +98,7 @@ classdef FileWriter < handle
        function printFitParameters(fits, fid)
        %SAVEPARAMETERSTOFILE 
        fitted = fits{1};
-       fprintf(fid, '2ThetaRange: %.3f %.3f\n\n',fitted.TwoTheta(1), fitted.TwoTheta(end));
+       fprintf(fid, '2ThetaRange: %.5f %.5f\n\n',fitted.TwoTheta(1), fitted.TwoTheta(end));
        fprintf(fid, 'BackgroundModel: %s\n', fitted.BackgroundModel);
        fprintf(fid, 'PolynomialOrder: %i\n', fitted.BackgroundOrder);
        fprintf(fid, 'BackgroundPoints:');
@@ -125,10 +125,10 @@ classdef FileWriter < handle
        fprintf(fid, '%s\t',fitted.FileName);
        % print coeffvalues of Fmodel
        for i=1:length(fitted.CoeffValues)
-           fprintf(fid, '%.3f\t%.3f\t', fitted.CoeffValues(i), fitted.CoeffError(i));
+           fprintf(fid, '%.5f\t%.5f\t', fitted.CoeffValues(i), fitted.CoeffError(i));
        end
        % print FmodelGOF
-       fprintf(fid, '%.3f\t', struct2array(fitted.FmodelGOF));
+       fprintf(fid, '%.5f\t', struct2array(fitted.FmodelGOF));
        fprintf(fid, '\n');
        end
        
@@ -165,7 +165,7 @@ classdef FileWriter < handle
        end
        for i=1:length(twotheta)
            line = [twotheta(i), intmeas(i), background(i), peaks(i,:)];
-           fprintf(fid, '%.3f\t', line(:));
+           fprintf(fid, '%2.5f\t', line(:));
            fprintf(fid, '\n');
        end
        end

@@ -154,11 +154,6 @@ classdef GUIController < handle
         end
         end
         
-        function answer = isFitRangeDirty(this)
-        %isFitRangeDirty Returns true if there are background points or peak positions out of the
-        %   current two theta range.
-        end
-        
         function set.Status(this, text)
         % Sets the text in the status bar. The Status property of ProfileListManager has priority
         % over this Status. Setting text to this property checks whether or not there is already
@@ -326,10 +321,7 @@ classdef GUIController < handle
         end
         
         function set.CurrentFile(this, value)
-        numfiles = this.hg.profiles.getNumFiles;
-        this.hg.popup_filename.Value = value;
-        this.hg.text_filenum.String = [num2str(value) ' of ' num2str(numfiles)];
-        utils.plotutils.plotX(this.hg);
+        this.Plotter.CurrentFile = value;
         end 
         
         %TODO

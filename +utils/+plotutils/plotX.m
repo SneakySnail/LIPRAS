@@ -103,7 +103,7 @@ end
     plotter.plotRawData(handles.axes1, 'LineStyle', '-', 'LineWidth', 1, 'MarkerFaceColor', [1 1 1]);
     utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
     handles.gui.Legend = 'reset';
-    plotter.updateAxis(handles.axes1);
+    plotter.updateXYLim(handles.axes1);
     end
 % ==============================================================================
 
@@ -130,7 +130,7 @@ end
     handles.gui.Legend = 'reset';
     if nargin < 2
         utils.plotutils.resizeAxes1ForErrorPlot(handles, 'fit');
-        plotter.updateAxis(handles.axes1);
+        plotter.updateXYLim(handles.axes1);
     end
     end
 % ==============================================================================
@@ -157,7 +157,7 @@ end
     end
     utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
     handles.gui.Legend = 'reset';
-    plotter.updateAxis(handles.axes1);
+    plotter.updateXYLim(handles.axes1);
     end
 % ==============================================================================
 
@@ -180,7 +180,7 @@ end
         end
     end
     handles.gui.Legend = 'reset';
-    plotter.updateAxis(handles.axes1);
+    plotter.updateXYLim(handles.axes1);
     end
 % ==============================================================================
 
@@ -206,7 +206,7 @@ end
             plotFit(handles, ax(j), j);
         end
         linkaxes(ax,'xy');
-        plotter.updateAxis(ax);
+        plotter.updateXYLim(ax);
         set(findobj(f), 'Visible', 'on');
     catch exception
         delete(f);

@@ -58,7 +58,7 @@ classdef AxPlotter < matlab.mixin.SetGet
         this.axerr = handles.axes2;
         set(handles.axes1,'ColorOrder',get(handles.axes1,'DefaultAxesColorOrder'), 'LineWidth', 1);
         set([handles.axes1.XLabel], 'Interpreter', 'tex');
-        set([handles.axes1.YLabel], 'Interpreter', 'tex');
+        set([handles.axes1.YLabel], 'Interpreter', 'latex');
         end
         % ======================================================================
         
@@ -97,8 +97,10 @@ classdef AxPlotter < matlab.mixin.SetGet
         %   VAL = a structure with field names 'Axis' and 'FileNumber'
         %
         %   VAL = an integer 
+        this.hg.popup_filename.Value = val;
+        this.hg.listbox_files.Value = val;
+        this.hg.text_filenum.String = [num2str(val) ' of ' num2str(length(this.FileNames))];
         this.CurrentFileNumber_ = val;
-        this.gui.CurrentFile = val;
         this.title;
         end
         
@@ -137,15 +139,16 @@ classdef AxPlotter < matlab.mixin.SetGet
         this.XScale_ = type;
         this.transform(this.ax.Children);
         this.transformXData_(this.axerr.Children);
-        this.updateXAxis(this.ax);
+        this.updateXLabel(this.ax);
+        this.updateXLim(this.ax);
         end
         % ======================================================================
         
         function set.YScale(this, type)
         this.YScale_ = type;
-        
         this.transform(this.ax.Children);
-        this.updateYAxis(this.ax);
+        this.updateYLabel(this.ax);
+        this.updateYLim(this.ax);
         end
         % ======================================================================
         
@@ -252,6 +255,9 @@ classdef AxPlotter < matlab.mixin.SetGet
         end
         
         function line = plotSamplePeak(this, ax, fcnID)
+        %plotSamplePeak Plots one peak function number specified by FCNID to the axes specified by 
+        %   AX and outputs a line object. If the CuKAlpha2 peak should be calculated, it outputs two
+        %   line objects.
         line = gobjects;
         try
             xdata = this.profiles.xrd.getTwoTheta;
@@ -274,6 +280,27 @@ classdef AxPlotter < matlab.mixin.SetGet
             ex.getReport
         end
         this.transform(line);
+        end
+        
+        function shaded = plotShadedBounds(this, ax)
+        % Plots the area between the lower and upper bounds.
+        if nargin < 2
+            ax = this.ax;
+        end
+        twotheta = this.profiles.xrd.getTwoTheta;
+        lower = this.gui.FitInitial.lower;
+        upper = this.gui.FitInitial.upper;
+        lowerY = sum(this.profiles.xrd.calculateFitInitial(lower));
+        upperY = sum(this.profiles.xrd.calculateFitInitial(upper));
+        y = [upperY; (upperY - lowerY)]';
+        bkgd = this.profiles.xrd.calculateBackground';
+        shaded = area(ax, twotheta, y+bkgd, 'DisplayName', 'Fit Bounds', 'tag', 'bounds', ...
+            'FaceColor', 'r', 'FaceAlpha', 0.4, 'LineStyle', 'none');
+        set(shaded(1), 'FaceColor', 'none'); % Don't display bottom area
+        setappdata(shaded(1), 'xdata', shaded(1).XData);
+        setappdata(shaded(1), 'ydata', shaded(1).YData);
+        setappdata(shaded(2), 'xdata', shaded(2).XData);
+        setappdata(shaded(2), 'ydata', shaded(2).YData);
         end
         
         function line = plotFittedPeak(this, ax, fitted, fcnID)
@@ -324,33 +351,47 @@ classdef AxPlotter < matlab.mixin.SetGet
         function plotFitStats(this)
         end
         
-        function updateXAxis(this, axx)
+        function updateXLabel(this, axx)
         if isempty([axx.Children]), return, end
-        xrange = [min(this.profiles.xrd.getTwoTheta) max(this.profiles.xrd.getTwoTheta)];
         set(axx, 'XTickMode', 'auto', 'XTickLabelMode', 'auto');
         if ~ishold(axx), hold(axx, 'on'); end
         switch this.XScale
             case 'linear'
                 set([axx.XLabel], 'String', '2\theta (\circ)');
-                set(axx, 'XLim', xrange);
             case 'dspace'
                 set([axx.XLabel], 'String', ['D-Space (' char(197) ')']);
+        end
+        end
+        
+        function updateXLim(this, axx)
+        if isempty([axx.Children]), return, end
+        xrange = [min(this.profiles.xrd.getTwoTheta) max(this.profiles.xrd.getTwoTheta)];
+        switch this.XScale
+            case 'linear'
+                set(axx, 'XLim', xrange);
+            case 'dspace'
                 set(axx, 'XLim', sort(this.profiles.dspace(xrange)));
         end
         end
         
-        function updateYAxis(this, axx)
-        %updateYAxis modifies the y-axis limits based on the minimum and maximum values of the
-        %   plotted lines.
+        function updateYLabel(this, axx)
+        %updateYAxisLabel modifies the y-axis label to display the correct title according to the
+        %   y-axis scale.
         if isempty([axx.Children]), return, end
         switch this.YScale
             case 'linear'
-                set([axx.YLabel], 'String', 'Intensity (a.u.)');
+                set([axx.YLabel], 'String', '\textsf{$$Intensity$$ (a.u.)}');
             case 'log'
-                set([axx.YLabel], 'String', 'ln{I} (a.u.)');
+                set([axx.YLabel], 'String', '\textsf{ln($$Intensity$$) (a.u.)}');
             case 'sqrt'
-                set([axx.YLabel], 'String', '\sqrt{I} (a.u.)');
+                set([axx.YLabel], 'String', '\textsf{$$\sqrt{Intensity}$$ (a.u.)}');
         end
+        end
+        
+        function updateYLim(this, axx)
+        %updateYAxis modifies the y-axis limits based on the minimum and maximum values of the
+        %   plotted lines.
+        if isempty([axx.Children]), return, end
         ydata = get([axx.Children], 'YData');
         if iscell(ydata)
             ydata = [ydata{:}];
@@ -361,13 +402,13 @@ classdef AxPlotter < matlab.mixin.SetGet
         set(axx, 'YLim', [ymin ymax]);
         end
         
-        function updateAxis(this, axx)
+        function updateXYLim(this, axx)
         %UPDATEXYLIM makes sure the plot is within range and displayed in the appropriate size.
         if nargin < 2
             axx = this.ax;
         end
-        this.updateXAxis(axx);
-        this.updateYAxis(axx);
+        this.updateXLim(axx);
+        this.updateYLim(axx);
         this.title;
         end
         

@@ -13,7 +13,6 @@ if ~isa(eventdata.NewData, 'double')
 else
     num = eventdata.NewData;
 end
-
 r = eventdata.Indices(1);
 c = eventdata.Indices(2);
 % If NewData is empty
@@ -21,7 +20,6 @@ if isnan(num)
     hObject.Data{r, c} = [];
     return
 end
-
 if c == 1
     bounds = 'start';
 elseif c == 2
@@ -29,11 +27,8 @@ elseif c == 2
 elseif c == 3
     bounds = 'upper';
 end
-
 handles.profiles.xrd.FitInitial.(bounds)(r) = num;
 ui.update(handles, 'fitinitial');
-
-
 
 assignin('base', 'handles', handles);
 guidata(hObject,handles)

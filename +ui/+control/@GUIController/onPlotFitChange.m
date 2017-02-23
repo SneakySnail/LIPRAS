@@ -23,9 +23,7 @@ switch viewname
             'ColumnEditable', false);
         set(handles.listbox_files, 'enable', 'on');
         set(handles.popup_filename, 'enable', 'on');
-
         plotX(handles, 'fit');
-        
         
     case 'coeff'
         handles.btns3.SelectedObject = handles.radio_coeff;
@@ -40,11 +38,9 @@ switch viewname
             'ColumnEditable', [true false]);
         handles.table_results.Data(:,1) = {false};
         handles.table_results.Data{1, 1} = true;
-               
          plotX(handles, 'coeff');
                 
     case 'stats'
-        
         plotX(handles, 'stats');
         
 end

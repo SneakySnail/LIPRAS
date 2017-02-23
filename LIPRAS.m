@@ -80,7 +80,7 @@ try
 catch
     try
         xx = num2str(handles.axes1.CurrentPoint(1,1));
-        yy = sprintf('%2.3G', handles.axes1.CurrentPoint(1,2));
+        yy = sprintf('%.3G', handles.axes1.CurrentPoint(1,2));
         if strcmpi(class(obj), 'matlab.graphics.chart.primitive.Line')
             msg = ['Current point: [' xx ', ' yy ']'];
             handles.statusbarObj.setText(msg);
@@ -139,7 +139,6 @@ else
         points = selectPointsFromPlot(handles, selected);
     end
 end
-
 try
     handles.profiles.xrd.setBackgroundPoints(points);
     ui.update(handles, 'backgroundpoints');
@@ -290,7 +289,7 @@ if length(points) == length(peakcoeffs)
     ui.update(handles, 'fitinitial');
 else
     % Restore old plot
-    plotX(handles, 'data');
+    plotX(handles, 'sample');
 end
 
 % Executes when the handles.edit_numpeaks spinner value is changed.
@@ -321,6 +320,20 @@ ui.update(handles, 'functions');
 ui.update(handles, 'constraints');
 
 
+% Executes on button press in push_fitdata.
+function push_fitdata_Callback(~, ~, handles)
+try
+    prfn = handles.profiles.getCurrentProfileNumber;    
+    fitresults = handles.profiles.fitDataSet(prfn);
+    if ~isempty(fitresults)
+        ui.update(handles, 'results');
+    end
+catch ME
+    ME.getReport
+    assignin('base','lastException',ME)
+    errordlg(ME.message)
+end
+
 function push_fitstats_Callback(~, ~, handles)
 handles.gui.onPlotFitChange('stats');
 
@@ -349,10 +362,6 @@ switch hObject.Tag
         set(handles.tabpanel, 'Selection', 2);		
 end
 
-%% Toggle Button callback functions
-
-
-
 %% Checkbox callback functions
 
 function checkbox_recycle_Callback(o, e, handles) %#ok<*DEFNU>
@@ -379,23 +388,18 @@ handles.xrd.Status='Superimposing raw data...';
 
 % Executes on selection change in popup_filename.
 function popup_filename_Callback(hObject, eventdata, handles)
-import utils.plotutils.plotX
-ui.update(handles, 'filenumber');
+handles.gui.CurrentFile = hObject.Value;
 superimposed = get(handles.checkbox_superimpose, 'Value');
-
-% If superimpose box is checked, plot any subsequent data sets together
 if superimposed
-    plotX(handles, 'superimpose');
+    utils.plotutils.plotX(handles, 'superimpose');
 else
-    plotX(handles);
+    utils.plotutils.plotX(handles);
 end
 
-guidata(hObject, handles)
 
 function listbox_files_Callback(hObject,evt, handles)
-set(handles.popup_filename,'value',hObject.Value(1));
-popup_filename_Callback(handles.popup_filename,[],handles);
-
+handles.gui.CurrentFile = hObject.Value;
+utils.plotutils.plotX(handles);
 
 %% Toobar callback functions
 
@@ -442,8 +446,8 @@ end
 
 function menu_restart_Callback(o,e,handles)
 delete(handles.figure1);
-LIPRAS;
-handles = guidata(LIPRAS);
+fig = LIPRAS;
+handles = guidata(fig);
 guidata(handles.figure1, handles);
 
 % Executes when the menu item 'Export->As Image' is clicked.

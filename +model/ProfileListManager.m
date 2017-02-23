@@ -327,7 +327,7 @@ classdef ProfileListManager < handle
         if nargin < 2
             prfn = this.getCurrentProfileNumber;
         end
-        this.Status = ['Fitting dataset ' num2str(1) ' of ' num2str(this.NumFiles)];
+        this.Status = ['Fitting dataset ' num2str(1) ' of ' num2str(this.NumFiles) '...'];
         fitresults = cell(1, this.NumFiles);
         msg = LiprasDialog.fittingDataSet;
         for i=1:this.NumFiles
