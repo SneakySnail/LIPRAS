@@ -8,54 +8,29 @@ function [point, key] = selectPoint(ax)
 % 
 % point - 2theta value. Empty if keypress was anything except a mouse click or Esc
 % idx - index into data array. Empty if keypress was anything except a mouse click or Esc
-
-% Constants used in this function
+import utils.plotutils.*
 ESCAPE_KEY = 27;
-ZOOM_KEY = 122;     % Key to press to enable zoom
+ZOOM_KEY = 122;     
 MOUSE_CLICK = 0;
 KEY_PRESS = 1;
 KEY_ENTER = 13;
-
-import utils.plotutils.*
-
 if nargin < 1
     ax = gca;
 end
+point = []; 
+[x, ~, key] = ginput(1);    
 
-% Get figure
-fig = ax;
-while ~isa(fig, 'matlab.ui.Figure')
-    fig = fig.Parent;
-end
-
-set(0, 'currentfigure', fig);
-set(fig, 'currentaxes', ax);
-
-% get x value of the selected point
-[x, ~, key] = ginput(1);
-
-    
-if key == KEY_ENTER
-    point = [];
-    
-elseif key == ZOOM_KEY
-    % Allow user to zoom in and out if the Esc key is pressed
+if key == ZOOM_KEY
+    % Allow user to zoom in and out if the z key is pressed
     z = zoom(gcf);
-    z.Direction = 'in';
-    z.Enable = 'on';
-    others = findall(gcf, 'tag', 'axes2');
+    set(z, 'Direction', 'in', 'Enable', 'on');
     z.setAllowAxesZoom(ax, true);
-    z.setAllowAxesZoom(others, false);
     % Wait for user to press the escape key to exit zoom
     key = MOUSE_CLICK;
-    
     while key == MOUSE_CLICK 
         key = waitforbuttonpress;
-        
-        % toggle zoom in and out
         if key == KEY_PRESS
             char = get(gcf, 'CurrentCharacter');
-            
             if char == 'z'
                 if strcmpi(z.Direction, 'in')
                     z.Direction = 'out';
@@ -69,16 +44,13 @@ elseif key == ZOOM_KEY
             end
         end
     end
-    
     % Turn off zoom
     z.Enable = 'off';
-    
     if char == KEY_ENTER || char == ESCAPE_KEY
-        [point key] = selectPoint(ax);
+        % Recurse
+        point = selectPoint(ax);
     end
-    
     
 else % output point
     point = x;
-
 end % incase some clicks the add or delete half way

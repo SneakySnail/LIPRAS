@@ -42,8 +42,6 @@ switch lower(varargin{1})
         fileNumberChanged(handles);
     case 'parameters'
         newParameterFile(handles);
-    case 'newrange'
-        new2TRange(handles);
     case 'backgroundmodel'
         newBackgroundModel(handles);
     case 'backgroundpoints'
@@ -61,12 +59,14 @@ switch lower(varargin{1})
     case 'results'
         newFitResults(handles);
 end
+set(findobj(handles.figure1, 'enable','inactive'), 'enable', 'on');
 assignin('base', 'handles', handles);
 guidata(handles.figure1, handles);
 % ==============================================================================
 
 function reset(handles)
 clear(['+utils' filesep '+plotutils' filesep 'plotX'])
+handles.axes1.ColorOrderIndex = 1;
 handles.gui.Plotter.Mode = 'data';
 set(handles.figure1.Children, 'visible', 'off');
 set([handles.text22, handles.edit8, handles.button_browse, handles.checkbox_reverse], ...
@@ -78,6 +78,7 @@ handles.gui.DataPath = '';
 handles.menu_parameter.Enable = 'off';
 handles.menu_plot.Enable = 'off';
 handles.menu_command.Enable = 'off';
+handles.menu_saveasimage.Enable = 'off';
 handles.gui.Legend = 'off';
 % Reset enabled controls
 set([handles.push_prevprofile, handles.push_nextprofile, handles.push_removeprofile], ...
@@ -93,12 +94,12 @@ resetResultsTabView(handles);
 
 function resetSetupTabView(handles)
 % Resets the setup tab view as if the user had just launched the GUI. Helper function for reset(). 
-set(findobj(handles.panel_setup.Children, 'type', 'uicontrol'), 'enable', 'on');
-handles.radiobutton15_delete.Enable = 'off';
+set(handles.group_bkgd_edit_mode.Children, 'enable', 'off');
+set(handles.group_bkgd_edit_mode, 'SelectedObject', handles.radio_newbkgd);
+set(handles.radio_newbkgd, 'enable', 'on');
 handles.push_fitbkgd.Enable = 'off';
 handles.gui.BackgroundModel = 'Polynomial';
 handles.gui.PolyOrder = 3;
-handles.group_bkgd_edit_mode.SelectedObject = handles.radio_newbkgd;
 handles.tab1_next.Visible = 'off';
 
 function resetOptionsTabView(handles)
@@ -126,21 +127,21 @@ handles.gui.Min2T = xrd.Min2T;
 handles.gui.Max2T = xrd.Max2T;
 handles.gui.CurrentFile = 1;
 handles.gui.CurrentProfile = 1;
+handles.menu_saveasimage.Enable = 'on';
+
 if xrd.NumFiles > 1
     set(handles.checkbox_superimpose,'Visible','on', 'enable', 'on'); % Superimpose Raw Data
     set(handles.push_viewall,'Visible','on', 'enable', 'on'); % View All
-    handles.gui.Status=['Imported ', num2str(xrd.NumFiles),' files to this dataset.'];
+    handles.gui.PriorityStatus = ['Imported ', num2str(xrd.NumFiles),' files to this dataset.'];
 else
     set(handles.checkbox_superimpose,'Visible','off'); % Superimpose Raw Data
     set(handles.push_viewall,'Visible','off'); % View All
-    handles.gui.Status='There is 1 file in this dataset.';
+    handles.gui.PriorityStatus = 'Imported 1 file to this dataset.';
 end
 set(handles.menu_parameter, 'enable', 'on');
-set(handles.panel_profilecontrol, 'visible', 'on');
 set(handles.tabpanel, 'TabEnables', {'on' 'off' 'off'}, 'Selection', 1);
 set(handles.panel_rightside,'visible','on');
 set(handles.uipanel3, 'visible', 'on');
-set(handles.push_removeprofile, 'enable', 'off');
 handles.menu_plot.Enable = 'on';
 handles.menu_command.Enable = 'on';
 handles.gui.KAlpha1 = handles.profiles.KAlpha1;
@@ -153,7 +154,7 @@ end
 function newParameterFile(handles)
 %UPDATEPARAMETERS is called when a new parameter file is read in. This function updates
 %   the GUI to display the new parameters.
-profiles = model.ProfileListManager.getInstance(handles.profiles);
+profiles = handles.profiles;
 fcns = profiles.xrd.getFunctionNames;
 constraints = profiles.xrd.getConstraints;
 coeffs = profiles.xrd.getCoeffs;
@@ -161,21 +162,23 @@ handles.gui.Min2T = profiles.xrd.Min2T;
 handles.gui.Max2T = profiles.xrd.Max2T;
 handles.gui.BackgroundModel = profiles.xrd.getBackgroundModel;
 handles.gui.PolyOrder = profiles.xrd.getBackgroundOrder;
-ui.update(handles, 'backgroundpoints');
+
+newBackgroundPoints(handles);
 handles.gui.NumPeaks = length(fcns);
 handles.gui.FcnNames = fcns;
-ui.update(handles, 'functions');
+
+newFitFunctions(handles);
 handles.gui.ConstraintsInPanel = unique([constraints{:}]);
 if handles.gui.NumPeaks > 2
     handles.gui.ConstraintsInTable = constraints;
 else
     handles.gui.ConstraintsInTable = [];
 end
-ui.update(handles, 'constraints');
-ui.update(handles, 'peakposition');
+constraints(handles);
+newPeakPositions(handles);
 
 handles.gui.Coefficients = coeffs;
-ui.update(handles, 'fitinitial');
+updateFitBoundsTable(handles);
 
 set(handles.tabpanel, 'tabenables', {'on' 'on' 'off'}, 'selection', 2);
 set(handles.tab2_next, 'visible', 'off');
@@ -183,10 +186,6 @@ set(handles.panel_coeffs.Children, 'enable', 'on');
 set(handles.push_update, 'enable', 'on');
 set(handles.push_selectpeak, 'enable', 'on');
 utils.plotutils.plotX(handles, 'sample');
-% ==============================================================================
-
-function new2TRange(handles)
-utils.plotutils.plotX(handles, 'data');
 % ==============================================================================
 
 function newBackgroundModel(handles)
@@ -198,24 +197,36 @@ end
 function newBackgroundPoints(handles)
 import utils.plotutils.*
 handles.container_numpeaks.Visible = 'on';
-if handles.profiles.xrd.hasBackground
+xrd = handles.profiles.xrd;
+if xrd.hasBackground && length(xrd.getBackgroundPoints) > xrd.getBackgroundOrder
     handles.tab1_next.Visible = 'on';
     handles.group_bkgd_edit_mode.SelectedObject = handles.radiobutton14_add;
-    handles.radiobutton15_delete.Enable = 'on';
-    handles.push_fitbkgd.Enable = 'on';
+    set(findobj(handles.panel_setup, 'enable', 'off'), 'enable', 'on')
     handles.tabpanel.TabEnables{2} = 'on';
-    if handles.gui.isFitDirty
-        plotX(handles, 'background');
-    else
-        plotX(handles, 'sample');
-    end
+    utils.plotutils.plotX(handles, 'backgroundpoints');
+    utils.plotutils.plotX(handles, 'backgroundfit');
+    
+elseif ~isempty(xrd.getBackgroundPoints)
+    set(handles.group_bkgd_edit_mode, 'SelectedObject', handles.radiobutton14_add);
+    set(handles.group_bkgd_edit_mode.Children, 'Enable', 'on');
+    set(handles.push_fitbkgd, 'enable', 'off');
+    handles.tabpanel.TabEnables{2} = 'off';
+    set(handles.tab1_next,'visible', 'off');
+%     utils.plotutils.plotX(handles, 'background');
+    LiprasDialog.PolyNotUniqueWarning;
+    utils.plotutils.plotX(handles, 'backgroundpoints');
 else
     handles.tab1_next.Visible = 'off';
     handles.group_bkgd_edit_mode.SelectedObject = handles.radio_newbkgd;
+    set(handles.group_bkgd_edit_mode.Children, 'enable', 'off');
+    set(handles.radio_newbkgd, 'enable', 'on');
     handles.push_fitbkgd.Enable = 'off';
-    handles.radiobutton15_delete.Enable = 'off';
     handles.tabpanel.TabEnables(2:3) = {'off'};
-    plotX(handles, 'data');
+    lines = handles.axes1.Children;
+    if ~isempty(lines)
+        notDataLineIdx = ~strcmpi(get(lines, 'tag'), 'raw');
+        delete(handles.axes1.Children(notDataLineIdx));
+    end
 end
 % ==============================================================================
 
@@ -374,5 +385,6 @@ if profiles.hasFit
     set(handles.menu_save,'Enable','on');
     set(handles.tabpanel, 'TabEnables', {'on', 'on', 'on'});
     set(handles.push_viewall, 'enable', 'on', 'visible', 'on');
+    
     handles.gui.onPlotFitChange('peakfit');
 end
