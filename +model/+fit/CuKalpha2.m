@@ -10,7 +10,11 @@ classdef CuKalpha2
         %CuKapha2 creates a CuKalpha2 peak function for the fit object specified in fitObj.
         this.Function = funcObj;
         this.KAlpha1 = Ka1;
-        this.KAlpha2 = Ka2;
+        if nargin > 2
+            this.KAlpha2 = Ka2;
+        else
+            this.KAlpha2 = Ka1;
+        end
         end
         
         function str = getEqnStr(this)
@@ -24,7 +28,7 @@ classdef CuKalpha2
            str = strrep(str, Nx{i}, Ncoeff);
         end
         xx = this.Function.coeff('x');
-        xKa2 = ['model.fitcomponents.CuKalpha2.Ka2fromKa1(' xx ',' num2str(this.KAlpha1) ',' ...
+        xKa2 = ['model.fit.CuKalpha2.Ka2fromKa1(' xx ',' num2str(this.KAlpha1) ',' ...
             num2str(this.KAlpha2) ')'];
         str = strrep(str, xx, xKa2);
         end

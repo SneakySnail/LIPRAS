@@ -3,33 +3,33 @@ function testFitFunctions
 
 %% Section 1: Initialization
 try
-    g = model.fitcomponents.Gaussian(1, 'f');
+    g = model.fit.Gaussian(1, 'f');
     assert(isequal(g.Name, 'Gaussian'));
     assert(isequal(g.CoeffNames, {'N' 'x' 'f'}));
     assert(g.ID == 1);
     assert(isequal(g.ConstrainedCoeffs, {'f'}));
     
     
-    g = model.fitcomponents.Gaussian;
+    g = model.fit.Gaussian;
     assert(isequal(g.Name, 'Gaussian'));
     assert(isequal(g.CoeffNames, {'N' 'x' 'f'}));
     assert(g.ID == 1);
     assert(isempty(g.ConstrainedCoeffs));
     
     
-    l = model.fitcomponents.Lorentzian;
+    l = model.fit.Lorentzian;
     assert(isequal(l.Name, 'Lorentzian'));
     assert(isequal(l.CoeffNames, {'N' 'x' 'f'}));
     assert(l.ID == 1);
     assert(isempty(l.ConstrainedCoeffs));
     
-    p7 = model.fitcomponents.PearsonVII;
+    p7 = model.fit.PearsonVII;
     assert(isequal(p7.Name, 'Pearson VII'));
     assert(isequal(p7.CoeffNames, {'N' 'x' 'f' 'm'}));
     assert(p7.ID == 1);
     assert(isempty(p7.ConstrainedCoeffs));
     
-    pv = model.fitcomponents.PseudoVoigt;
+    pv = model.fit.PseudoVoigt;
     assert(isequal(pv.Name, 'Pseudo-Voigt'));
     assert(isequal(pv.CoeffNames, {'N' 'x' 'f' 'w'}));
     assert(pv.ID == 1);
@@ -234,7 +234,7 @@ end
 
 %% Section 4: Asymmetric functions - constructor
 try
-    ag = model.fitcomponents.Asymmetric(1, '', 'Gaussian');
+    ag = model.fit.Asymmetric(1, '', 'Gaussian');
     assert(isequal(ag.Name, 'Asymmetric Gaussian'));
     assert(isequal(ag.Left.Name, 'Left Asymmetric Gaussian'));
     assert(isequal(ag.Right.Name, 'Right Asymmetric Gaussian'));
@@ -243,7 +243,7 @@ try
     assert(ag.ID == 1);
     assert(isempty(ag.ConstrainedCoeffs));
     
-    al = model.fitcomponents.Asymmetric(1, '', 'Lorentzian');
+    al = model.fit.Asymmetric(1, '', 'Lorentzian');
     assert(isequal(al.Name, 'Asymmetric Lorentzian'));
     assert(isequal(al.Left.Name, 'Left Asymmetric Lorentzian'));
     assert(isequal(al.Right.Name, 'Right Asymmetric Lorentzian'));
@@ -252,7 +252,7 @@ try
     assert(al.ID == 1);
     assert(isempty(al.ConstrainedCoeffs));
     
-    ap7 = model.fitcomponents.Asymmetric(1, '', 'PearsonVII');
+    ap7 = model.fit.Asymmetric(1, '', 'PearsonVII');
     assert(isequal(ap7.Name, 'Asymmetric Pearson VII'));
     assert(isequal(ap7.Left.Name, 'Left Asymmetric Pearson VII'));
     assert(isequal(ap7.Right.Name, 'Right Asymmetric Pearson VII'));
@@ -261,7 +261,7 @@ try
     assert(ap7.ID == 1);
     assert(isempty(ap7.ConstrainedCoeffs));
     
-    apv = model.fitcomponents.Asymmetric(1, '', 'PseudoVoigt');
+    apv = model.fit.Asymmetric(1, '', 'PseudoVoigt');
     assert(isequal(apv.Name, 'Asymmetric Pseudo-Voigt'));
     assert(isequal(apv.Left.Name, 'Left Asymmetric Pseudo-Voigt'));
     assert(isequal(apv.Right.Name, 'Right Asymmetric Pseudo-Voigt'));

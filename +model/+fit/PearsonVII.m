@@ -1,4 +1,4 @@
-classdef PearsonVII < model.fitcomponents.FitFunctionInterface
+classdef PearsonVII < model.fit.FitFunctionInterface
     %UNTITLED9 Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -22,7 +22,7 @@ classdef PearsonVII < model.fitcomponents.FitFunctionInterface
             constraints = '';
         end
         
-        this@model.fitcomponents.FitFunctionInterface(id, constraints);
+        this@model.fit.FitFunctionInterface(id, constraints);
         
         if ~isempty(find(strcmpi(this.ConstrainedCoeffs, 'w'), 1))
             this = this.constrain('w');
@@ -41,17 +41,17 @@ classdef PearsonVII < model.fitcomponents.FitFunctionInterface
            coeff{xidx} = num2str(xval);
         end
                     
-        str = [coeff{Nidx} '*model.fitcomponents.PearsonVII.C4(' coeff{midx} ')/' coeff{fidx} ...
+        str = [coeff{Nidx} '*model.fit.PearsonVII.C4(' coeff{midx} ')/' coeff{fidx} ...
             '*(1+4*(2^(1/' coeff{midx} ')-1)*(xv-' coeff{xidx} ')^2/' coeff{fidx} '^2)^(-' coeff{midx} ')'];
         end
         
         function value = getCoeffs(this)
         this.ConstrainedLogical(4) = false;
-        value = getCoeffs@model.fitcomponents.FitFunctionInterface(this);
+        value = getCoeffs@model.fit.FitFunctionInterface(this);
         end
         
         function output = getDefaultInitialValues(this, data, peakpos)
-        value = getDefaultInitialValues@model.fitcomponents.FitFunctionInterface(this, data, peakpos);
+        value = getDefaultInitialValues@model.fit.FitFunctionInterface(this, data, peakpos);
         output.N = value.N;
         output.x = value.x;
         output.f = value.f;
@@ -59,7 +59,7 @@ classdef PearsonVII < model.fitcomponents.FitFunctionInterface
         end
         
         function output = getDefaultLowerBounds(this, data, peakpos)
-        value = getDefaultLowerBounds@model.fitcomponents.FitFunctionInterface(this, data, peakpos);
+        value = getDefaultLowerBounds@model.fit.FitFunctionInterface(this, data, peakpos);
         
         output.N = value.N;
         output.x = value.x;
@@ -68,7 +68,7 @@ classdef PearsonVII < model.fitcomponents.FitFunctionInterface
         end
         
         function output = getDefaultUpperBounds(this, data, peakpos)
-        value = getDefaultUpperBounds@model.fitcomponents.FitFunctionInterface(this, data, peakpos);
+        value = getDefaultUpperBounds@model.fit.FitFunctionInterface(this, data, peakpos);
         
         output.N = value.N;
         output.x = value.x;

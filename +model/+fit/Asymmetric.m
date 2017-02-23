@@ -1,4 +1,4 @@
-classdef Asymmetric < model.fitcomponents.FitFunctionInterface
+classdef Asymmetric < model.fit.FitFunctionInterface
   
     properties
         Name
@@ -29,8 +29,8 @@ classdef Asymmetric < model.fitcomponents.FitFunctionInterface
            fcnName = this.DefaultFcn;
        end
        % Create left and right side components
-       this.Left = model.fitcomponents.(fcnName)(id);
-       this.Right = model.fitcomponents.(fcnName)(id);
+       this.Left = model.fit.(fcnName)(id);
+       this.Right = model.fit.(fcnName)(id);
        this.Name = ['Asymmetric ' this.Left.Name]; 
        % Append the coefficient names of 'N', 'w', or 'm' with 'L' or 'R'
        this.Left.CoeffNames{1}(2) = 'L';
@@ -72,24 +72,24 @@ classdef Asymmetric < model.fitcomponents.FitFunctionInterface
           leftEqn = this.Left.getEqnStr(coeffs);
           rightEqn = this.Right.getEqnStr(coeffs);
        end
-       leftCutoffStr = ['model.fitcomponents.Asymmetric.AsymmCutoff(x' num2str(this.ID) ',1,xv)'];
-       rightCutoffStr = ['model.fitcomponents.Asymmetric.AsymmCutoff(x' num2str(this.ID) ',2,xv)'];
+       leftCutoffStr = ['model.fit.Asymmetric.AsymmCutoff(x' num2str(this.ID) ',1,xv)'];
+       rightCutoffStr = ['model.fit.Asymmetric.AsymmCutoff(x' num2str(this.ID) ',2,xv)'];
        str = [leftCutoffStr '*' leftEqn ' + ' rightCutoffStr '*' rightEqn];
        end
        
        function this = constrain(this, coeff)
        if ~isempty(coeff)
-           constrain@model.fitcomponents.FitFunctionInterface(this.Left, coeff);
-           constrain@model.fitcomponents.FitFunctionInterface(this.Right, coeff);
-           constrain@model.fitcomponents.FitFunctionInterface(this, coeff);
+           constrain@model.fit.FitFunctionInterface(this.Left, coeff);
+           constrain@model.fit.FitFunctionInterface(this.Right, coeff);
+           constrain@model.fit.FitFunctionInterface(this, coeff);
        end
        end
        
        function this = unconstrain(this, coeff)
        if ~isempty(coeff)
-           unconstrain@model.fitcomponents.FitFunctionInterface(this.Left, coeff);
-           unconstrain@model.fitcomponents.FitFunctionInterface(this.Right, coeff);
-           unconstrain@model.fitcomponents.FitFunctionInterface(this, coeff);
+           unconstrain@model.fit.FitFunctionInterface(this.Left, coeff);
+           unconstrain@model.fit.FitFunctionInterface(this.Right, coeff);
+           unconstrain@model.fit.FitFunctionInterface(this, coeff);
        end
        end
        
@@ -137,16 +137,26 @@ classdef Asymmetric < model.fitcomponents.FitFunctionInterface
         %getRightEqnStr returns the modified equation string for an asymmetric function. In the
         %   equation, the coefficient 'f' is multiplied by 'NR/NL*C4(mR)/C4(mL)'.
         rightEqn = this.Right.getEqnStr;
-        Nratio = ''; mratio = '';
-        if ~this.isNConstrained
-            Nratio = ['NR' num2str(this.ID) '/NL' num2str(this.ID)];
+        N = this.coeff('N');
+        if length(N) > 1
+            NL = N{1}; NR = N{2};
+        else
+            NL = N; NR = N;
         end
-        if ~this.isMConstrained
-            mratio = ['model.fitcomponents.PearsonVII.C4(mR' num2str(this.ID) ')'...
-                '/model.fitcomponents.PearsonVII.C4(mL' num2str(this.ID) ')'];
+        Nratio = [NR '/' NL];
+        
+        m = this.coeff('m'); 
+        if length(m) > 1
+            mL = m{1}; mR = m{2};
+        else
+            mL = m; mR = m;
         end
+        mratio = ['model.fit.PearsonVII.C4(' mR ')'...
+            '/model.fit.PearsonVII.C4(' mL ')'];
         f = this.coeff('f');
-        str = strrep(rightEqn, f, ['(' f '*' Nratio '*' mratio ')']);
+        expr = ['/' f];
+        replace = ['/(' f '*' Nratio '*' mratio ')'];
+        str = strrep(rightEqn, expr, replace);
         end
         
         function setPeakPosition(this, value)

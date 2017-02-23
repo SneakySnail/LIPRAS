@@ -299,7 +299,7 @@ classdef FitFunctionInterface < handle
         %
         %PEAKPOSITION - Two theta position of the estimated peak
         import utils.*
-        import model.fitcomponents.*
+        import model.fit.*
         xdata = data(1,:);
         ydata = data(2,:);
         xoffset = (xdata(end) - xdata(1)) ./ 10;
@@ -319,26 +319,26 @@ classdef FitFunctionInterface < handle
         catch
             result.N = trapz(xdata, ydata) / 2;
         end
-        result.f = 2*result.N / max(ydata);
+        result.f = result.N / max(ydata(xlowi_:xupi_));
         result.w = FitFunctionInterface.DEFAULT_VALUE_W;
         result.m = FitFunctionInterface.DEFAULT_VALUE_M;
         end
         
         function result = getDefaultLowerBounds(this, data, peakpos)
-        import model.fitcomponents.*
+        import model.fit.*
         import utils.*
         initial = this.getDefaultInitialValues(data, peakpos);
         
         xoffset = (data(1,end) - data(1,1)) ./ 4;
         result.x = peakpos - xoffset;
         result.N = 0;
-        result.f = 0;
+        result.f = 0.01;
         result.w = 0;
-        result.m = 0;
+        result.m = 0.5;
         end
         
         function result = getDefaultUpperBounds(this, data, peakpos)
-        import model.fitcomponents.*
+        import model.fit.*
         import utils.*
         initial = this.getDefaultInitialValues(data, peakpos);
         xoffset = (data(1,end) - data(1,1)) ./ 4;

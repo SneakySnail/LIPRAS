@@ -69,7 +69,7 @@ if Stro.CuKa
         fcn = Stro.FitFunctions{i};
         if ~isempty(fcn)
             fcn.CuKa = true;
-            Stro.CuKa2Peak{i} = model.fitcomponents.CuKalpha2(fcn, Stro.KAlpha1, Stro.KAlpha2);
+            Stro.CuKa2Peak{i} = model.fit.CuKalpha2(fcn, Stro.KAlpha1, Stro.KAlpha2);
         end
     end
 end
@@ -123,9 +123,9 @@ end
 someFunc = allowedFcns_{idx};
 
 if isAsym
-    fcnObj = model.fitcomponents.Asymmetric(fcnID, '', someFunc);
+    fcnObj = model.fit.Asymmetric(fcnID, '', someFunc);
 else
-    fcnObj = model.fitcomponents.(someFunc)(fcnID);
+    fcnObj = model.fit.(someFunc)(fcnID);
 end
 
 if ~isempty(Stro.PeakPositions) && Stro.PeakPositions(fcnID) ~= 0
