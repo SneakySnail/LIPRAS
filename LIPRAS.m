@@ -31,13 +31,11 @@ import utils.fileutils.*
 
 % Choose default command line output for FDGUI
 handles.output = hObject;
-
 handles.profiles = ProfileListManager.getInstance();
 guidata(hObject, handles);
 
 handles.gui = GUIController.getInstance(hObject);
 handles = GUIController.initGUI(handles);
-
 handles.validator = utils.Validator(handles);
 
 assignin('base','handles',handles);
@@ -76,30 +74,26 @@ try
     if  ~isempty(obj.TooltipString)
         msg = obj.TooltipString;
     end
-    handles.gui.Status = msg;
 catch
     try
         xx = num2str(handles.axes1.CurrentPoint(1,1));
         yy = sprintf('%.3G', handles.axes1.CurrentPoint(1,2));
         if strcmpi(class(obj), 'matlab.graphics.chart.primitive.Line')
-            msg = ['Current point: [' xx ', ' yy ']'];
-            handles.statusbarObj.setText(msg);
-        else
-            handles.gui.Status = msg;
+            displayName = obj.DisplayName;
+            msg = [displayName ': [' xx ', ' yy ']'];
         end
     catch
     end
 end
+handles.gui.Status = msg;
 
 function LIPRAS_StatusChangedFcn(o, e, handles)
 %STATUSCHANGE executes when the ProfileListManager property 'Status' is changed. 
 handles.statusbarObj.setText(handles.profiles.Status);
 
-
-
 %  Executes on button press in button_browse.
 function button_browse_Callback(hObject, evt, handles)
-handles.gui.Status = 'Browsing for dataset... ';
+handles.gui.PriorityStatus = 'Browsing for dataset... ';
 if isfield(evt, 'test')
     isNew = handles.profiles.newXRD(evt.path, evt.filename);
 else
@@ -107,46 +101,37 @@ else
 end
 if isNew % if not the same dataset as before
     ui.update(handles, 'dataset');
+    utils.plotutils.plotX(handles, 'data');
 else
-    handles.gui.Status = '';
+    handles.gui.PriorityStatus = '';
 end
 
-guidata(hObject, handles)
+function checkbox_reverse_Callback(o,e,handles)
+if o.Value
+    handles.gui.PriorityStatus = 'Dataset will fit in descending order.';
+else
+    handles.gui.PriorityStatus = 'Dataset will fit in ascending order.';
+end
+handles.profiles.xrd.reverseDataSetOrder;
+handles.gui.reverseDataSetOrder;
+utils.plotutils.plotX(handles);
+
 
 %  Executes on button press in push_newbkgd.
 function push_newbkgd_Callback(hObject, eventdata, handles)
 %   EVENTDATA can be used to pass test values to this function to avoid any blocking calls like
-%   ginput.
+%   ginput. If the number of background points is less than the background order,
+%    issue a warning.
 import utils.plotutils.*
-utils.plotutils.plotX(handles, 'data');
-if ~ishold(handles.axes1)
-    hold(handles.axes1, 'on');
+mode = get(handles.group_bkgd_edit_mode.SelectedObject, 'String');
+points = selectBackgroundPoints(handles, mode);
+if length(points) == 1 && isnan(points)
+    utils.plotutils.plotX(handles, 'background');
+    return
 end
-if isfield(eventdata, 'test')
-    points = eventdata.test;
-else
-    selected = handles.group_bkgd_edit_mode.SelectedObject.String;
-    if strcmpi(selected, 'Delete')
-        utils.plotutils.plotX(handles, 'backgroundpoints');
-        oldpoints = handles.profiles.xrd.getBackgroundPoints;   
-        points = selectPointsFromPlot(handles, selected, length(oldpoints));
-    elseif strcmpi(selected, 'Add')
-        utils.plotutils.plotX(handles, 'backgroundpoints');
-        oldpoints = handles.profiles.xrd.getBackgroundPoints;
-        newpoints = selectPointsFromPlot(handles);
-        points = sort([oldpoints newpoints]);
-    else
-        points = selectPointsFromPlot(handles, selected);
-    end
-end
-try
-    handles.profiles.xrd.setBackgroundPoints(points);
-    ui.update(handles, 'backgroundpoints');
-catch exception
-    if strcmp(exception.identifier, 'MATLAB:polyfit:PolyNotUnique')
-        warndlg('Polynomial is not unique; degree >= number of data points.', 'Warning')
-    end
-end
+validPoints = handles.validator.backgroundPoints(points);
+handles.profiles.xrd.setBackgroundPoints(validPoints);
+ui.update(handles, 'backgroundpoints');
 
 function menu_xplotscale_Callback(o,e,handles)
 plotter = handles.gui.Plotter;
@@ -154,20 +139,18 @@ switch o.Tag
     case 'menu_xaxis_linear'
         plotter.XScale = 'linear';
     case 'menu_xaxis_dspace'
-        if isempty(handles.profiles.KAlpha1)
-            answer = inputdlg('Enter wavelength (in Angstroms):', 'Input Wavelength', ...
-                1, {'1.5406'}, struct('Interpreter', 'tex'));
-            if ~isnan(str2double(answer{1}))
-                handles.profiles.KAlpha1 = str2double(answer{1});
-            else
-                errordlg('You did not input a valid number.', 'Invalid Wavelength')
-                return
-            end
-            
+        answer = inputdlg('Enter wavelength (in Angstroms):', 'Input Wavelength', ...
+            1, {'1.5406'}, struct('Interpreter', 'tex'));
+        if isempty(answer)
+            return
+        elseif ~isnan(str2double(answer{1}))
+            handles.profiles.KAlpha1 = str2double(answer{1});
+        else
+            errordlg('You did not input a valid number.', 'Invalid Wavelength')
+            return
         end
         plotter.XScale = 'dspace';
 end
-
 set(findobj(o.Parent), 'Checked', 'off'); % turn off checks in all x plot menu items
 o.Checked = 'on';
 
@@ -203,13 +186,13 @@ function edit_min2t_Callback(~, ~, handles)
 newValue = handles.validator.min2T(handles.gui.Min2T);
 handles.profiles.xrd.Min2T = newValue;
 handles.gui.Min2T = newValue;
-utils.plotutils.plotX(handles, 'sample');
+utils.plotutils.plotX(handles);
 
 function edit_max2t_Callback(~, ~, handles)
 newValue = handles.validator.max2T(handles.gui.Max2T);
 handles.profiles.xrd.Max2T = newValue;
 handles.gui.Max2T = newValue;
-utils.plotutils.plotX(handles, 'sample');
+utils.plotutils.plotX(handles);
 
 function edit_polyorder_Callback(src, ~, handles)
 %BACKGROUNDORDERCHANGED Summary of this function goes here
@@ -217,7 +200,7 @@ function edit_polyorder_Callback(src, ~, handles)
 value = round(src.getValue);
 if value == 1 && strcmpi(handles.gui.BackgroundModel, 'Spline')
    value = 2;
-   handles.gui.Status = '<html><font color="red"><b>Spline Order must be > 1.';
+   handles.gui.PriorityStatus = '<html><font color="red">Spline Order must be > 1.';
 end
 xrd = handles.profiles.xrd;
 xrd.setBackgroundOrder(value);
@@ -277,10 +260,8 @@ ui.update(handles, 'fitinitial');
 function push_selectpeak_Callback(hObject, ~, handles)
 import utils.contains
 import utils.plotutils.*
-plotX(handles, 'data');
-plotX(handles, 'backgroundfit');
 peakcoeffs = find(contains(handles.profiles.xrd.getCoeffs, 'x'));
-points = selectPointsFromPlot(handles, [], length(peakcoeffs));
+points = utils.plotutils.selectPeakPoints(handles, length(peakcoeffs));
 if length(points) == length(peakcoeffs)
     handles.profiles.xrd.PeakPositions = points;
     % Generate new default bounds because of new peak positions
@@ -319,6 +300,57 @@ ui.update(handles, 'NumPeaks');
 ui.update(handles, 'functions');
 ui.update(handles, 'constraints');
 
+function table_paramselection_CellEditCallback(hObject, evt, handles)
+%   EVT can be used to test the GUI by passing a struct variable with the field name 'test'
+%   containing the value to set. It also has the field 'Indices'.
+row = evt.Indices(1);
+col = evt.Indices(2);
+if isfield(evt, 'test')
+    handles.gui.FcnNames{row} = evt.test;
+end
+if col == 1
+    % Function change
+    handles.profiles.xrd.setFunctions(handles.gui.FcnNames{row}, row);
+    ui.update(handles, 'functions');
+    handles.profiles.xrd.constrain(handles.gui.Constraints);
+    ui.update(handles, 'constraints');
+else
+    % On constraint value change
+    handles.profiles.xrd.unconstrain('Nxfwm');
+    handles.profiles.xrd.constrain(handles.gui.ConstraintsInTable);
+    ui.update(handles, 'Constraints');
+    
+end
+
+% Executes when entered data in editable cell(s) in table_coeffvals.
+function table_fitinitial_CellEditCallback(hObject, eventdata, handles)
+% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
+%	Indices: row and column indices of the cell(s) edited
+%	PreviousData: previous data for the cell(s) edited
+%	EditData: string(s) entered by the user
+%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
+%	Error: error string when failed to convert EditData to appropriate value for Data
+% 
+% Assumes handles.gui.Coefficients == handles.profiles.xrd.getCoeffs
+row = eventdata.Indices(1);
+column = eventdata.Indices(2);
+newValue = eventdata.NewData;
+fitinitial = handles.profiles.xrd.FitInitial;
+coeffs = handles.profiles.xrd.getCoeffs;
+switch column
+    case 1
+        fitinitial.start(row) = handles.validator.startPoint(coeffs{row}, newValue);
+    case 2
+        fitinitial.lower(row) = handles.validator.lowerBound(coeffs{row}, newValue);
+    case 3
+        fitinitial.upper(row) = handles.validator.upperBound(coeffs{row}, newValue);
+end
+handles.profiles.xrd.FitInitial = fitinitial;
+handles.gui.FitInitial = fitinitial;
+ui.update(handles, 'fitinitial');
+
+assignin('base', 'handles', handles);
+guidata(hObject,handles)
 
 % Executes on button press in push_fitdata.
 function push_fitdata_Callback(~, ~, handles)
@@ -396,7 +428,6 @@ else
     utils.plotutils.plotX(handles);
 end
 
-
 function listbox_files_Callback(hObject,evt, handles)
 handles.gui.CurrentFile = hObject.Value;
 utils.plotutils.plotX(handles);
@@ -444,6 +475,9 @@ if filename ~= 0
     ui.update(handles, 'parameters');
 end
 
+function menu_FileResetProfile_Callback(o,e,handles)
+ui.update(handles, 'dataset');
+
 function menu_restart_Callback(o,e,handles)
 delete(handles.figure1);
 fig = LIPRAS;
@@ -452,7 +486,9 @@ guidata(handles.figure1, handles);
 
 % Executes when the menu item 'Export->As Image' is clicked.
 function menu_saveasimage_Callback(o,e,handles)
-SaveAs;
+fig = figure
+
+
 
 function menu_preferences_Callback(~,~,~)
 folder_name=uigetdir;

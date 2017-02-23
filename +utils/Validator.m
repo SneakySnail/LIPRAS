@@ -70,7 +70,7 @@ classdef Validator < handle
        function bkgdpoints = backgroundPoints(this, points)
        %backgroundPoints returns points within the 2 theta range. Ensures that if the user changes
        %    the two theta range after already selecting background points, only the points within 
-       %    range are used for the background fit.
+       %    range are used. 
        bkgdpoints = [];
        if nargin < 2
            points = this.profiles.xrd.getBackgroundPoints;
@@ -94,7 +94,7 @@ classdef Validator < handle
        defaultVals.lower = this.profiles.xrd.getDefaultBounds('lower');
        defaultVals.upper = this.profiles.xrd.getDefaultBounds('upper');
        oldVals = this.gui.FitInitial;
-       newVals = struct('coeffs', newCoeffs, ...
+       newVals = struct('coeffs', {newCoeffs}, ...
            'start',-ones(1,length(newCoeffs)),...
            'lower',-ones(1,length(newCoeffs)),...
            'upper',-ones(1,length(newCoeffs)));
@@ -113,7 +113,75 @@ classdef Validator < handle
        fitinitial = newVals;
        end
        
+       function coeffValue = startPoint(this, coeffName, input)
+       % Ensures that the value specified by INPUT is within the fit bounds for the coefficient
+       %    specified by COEFFNAME. It checks the values using the Model (i.e.
+       %    handles.profiles.xrd) rather than the View (handles.gui).
+       statPref = '<html><font color="red">';
+       coeffs = this.profiles.xrd.getCoeffs;
+       fitInitial = this.profiles.xrd.FitInitial;
+       row = find(strcmp(coeffs, coeffName),1);
+       previousValue = fitInitial.start(row);
+       lowerBound = fitInitial.lower(row);
+       upperBound = fitInitial.upper(row);
+       if isnan(input)
+           coeffValue = previousValue;
+           this.profiles.Status = [statPref 'Not a valid number'];
+       elseif input == -1
+           coeffValue = input;
+           this.profiles.Status = [statPref 'Value for ' coeffName ' was set to empty.'];
+       elseif input < lowerBound
+           coeffValue = lowerBound;
+           this.profiles.Status = [statPref 'Value must be >= the lower bound.'];
+       elseif input > upperBound
+           coeffValue = upperBound;
+           this.profiles.Status = [statPref 'Value must be <= the lower bound.'];
+       else
+           coeffValue = input;
+       end
+       end
        
+       function coeffValue = lowerBound(this, coeffName, input)
+       statPref = '<html><font color="red">';
+       coeffs = this.profiles.xrd.getCoeffs;
+       fitInitial = this.profiles.xrd.FitInitial;
+       row = find(strcmp(coeffs, coeffName),1);
+       startPoint = fitInitial.start(row);
+       previousValue = fitInitial.lower(row);
+       if isnan(input) 
+           coeffValue = previousValue;
+           this.profiles.Status = [statPref 'Not a valid number'];
+       elseif input == -1
+           coeffValue = input;
+           this.profiles.Status = [statPref 'Value for ' coeffName ' was set to empty.'];
+       elseif input > startPoint
+           coeffValue = startPoint;
+           this.profiles.Status = [statPref 'Value must be <= the coefficient starting point.'];
+       else
+           coeffValue = input;
+       end
+       end
+       
+       function coeffValue = upperBound(this, coeffName, input)
+       statPref = '<html><font color="red">';
+       coeffs = this.profiles.xrd.getCoeffs;
+       fitInitial = this.profiles.xrd.FitInitial;
+       row = find(strcmp(coeffs, coeffName),1);
+       startPoint = fitInitial.start(row);
+       previousValue = fitInitial.upper(row);
+       if isnan(input)
+           coeffValue = previousValue;
+           this.profiles.Status = [statPref 'Not a valid number'];
+       elseif input == -1
+           coeffValue = input;
+           this.profiles.Status = [statPref 'Value for ' coeffName ' was set to empty.'];
+       elseif input < startPoint
+           coeffValue = startPoint;
+           this.profiles.Status = [statPref 'Value must be >= the coefficient starting point.'];
+       else
+           coeffValue = input;
+       end
+       end
        
        function handles = get.hg(this)
        % Returns an updated handles structure
