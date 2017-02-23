@@ -9,9 +9,9 @@ for i=1:length(fitresults)
     coeffvals(i, :) = fitresults{i}.CoeffValues;
 end
 coeffvals = transpose(coeffvals);
-
 switch viewname
     case 'peakfit'
+        cla(handles.axes1)
         handles.btns3.SelectedObject = handles.radio_peakeqn;
         coeffs = fitted.CoeffNames;
         set(handles.table_results, ...
@@ -26,6 +26,7 @@ switch viewname
         plotX(handles, 'fit');
         
     case 'coeff'
+        cla(handles.axes1)
         handles.btns3.SelectedObject = handles.radio_coeff;
         set(handles.listbox_files, 'enable', 'off');
         set(handles.popup_filename, 'enable', 'off');
@@ -38,7 +39,7 @@ switch viewname
             'ColumnEditable', [true false]);
         handles.table_results.Data(:,1) = {false};
         handles.table_results.Data{1, 1} = true;
-         plotX(handles, 'coeff');
+        plotX(handles, 'coeff');
                 
     case 'stats'
         plotX(handles, 'stats');

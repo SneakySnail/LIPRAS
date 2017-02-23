@@ -1,46 +1,23 @@
 function resizeAxes1ForErrorPlot(handles, size)
 % resize is either 'larger' or 'smaller'
-
-% persistent large;
-persistent originalSize;
-
 if ~handles.profiles.hasData
     return
 end
-
-oldunits = handles.panel_rightside.Units;
-set([handles.axes1 handles.axes2], 'units', 'pixels');
-ax2h = 1.7*handles.axes2.Position(4);
-
-% if isempty(large)
-%     large = false;
-% end
-if isempty(originalSize)
-    originalSize = handles.axes1.OuterPosition;
-%     originalSize(2) = 197;
-%     originalSize(4) = 721; % original height in pixels
-end
-
+axes1Pos = getappdata(handles.axes1, 'OriginalSize');
+axes2Pos = getappdata(handles.axes2, 'OriginalSize');
+axes2height = 0.75*axes2Pos(4);
 if nargin <= 1
-    keyboard
     if handles.profiles.hasData
         size = 'fit';
     else
         size = 'data';
     end
 end
-
 if strcmpi(size, 'fit') % && large == false
     set(findobj(handles.axes2), 'visible', 'on');
-    handles.axes1.OuterPosition = originalSize + [0 ax2h 0 -ax2h];
-%     large = true;
-    
+    handles.axes1.OuterPosition = axes1Pos + [0 axes2height 0 -axes2height];
 elseif strcmpi(size, 'data') % && large == true
     set(findobj(handles.axes2), 'visible', 'off');
-    handles.axes1.OuterPosition = originalSize;
-    cla(handles.axes2)
-%     large = false;
-    
+    handles.axes1.OuterPosition = axes1Pos;
+    cla(handles.axes2)    
 end
-
-set([handles.axes1 handles.axes2], 'units', oldunits);

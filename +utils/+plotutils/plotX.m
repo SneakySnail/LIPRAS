@@ -40,6 +40,7 @@ try
     switch lower(mode)
         case 'data'
             plotData(handles);
+            utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
             previousPlot_ = 'data';
         case 'background'
             plotData(handles);
@@ -59,9 +60,11 @@ try
             plotSuperimposed(handles);
             utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
         case 'fit'
+%             set(handles.axes1.Children, 'visible', 'off');
+            utils.plotutils.resizeAxes1ForErrorPlot(handles, 'fit');
+            plotData(handles);
             plotFitError(handles);
             plotFit(handles);
-            set(handles.axes2.Children, 'Visible', 'on');
             previousPlot_ = 'fit';
         case 'sample'
             plotData(handles);
@@ -79,7 +82,12 @@ try
             plotFitStats(handles);
     end
     plotter.Mode = previousPlot_;
+%     handles.gui.Legend = 'reset';
     set(handles.axes1.Children,'visible','on');
+    if strcmp(previousPlot_,'fit')
+        handles.axes2.Children.Visible = 'on';
+    end
+    
     set(enabledObjs, 'Enable', 'on');
     currentFig = get(0,'CurrentFigure');
     if ~isempty(currentFig) && contains(currentFig.Name, 'LIPRAS') && ~isempty(focusedObj)
@@ -97,13 +105,33 @@ end
 
 % ==============================================================================
 
-    function plotData(handles)
-    % PLOTDATA Plots the raw data for a specified file number in axes1.
-    cla(handles.axes1)
-    plotter.plotRawData(handles.axes1, 'LineStyle', '-', 'LineWidth', 1, 'MarkerFaceColor', [1 1 1]);
-    utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
-    handles.gui.Legend = 'reset';
-    plotter.updateXYLim(handles.axes1);
+    function dataLine = plotData(handles, axx)
+    % PLOTDATA Plots the raw data for a specified file number in axes1. 
+    %     If there are lines, remove all other lines except data line
+    if nargin < 2
+        axx = handles.axes1;
+    end
+    dataLine = findobj(axx, 'tag', 'raw');
+    notDataLineIdx = ~strcmpi(get(dataLine, 'DisplayName'), 'Raw Data');
+    if ~isempty(dataLine)
+        delete(dataLine(notDataLineIdx));
+        dataLine = dataLine(~notDataLineIdx);
+    end
+    xdata = xrd.getTwoTheta;
+    ydata = xrd.getData(filenum);
+    if isvalid(dataLine)
+        set(dataLine, 'XData', xdata, 'YData', ydata);
+        setappdata(dataLine, 'xdata', xdata);
+        setappdata(dataLine, 'ydata', ydata);
+        handles.gui.Plotter.transform(dataLine);
+    else
+        dataLine = plotter.plotRawData(axx, ...
+                            'LineStyle', '-', ...
+                            'LineWidth', 1, ...
+                            'MarkerFaceColor', [1 1 1]);
+    end
+    plotter.updateXYLim(axx);
+%     handles.gui.Legend = 'reset';
     end
 % ==============================================================================
 
@@ -114,23 +142,24 @@ end
     if nargin < 2
         ax = handles.axes1;
         fileID = filenum;
-        cla(ax)
     end
     fitted = handles.profiles.getProfileResult{fileID};
     % Raw Data
-    plotter.plotRawData(ax, 'MarkerSize', 3.5, 'MarkerFaceColor', [0 0.18 0.65]);
-    if isequal(ax, handles.axes1)
-        linkaxes([handles.axes2 handles.axes1], 'x');
-    end
+    dataLine = findobj(ax, 'tag', 'raw');
+    set(dataLine, 'LineStyle', 'none', 'MarkerSize', 3.5, 'MarkerFaceColor', [0 0.18 0.65]);
     plotter.plotBgFit(ax);
     plotter.plotOverallFit(ax,fitted);
     for ii=1:xrd.NumFuncs
         plotter.plotFittedPeak(ax,fitted,ii);
     end
-    handles.gui.Legend = 'reset';
+    if isequal(ax, handles.axes1)
+        linkaxes([handles.axes2 handles.axes1], 'x');
+    end
     if nargin < 2
-        utils.plotutils.resizeAxes1ForErrorPlot(handles, 'fit');
         plotter.updateXYLim(handles.axes1);
+    end
+    if ~strcmp(previousPlot_, 'fit')
+        handles.gui.Legend = 'reset';
     end
     end
 % ==============================================================================
@@ -156,6 +185,7 @@ end
         plotter.plotSamplePeak(handles.axes1, i);
     end
     utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
+    handles.gui.Legend = 'on';
     handles.gui.Legend = 'reset';
     plotter.updateXYLim(handles.axes1);
     end
@@ -168,17 +198,28 @@ end
     if ~ishold(handles.axes1)
         hold(handles.axes1, 'on');
     end
+    lines = handles.axes1.Children;
+    %     If there are lines, remove all other lines except data line
+    notDataLineIdx = ~strcmpi(get(lines, 'tag'), 'raw');
+    if ~isempty(lines)
+        delete(lines(notDataLineIdx));
+    end
     handles.checkbox_superimpose.Value = 1;
-    line = findobj(handles.axes1.Children,'DisplayName', filenames{filenum});
-    if isempty(line)
+    activeFileLinePlot = findobj(handles.axes1, 'DisplayName', filenames{filenum});
+    if isempty(activeFileLinePlot)
         % If not already plotted, add to plot
-        plotter.plotRawData(handles.axes1,'LineStyle','-','DisplayName',filenames{filenum});
-    else
+        plotter.plotRawData(handles.axes1,...
+                            'LineStyle',':',...
+                            'LineWidth', 0.8,...
+                            'DisplayName',filenames{filenum}, ...
+                            'MarkerFaceColor', 'none');
         % If already plotted && is not the only plotted data, delete line
+    else
         if length(handles.axes1.Children) > 1
-            delete(line);
+            delete(activeFileLinePlot);
         end
     end
+    handles.gui.Legend = 'on';
     handles.gui.Legend = 'reset';
     plotter.updateXYLim(handles.axes1);
     end
@@ -195,7 +236,11 @@ end
         fHeight = min(400*nRows, screen(4));
         wPos = (screen(3)-fWidth)/4;
         hPos = (screen(4)-fHeight)/4;
-        f = figure('Units', 'pixels', 'Position', [wPos hPos fWidth fHeight], ...
+        delete(findall(0, 'tag', 'AllFitsFig'));
+        f = figure('Name', 'Plot All Fits', ...
+            'tag', 'AllFitsFig', ...
+            'Units', 'pixels', ...
+            'Position', [wPos hPos fWidth fHeight], ...
             'Visible', 'off');
         ax = gobjects(1,xrd.NumFiles);
         for j=1:xrd.NumFiles
@@ -203,10 +248,22 @@ end
             if ~ishold(ax(j))
                 hold(ax(j), 'on');
             end
+            dataLine = plotData(handles, ax(j));
+            set(dataLine, 'LineStyle', 'none', ...
+                'MarkerSize', 3.5, ...
+                'MarkerFaceColor', [0 0.18 0.65]);
             plotFit(handles, ax(j), j);
+            
+            filename = filenames{j};
+            title(ax(j), [filename ' (' num2str(j) ' of ' num2str(length(filenames)) ')'], ...
+                'Interpreter', 'none', ...
+                'FontSize', 14, ...
+                'FontName','default');
         end
         linkaxes(ax,'xy');
         plotter.updateXYLim(ax);
+        plotter.updateXLabel(ax);
+        plotter.updateYLabel(ax);
         set(findobj(f), 'Visible', 'on');
     catch exception
         delete(f);
@@ -314,13 +371,23 @@ end
     function result = plotBackgroundFit(handles)
     %UNTITLED9 Summary of this function goes here
     %   Detailed explanation goes here
+    if ~ishold(handles.axes1)
+        hold(handles.axes1, 'on');
+    end
     line = plotter.plotBgFit(handles.axes1);
-    result = line.YData;
+    if ~isempty(line)
+        result = line.YData;
+    else
+        result = [];
+    end
     end
 
 
     function plotBackgroundPoints(handles) % plots points and BkgFit
     % The current file TODO: "getCurrentFile(handles.popup_filename)"
+    if ~ishold(handles.axes1)
+        hold(handles.axes1, 'on');
+    end
     plotter.plotBgPoints(handles.axes1);
     end
 end
