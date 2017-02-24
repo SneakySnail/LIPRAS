@@ -23,6 +23,8 @@ switch viewname
             'ColumnEditable', false);
         set(handles.listbox_files, 'enable', 'on');
         set(handles.popup_filename, 'enable', 'on');
+        handles.gui.Plotter.updateXLabel(handles.axes1);
+        handles.gui.Plotter.updateYLabel(handles.axes1);
         plotX(handles, 'fit');
         
     case 'coeff'

@@ -87,7 +87,6 @@ try
     if strcmp(previousPlot_,'fit')
         handles.axes2.Children.Visible = 'on';
     end
-    
     set(enabledObjs, 'Enable', 'on');
     currentFig = get(0,'CurrentFigure');
     if ~isempty(currentFig) && contains(currentFig.Name, 'LIPRAS') && ~isempty(focusedObj)
@@ -97,6 +96,7 @@ try
             uitable(focusedObj);
         end
     end
+    handles.gui.Legend = 'reset';
 catch ex
     ex.getReport
     set(enabledObjs, 'Enable', 'on');
@@ -266,6 +266,7 @@ end
         plotter.updateXYLim(ax);
         plotter.updateXLabel(ax);
         plotter.updateYLabel(ax);
+        set(ax, 'box', 'on');
         set(findobj(f), 'Visible', 'on');
     catch exception
         delete(f);

@@ -18,7 +18,7 @@ for i=1:numpeaks
     if ~isempty(p)
         points(i) = p;
         idx = utils.findIndex(xdata, p);
-        plot(handles.axes1, p, ydata(idx), '*r');
+        plot(handles.axes1, p, ydata(idx), '*r', 'MarkerSize', 5);
     else
         points = [];
         break

@@ -231,12 +231,13 @@ classdef GUIController < handle
                 if strcmpi(this.hg.toolbar_legend.State, 'on')
                     legend(this.hg.axes1, 'off');
                     this.hg.toolbar_legend.State = 'on';
-                    legend(this.hg.axes1, this.hg.axes1.Children.DisplayName);
+                    lgd = legend(this.hg.axes1, 'show');
+                    set(lgd, 'FontSize', 9);
                 end
             case 'on'
                 this.hg.toolbar_legend.State = 'on';
-                legend(this.hg.axes1, 'show');
-                
+                lgd = legend(this.hg.axes1, 'show');
+                set(lgd, 'FontSize', 9);
             case 'off'
                 this.hg.toolbar_legend.State = 'off';
                 legend(this.hg.axes1, 'hide');
@@ -558,13 +559,16 @@ classdef GUIController < handle
         end
         
         function set.FitResults(this, value)
-        component = this.hg.table_fitresults;
-        
+        component = this.hg.table_results;
         if isequal(size(component.Data), size(value))
             error('Value does not match component data size.')
         end
-        
         component.Data = value;
+        end
+        
+        function value = get.FitResults(this)
+        component = this.hg.table_results;
+        value = cell2mat(component.Data);
         end
         
         function set.Coefficients(this, value)

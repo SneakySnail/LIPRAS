@@ -375,7 +375,6 @@ if isempty(emptyCell)
 else
     set(handles.push_fitdata, 'enable', 'off');
 end
-utils.plotutils.plotX(handles,'sample');
 % ==============================================================================
 
 function newFitResults(handles)

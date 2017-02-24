@@ -163,17 +163,13 @@ classdef ProfileListManager < handle
        end
        
        function number = get.ActiveProfile(this)
-       number = this.CurrentProfileNumber_;
+       number = 1;
        end
        
        function this = addProfile(this)
        %ADDPROFILE Adds a profile to the GUI.
-       if ~isempty(this.xrdContainer)
-           this.xrdContainer(end+1) = copy(this.initialXRD_);
-       else
-           this.xrdContainer = copy(this.initialXRD_);
-       end
-       this.CurrentProfileNumber_ = length(this.xrdContainer);
+       this.xrdContainer = copy(this.initialXRD_);
+       this.CurrentProfileNumber_ = 1;
        end
         
        function this = deleteProfile(this, id) 
@@ -186,9 +182,14 @@ classdef ProfileListManager < handle
        end
        
        function this = reset(this)
-       this.xrdContainer = copy(this.initialXRD_);
-       this.CurrentProfileNumber_ = 1;
-       this.Writer = ui.FileWriter(this);
+       if isempty(this.initialXRD_)
+           this.xrdContainer = [];
+           this.CurrentProfileNumber_ = 0;
+           this.Writer = [];
+       else
+           this.xrdContainer = copy(this.initialXRD_);
+           this.Writer = ui.FileWriter(this);
+       end
        end
        
        function output = hasData(this)
@@ -200,7 +201,7 @@ classdef ProfileListManager < handle
        end 
        
        function a = hasFit(this)
-        if isempty(this.FitResults) || isempty(this.FitResults{this.getCurrentProfileNumber})
+        if isempty(this.FitResults) || isempty(this.FitResults{1})
             a = false;
         else
             a = true;
@@ -325,7 +326,7 @@ classdef ProfileListManager < handle
        if nargin < 2
            profnum = this.getCurrentProfileNumber;
        end
-       results = this.FitResults{profnum};
+       results = this.FitResults{1};
        end
        
        function fitresults = fitDataSet(this, prfn)
@@ -359,11 +360,7 @@ classdef ProfileListManager < handle
         
    methods
        function value = get.xrd(this)
-       if isempty(this.xrdContainer)
-           value = [];
-       else
-           value = this.xrdContainer(this.CurrentProfileNumber_);
-       end
+       value = this.xrdContainer(1);
        end
        
        function set.xrd(this, xrd)

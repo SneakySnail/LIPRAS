@@ -101,10 +101,13 @@ else
 end
 if isNew % if not the same dataset as before
     ui.update(handles, 'dataset');
+    cla(handles.axes1);
     utils.plotutils.plotX(handles, 'data');
+
 else
     handles.gui.PriorityStatus = '';
 end
+
 
 function checkbox_reverse_Callback(o,e,handles)
 if o.Value
@@ -256,7 +259,11 @@ if handles.gui.isFitDirty
         handles.profiles.xrd.FitInitial = handles.validator.fitBounds;
     end
 end
+cla(handles.axes1);
 ui.update(handles, 'fitinitial');
+utils.plotutils.plotX(handles,'sample');
+handles.gui.Legend = 'reset';
+
 
 % Executes on button press of 'Select Peak(s)'.
 function push_selectpeak_Callback(hObject, ~, handles)
@@ -322,7 +329,6 @@ else
     handles.profiles.xrd.unconstrain('Nxfwm');
     handles.profiles.xrd.constrain(handles.gui.ConstraintsInTable);
     ui.update(handles, 'Constraints');
-    
 end
 
 % Executes when entered data in editable cell(s) in table_coeffvals.
@@ -358,7 +364,7 @@ guidata(hObject,handles)
 % Executes on button press in push_fitdata.
 function push_fitdata_Callback(~, ~, handles)
 try
-    prfn = handles.profiles.getCurrentProfileNumber;    
+    prfn = handles.profiles.ActiveProfile;    
     fitresults = handles.profiles.fitDataSet(prfn);
     if ~isempty(fitresults)
         ui.update(handles, 'results');
@@ -367,7 +373,9 @@ catch ME
     ME.getReport
     assignin('base','lastException',ME)
     errordlg(ME.message)
+    return
 end
+utils.plotutils.plotX(handles,'fit');
 
 function push_fitstats_Callback(~, ~, handles)
 handles.gui.onPlotFitChange('stats');

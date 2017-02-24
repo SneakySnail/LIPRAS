@@ -5,7 +5,7 @@ if ~handles.profiles.hasData
 end
 axes1Pos = getappdata(handles.axes1, 'OriginalSize');
 axes2Pos = getappdata(handles.axes2, 'OriginalSize');
-axes2height = 0.75*axes2Pos(4);
+axes2height = 0.8*axes2Pos(4);
 if nargin <= 1
     if handles.profiles.hasData
         size = 'fit';
