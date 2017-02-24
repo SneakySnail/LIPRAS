@@ -38,7 +38,7 @@ classdef LiprasDialog
             'WindowKeyPressFcn', 'delete(gcf)');
         end
         
-        function dlg = exportPlotAsImage(handles)
+        function exportPlotAsImage(handles)
         name = 'Export Plot';
         prompt = 'Select the output format:';
         listed = {'.jpg', '.png', '.tif', '.pdf'};
@@ -49,8 +49,10 @@ classdef LiprasDialog
             'ListString', listed, 'ListSize', [175 120], 'okstring', okString);
         set(0, 'DefaultUIControlFontSize', defaultFontSize);
         if ok
-            fig = figure('position', LiprasDialog.ScreenSize, 'tag', 'exportplotfig', 'Visible', 'off');
+            fig = figure('position', [50 50 500 500], 'tag', 'exportplotfig', 'Visible', 'off');
             ax = copyobj(handles.axes1, fig);
+            lgd = legend(ax, 'show');
+            set(lgd, 'FontSize', 9, 'Box', 'off');
             set(ax.YLabel, 'FontSize', 20);
             set(ax.XLabel, 'FontSize', 20);
             set(ax.Title, 'FontSize', 24);
@@ -74,6 +76,7 @@ classdef LiprasDialog
             end
             cd(oldpath);
         end
+        handles.gui.PriorityStatus = 'Successfully exported plot as an image file.';
         end
         
         function pos = centeredPosition(dSize)

@@ -212,8 +212,6 @@ elseif ~isempty(validator.backgroundPoints)
     set(handles.push_fitbkgd, 'enable', 'off');
     handles.tabpanel.TabEnables{2} = 'off';
     set(handles.tab1_next,'visible', 'off');
-%     utils.plotutils.plotX(handles, 'background');
-    LiprasDialog.PolyNotUniqueWarning;
     utils.plotutils.plotX(handles, 'backgroundpoints');
     
 else

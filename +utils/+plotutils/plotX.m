@@ -112,7 +112,7 @@ end
         axx = handles.axes1;
     end
     dataLine = findobj(axx, 'tag', 'raw');
-    notDataLineIdx = ~strcmpi(get(dataLine, 'DisplayName'), 'Raw Data');
+    notDataLineIdx = ~strcmpi(get(dataLine, 'DisplayName'), 'Measured Data');
     if ~isempty(dataLine)
         delete(dataLine(notDataLineIdx));
         dataLine = dataLine(~notDataLineIdx);
@@ -133,7 +133,6 @@ end
                             'Visible', 'on');
     end
     plotter.updateXYLim(axx);
-%     handles.gui.Legend = 'reset';
     end
 % ==============================================================================
 

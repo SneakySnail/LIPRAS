@@ -232,12 +232,12 @@ classdef GUIController < handle
                     legend(this.hg.axes1, 'off');
                     this.hg.toolbar_legend.State = 'on';
                     lgd = legend(this.hg.axes1, 'show');
-                    set(lgd, 'FontSize', 9);
+                    set(lgd, 'FontSize', 9, 'Box', 'off');
                 end
             case 'on'
                 this.hg.toolbar_legend.State = 'on';
                 lgd = legend(this.hg.axes1, 'show');
-                set(lgd, 'FontSize', 9);
+                set(lgd, 'FontSize', 9, 'Box', 'off');
             case 'off'
                 this.hg.toolbar_legend.State = 'off';
                 legend(this.hg.axes1, 'hide');

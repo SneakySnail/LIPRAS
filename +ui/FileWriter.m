@@ -128,7 +128,9 @@ classdef FileWriter < handle
            fprintf(fid, '%.5f\t%.5f\t', fitted.CoeffValues(i), fitted.CoeffError(i));
        end
        % print FmodelGOF
-       fprintf(fid, '%.5f\t', struct2array(fitted.FmodelGOF));
+       fprintf(fid, '%.5f\t%.5f\t%.5f\t%.5f\t%.5f\t', fitted.FmodelGOF.sse, ...
+           fitted.FmodelGOF.rsquare, fitted.FmodelGOF.dfe, fitted.FmodelGOF.adjrsquare, ...
+           fitted.FmodelGOF.rmse);
        fprintf(fid, '\n');
        end
        

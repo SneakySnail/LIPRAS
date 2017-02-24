@@ -128,6 +128,7 @@ function push_newbkgd_Callback(hObject, eventdata, handles)
 import utils.plotutils.*
 plotX(handles,'data');
 handles.checkbox_superimpose.Value = 0;
+handles.gui.PriorityStatus = 'Selecting background points... Press the ESC key to cancel.';
 mode = get(handles.group_bkgd_edit_mode.SelectedObject, 'String');
 points = selectBackgroundPoints(handles, mode);
 if length(points) == 1 && isnan(points)
@@ -138,6 +139,9 @@ validPoints = handles.validator.backgroundPoints(points);
 handles.profiles.xrd.setBackgroundPoints(validPoints);
 ui.update(handles, 'backgroundpoints');
 utils.plotutils.plotX(handles, 'background');
+if length(validPoints) <= handles.gui.PolyOrder
+    LiprasDialog.PolyNotUniqueWarning;
+end
 
 function menu_xplotscale_Callback(o,e,handles)
 plotter = handles.gui.Plotter;
@@ -370,6 +374,7 @@ end
 handles.profiles.xrd.FitInitial = fitinitial;
 handles.gui.FitInitial = fitinitial;
 ui.update(handles, 'fitinitial');
+utils.plotutils.plotX(handles, 'sample');
 
 assignin('base', 'handles', handles);
 guidata(hObject,handles)
@@ -436,8 +441,8 @@ if get(hObject,'Value')
     utils.plotutils.plotX(handles, 'superimpose');
 else
     utils.plotutils.plotX(handles);
-    handles.gui.Legend = 'reset';
 end
+handles.gui.Legend = 'reset';
 handles.xrd.Status='Superimposing raw data...';
 
 
