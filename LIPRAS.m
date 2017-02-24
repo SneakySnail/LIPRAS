@@ -137,6 +137,7 @@ end
 validPoints = handles.validator.backgroundPoints(points);
 handles.profiles.xrd.setBackgroundPoints(validPoints);
 ui.update(handles, 'backgroundpoints');
+utils.plotutils.plotX(handles, 'background');
 
 function menu_xplotscale_Callback(o,e,handles)
 plotter = handles.gui.Plotter;
@@ -191,13 +192,27 @@ function edit_min2t_Callback(~, ~, handles)
 newValue = handles.validator.min2T(handles.gui.Min2T);
 handles.profiles.xrd.Min2T = newValue;
 handles.gui.Min2T = newValue;
-utils.plotutils.plotX(handles);
+handles.profiles.xrd.setBackgroundPoints(handles.validator.backgroundPoints);
+if length(handles.validator.backgroundPoints) <= handles.gui.PolyOrder
+    cla(handles.axes1);
+    utils.plotutils.plotX(handles, 'data');
+else
+    utils.plotutils.plotX(handles, 'background');
+end
+ui.update(handles, 'backgroundpoints');
 
 function edit_max2t_Callback(~, ~, handles)
 newValue = handles.validator.max2T(handles.gui.Max2T);
 handles.profiles.xrd.Max2T = newValue;
 handles.gui.Max2T = newValue;
-utils.plotutils.plotX(handles);
+handles.profiles.xrd.setBackgroundPoints(handles.validator.backgroundPoints);
+if length(handles.validator.backgroundPoints) <= handles.gui.PolyOrder
+    cla(handles.axes1);
+    utils.plotutils.plotX(handles, 'data');
+else
+    utils.plotutils.plotX(handles, 'background');
+end
+ui.update(handles, 'backgroundpoints');
 
 function edit_polyorder_Callback(src, ~, handles)
 %BACKGROUNDORDERCHANGED Summary of this function goes here
@@ -278,10 +293,8 @@ if length(points) == length(peakcoeffs)
     handles.profiles.xrd.generateDefaultFitBounds;
     ui.update(handles, 'peakposition');
     ui.update(handles, 'fitinitial');
-else
-    % Restore old plot
-    plotX(handles, 'sample');
 end
+plotX(handles, 'sample');
 
 % Executes when the handles.edit_numpeaks spinner value is changed.
 function edit_numpeaks_Callback(src, eventdata, handles)

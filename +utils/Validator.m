@@ -38,7 +38,7 @@ classdef Validator < handle
        if newMin < this.profiles.xrd.AbsoluteRange(1)
            newMin = this.profiles.xrd.AbsoluteRange(1);
            this.hg.statusbarObj.setText(boundswarnmsg);
-       elseif newMin > this.profiles.xrd.Max2T
+       elseif newMin >= this.profiles.xrd.Max2T
            newMin = oldMin;
            this.hg.statusbarObj.setText(boundswarnmsg);
        end
@@ -57,7 +57,7 @@ classdef Validator < handle
            this.hg.statusbarObj.setText([msgPrefix 'Not a valid number.']);
        end
        boundswarnmsg = [msgPrefix 'The inputted value is not within bounds.'];
-       if newMax < this.profiles.xrd.Min2T
+       if newMax <= this.profiles.xrd.Min2T
            newMax = oldMax;
            this.hg.statusbarObj.setText(boundswarnmsg);
        elseif newMax > this.profiles.xrd.AbsoluteRange(2)

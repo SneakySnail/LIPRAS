@@ -199,15 +199,14 @@ function newBackgroundPoints(handles)
 import utils.plotutils.*
 handles.container_numpeaks.Visible = 'on';
 xrd = handles.profiles.xrd;
-if xrd.hasBackground && length(xrd.getBackgroundPoints) > xrd.getBackgroundOrder
+validator=handles.validator;
+if xrd.hasBackground && length(validator.backgroundPoints) > xrd.getBackgroundOrder
     handles.tab1_next.Visible = 'on';
     handles.group_bkgd_edit_mode.SelectedObject = handles.radiobutton14_add;
     set(findobj(handles.panel_setup, 'enable', 'off'), 'enable', 'on')
     handles.tabpanel.TabEnables{2} = 'on';
-    utils.plotutils.plotX(handles, 'backgroundpoints');
-    utils.plotutils.plotX(handles, 'backgroundfit');
     
-elseif ~isempty(xrd.getBackgroundPoints)
+elseif ~isempty(validator.backgroundPoints)
     set(handles.group_bkgd_edit_mode, 'SelectedObject', handles.radiobutton14_add);
     set(handles.group_bkgd_edit_mode.Children, 'Enable', 'on');
     set(handles.push_fitbkgd, 'enable', 'off');
@@ -216,6 +215,7 @@ elseif ~isempty(xrd.getBackgroundPoints)
 %     utils.plotutils.plotX(handles, 'background');
     LiprasDialog.PolyNotUniqueWarning;
     utils.plotutils.plotX(handles, 'backgroundpoints');
+    
 else
     handles.tab1_next.Visible = 'off';
     handles.group_bkgd_edit_mode.SelectedObject = handles.radio_newbkgd;
