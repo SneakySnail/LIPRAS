@@ -186,9 +186,9 @@ classdef ProfileListManager < handle
        end
        
        function this = reset(this)
-       this.xrdContainer = [];
-       this.CurrentProfileNumber_ = 0;
-       this.Writer = [];
+       this.xrdContainer = copy(this.initialXRD_);
+       this.CurrentProfileNumber_ = 1;
+       this.Writer = ui.FileWriter(this);
        end
        
        function output = hasData(this)

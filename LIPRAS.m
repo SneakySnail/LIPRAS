@@ -80,7 +80,7 @@ catch
         yy = sprintf('%.3G', handles.axes1.CurrentPoint(1,2));
         if strcmpi(class(obj), 'matlab.graphics.chart.primitive.Line')
             displayName = obj.DisplayName;
-            msg = [displayName ': [' xx ', ' yy ']'];
+            msg = [displayName ': (' xx ', ' yy ')'];
         end
     catch
     end
@@ -123,6 +123,8 @@ function push_newbkgd_Callback(hObject, eventdata, handles)
 %   ginput. If the number of background points is less than the background order,
 %    issue a warning.
 import utils.plotutils.*
+plotX(handles,'data');
+handles.checkbox_superimpose.Value = 0;
 mode = get(handles.group_bkgd_edit_mode.SelectedObject, 'String');
 points = selectBackgroundPoints(handles, mode);
 if length(points) == 1 && isnan(points)
@@ -260,6 +262,7 @@ ui.update(handles, 'fitinitial');
 function push_selectpeak_Callback(hObject, ~, handles)
 import utils.contains
 import utils.plotutils.*
+
 peakcoeffs = find(contains(handles.profiles.xrd.getCoeffs, 'x'));
 points = utils.plotutils.selectPeakPoints(handles, length(peakcoeffs));
 if length(points) == length(peakcoeffs)
@@ -412,6 +415,7 @@ if get(hObject,'Value')
     utils.plotutils.plotX(handles, 'superimpose');
 else
     utils.plotutils.plotX(handles);
+    handles.gui.Legend = 'reset';
 end
 handles.xrd.Status='Superimposing raw data...';
 
@@ -476,7 +480,11 @@ if filename ~= 0
 end
 
 function menu_FileResetProfile_Callback(o,e,handles)
+handles.profiles.reset;
+cla(handles.axes1);
 ui.update(handles, 'dataset');
+utils.plotutils.plotX(handles, 'data');
+handles.gui.Legend = 'reset';
 
 function menu_restart_Callback(o,e,handles)
 delete(handles.figure1);
@@ -486,8 +494,7 @@ guidata(handles.figure1, handles);
 
 % Executes when the menu item 'Export->As Image' is clicked.
 function menu_saveasimage_Callback(o,e,handles)
-fig = figure
-
+LiprasDialog.exportPlotAsImage(handles);
 
 
 function menu_preferences_Callback(~,~,~)

@@ -231,7 +231,7 @@ classdef GUIController < handle
                 if strcmpi(this.hg.toolbar_legend.State, 'on')
                     legend(this.hg.axes1, 'off');
                     this.hg.toolbar_legend.State = 'on';
-                    legend(this.hg.axes1, 'show');
+                    legend(this.hg.axes1, this.hg.axes1.Children.DisplayName);
                 end
             case 'on'
                 this.hg.toolbar_legend.State = 'on';

@@ -38,6 +38,44 @@ classdef LiprasDialog
             'WindowKeyPressFcn', 'delete(gcf)');
         end
         
+        function dlg = exportPlotAsImage(handles)
+        name = 'Export Plot';
+        prompt = 'Select the output format:';
+        listed = {'.jpg', '.png', '.tif', '.pdf'};
+        okString = 'Save';
+        defaultFontSize = get(0,'DefaultUIControlFontSize');
+        set(0,'DefaultUIControlFontSize',11);
+        [selected, ok] = listdlg('Name', name, 'SelectionMode', 'single', 'PromptString', prompt,...
+            'ListString', listed, 'ListSize', [175 120], 'okstring', okString);
+        set(0, 'DefaultUIControlFontSize', defaultFontSize);
+        if ok
+            fig = figure('position', LiprasDialog.ScreenSize, 'tag', 'exportplotfig', 'Visible', 'off');
+            ax = copyobj(handles.axes1, fig);
+            set(ax.YLabel, 'FontSize', 20);
+            set(ax.XLabel, 'FontSize', 20);
+            set(ax.Title, 'FontSize', 24);
+            outpath = [handles.profiles.Writer.OutputPath 'ExportedImages' filesep];
+            oldpath = pwd;
+            if ~isdir(outpath)
+                mkdir(outpath);
+            end
+            cd(outpath);
+            filename = handles.gui.FileNames{handles.gui.CurrentFile};
+            [~, filename, ~] = fileparts(filename);
+            switch selected
+                case 1
+                    print(fig, filename, '-djpeg', '-r0');
+                case 2
+                    print(fig, filename, '-dpng', '-r0');
+                case 3
+                    print(fig, filename, '-dtiff', '-r0');
+                case 4
+                    print(fig, filename, '-dpdf', '-r0');     
+            end
+            cd(oldpath);
+        end
+        end
+        
         function pos = centeredPosition(dSize)
         % Returns a 1x2 numeric array POS of the position the dialog box of size DSIZE should be 
         %   located to be centered on the screen.

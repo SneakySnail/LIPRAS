@@ -490,13 +490,18 @@ classdef AxPlotter < matlab.mixin.SetGet
         %   plotted lines.
         if isempty([axx.Children]), return, end
         ydata = get(findobj(axx, 'tag', 'raw'), 'YData');
+        if isempty(ydata)
+            ydata = get(findobj(axx, 'tag', 'superimposed'), 'YData');
+        end
         if iscell(ydata)
             ydata = [ydata{:}];
+        elseif isempty(ydata)
+            return
         end
         ydiff = max(ydata) - min(ydata);
         ymin = min(ydata)-0.05*ydiff;
         ymax = max(ydata)+0.2*ydiff;
-        set(axx, 'YLim', [ymin ymax]);
+        set(axx, 'YLim', sort([ymin ymax]));
         end
         
         function updateXYLim(this, axx)

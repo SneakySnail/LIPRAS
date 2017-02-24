@@ -79,7 +79,6 @@ handles.menu_parameter.Enable = 'off';
 handles.menu_plot.Enable = 'off';
 handles.menu_command.Enable = 'off';
 handles.menu_saveasimage.Enable = 'off';
-handles.gui.Legend = 'off';
 % Reset enabled controls
 set([handles.push_prevprofile, handles.push_nextprofile, handles.push_removeprofile], ...
     'visible', 'off');
@@ -148,6 +147,8 @@ handles.gui.KAlpha1 = handles.profiles.KAlpha1;
 if handles.profiles.CuKa
     handles.gui.KAlpha2 = handles.profiles.KAlpha2;
 end
+handles.gui.Legend = 'on';
+handles.gui.Legend = 'reset';
 
 % ==============================================================================
 
