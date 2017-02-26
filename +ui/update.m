@@ -53,7 +53,7 @@ switch lower(varargin{1})
     case 'functions'
         newFitFunctions(handles);
     case 'constraints'
-        constraints(handles);
+        updateConstraints(handles);
     case 'fitinitial'
         updateFitBoundsTable(handles);
     case 'results'
@@ -175,7 +175,7 @@ if handles.gui.NumPeaks > 2
 else
     handles.gui.ConstraintsInTable = [];
 end
-constraints(handles);
+updateConstraints(handles);
 newPeakPositions(handles);
 
 handles.gui.Coefficients = coeffs;
@@ -280,7 +280,7 @@ else
 end
 % ==============================================================================
 
-function constraints(handles)
+function updateConstraints(handles)
 %CONSTRAINTS should be called when a checkbox is checked in panel_constraints.
 %   This function adds a new constraint column in table_paramselection, with default
 %   values for rows where the peak function isn't empty will be set to TRUE.
