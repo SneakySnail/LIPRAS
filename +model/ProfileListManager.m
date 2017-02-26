@@ -63,6 +63,15 @@ classdef ProfileListManager < handle
    methods
        function isNew = newXRD(this, path, filename)
        isNew = false;
+        try
+    PrefFile=fopen('Preference File.txt','r');
+    this.DataPath=fscanf(PrefFile,'%c');
+    this.DataPath(end)=[]; % method above adds a white space at the last character that messes with import
+    fclose(PrefFile);
+        catch
+        end
+       
+       
        if nargin < 2
            [data, filename, path] = utils.fileutils.newDataSet(this.DataPath);
            if isempty(data)
