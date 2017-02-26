@@ -31,9 +31,9 @@ try
         end
     end
     
-    if strcmpi(mode, 'fit') && (~handles.profiles.hasFit || handles.gui.isFitDirty)
-        mode = 'sample';
-    end
+%     if strcmpi(mode, 'fit') && (~handles.profiles.hasFit || handles.gui.isFitDirty)
+%         mode = 'sample';
+%     end
     
     handles.checkbox_superimpose.Value = 0;
     % try

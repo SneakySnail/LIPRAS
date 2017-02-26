@@ -275,12 +275,28 @@ if handles.gui.isFitDirty
     % Make sure all peak positions are valid
     if isempty(find(handles.profiles.xrd.PeakPositions == 0,1))
         % Generate new values for the start, lower, and upper bounds
-        handles.profiles.xrd.FitInitial = handles.validator.fitBounds;
-    end
-end
+            handles.profiles.xrd.FitInitial = handles.validator.fitBounds;
+cla(handles.axes1);
+ui.update(handles, 'fitinitial');
+utils.plotutils.plotX(handles,'sample');     
+        
+    elseif sum(handles.validator.profiles.xrd.PeakPositions)==0 % for resets or when fitting for the first time
 cla(handles.axes1);
 ui.update(handles, 'fitinitial');
 utils.plotutils.plotX(handles,'sample');
+            
+    elseif ~isempty(find(handles.profiles.xrd.PeakPositions==0,1))
+%                 handles.profiles.xrd.FitInitial = handles.validator.fitBounds;
+
+    end
+else
+    
+cla(handles.axes1);
+ui.update(handles, 'fitinitial');
+utils.plotutils.plotX(handles,'sample');
+    
+end
+
 handles.gui.Legend = 'reset';
 
 

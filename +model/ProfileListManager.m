@@ -187,7 +187,10 @@ classdef ProfileListManager < handle
            this.CurrentProfileNumber_ = 0;
            this.Writer = [];
        else
-           this.xrdContainer = copy(this.initialXRD_);
+%            this.xrdContainer = copy(this.initialXRD_);
+this.FitResults=[];
+this.xrd.FitInitial=[];
+this.xrd.PeakPositions(1:end)=0;
            this.Writer = ui.FileWriter(this);
        end
        end
