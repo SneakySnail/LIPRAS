@@ -39,11 +39,11 @@ try
     % try
     switch lower(mode)
         case 'data'
-            plotData(handles);
+            plotData(handles, mode);
             utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
             previousPlot_ = 'data';
         case 'background'
-            plotData(handles);
+            plotData(handles,mode);
             if handles.profiles.xrd.hasBackground
                 plotBackgroundPoints(handles);
                 plotBackgroundFit(handles);
@@ -62,13 +62,13 @@ try
         case 'fit'
 %             set(handles.axes1.Children, 'visible', 'off');
             utils.plotutils.resizeAxes1ForErrorPlot(handles, 'fit');
-            plotData(handles);
+            plotData(handles,mode);
             plotFitError(handles);
             plotFit(handles);
             previousPlot_ = 'fit';
         case 'sample'
-            plotData(handles);
-            plotSampleFit(handles);
+            plotData(handles,mode);
+            plotSampleFit(handles,mode);
             previousPlot_ = 'sample';
         case 'allfits'
             plotAllFits(handles);
@@ -92,7 +92,7 @@ try
     if ~isempty(currentFig) && contains(currentFig.Name, 'LIPRAS') && ~isempty(focusedObj)
         if strcmpi(focusedObj.Type, 'uicontrol')
 %             uicontrol(focusedObj); % Why is this line here? it resets the
-%             tabing on the edit box 
+%             tabing on the edit box and
         elseif strcmpi(focusedObj.Type, 'uitable')
             uitable(focusedObj);
         end
@@ -106,10 +106,14 @@ end
 
 % ==============================================================================
 
-    function dataLine = plotData(handles, axx,j)
+    function dataLine = plotData(handles, mode, axx,j)
     % PLOTDATA Plots the raw data for a specified file number in axes1. 
     %     If there are lines, remove all other lines except data line
-    if nargin < 2
+    
+    if strcmp(mode,'fit')~=1
+        axx = handles.axes1;
+        ydata = xrd.getData(filenum);
+    elseif and(strcmp(mode,'fit')==1,nargin< 3)
         axx = handles.axes1;
         ydata = xrd.getData(filenum);
     else
@@ -127,7 +131,7 @@ end
         setappdata(dataLine, 'xdata', xdata);
         setappdata(dataLine, 'ydata', ydata);
         handles.gui.Plotter.transform(dataLine);
-    elseif nargin==3
+    elseif nargin==4
                 dataLine = plotter.plotRawData(axx, ...
                             'LineStyle', '-', ...
                             'LineWidth', 1, ...
@@ -147,7 +151,7 @@ end
                             'Color', 'k', ...
                             'Visible', 'on');
     end
-    plotter.updateXYLim(axx);
+    plotter.updateXYLim(axx,mode);
     end
 % ==============================================================================
 
@@ -189,7 +193,7 @@ end
 % ==============================================================================
 
 % Plot an example fit using the starting values from table.
-    function handles = plotSampleFit(handles)
+    function handles = plotSampleFit(handles,mode)
     import ui.control.*
     import utils.plotutils.*
     if ~plotter.canPlotSample
@@ -203,7 +207,7 @@ end
     utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
     handles.gui.Legend = 'on';
     handles.gui.Legend = 'reset';
-    plotter.updateXYLim(handles.axes1);
+    plotter.updateXYLim(handles.axes1,'sample'); % this always comes from sample
     end
 % ==============================================================================
 
@@ -265,7 +269,7 @@ end
             if ~ishold(ax(j))
                 hold(ax(j), 'on');
             end
-            dataLine = plotData(handles, ax(j),j);
+            dataLine = plotData(handles, 'fit',ax(j),j); % 'fit' added to be specific with which function its coming from
             set(dataLine, 'LineStyle', 'none', ...
                 'MarkerSize', 3.5, ...
                 'MarkerFaceColor', [0 0.18 0.65]);

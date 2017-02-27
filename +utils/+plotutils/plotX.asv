@@ -39,11 +39,11 @@ try
     % try
     switch lower(mode)
         case 'data'
-            plotData(handles);
+            plotData(handles, mode);
             utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
             previousPlot_ = 'data';
         case 'background'
-            plotData(handles);
+            plotData(handles,mode);
             if handles.profiles.xrd.hasBackground
                 plotBackgroundPoints(handles);
                 plotBackgroundFit(handles);
@@ -62,12 +62,12 @@ try
         case 'fit'
 %             set(handles.axes1.Children, 'visible', 'off');
             utils.plotutils.resizeAxes1ForErrorPlot(handles, 'fit');
-            plotData(handles);
+            plotData(handles,mode);
             plotFitError(handles);
             plotFit(handles);
             previousPlot_ = 'fit';
         case 'sample'
-            plotData(handles);
+            plotData(handles,mode);
             plotSampleFit(handles);
             previousPlot_ = 'sample';
         case 'allfits'
@@ -91,7 +91,8 @@ try
     currentFig = get(0,'CurrentFigure');
     if ~isempty(currentFig) && contains(currentFig.Name, 'LIPRAS') && ~isempty(focusedObj)
         if strcmpi(focusedObj.Type, 'uicontrol')
-            uicontrol(focusedObj);
+%             uicontrol(focusedObj); % Why is this line here? it resets the
+%             tabing on the edit box and
         elseif strcmpi(focusedObj.Type, 'uitable')
             uitable(focusedObj);
         end
@@ -105,11 +106,18 @@ end
 
 % ==============================================================================
 
-    function dataLine = plotData(handles, axx)
+    function dataLine = plotData(handles, mode, axx,j)
     % PLOTDATA Plots the raw data for a specified file number in axes1. 
     %     If there are lines, remove all other lines except data line
-    if nargin < 2
+    
+    if strcmp(mode,'fit')~=1
         axx = handles.axes1;
+        ydata = xrd.getData(filenum);
+    elseif and(strcmp(mode,'fit')==1,nargin< 3)
+        axx = handles.axes1;
+        ydata = xrd.getData(filenum);
+    else
+        ydata = xrd.getData(j);
     end
     dataLine = findobj(axx, 'tag', 'raw');
     notDataLineIdx = ~strcmpi(get(dataLine, 'DisplayName'), 'Measured Data');
@@ -118,8 +126,19 @@ end
         dataLine = dataLine(~notDataLineIdx);
     end
     xdata = xrd.getTwoTheta;
-    ydata = xrd.getData(filenum);
     if isvalid(dataLine)
+        set(dataLine, 'XData', xdata, 'YData', ydata);
+        setappdata(dataLine, 'xdata', xdata);
+        setappdata(dataLine, 'ydata', ydata);
+        handles.gui.Plotter.transform(dataLine);
+    elseif nargin==4
+                dataLine = plotter.plotRawData(axx, ...
+                            'LineStyle', '-', ...
+                            'LineWidth', 1, ...
+                            'MarkerFaceColor', [1 1 1], ...
+                            'Color', 'k', ...
+                            'Visible', 'on');
+                            dataLine = findobj(axx, 'tag', 'raw');
         set(dataLine, 'XData', xdata, 'YData', ydata);
         setappdata(dataLine, 'xdata', xdata);
         setappdata(dataLine, 'ydata', ydata);
@@ -132,7 +151,7 @@ end
                             'Color', 'k', ...
                             'Visible', 'on');
     end
-    plotter.updateXYLim(axx);
+    plotter.updateXYLim(axx,mode);
     end
 % ==============================================================================
 
@@ -188,7 +207,7 @@ end
     utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
     handles.gui.Legend = 'on';
     handles.gui.Legend = 'reset';
-    plotter.updateXYLim(handles.axes1);
+    plotter.updateXYLim(handles.axes1,'sample'); % this always comes from sample
     end
 % ==============================================================================
 
@@ -250,11 +269,10 @@ end
             if ~ishold(ax(j))
                 hold(ax(j), 'on');
             end
-            dataLine = plotData(handles, ax(j));
+            dataLine = plotData(handles, 'fit',ax(j),j); % 'fit' added to be specific with which function its coming from
             set(dataLine, 'LineStyle', 'none', ...
                 'MarkerSize', 3.5, ...
                 'MarkerFaceColor', [0 0.18 0.65]);
-            filenum=handles.gui.CurrentFile;
             plotFit(handles, ax(j), j);
             
             filename = filenames{j};

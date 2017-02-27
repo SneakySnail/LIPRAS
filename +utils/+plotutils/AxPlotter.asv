@@ -508,15 +508,11 @@ classdef AxPlotter < matlab.mixin.SetGet
         %UPDATEXYLIM makes sure the plot is within range and displayed in the appropriate size.
         if nargin < 3
             axx = this.ax;
-            mode='na';
         end
-        
-        if strcmp(mode,'sample')
-        else
+        if strcmp(mode,'sample
         
         this.updateXLim(axx);
         this.updateYLim(axx);
-        end
         this.title;
         end
         
