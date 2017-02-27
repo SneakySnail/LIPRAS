@@ -36,6 +36,9 @@ classdef CuKalpha2
         function output = calculateFit(this, xdata, coeffvals)
         xidx = find(utils.contains(this.Function.getCoeffs, 'x'),1);
         Nidx = find(utils.contains(this.Function.getCoeffs, 'N'));
+        if this.KAlpha1(1)==this.KAlpha2(1)
+            errordlg('KAlpha1= KAlpha2 enter new values in box to update','Error in Computing Initial Guess');
+        end
         coeffvals(xidx) = this.Ka2fromKa1(coeffvals(xidx),this.KAlpha1(1),this.KAlpha2(1));
         coeffvals(Nidx) = 1/2*coeffvals(Nidx);
         output = this.Function.calculateFit(xdata, coeffvals);
