@@ -105,14 +105,11 @@ end
 
 % ==============================================================================
 
-    function dataLine = plotData(handles, axx,j)
+    function dataLine = plotData(handles, axx)
     % PLOTDATA Plots the raw data for a specified file number in axes1. 
     %     If there are lines, remove all other lines except data line
     if nargin < 2
         axx = handles.axes1;
-        ydata = xrd.getData(filenum);
-    else
-        ydata = xrd.getData(j);
     end
     dataLine = findobj(axx, 'tag', 'raw');
     notDataLineIdx = ~strcmpi(get(dataLine, 'DisplayName'), 'Measured Data');
@@ -121,19 +118,8 @@ end
         dataLine = dataLine(~notDataLineIdx);
     end
     xdata = xrd.getTwoTheta;
+    ydata = xrd.getData(filenum);
     if isvalid(dataLine)
-        set(dataLine, 'XData', xdata, 'YData', ydata);
-        setappdata(dataLine, 'xdata', xdata);
-        setappdata(dataLine, 'ydata', ydata);
-        handles.gui.Plotter.transform(dataLine);
-    elseif nargin==3
-                dataLine = plotter.plotRawData(axx, ...
-                            'LineStyle', '-', ...
-                            'LineWidth', 1, ...
-                            'MarkerFaceColor', [1 1 1], ...
-                            'Color', 'k', ...
-                            'Visible', 'on');
-                            dataLine = findobj(axx, 'tag', 'raw');
         set(dataLine, 'XData', xdata, 'YData', ydata);
         setappdata(dataLine, 'xdata', xdata);
         setappdata(dataLine, 'ydata', ydata);
@@ -264,10 +250,11 @@ end
             if ~ishold(ax(j))
                 hold(ax(j), 'on');
             end
-            dataLine = plotData(handles, ax(j),j);
+            dataLine = plotData(handles, ax(j));
             set(dataLine, 'LineStyle', 'none', ...
                 'MarkerSize', 3.5, ...
                 'MarkerFaceColor', [0 0.18 0.65]);
+            filenum=handles.gui.CurrentFile;
             plotFit(handles, ax(j), j);
             
             filename = filenames{j};
