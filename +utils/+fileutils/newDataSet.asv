@@ -69,24 +69,10 @@ for i=1:length(filename)
     end
     
     if strcmpi(ext, '.xrdml')
-        if size(datatemp.two_theta,1)~=1 % this means xrdml contains multiple scans
-        data.two_theta = datatemp.two_theta;
-        data.data_fit=datatemp.data_fit;
-        data.temperature(i,:)=25; % needs work, 2-26-2017
-        data.KAlpha1(i,:)=datatemp.KAlpha1;
-        data.KAlpha2(i,:)=datatemp.KAlpha2;
-        data.RKa1Ka2(i,:)=datatemp.RKa1Ka2;
-        data.ext = ext;
-            
-        else % for XRDML that are single scans
-        data.two_theta(i,:) = datatemp.two_theta;
-        data.data_fit(i,:)=datatemp.data_fit;
-        data.temperature(i,:)=datatemp.Temperature;
-        data.KAlpha1(i,:)=datatemp.KAlpha1;
-        data.KAlpha2(i,:)=datatemp.KAlpha2;
-        data.RKa1Ka2(i,:)=datatemp.RKa1Ka2;
-        data.ext = ext;
-        end
+        data(i).two_theta = datatemp.two_theta;
+        data(i).data_fit(i,:)=datatemp.data_fit;
+        data(i).data_f(i,:)
+        data(i).ext = ext;
     else
         data.two_theta(i,:) = datatemp.two_theta;
         data.data_fit(i,:) = datatemp.data_fit;

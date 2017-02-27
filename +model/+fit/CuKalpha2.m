@@ -24,7 +24,7 @@ classdef CuKalpha2
             Nx = {Nx};
         end
         for i=1:length(Nx)
-           Ncoeff = ['((1/1.9)*' Nx{i} ')'];
+           Ncoeff = ['((1/2)*' Nx{i} ')']; %only instance to change ratio of Kalpha1/Kalpha2
            str = strrep(str, Nx{i}, Ncoeff);
         end
         xx = this.Function.coeff('x');
@@ -36,8 +36,8 @@ classdef CuKalpha2
         function output = calculateFit(this, xdata, coeffvals)
         xidx = find(utils.contains(this.Function.getCoeffs, 'x'),1);
         Nidx = find(utils.contains(this.Function.getCoeffs, 'N'));
-        coeffvals(xidx) = this.Ka2fromKa1(coeffvals(xidx),this.KAlpha1,this.KAlpha2);
-        coeffvals(Nidx) = 1/1.9*coeffvals(Nidx);
+        coeffvals(xidx) = this.Ka2fromKa1(coeffvals(xidx),this.KAlpha1(1),this.KAlpha2(1));
+        coeffvals(Nidx) = 1/2*coeffvals(Nidx);
         output = this.Function.calculateFit(xdata, coeffvals);
         end
     end

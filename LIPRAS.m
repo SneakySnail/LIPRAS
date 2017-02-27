@@ -145,12 +145,24 @@ end
 
 function menu_xplotscale_Callback(o,e,handles)
 plotter = handles.gui.Plotter;
+
+if isa(handles.profiles.xrd.MonoWavelength,'numeric')
+wave=handles.profiles.xrd.MonoWavelength;
+end
+
 switch o.Tag
     case 'menu_xaxis_linear'
         plotter.XScale = 'linear';
     case 'menu_xaxis_dspace'
+        try
+        answer = inputdlg('Enter wavelength (in Angstroms):', 'Input Wavelength', ...
+            1, {num2str(wave)}, struct('Interpreter', 'tex'));
+        catch
         answer = inputdlg('Enter wavelength (in Angstroms):', 'Input Wavelength', ...
             1, {'1.5406'}, struct('Interpreter', 'tex'));
+        end
+        
+        
         if isempty(answer)
             return
         elseif ~isnan(str2double(answer{1}))

@@ -90,6 +90,7 @@ classdef ProfileListManager < handle
        this.FullTwoThetaRange = xrdItem.getTwoTheta;
        this.DataPath = xrdItem.DataPath;
        xrdItem.OutputPath = [xrdItem.DataPath 'FitOutputs' filesep];
+       xrdItem.MonoWavelength=data.Wavelength;
        this.OutputPath = xrdItem.OutputPath;
        this.addProfile;
        this.Writer = ui.FileWriter(this);
@@ -380,11 +381,11 @@ this.xrd.PeakPositions(1:end)=0;
        end
        
        function xdata = dspace(this, twotheta)
-        xdata = this.KAlpha1 ./ (2*sind(twotheta));
+        xdata = this.KAlpha1 ./ (2*sind(twotheta./2));
        end
        
        function xdata = twotheta(this, dspace)
-       xdata = asind(this.KAlpha1 ./ (2*dspace));
+       xdata = 2*asind(this.KAlpha1 ./ (2*dspace));
        end
    end
    

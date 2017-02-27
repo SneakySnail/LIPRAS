@@ -124,6 +124,8 @@ handles.gui.FileNames = xrd.getFileNames;
 handles.gui.DataPath = handles.profiles.DataPath;
 handles.gui.Min2T = xrd.Min2T;
 handles.gui.Max2T = xrd.Max2T;
+handles.gui.MonoWavelength=0.41;
+handles.gui.Temperature=295;
 handles.gui.CurrentFile = 1;
 handles.gui.CurrentProfile = 1;
 handles.menu_saveasimage.Enable = 'on';
@@ -143,9 +145,9 @@ set(handles.panel_rightside,'visible','on');
 set(handles.uipanel3, 'visible', 'on');
 handles.menu_plot.Enable = 'on';
 handles.menu_command.Enable = 'on';
-handles.gui.KAlpha1 = handles.profiles.KAlpha1(1); %specify 1 for multile XRDML
+handles.gui.KAlpha1 = handles.profiles.KAlpha1;
 if handles.profiles.CuKa
-    handles.gui.KAlpha2 = handles.profiles.KAlpha2(1);
+    handles.gui.KAlpha2 = handles.profiles.KAlpha2;
 end
 handles.gui.Legend = 'on';
 handles.gui.Legend = 'reset';
