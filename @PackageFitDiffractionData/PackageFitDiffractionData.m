@@ -46,8 +46,8 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
     
     properties (Dependent, Hidden)
         DataPath
-        KAlpha1
-        KAlpha2 = 1.544426; % nm
+        KAlpha1= 1.54000;
+        KAlpha2 = 1.544426; % Å
         Min2T
         Max2T
     end
@@ -69,7 +69,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
     properties(Hidden)
         suffix   = '';
         CuKa2Peak
-        KAlpha1_ = [];
+        KAlpha1_ = 1.540000;
         KAlpha2_ = 1.544426; % nm
         symdata = 0;
         binID = 1:1:24;

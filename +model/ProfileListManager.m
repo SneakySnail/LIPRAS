@@ -24,7 +24,7 @@ classdef ProfileListManager < handle
        
        CuKa
        
-       KAlpha1
+       KAlpha1=1.54000;
        
        KAlpha2 = 1.544426; 
    end
