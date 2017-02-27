@@ -128,7 +128,7 @@ function push_newbkgd_Callback(hObject, eventdata, handles)
 import utils.plotutils.*
 plotX(handles,'data');
 handles.checkbox_superimpose.Value = 0;
-handles.gui.PriorityStatus = 'Selecting background points... Press the ESC key to cancel.';
+handles.gui.PriorityStatus = 'Selecting background points... Press the ESC key to cancel, "Z" to toogle zoom capability, and "Enter" to finish.';
 mode = get(handles.group_bkgd_edit_mode.SelectedObject, 'String');
 points = selectBackgroundPoints(handles, mode);
 if length(points) == 1 && isnan(points)

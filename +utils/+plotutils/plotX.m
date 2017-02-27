@@ -91,7 +91,8 @@ try
     currentFig = get(0,'CurrentFigure');
     if ~isempty(currentFig) && contains(currentFig.Name, 'LIPRAS') && ~isempty(focusedObj)
         if strcmpi(focusedObj.Type, 'uicontrol')
-            uicontrol(focusedObj);
+%             uicontrol(focusedObj); % Why is this line here? it resets the
+%             tabing on the edit box 
         elseif strcmpi(focusedObj.Type, 'uitable')
             uitable(focusedObj);
         end
