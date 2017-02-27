@@ -186,7 +186,7 @@ data.temperature=Temperature;
 data.wave=Wavelength;
 
 
-fclose(fid)
+fclose(fid);
 
 end
 
