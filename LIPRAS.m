@@ -156,7 +156,7 @@ switch o.Tag
     case 'menu_xaxis_dspace'
         try
         answer = inputdlg('Enter wavelength (in Angstroms):', 'Input Wavelength', ...
-            1, {num2str(wave)}, struct('Interpreter', 'tex'));
+            1, {num2str(wave(end))}, struct('Interpreter', 'tex'));
         catch
         answer = inputdlg('Enter wavelength (in Angstroms):', 'Input Wavelength', ...
             1, {'1.5406'}, struct('Interpreter', 'tex'));
