@@ -28,8 +28,8 @@ classdef CuKalpha2
            str = strrep(str, Nx{i}, Ncoeff);
         end
         xx = this.Function.coeff('x');
-        xKa2 = ['model.fit.CuKalpha2.Ka2fromKa1(' xx ',' num2str(this.KAlpha1) ',' ...
-            num2str(this.KAlpha2) ')'];
+        xKa2 = ['model.fit.CuKalpha2.Ka2fromKa1(' xx ',' num2str(this.KAlpha1(1)) ',' ...
+            num2str(this.KAlpha2(1)) ')'];
         str = strrep(str, xx, xKa2);
         end
         

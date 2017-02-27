@@ -85,7 +85,7 @@ try
 %     handles.gui.Legend = 'reset';
     set(handles.axes1.Children,'visible','on');
     if strcmp(previousPlot_,'fit')
-        handles.axes2.Children.Visible = 'on';
+       set(handles.axes2.Children,'visible','on');
     end
     set(enabledObjs, 'Enable', 'on');
     currentFig = get(0,'CurrentFigure');

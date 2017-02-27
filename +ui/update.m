@@ -143,9 +143,9 @@ set(handles.panel_rightside,'visible','on');
 set(handles.uipanel3, 'visible', 'on');
 handles.menu_plot.Enable = 'on';
 handles.menu_command.Enable = 'on';
-handles.gui.KAlpha1 = handles.profiles.KAlpha1(1); %specify 1 for multile XRDML
 if handles.profiles.CuKa
-    handles.gui.KAlpha2 = handles.profiles.KAlpha2(1);
+handles.gui.KAlpha1 = handles.profiles.KAlpha1(1); %specify 1 for multile XRDML
+handles.gui.KAlpha2 = handles.profiles.KAlpha2(1);
 end
 handles.gui.Legend = 'on';
 handles.gui.Legend = 'reset';
