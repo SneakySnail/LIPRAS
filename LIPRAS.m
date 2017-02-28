@@ -36,7 +36,6 @@ guidata(hObject, handles);
 
 handles.gui = GUIController.getInstance(hObject);
 handles = GUIController.initGUI(handles);
-handles.validator = utils.Validator(handles);
 
 assignin('base','handles',handles);
 % Update handles structure
@@ -54,9 +53,7 @@ function LIPRAS_DeleteFcn(hObject, eventdata, handles)
 %   closing the figure. Cleans up the workspace.
 try
     delete(handles.gui);
-    delete(handles.profiles);
-    delete(handles.validator);
-    
+    delete(handles.profiles);    
     % Restore previous search path
     path(getappdata(handles.figure1, 'oldpath'));
 catch
@@ -135,11 +132,11 @@ if length(points) == 1 && isnan(points)
     utils.plotutils.plotX(handles, 'background');
     return
 end
-validPoints = handles.validator.backgroundPoints(points);
-handles.profiles.xrd.setBackgroundPoints(validPoints);
+handles.profiles.BackgroundPoints = points;
+
 ui.update(handles, 'backgroundpoints');
 utils.plotutils.plotX(handles, 'background');
-if length(validPoints) <= handles.gui.PolyOrder
+if length(points) <= handles.gui.PolyOrder
     LiprasDialog.PolyNotUniqueWarning;
 end
 
@@ -193,11 +190,9 @@ end
 
 function edit_min2t_Callback(~, ~, handles)
 %EDIT_MIN2T_CALLBACK executes when the minimum 2theta value is changed in the GUI. 
-newValue = handles.validator.min2T(handles.gui.Min2T);
-handles.profiles.xrd.Min2T = newValue;
-handles.gui.Min2T = newValue;
-handles.profiles.xrd.setBackgroundPoints(handles.validator.backgroundPoints);
-if length(handles.validator.backgroundPoints) <= handles.gui.PolyOrder
+handles.profiles.Min2T = handles.gui.Min2T;
+handles.gui.Min2T = handles.profiles.Min2T;
+if length(handles.profiles.BackgroundPoints) <= handles.gui.PolyOrder
     cla(handles.axes1);
     utils.plotutils.plotX(handles, 'data');
 else
@@ -206,11 +201,9 @@ end
 ui.update(handles, 'backgroundpoints');
 
 function edit_max2t_Callback(~, ~, handles)
-newValue = handles.validator.max2T(handles.gui.Max2T);
-handles.profiles.xrd.Max2T = newValue;
-handles.gui.Max2T = newValue;
-handles.profiles.xrd.setBackgroundPoints(handles.validator.backgroundPoints);
-if length(handles.validator.backgroundPoints) <= handles.gui.PolyOrder
+handles.profiles.Max2T = handles.gui.Max2T;
+handles.gui.Max2T = handles.profiles.Max2T;
+if length(handles.profiles.BackgroundPoints) <= handles.gui.PolyOrder
     cla(handles.axes1);
     utils.plotutils.plotX(handles, 'data');
 else
@@ -271,34 +264,31 @@ function push_update_Callback(hObject, ~, handles)
 % This function sets the table_fitinitial in the GUI to have the coefficients for the new
 % user-inputted function names.
 % It also saves handles.guidata into handles.xrd
-if handles.gui.isFitDirty
-    % Make sure all peak positions are valid
-    if isempty(find(handles.profiles.xrd.PeakPositions == 0,1))
-        % Generate new values for the start, lower, and upper bounds
-        handles.profiles.xrd.FitInitial = handles.validator.fitBounds;
-    end
-end
+handles.profiles.FcnNames = handles.gui.FcnNames;
+handles.profiles.FitInitial = 'default';
 cla(handles.axes1);
 ui.update(handles, 'fitinitial');
 utils.plotutils.plotX(handles,'sample');
 handles.gui.Legend = 'reset';
+
+handles.gui.PriorityStatus = 'Fit options were updated.';
 
 
 % Executes on button press of 'Select Peak(s)'.
 function push_selectpeak_Callback(hObject, ~, handles)
 import utils.contains
 import utils.plotutils.*
-
-peakcoeffs = find(contains(handles.profiles.xrd.getCoeffs, 'x'));
-points = utils.plotutils.selectPeakPoints(handles, length(peakcoeffs));
-if length(points) == length(peakcoeffs)
-    handles.profiles.xrd.PeakPositions = points;
-    % Generate new default bounds because of new peak positions
-    handles.profiles.xrd.generateDefaultFitBounds;
+positions = utils.plotutils.selectPeakPoints(handles);
+if length(positions) < handles.profiles.NumPeaks
+    plotX(handles, 'sample');
+else
+    handles.profiles.PeakPositions = positions;
+    handles.profiles.FitInitial = 'new';
+    handles.gui.PriorityStatus = 'New peak positions are set.';
     ui.update(handles, 'peakposition');
     ui.update(handles, 'fitinitial');
+    plotX(handles, 'sample');
 end
-plotX(handles, 'sample');
 
 % Executes when the handles.edit_numpeaks spinner value is changed.
 function edit_numpeaks_Callback(src, eventdata, handles)
@@ -307,22 +297,7 @@ function edit_numpeaks_Callback(src, eventdata, handles)
 % 
 %   EVENTDATA can be used to pass test values to this function by creating a structure with a
 %   field 'test' containing the value(s) to use.
-if isfield(eventdata, 'test')
-    value = eventdata.test;
-    src.setValue(value);
-else
-    value = round(src.getValue);
-end
-oldfcns = handles.profiles.xrd.getFunctions;
-newfcns = cell(1, value);
-for i=1:value
-    if i <= length(oldfcns) && ~isempty(oldfcns{i})
-        newfcns{i} = oldfcns{i}.Name;
-    else
-        break
-    end
-end
-handles.profiles.xrd.setFunctions(newfcns);
+handles.profiles.NumPeaks = src.getValue;
 ui.update(handles, 'NumPeaks');
 ui.update(handles, 'functions');
 ui.update(handles, 'constraints');
@@ -332,12 +307,9 @@ function table_paramselection_CellEditCallback(hObject, evt, handles)
 %   containing the value to set. It also has the field 'Indices'.
 row = evt.Indices(1);
 col = evt.Indices(2);
-if isfield(evt, 'test')
-    handles.gui.FcnNames{row} = evt.test;
-end
 if col == 1
     % Function change
-    handles.profiles.xrd.setFunctions(handles.gui.FcnNames{row}, row);
+    handles.profiles.FcnNames{row} = handles.gui.FcnNames{row};
     ui.update(handles, 'functions');
     handles.profiles.xrd.constrain(handles.gui.Constraints);
     ui.update(handles, 'constraints');
@@ -349,32 +321,22 @@ else
 end
 
 % Executes when entered data in editable cell(s) in table_coeffvals.
-function table_fitinitial_CellEditCallback(hObject, eventdata, handles)
+function table_fitinitial_CellEditCallback(hObject, evt, handles)
 % eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
 %	Indices: row and column indices of the cell(s) edited
 %	PreviousData: previous data for the cell(s) edited
 %	EditData: string(s) entered by the user
 %	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
 %	Error: error string when failed to convert EditData to appropriate value for Data
-% 
-% Assumes handles.gui.Coefficients == handles.profiles.xrd.getCoeffs
-row = eventdata.Indices(1);
-column = eventdata.Indices(2);
-newValue = eventdata.NewData;
-fitinitial = handles.profiles.xrd.FitInitial;
-coeffs = handles.profiles.xrd.getCoeffs;
-switch column
-    case 1
-        fitinitial.start(row) = handles.validator.startPoint(coeffs{row}, newValue);
-    case 2
-        fitinitial.lower(row) = handles.validator.lowerBound(coeffs{row}, newValue);
-    case 3
-        fitinitial.upper(row) = handles.validator.upperBound(coeffs{row}, newValue);
+if isnan(evt.NewData)
+    handles.gui.PriorityStatus = '<html><font color="red">Not a valid number.';
+	hObject.Data{evt.Indices(1), evt.Indices(2)} = evt.PreviousData;
+else
+    handles.profiles.FitInitial = handles.gui.FitInitial;
+    handles.gui.FitInitial = handles.profiles.FitInitial;
+    ui.update(handles, 'fitinitial');
+    utils.plotutils.plotX(handles, 'sample');
 end
-handles.profiles.xrd.FitInitial = fitinitial;
-handles.gui.FitInitial = fitinitial;
-ui.update(handles, 'fitinitial');
-utils.plotutils.plotX(handles, 'sample');
 
 assignin('base', 'handles', handles);
 guidata(hObject,handles)
@@ -386,6 +348,9 @@ try
     fitresults = handles.profiles.fitDataSet(prfn);
     if ~isempty(fitresults)
         ui.update(handles, 'results');
+        utils.plotutils.plotX(handles,'fit');
+    else
+        utils.plotutils.plotX(handles,'sample');
     end
 catch ME
     ME.getReport
@@ -393,7 +358,6 @@ catch ME
     errordlg(ME.message)
     return
 end
-utils.plotutils.plotX(handles,'fit');
 
 function push_fitstats_Callback(~, ~, handles)
 handles.gui.onPlotFitChange('stats');
@@ -438,6 +402,7 @@ cla(handles.axes1)
 % If box is checked, turn on hold in axes1
 if get(hObject,'Value')
     hold(handles.axes1, 'on')
+    handles.axes1.ColorOrderIndex = 1;
     utils.plotutils.plotX(handles, 'superimpose');
 else
     utils.plotutils.plotX(handles);

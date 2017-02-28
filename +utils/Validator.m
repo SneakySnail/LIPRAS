@@ -1,46 +1,40 @@
 classdef Validator < handle
-%VALIDATOR ensures that the inputted data in the GUI will always return a valid output. It controls 
-%   the data flow between the View (handles.gui) and the Model (handles.profiles). It does NOT 
+%VALIDATOR ensures that the inputted data in the Model will always return a valid output. It does NOT 
 %   update the View or the Model and only returns the values that should be saved.
    properties
-      gui      % View
-      profiles % Model
+       profiles 
+       
+       xrd
    end
     
-    properties (Hidden, Dependent)
-       hg
-    end
-   
+
     properties (Hidden)
-        hg_
+        Message
+        
     end
    
    methods
-       function this = Validator(handles)
-       this.hg_ = handles;
-       this.gui = handles.gui;
-       this.profiles = handles.profiles;
+       function this = Validator(profiles, xrd)
+       this.profiles = profiles;
+       this.xrd = xrd;
        end
        
        function validMin = min2T(this, newMin)
        % If NEWMIN is specified, it checks whether or not it is a valid minimum 2theta. If it is a
        % valid value, it returns the same value. If not, it returns the previous value.
-       if nargin < 2
-           newMin = this.gui.Min2T;
-       end
        msgPrefix = '<html><font color="red">';
        oldMin = this.profiles.xrd.Min2T;
        if isnan(newMin)
            newMin = oldMin;
-           this.hg.statusbarObj.setText([msgPrefix 'Not a valid number.']);
+           this.profiles.Status = [msgPrefix 'Not a valid number.'];
        end
        boundswarnmsg = [msgPrefix 'The inputted value is not within bounds.'];
        if newMin < this.profiles.xrd.AbsoluteRange(1)
            newMin = this.profiles.xrd.AbsoluteRange(1);
-           this.hg.statusbarObj.setText(boundswarnmsg);
+           this.profiles.Status = boundswarnmsg;
        elseif newMin >= this.profiles.xrd.Max2T
            newMin = oldMin;
-           this.hg.statusbarObj.setText(boundswarnmsg);
+           this.profiles.Status = boundswarnmsg;
        end
        validMin = newMin;
        end
@@ -54,15 +48,15 @@ classdef Validator < handle
        oldMax = this.profiles.xrd.Max2T;
        if isnan(newMax)
            newMax = oldMax;
-           this.hg.statusbarObj.setText([msgPrefix 'Not a valid number.']);
+           this.profiles.Status = [msgPrefix 'Not a valid number.'];
        end
        boundswarnmsg = [msgPrefix 'The inputted value is not within bounds.'];
        if newMax <= this.profiles.xrd.Min2T
            newMax = oldMax;
-           this.hg.statusbarObj.setText(boundswarnmsg);
+           this.profiles.Status = boundswarnmsg;
        elseif newMax > this.profiles.xrd.AbsoluteRange(2)
            newMax = this.profiles.xrd.AbsoluteRange(2);
-           this.hg.statusbarObj.setText(boundswarnmsg);
+           this.profiles.Status = boundswarnmsg;
        end
        validMax = newMax;
        end
@@ -83,41 +77,91 @@ classdef Validator < handle
        bkgdpoints = points(bkgdIdx);
        end
        
-       function fitinitial = fitBounds(this)
-       %FITBOUNDS returns valid fit initial values
-       %    if there were previous values in the table with the same coefficient name as the new
-       %    coefficients, then it uses those values instead of the default ones. If the cell is
-       %    empty, it returns a value of -1 for that cell position. The GUIController
-       newCoeffs = this.profiles.xrd.getCoeffs;
-       oldCoeffs = this.gui.Coefficients;
-       defaultVals.start = this.profiles.xrd.getDefaultBounds('start');
-       defaultVals.lower = this.profiles.xrd.getDefaultBounds('lower');
-       defaultVals.upper = this.profiles.xrd.getDefaultBounds('upper');
-       oldVals = this.gui.FitInitial;
-       newVals = struct('coeffs', {newCoeffs}, ...
-           'start',-ones(1,length(newCoeffs)),...
-           'lower',-ones(1,length(newCoeffs)),...
-           'upper',-ones(1,length(newCoeffs)));
-       for i=1:length(newCoeffs)
-           oldCoeffIdx = find(utils.contains(oldCoeffs,newCoeffs{i}),1);
+       function numpeaks = numberOfPeaks(this, num)
+       numpeaks = round(num);
+       end
+       
+       function peakPositions = peakPositions(this, pos)
+       % Returns the peak positions within the two theta range.
+       peakPositions = [];
+       if nargin < 2
+           pos = this.profiles.xrd.PeakPositions;
+       end
+       if isempty(pos)
+           return
+       end
+       
+       twotheta = this.profiles.xrd.getTwoTheta;
+       posIdx = pos>min(twotheta) & pos<max(twotheta);
+       peakPositions = pos(posIdx);
+       end
+       
+       function fitinitial = defaultFitBoundsPreserved(this, newBounds)
+       %FITBOUNDS returns valid fit initial values, without replacing values for previously existing
+       %    coefficient values.
+       %    
+       if isempty(this.profiles.FitInitial)
+           oldCoeffs = '';
+       else
+           oldBounds = this.profiles.FitInitial;
+           oldCoeffs = oldBounds.coeffs;
+           xidx = find(utils.contains(oldBounds.coeffs, 'x'));
+           oldBounds.start(xidx) = -1;
+           oldBounds.lower(xidx) = -1;
+           oldBounds.upper(xidx) = -1;
+       end
+       numvals = length(newBounds.coeffs);
+       fitinitial = struct('coeffs', {newBounds.coeffs}, ...
+                           'start', zeros(1,numvals), ...
+                           'lower', zeros(1,numvals), ...
+                           'upper', zeros(1,numvals));
+                       
+       for i=1:length(newBounds.coeffs)
+           oldCoeffIdx = find(utils.contains(oldCoeffs, newBounds.coeffs{i}),1);
            if isempty(oldCoeffIdx)
-               newVals.start(i) = defaultVals.start(i);
-               newVals.lower(i) = defaultVals.lower(i);
-               newVals.upper(i) = defaultVals.upper(i);
+               fitinitial.start(i) = newBounds.start(i);
+               fitinitial.lower(i) = newBounds.lower(i);
+               fitinitial.upper(i) = newBounds.upper(i);
            else
-               newVals.start(i) = oldVals.start(oldCoeffIdx);
-               newVals.lower(i) = oldVals.lower(oldCoeffIdx);
-               newVals.upper(i) = oldVals.upper(oldCoeffIdx);
+               % Overwrite all negative values
+               if oldBounds.start(oldCoeffIdx) < 0
+                   fitinitial.start(i) = newBounds.start(i);
+               else
+                   fitinitial.start(i) = oldBounds.start(oldCoeffIdx);
+               end
+               if oldBounds.lower(oldCoeffIdx) < 0
+                   fitinitial.lower(i) = newBounds.lower(i);
+               else
+                   fitinitial.lower(i) = oldBounds.lower(oldCoeffIdx);
+               end
+               if oldBounds.upper(oldCoeffIdx) < 0
+                   fitinitial.upper(i) = newBounds.upper(i);
+               else
+                   fitinitial.upper(i) = oldBounds.upper(oldCoeffIdx);
+               end
+           end
+           % Make sure lower and upper peak position are within range
+           if find(utils.contains(newBounds.coeffs{i}, 'x'),1)
+               fitinitial.lower(i) = max(fitinitial.lower(i), this.xrd.Min2T);
+               fitinitial.upper(i) = min(fitinitial.upper(i), this.xrd.Max2T);
            end
        end
-       fitinitial = newVals;
+       end
+       
+       function fitinitial = verifiedFitBounds(this, newBounds)
+       fitinitial = newBounds;
+       for i=1:length(newBounds.coeffs)
+           fitinitial.start(i) = this.startPoint(newBounds.coeffs{i}, newBounds.start(i));
+           fitinitial.lower(i) = this.lowerBound(newBounds.coeffs{i}, newBounds.lower(i));
+           fitinitial.upper(i) = this.upperBound(newBounds.coeffs{i}, newBounds.upper(i));
+       end
        end
        
        function coeffValue = startPoint(this, coeffName, input)
        % Ensures that the value specified by INPUT is within the fit bounds for the coefficient
        %    specified by COEFFNAME. It checks the values using the Model (i.e.
        %    handles.profiles.xrd) rather than the View (handles.gui).
-       statPref = '<html><font color="red">';
+       statPref = ['<html><font color="red">' coeffName '=' num2str(input) ' is not valid. '];
        coeffs = this.profiles.xrd.getCoeffs;
        fitInitial = this.profiles.xrd.FitInitial;
        row = find(strcmp(coeffs, coeffName),1);
@@ -126,44 +170,45 @@ classdef Validator < handle
        upperBound = fitInitial.upper(row);
        if isnan(input)
            coeffValue = previousValue;
-           this.profiles.Status = [statPref 'Not a valid number'];
+           this.profiles.Status = statPref;
        elseif input == -1
            coeffValue = input;
-           this.profiles.Status = [statPref 'Value for ' coeffName ' was set to empty.'];
        elseif input < lowerBound
            coeffValue = lowerBound;
-           this.profiles.Status = [statPref 'Value must be >= the lower bound.'];
+           this.profiles.Status = [statPref 'Must be greater than or equal to the lower bound.'];
        elseif input > upperBound
            coeffValue = upperBound;
-           this.profiles.Status = [statPref 'Value must be <= the lower bound.'];
+           this.profiles.Status = [statPref 'Must be less than or equal to the upper bound.'];
        else
            coeffValue = input;
        end
        end
        
        function coeffValue = lowerBound(this, coeffName, input)
-       statPref = '<html><font color="red">';
+       % Checks that the value specified by INPUT for the coefficient specified by COEFFNAME is
+       %    not larger than the start point or upper bound.
+       statPref = ['<html><font color="red">' coeffName '=' num2str(input) ' is not valid. '];
        coeffs = this.profiles.xrd.getCoeffs;
        fitInitial = this.profiles.xrd.FitInitial;
        row = find(strcmp(coeffs, coeffName),1);
        startPoint = fitInitial.start(row);
        previousValue = fitInitial.lower(row);
+       
        if isnan(input) 
            coeffValue = previousValue;
-           this.profiles.Status = [statPref 'Not a valid number'];
+           this.profiles.Status = statPref;
        elseif input == -1
            coeffValue = input;
-           this.profiles.Status = [statPref 'Value for ' coeffName ' was set to empty.'];
        elseif input > startPoint
            coeffValue = startPoint;
-           this.profiles.Status = [statPref 'Value must be <= the coefficient starting point.'];
+           this.profiles.Status = [statPref 'Must be less than or equal to the coefficient starting point.'];
        else
            coeffValue = input;
        end
        end
        
        function coeffValue = upperBound(this, coeffName, input)
-       statPref = '<html><font color="red">';
+       statPref = ['<html><font color="red">' coeffName '=' num2str(input) ' is not valid. '];
        coeffs = this.profiles.xrd.getCoeffs;
        fitInitial = this.profiles.xrd.FitInitial;
        row = find(strcmp(coeffs, coeffName),1);
@@ -171,21 +216,16 @@ classdef Validator < handle
        previousValue = fitInitial.upper(row);
        if isnan(input)
            coeffValue = previousValue;
-           this.profiles.Status = [statPref 'Not a valid number'];
+           this.profiles.Status = statPref;
        elseif input == -1
            coeffValue = input;
-           this.profiles.Status = [statPref 'Value for ' coeffName ' was set to empty.'];
        elseif input < startPoint
            coeffValue = startPoint;
-           this.profiles.Status = [statPref 'Value must be >= the coefficient starting point.'];
+           this.profiles.Status = [statPref 'Must be greater than or equal to the coefficient starting point.'];
        else
            coeffValue = input;
        end
        end
        
-       function handles = get.hg(this)
-       % Returns an updated handles structure
-       handles = guidata(this.hg_.figure1);
-       end
    end
 end
