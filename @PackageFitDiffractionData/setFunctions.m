@@ -52,17 +52,17 @@ else
     oldfcns = Stro.FitFunctions;
     for i=1:length(fcnName)
         if i > length(oldfcns)
-            break
-        elseif isempty(oldfcns{i})
-            newfcns{i} = Stro.setFunctions(fcnName{i}, i);
-            
-        elseif isequal(oldfcns{i}.Name, fcnName{i})
+            break  
+        elseif ~isempty(oldfcns{i}) && isequal(oldfcns{i}.Name,fcnName{i})
             newfcns{i} = Stro.FitFunctions{i};
+        else
+            newfcns{i} = Stro.setFunctions(fcnName{i}, i);
         end
     end
     Stro.FitFunctions = newfcns;
     funcObj = newfcns;
 end
+
 if Stro.CuKa
     Stro.CuKa2Peak = cell(1,Stro.NumFuncs);
     for i=1:Stro.NumFuncs

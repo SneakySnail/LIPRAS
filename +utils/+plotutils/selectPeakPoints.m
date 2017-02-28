@@ -1,5 +1,7 @@
-function points = selectPeakPoints(handles, numpeaks)
+function points = selectPeakPoints(handles)
+% returns a NaN if the user presses Esc while selecting points
 ESC_KEY = 27;
+numpeaks = handles.profiles.NumPeaks;
 points = zeros(1, numpeaks);
 lines = handles.axes1.Children;
 if ~isempty(lines)

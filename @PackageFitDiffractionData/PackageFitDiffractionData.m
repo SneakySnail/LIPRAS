@@ -12,7 +12,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         
     end
     
-    properties (Access = protected)
+    properties 
         DataSet % cell array of DiffractionData objects
         
         Background % Background instance; the same fit for all datasets
@@ -20,15 +20,14 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         FitFunctions % cell array of objects subclassing FitFunctionInterface
         
         FitOutput
-        
-        FitWeight
-        
+                
         Results % An instance of FitResults
-        
-        DisplayName = '';
                 
         PeakPositions_
-        
+    end
+    
+    properties (Hidden)
+%         Validator
     end
     
     properties (Dependent)
@@ -98,11 +97,11 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             Stro.AbsoluteRange = [x(1) x(end)];
             Stro.Background = model.Background(Stro);
         end
-        
         if nargin > 2
             Stro.DataPath = path;
             Stro.OutputPath = [path Stro.OutputPath];
         end
+        
         end
         
         % ==================================================================== %
@@ -150,14 +149,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         
         function datapath = get.DataPath(Stro)
         datapath = Stro.DataSet{1}.DataPath;
-        end
-        
-        function result = hasCuKa(Stro)
-        if Stro.CuKa
-            result = true;
-        else
-            result = false;
-        end
         end
         
         function result = getFileNames(Stro, file)
@@ -565,7 +556,9 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         SP = Stro.FitInitial.start;
         LB = Stro.FitInitial.lower;
         UB = Stro.FitInitial.upper;
-        weight = Stro.FitWeight;
+        intensity = Stro.getData;
+        intensity(intensity==0) = 1;
+        weight = 1./intensity;
         s = fitoptions('Method', 'NonlinearLeastSquares', ...
             'StartPoint', SP, ...
             'Lower', LB, ...
@@ -612,7 +605,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         for i=1:length(Stro.DataSet)
             Stro.DataSet{i}.Min2T = value;
         end
-        Stro.FitWeight = 1./abs(Stro.getTwoTheta);
         end
         
         function value = get.Max2T(Stro)
@@ -625,7 +617,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         for i=1:length(Stro.DataSet)
             Stro.DataSet{i}.Max2T = value;
         end
-        Stro.FitWeight = 1./abs(Stro.getTwoTheta);
         end
         
         
