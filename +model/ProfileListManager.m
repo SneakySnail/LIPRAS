@@ -40,7 +40,7 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        
        CuKa
        
-       KAlpha1
+       KAlpha1=1.54000;
        
        KAlpha2 = 1.544426; 
    end
@@ -172,6 +172,15 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
    methods
        function isNew = newXRD(this, path, filename)
        isNew = false;
+        try
+    PrefFile=fopen('Preference File.txt','r');
+    this.DataPath=fscanf(PrefFile,'%c');
+    this.DataPath(end)=[]; % method above adds a white space at the last character that messes with import
+    fclose(PrefFile);
+        catch
+        end
+       
+       
        if nargin < 2
            [data, filename, path] = utils.fileutils.newDataSet(this.DataPath);
            if isempty(data)
@@ -190,6 +199,7 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        this.FullTwoThetaRange = xrdItem.getTwoTheta;
        this.DataPath = xrdItem.DataPath;
        xrdItem.OutputPath = [xrdItem.DataPath 'FitOutputs' filesep];
+       xrdItem.MonoWavelength=data.Wavelength;
        this.OutputPath = xrdItem.OutputPath;
        this.Writer = ui.FileWriter(this);
        this.xrdContainer = this.initialXRD_;
@@ -291,7 +301,10 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
            this.CurrentProfileNumber_ = 0;
            this.Writer = [];
        else
-           this.xrdContainer = copy(this.initialXRD_);
+%            this.xrdContainer = copy(this.initialXRD_);
+this.FitResults=[];
+this.xrd.FitInitial=[];
+this.xrd.PeakPositions(1:end)=0;
            this.Writer = ui.FileWriter(this);
        end
        end
@@ -453,7 +466,7 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        end
        
        function xdata = dspace(this, twotheta)
-        xdata = this.KAlpha1 ./ (2*sind(twotheta/2));
+        xdata = this.KAlpha1 ./ (2*sind(twotheta./2));
        end
        
        function xdata = twotheta(this, dspace)

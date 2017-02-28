@@ -15,13 +15,13 @@ classdef FileWriter < handle
    
    
    methods 
-       function this = FileWriter(profiles)
-       this.Profiles = profiles;
-       this.OutputPath = profiles.OutputPath;
-       if exist(this.OutputPath, 'dir') ~= 7
-           mkdir(this.OutputPath);
+       function this1 = FileWriter(profiles)
+       this1.Profiles = profiles;
+       this1.OutputPath = profiles.OutputPath;
+       if exist(this1.OutputPath, 'dir') ~= 7
+           mkdir(this1.OutputPath);
        end
-       fitoutpath = [this.OutputPath 'FitData' filesep];
+       fitoutpath = [this1.OutputPath 'FitData' filesep];
        if exist(fitoutpath, 'dir') ~= 7
            mkdir(fitoutpath);
        end

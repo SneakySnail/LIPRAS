@@ -10,7 +10,9 @@ catch
     data_path=cd;
 end
 
-allowedFiles = {'*.csv; *.txt; *.xy; *.fxye; *.dat; *.xrdml; *.chi; *.spr'};
+% allowedFiles = {'*.csv; *.txt; *.xy; *.fxye; *.dat; *.xrdml; *.chi; *.spr'}; % underdevelopment
+allowedFiles = {'*.csv; *.xy; *.fxye;*.xrdml; *.chi'};
+
 title = 'Select Diffraction Pattern to Fit';
 if nargin < 1    
     filterspec = allowedFiles;
@@ -40,7 +42,7 @@ end
 % preallocate the structure array 
 [~,~,ext] = fileparts(filename{1});
 data = struct('two_theta',[],'data_fit',[],'KAlpha1',[],'KAlpha2',[],...
-    'kBeta',[],'RKa1Ka2',[],'Temperature',[],'ext',ext);
+    'kBeta',[],'RKa1Ka2',[],'Temperature',[],'Wavelength',[],'ext',ext);
 
 % iterate through all files
 for i=1:length(filename)
@@ -50,11 +52,14 @@ for i=1:length(filename)
     if strcmp(ext, '.csv')
         datatemp = readSpreadsheet(fullFileName);
     elseif strcmp(ext, '.txt')
-        datatemp = readWithHeader(i,fullFileName);
+
+        datatemp = readTXT(i,fullFileName);
     elseif strcmp(ext, '.xy')
         datatemp = readFile(fid, ext);
     elseif strcmp(ext, '.fxye')
-        datatemp = readWithHeader(i,fullFileName);
+        datatemp = readFXYE(i,fullFileName);
+        data.Temperature=datatemp.temperature;
+        data.Wavelength=datatemp.wave;
     elseif strcmp(ext, '.chi')
         datatemp = readFile(fid, ext);
     elseif strcmp(ext, '.dat')
@@ -64,8 +69,24 @@ for i=1:length(filename)
     end
     
     if strcmpi(ext, '.xrdml')
-        data(i) = datatemp;
-        data(i).ext = ext;
+        if size(datatemp.two_theta,1)~=1 % this means xrdml contains multiple scans
+        data.two_theta = datatemp.two_theta;
+        data.data_fit=datatemp.data_fit;
+        data.temperature(i,:)=25; % needs work, 2-26-2017
+        data.KAlpha1(i,:)=datatemp.KAlpha1;
+        data.KAlpha2(i,:)=datatemp.KAlpha2;
+        data.RKa1Ka2(i,:)=datatemp.RKa1Ka2;
+        data.ext = ext;
+            
+        else % for XRDML that are single scans
+        data.two_theta(i,:) = datatemp.two_theta;
+        data.data_fit(i,:)=datatemp.data_fit;
+        data.temperature(i,:)=datatemp.Temperature;
+        data.KAlpha1(i,:)=datatemp.KAlpha1;
+        data.KAlpha2(i,:)=datatemp.KAlpha2;
+        data.RKa1Ka2(i,:)=datatemp.RKa1Ka2;
+        data.ext = ext;
+        end
     else
         data.two_theta(i,:) = datatemp.two_theta;
         data.data_fit(i,:) = datatemp.data_fit;
@@ -121,7 +142,115 @@ data.data_fit = temp(2,:);
 end
 % ==============================================================================
 
-function readWithHeader(Stro,fileIndex,inFile)
+function data=readFXYE(fileIndex,inFile)
+fid = fopen(inFile,'r');
+index = 0;
+done = 0;
+
+while done == 0
+    line = fgetl(fid);
+    a = strsplit(line, ' ');
+    try
+        if strcmp(a(2),'Temp')
+            temp = sprintf('%s*', cell2mat(a(5)));
+            Temperature(fileIndex) = sscanf(temp, '%f*');
+        
+        elseif strcmp(a(3),'wavelength')
+            wave = sprintf('%s*', cell2mat(a(5)));
+            Wavelength(fileIndex) = sscanf(wave, '%f*');
+        end
+        if strcmp(a(1), '')
+            S = sprintf('%s*', cell2mat(a(2)));
+        else
+            S = sprintf('%s*', cell2mat(a(1)));
+        end
+        N = sscanf(S, '%f*');
+        if isempty(N)
+            
+        elseif isa(N, 'double')
+            done = 1;
+        end
+    catch
+        
+    end
+    
+    index = index + 1;
+end
+
+dline=str2num(line);
+temp1=transpose(fscanf(fid,'%f',[3 inf]));%opens the file listed above and obtains data in all 5 columns
+temp1=[dline;temp1];
+data.two_theta = temp1(:,1)./100; % divides by 100 since units in fxye are in centi-degrees
+data.data_fit = temp1(:,2);
+data.temperature=Temperature;
+data.wave=Wavelength;
+
+
+fclose(fid);
+
+end
+
+function data=readTXT(fileIndex,inFile)
+% Not finished 2-26-2017
+fid = fopen(inFile,'r');
+index = 0;
+done = 0;
+n=1;
+
+if fileIndex==1;
+dat=textscan(fid,'%s');
+fclose(fid);
+
+
+for j=1:size(dat{1},1)
+    data=str2double(cell2mat(dat{:}(j)));
+test(j)=isnan(data);
+
+
+end
+
+
+for i=1:length(test)
+    s= sum(test(i:i+5),1);
+    if s==0
+        p=i;
+        break
+    end
+end
+
+
+temp1=data(1,p:end);
+
+
+else 
+    
+    for oo=1:p
+        v=fgetl(fid);
+    end
+    
+    temp1=transpose(fscanf(fid,'%f',[3 inf]));%opens the file listed above and obtains data in all 5 columns
+    fclose(fid);
+    
+    
+end
+
+
+
+
+
+
+data.two_theta = temp1(:,1)./100; % divides by 100 since units in fxye are in centi-degrees
+data.data_fit = temp1(:,2);
+data.temperature=Temperature;
+data.wave=Wavelength;
+
+
+fclose(fid)
+
+end
+
+
+function readWithHeader(fileIndex,inFile)
 keyboard
 %TODO: NOT IMPLEMENTED
 
@@ -153,9 +282,9 @@ while done == 0
     
     index = index + 1;
 end
-Stro.skiplines = index;
+skiplines = index;
 fid = fopen(inFile,'r');
-Stro.readFile(fileIndex,fid)
+readFile(fileIndex,fid)
 end
 % ==============================================================================
 

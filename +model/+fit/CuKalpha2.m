@@ -24,20 +24,23 @@ classdef CuKalpha2
             Nx = {Nx};
         end
         for i=1:length(Nx)
-           Ncoeff = ['((1/1.9)*' Nx{i} ')'];
+           Ncoeff = ['((1/2)*' Nx{i} ')']; %only instance to change ratio of Kalpha1/Kalpha2
            str = strrep(str, Nx{i}, Ncoeff);
         end
         xx = this.Function.coeff('x');
-        xKa2 = ['model.fit.CuKalpha2.Ka2fromKa1(' xx ',' num2str(this.KAlpha1) ',' ...
-            num2str(this.KAlpha2) ')'];
+        xKa2 = ['model.fit.CuKalpha2.Ka2fromKa1(' xx ',' num2str(this.KAlpha1(1)) ',' ...
+            num2str(this.KAlpha2(1)) ')'];
         str = strrep(str, xx, xKa2);
         end
         
         function output = calculateFit(this, xdata, coeffvals)
         xidx = find(utils.contains(this.Function.getCoeffs, 'x'),1);
         Nidx = find(utils.contains(this.Function.getCoeffs, 'N'));
-        coeffvals(xidx) = this.Ka2fromKa1(coeffvals(xidx),this.KAlpha1,this.KAlpha2);
-        coeffvals(Nidx) = 1/1.9*coeffvals(Nidx);
+        if this.KAlpha1(1)==this.KAlpha2(1)
+            errordlg('KAlpha1= KAlpha2 enter new values in box to update','Error in Computing Initial Guess');
+        end
+        coeffvals(xidx) = this.Ka2fromKa1(coeffvals(xidx),this.KAlpha1(1),this.KAlpha2(1));
+        coeffvals(Nidx) = 1/2*coeffvals(Nidx);
         output = this.Function.calculateFit(xdata, coeffvals);
         end
     end

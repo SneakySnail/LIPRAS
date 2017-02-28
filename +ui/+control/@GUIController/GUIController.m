@@ -141,21 +141,20 @@ classdef GUIController < handle
         end
         if this.Profiles.hasFit
             fitted = this.Profiles.getProfileResult{1};
-            if ~isequal(fitted.FunctionNames, this.FcnNames) || ...
+             if ~isequal(fitted.FunctionNames, this.FcnNames) || ...
                     ~isequal(fitted.CoeffNames, this.Coefficients) || ...
                     ~isequal(fitted.FitInitial, this.FitInitial)
                 result = true;
-            end
-            
-        elseif isequal(this.FcnNames, xrd.getFunctionNames) && ...
+            elseif isequal(this.FcnNames, xrd.getFunctionNames) && ... % this elseif is to yield a result=false after completing a fit
                 isequal(this.Coefficients, xrd.getCoeffs) && ...
                 isequal(this.FitInitial, xrd.FitInitial)
             result = false;
-            
-        elseif isequal(this.FcnNames, xrd.getFunctionNames) || ... % this else if is to yield result=true when a constaint has been checked
+                
+            elseif isequal(this.FcnNames, xrd.getFunctionNames) || ... % this else if is to yield result=true when a constaint has been checked
                 isequal(this.Coefficients, xrd.getCoeffs) || ...
                 isequal(this.FitInitial, xrd.FitInitial)
             result = true;
+            end
         else
             result = true;
         end
@@ -734,7 +733,7 @@ classdef GUIController < handle
                 'ColumnWidth', {this.FUNCTION_COLUMN_WIDTH});
             return
         elseif ~iscell(value) || length(value) ~= this.NumPeaks
-            dbstack, keyboard
+            return
         end
         coeffstr = this.ConstraintsInPanel;
         this.resetTableColumnsOfConstraints_(coeffstr);
@@ -742,7 +741,6 @@ classdef GUIController < handle
         data = table.Data(:, 2:end);
         for i=1:length(value)
             if ~isempty(this.FcnNames{i}) 
-                idxChecked = [];
                 if ~isempty(value{i})
                     constraints = cellstr(value{i}')';
                     idxChecked = contains(cols, constraints);

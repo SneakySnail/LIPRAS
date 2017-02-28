@@ -125,11 +125,11 @@ function push_newbkgd_Callback(hObject, eventdata, handles)
 import utils.plotutils.*
 plotX(handles,'data');
 handles.checkbox_superimpose.Value = 0;
-handles.gui.PriorityStatus = 'Selecting background points... Press the ESC key to cancel.';
+handles.gui.PriorityStatus = 'Selecting background points... Press the ESC key to cancel, "Z" to toogle zoom capability, and "Enter" to finish.';
 mode = get(handles.group_bkgd_edit_mode.SelectedObject, 'String');
 points = selectBackgroundPoints(handles, mode);
 if length(points) == 1 && isnan(points)
-    utils.plotutils.plotX(handles, 'background');
+    utils.plotutils.plotX(handles, 'backgroundfit');
     return
 end
 handles.profiles.BackgroundPoints = points;
@@ -142,12 +142,24 @@ end
 
 function menu_xplotscale_Callback(o,e,handles)
 plotter = handles.gui.Plotter;
+
+if isa(handles.profiles.xrd.MonoWavelength,'numeric')
+wave=handles.profiles.xrd.MonoWavelength;
+end
+
 switch o.Tag
     case 'menu_xaxis_linear'
         plotter.XScale = 'linear';
     case 'menu_xaxis_dspace'
+        try
+        answer = inputdlg('Enter wavelength (in Angstroms):', 'Input Wavelength', ...
+            1, {num2str(wave(end))}, struct('Interpreter', 'tex'));
+        catch
         answer = inputdlg('Enter wavelength (in Angstroms):', 'Input Wavelength', ...
             1, {'1.5406'}, struct('Interpreter', 'tex'));
+        end
+        
+        
         if isempty(answer)
             return
         elseif ~isnan(str2double(answer{1}))
@@ -266,9 +278,11 @@ function push_update_Callback(hObject, ~, handles)
 % It also saves handles.guidata into handles.xrd
 handles.profiles.FcnNames = handles.gui.FcnNames;
 handles.profiles.FitInitial = 'default';
+
 cla(handles.axes1);
 ui.update(handles, 'fitinitial');
 utils.plotutils.plotX(handles,'sample');
+   
 handles.gui.Legend = 'reset';
 
 handles.gui.PriorityStatus = 'Fit options were updated.';

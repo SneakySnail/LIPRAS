@@ -4,8 +4,11 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
     
     properties 
         % structure with fields 'start', 'lower', and 'upper'
-        FitInitial
         
+        % This adds properties which can be accessed through xrdItems in
+        %ProfileListManager.m line ~93
+        FitInitial
+        MonoWavelength
         AbsoluteRange
         
         XData
@@ -42,8 +45,8 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
     
     properties (Dependent, Hidden)
         DataPath
-        KAlpha1
-        KAlpha2 = 1.544426; % nm
+        KAlpha1= 1.54000;
+        KAlpha2 = 1.544426; % Å
         Min2T
         Max2T
     end
@@ -65,7 +68,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
     properties(Hidden)
         suffix   = '';
         CuKa2Peak
-        KAlpha1_ = [];
+        KAlpha1_ = 1.540000;
         KAlpha2_ = 1.544426; % nm
         symdata = 0;
         binID = 1:1:24;
@@ -86,13 +89,21 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             end
             x = data(1).two_theta;
             Stro.DataSet = cell(1, size(x,1));
+            if size(x,1)~=size(filenames,2) % checks wether one xrdml with one scan or one xrdml with multiple scans, this condiction specific to XRDML
             for i=1:size(x,1)
                 if isequal(data(1).ext,'.xrdml')
                     fn = [filenames{1} ' (scan ' num2str(i) ')'];
                     Stro.DataSet{i} = model.XRDMLData(data, fn, i);
-                else
+                else % i dont think this is needed but will leave
                     Stro.DataSet{i} = model.DiffractionData(data, filenames{i}, i);
                 end
+            end
+            
+            else % for individual XRML with single scans
+                 for i=1:size(x,1)
+                      Stro.DataSet{i} = model.DiffractionData(data, filenames{i}, i);
+                 end
+                
             end
             Stro.AbsoluteRange = [x(1) x(end)];
             Stro.Background = model.Background(Stro);
@@ -564,20 +575,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             'Lower', LB, ...
             'Upper', UB, ...
             'Weight',weight);
-        end
-        
-        function values = generateDefaultFitBounds(Stro)
-        % Generates the default starting, lower, and upper bounds based on the peak
-        % positions and saves it into the property FitInitial.
-        
-        % Check if peak positions and fit functions are valid
-        if ~isempty(find(Stro.PeakPositions==0,1)) || ~isempty(find(cellfun(@isempty,Stro.FitFunctions),1))
-            return
-        end
-        Stro.FitInitial.start = Stro.getDefaultBounds('start');
-        Stro.FitInitial.lower = Stro.getDefaultBounds('lower');
-        Stro.FitInitial.upper = Stro.getDefaultBounds('upper');
-        values = Stro.FitInitial;
         end
         
         function position2 = Ka2fromKa1(Stro, position1)

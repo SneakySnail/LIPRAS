@@ -2,18 +2,21 @@ function output = getDefaultBounds(Stro, boundname, varargin)
 %GETDEFAULTBOUNDS returns the default values of the bounds specified by BOUNDNAME.
 %
 %   BOUNDNAME can be 'start', 'lower', or 'upper'
-output = [];
+coefflist = Stro.getCoeffs;
+result = struct('coeffs', {coefflist}, ...
+    'start', -ones(1, length(coefflist)), ...
+    'lower', -ones(1, length(coefflist)), ...
+    'upper', -ones(1, length(coefflist)));
+
 if isempty(Stro.FitFunctions) || ~isempty(find(cellfun(@isempty,Stro.FitFunctions),1))
+    output = [];
     return
 elseif isempty(Stro.PeakPositions) || ~isempty(find(Stro.PeakPositions==0,1))
+    output = result;
     return
 end
 
-coefflist = Stro.getCoeffs;
-result = struct('coeffs', {coefflist}, ...
-    'start', zeros(1, length(coefflist)), ...
-    'lower', zeros(1, length(coefflist)), ...
-    'upper', zeros(1, length(coefflist)));
+
 data = [Stro.getTwoTheta; Stro.getDataNoBackground()];
 msg = '';
 % Finds the first function to have a coefficient with the same name

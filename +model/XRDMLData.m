@@ -16,8 +16,8 @@ classdef XRDMLData < model.DiffractionData
         this.KAlpha2 = data.KAlpha2;
         this.kBeta = data.kBeta;
         this.RKa1Ka2 = data.RKa1Ka2;
-        this.Temperature = data.Temperature(scanIndex);
-        this.ScanID = scanIndex;
+%         this.Temperature = data.Temperature(scanIndex);
+%         this.ScanID = scanIndex;
         end
     end
     

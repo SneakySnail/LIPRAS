@@ -140,9 +140,9 @@ set(handles.panel_rightside,'visible','on');
 set(handles.uipanel3, 'visible', 'on');
 handles.menu_plot.Enable = 'on';
 handles.menu_command.Enable = 'on';
-handles.gui.KAlpha1 = handles.profiles.KAlpha1;
 if handles.profiles.CuKa
-    handles.gui.KAlpha2 = handles.profiles.KAlpha2;
+handles.gui.KAlpha1 = handles.profiles.KAlpha1(1); %specify 1 for multile XRDML
+handles.gui.KAlpha2 = handles.profiles.KAlpha2(1);
 end
 handles.gui.Legend = 'on';
 handles.gui.Legend = 'reset';
@@ -285,15 +285,16 @@ if handles.gui.isFitDirty
 else
     set(handles.panel_coeffs.Children, 'enable', 'on');
 end
-% Make sure all peak positions are valid before updating the table
-if isempty(find(handles.profiles.xrd.PeakPositions==0,1))
-    set(handles.push_update, 'enable', 'on');
-else
-    set(handles.push_update, 'enable', 'off');
-end
+% % Make sure all peak positions are valid before updating the table
+% if isempty(find(handles.profiles.xrd.PeakPositions==0,1))
+%     set(handles.push_update, 'enable', 'on');
+% else
+%     set(handles.push_update, 'enable', 'off');
+% end
 
 if handles.gui.areFuncsReady
     set(handles.push_selectpeak, 'enable', 'on');
+    set(handles.push_update, 'enable', 'on');
 else
     set(handles.push_selectpeak, 'enable', 'off');
     set(handles.push_update, 'enable', 'off');
