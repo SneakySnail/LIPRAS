@@ -23,13 +23,6 @@ if isfield(handles, 'gui') && handles.gui.isFitDirty
 else
     set(handles.panel_coeffs.Children, 'enable', 'on');
 end
-if isfield(handles, 'gui') && handles.gui.areFuncsReady
-    set(handles.push_selectpeak, 'enable', 'on');
-    set(handles.push_update, 'enable', 'on');
-else
-    set(handles.push_selectpeak, 'enable', 'off');
-    set(handles.push_update, 'enable', 'off');
-end
 
 switch lower(varargin{1})
     case 'reset'
@@ -49,11 +42,11 @@ switch lower(varargin{1})
     case 'numpeaks'
         newNumberOfPeaks(handles);
     case 'peakposition'
-        newPeakPositions(handles);
+        updateOptionsTabView(handles);
     case 'functions'
-        newFitFunctions(handles);
+        updateOptionsTabView(handles);
     case 'constraints'
-        constraints(handles);
+        updateOptionsTabView(handles);
     case 'fitinitial'
         updateFitBoundsTable(handles);
     case 'results'
@@ -85,7 +78,7 @@ set([handles.push_prevprofile, handles.push_nextprofile, handles.push_removeprof
 set(handles.tabpanel, 'TabEnables', {'on', 'off', 'off'}, 'Selection', 1);
 set(findobj(handles.figure1, 'style', 'checkbox'), 'Value', false);
 set(handles.popup_filename, 'enable', 'on');
-handles.gui.Legend = 'on';
+
 resetSetupTabView(handles);
 resetOptionsTabView(handles);
 resetResultsTabView(handles);
@@ -116,7 +109,11 @@ handles.btns3.SelectedObject = handles.radio_peakeqn;
 
 function newDataSet(handles)
 clear(['+utils' filesep '+plotutils' filesep 'plotX'])
-reset(handles);
+try
+    reset(handles);
+catch ME
+    ME.getReport
+end
 xrd = handles.profiles.xrd;
 handles.gui.XPlotScale = 'linear';
 handles.gui.YPlotScale = 'linear';
@@ -175,7 +172,7 @@ if handles.gui.NumPeaks > 2
 else
     handles.gui.ConstraintsInTable = [];
 end
-constraints(handles);
+updateConstraints(handles);
 newPeakPositions(handles);
 
 handles.gui.Coefficients = coeffs;
@@ -199,14 +196,13 @@ function newBackgroundPoints(handles)
 import utils.plotutils.*
 handles.container_numpeaks.Visible = 'on';
 xrd = handles.profiles.xrd;
-validator=handles.validator;
-if xrd.hasBackground && length(validator.backgroundPoints) > xrd.getBackgroundOrder
+if xrd.hasBackground && length(handles.profiles.BackgroundPoints) > xrd.getBackgroundOrder
     handles.tab1_next.Visible = 'on';
     handles.group_bkgd_edit_mode.SelectedObject = handles.radiobutton14_add;
     set(findobj(handles.panel_setup, 'enable', 'off'), 'enable', 'on')
     handles.tabpanel.TabEnables{2} = 'on';
     
-elseif ~isempty(validator.backgroundPoints)
+elseif ~isempty(handles.profiles.BackgroundPoints)
     set(handles.group_bkgd_edit_mode, 'SelectedObject', handles.radiobutton14_add);
     set(handles.group_bkgd_edit_mode.Children, 'Enable', 'on');
     set(handles.push_fitbkgd, 'enable', 'off');
@@ -229,6 +225,7 @@ else
 end
 % ==============================================================================
 
+
 function newNumberOfPeaks(handles)
 numpeaks = handles.profiles.xrd.NumFuncs;
 if numpeaks == 0
@@ -245,6 +242,7 @@ else
         'visible', 'on');
     set(handles.container_numpeaks, 'visible', 'on');
 end
+
 olddata = handles.table_paramselection.Data;
 colwidth = handles.table_paramselection.ColumnWidth;
 colname = handles.table_paramselection.ColumnName;
@@ -280,43 +278,24 @@ else
 end
 % ==============================================================================
 
-function constraints(handles)
-%CONSTRAINTS should be called when a checkbox is checked in panel_constraints.
-%   This function adds a new constraint column in table_paramselection, with default
-%   values for rows where the peak function isn't empty will be set to TRUE.
-%   It uses the values saved in handles.profiles.xrd to update the GUI, so it should
-%   only be called AFTER handles.profiles.xrd is updated. 
-constraints = handles.profiles.xrd.getConstraints;
-handles.gui.ConstraintsInPanel = constraints;
-if handles.gui.NumPeaks > 2
-    handles.gui.ConstraintsInTable = constraints;
-else
-    handles.gui.ConstraintsInTable = [];
-end
-if handles.gui.isFitDirty
-    set(handles.panel_coeffs.Children, 'enable', 'off');
-else
-    set(handles.panel_coeffs.Children, 'enable', 'on');
-end
-% ==============================================================================
-
-function newFitFunctions(handles)
+function updateOptionsTabView(handles)
 % Updates the GUI components when the fit function changes
 if handles.gui.isFitDirty
     set(handles.panel_coeffs.Children, 'enable', 'off');
 else
     set(handles.panel_coeffs.Children, 'enable', 'on');
 end
-if handles.gui.areFuncsReady
-    set(handles.push_selectpeak, 'enable', 'on');
-else
-    set(handles.push_selectpeak, 'enable', 'off');
-end
-
 % Make sure all peak positions are valid before updating the table
 if isempty(find(handles.profiles.xrd.PeakPositions==0,1))
     set(handles.push_update, 'enable', 'on');
 else
+    set(handles.push_update, 'enable', 'off');
+end
+
+if handles.gui.areFuncsReady
+    set(handles.push_selectpeak, 'enable', 'on');
+else
+    set(handles.push_selectpeak, 'enable', 'off');
     set(handles.push_update, 'enable', 'off');
 end
 
@@ -345,6 +324,28 @@ if length(find(utils.contains(fcns, 'Pseudo-Voigt'))) > 1
 else
     set(handles.checkboxw,'Enable','off');
 end
+
+
+% Constraints
+constraints = handles.profiles.xrd.getConstraints;
+handles.gui.ConstraintsInPanel = constraints;
+if handles.gui.NumPeaks > 2
+    handles.gui.ConstraintsInTable = constraints;
+else
+    handles.gui.ConstraintsInTable = [];
+end
+if handles.gui.isFitDirty
+    set(handles.panel_coeffs.Children, 'enable', 'off');
+else
+    set(handles.panel_coeffs.Children, 'enable', 'on');
+end
+
+function updateConstraints(handles)
+%CONSTRAINTS should be called when a checkbox is checked in panel_constraints.
+%   This function adds a new constraint column in table_paramselection, with default
+%   values for rows where the peak function isn't empty will be set to TRUE.
+%   It uses the values saved in handles.profiles.xrd to update the GUI, so it should
+%   only be called AFTER handles.profiles.xrd is updated. 
 
 % ==============================================================================
 

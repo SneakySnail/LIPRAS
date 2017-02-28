@@ -4,15 +4,6 @@ function  plotX(handles, mode, varargin)
 % after calling plotter.XScale.
 persistent previousPlot_
 try
-    % Disable the figure while its plotting
-    focusedObj = gcbo;
-    enabledObjs = findobj(handles.figure1, 'Enable', 'on');
-    for ii=1:length(enabledObjs)
-        try
-            set(enabledObjs(ii), 'Enable', 'inactive');
-        catch
-        end
-    end
     plotter = handles.gui.Plotter;
     filenum = handles.gui.CurrentFile;
     filenames = handles.gui.getFileNames;
@@ -37,6 +28,17 @@ try
     
     handles.checkbox_superimpose.Value = 0;
     % try
+    
+    % Disable the figure while its plotting
+    focusedObj = gco;
+    enabledObjs = findobj(handles.figure1, 'Enable', 'on');
+    for ii=1:length(enabledObjs)
+        try
+            set(enabledObjs(ii), 'Enable', 'inactive');
+        catch
+        end
+    end
+    
     switch lower(mode)
         case 'data'
             plotData(handles);
@@ -67,7 +69,6 @@ try
             plotFit(handles);
             previousPlot_ = 'fit';
         case 'sample'
-            plotData(handles);
             plotSampleFit(handles);
             previousPlot_ = 'sample';
         case 'allfits'
@@ -87,13 +88,14 @@ try
     if strcmp(previousPlot_,'fit')
         handles.axes2.Children.Visible = 'on';
     end
+    
     set(enabledObjs, 'Enable', 'on');
     currentFig = get(0,'CurrentFigure');
     if ~isempty(currentFig) && contains(currentFig.Name, 'LIPRAS') && ~isempty(focusedObj)
-        if strcmpi(focusedObj.Type, 'uicontrol')
-            uicontrol(focusedObj);
-        elseif strcmpi(focusedObj.Type, 'uitable')
+        if strcmpi(focusedObj.Type, 'uitable')
             uitable(focusedObj);
+        elseif strcmpi(focusedObj.Type, 'uicontrol')
+            uicontrol(focusedObj);
         end
     end
     handles.gui.Legend = 'reset';
@@ -104,6 +106,11 @@ catch ex
 end
 
 % ==============================================================================
+
+    function disableActiveComponents()
+    % Prevents the user from clicking through the GUI while the figure is plotting
+    
+    end
 
     function dataLine = plotData(handles, axx)
     % PLOTDATA Plots the raw data for a specified file number in axes1. 
@@ -119,18 +126,18 @@ end
     end
     xdata = xrd.getTwoTheta;
     ydata = xrd.getData(filenum);
+    props = {'LineStyle', '-', 'LineWidth', 1, 'MarkerFaceColor', [1 1 1], ...
+        'Color', 'k', 'Visible', 'on', 'MarkerSize', 5};
     if isvalid(dataLine)
-        set(dataLine, 'XData', xdata, 'YData', ydata);
+        set(dataLine, ...
+            'XData', xdata, ...
+            'YData', ydata, ...
+            props{:});
         setappdata(dataLine, 'xdata', xdata);
         setappdata(dataLine, 'ydata', ydata);
         handles.gui.Plotter.transform(dataLine);
     else
-        dataLine = plotter.plotRawData(axx, ...
-                            'LineStyle', '-', ...
-                            'LineWidth', 1, ...
-                            'MarkerFaceColor', [1 1 1], ...
-                            'Color', 'k', ...
-                            'Visible', 'on');
+        dataLine = plotter.plotRawData(axx, props{:});
     end
     plotter.updateXYLim(axx);
     end
@@ -177,9 +184,15 @@ end
     function handles = plotSampleFit(handles)
     import ui.control.*
     import utils.plotutils.*
+    if ~strcmpi(plotter.Mode, mode)
+        cla(handles.axes1);
+    end
+    plotData(handles);
+    plotBackgroundFit(handles);
     if ~plotter.canPlotSample
         return
     end
+    
     % Plot background fit
     plotter.plotBgFit(handles.axes1);
     for i=1:xrd.NumFuncs
@@ -313,6 +326,7 @@ end
         calc = fitted.Background' + fitted.FData';
         Rp(ii) = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
         w = (1./obs); %defines the weighing parameter for Rwp
+        w=w(w~=Inf); obs=obs(w~=Inf); calc=calc(w~=Inf); % Remove infinity values
         Rwp(ii) = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
         DOF = fitted.FmodelGOF.dfe; % degrees of freedom from error
         Rexp(ii)=sqrt(DOF/sum(w.*obs.^2)); % Rexpected

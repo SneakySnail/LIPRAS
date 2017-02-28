@@ -146,10 +146,16 @@ classdef GUIController < handle
                     ~isequal(fitted.FitInitial, this.FitInitial)
                 result = true;
             end
+            
         elseif isequal(this.FcnNames, xrd.getFunctionNames) && ...
                 isequal(this.Coefficients, xrd.getCoeffs) && ...
                 isequal(this.FitInitial, xrd.FitInitial)
             result = false;
+            
+        elseif isequal(this.FcnNames, xrd.getFunctionNames) || ... % this else if is to yield result=true when a constaint has been checked
+                isequal(this.Coefficients, xrd.getCoeffs) || ...
+                isequal(this.FitInitial, xrd.FitInitial)
+            result = true;
         else
             result = true;
         end
@@ -545,10 +551,10 @@ classdef GUIController < handle
             if isempty(start{i})
                 start{i} = -1;
             end
-            if isempty(lower{i})
+            if isempty(lower{i}) || ~isnumeric(lower{i})
                 lower{i} = -1;
             end
-            if isempty(upper{i})
+            if isempty(upper{i}) || ~isnumeric(upper{i})
                 upper{i} = -1;
             end
         end
