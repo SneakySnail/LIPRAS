@@ -64,7 +64,6 @@ try
         case 'fit'
 %             set(handles.axes1.Children, 'visible', 'off');
             utils.plotutils.resizeAxes1ForErrorPlot(handles, 'fit');
-            plotData(handles,mode);
             plotFitError(handles);
             plotFit(handles);
             previousPlot_ = 'fit';
@@ -82,13 +81,6 @@ try
         case 'stats' %TODO
             plotFitStats(handles);
     end
-    plotter.Mode = previousPlot_;
-%     handles.gui.Legend = 'reset';
-    set(handles.axes1.Children,'visible','on');
-    if strcmp(previousPlot_,'fit')
-       set(handles.axes2.Children,'visible','on');
-    end
-    
     set(enabledObjs, 'Enable', 'on');
     currentFig = get(0,'CurrentFigure');
     if ~isempty(currentFig) && contains(currentFig.Name, 'LIPRAS') && ~isempty(focusedObj)
@@ -98,7 +90,15 @@ try
             uicontrol(focusedObj);
         end
     end
+    %        handles.gui.Legend = 'reset';
+    plotter.Mode = previousPlot_;
+    set(handles.axes1.Children,'visible','on');
     handles.gui.Legend = 'reset';
+    
+    if strcmp(previousPlot_,'fit')
+       set(handles.axes2.Children,'visible','on');
+    end
+    
 catch ex
     ex.getReport
     set(enabledObjs, 'Enable', 'on');
@@ -170,13 +170,18 @@ end
         fileID = filenum;
     end
     fitted = handles.profiles.getProfileResult{fileID};
-    % Raw Data
+    set(ax.Children, 'visible', 'off');
     dataLine = findobj(ax, 'tag', 'raw');
-    set(dataLine, 'LineStyle', 'none', 'MarkerSize', 3.5, 'MarkerFaceColor', [0 0.18 0.65]);
-    plotter.plotBgFit(ax);
-    plotter.plotOverallFit(ax,fitted);
-    for ii=1:xrd.NumFuncs
-        plotter.plotFittedPeak(ax,fitted,ii);
+    dataprops = {'LineStyle', 'none', ...
+        'MarkerSize', 4, ...
+        'MarkerFaceColor', [0 0.18 0.65], ...
+        'MarkerEdgeColor', 'none',...
+        'XData', fitted.TwoTheta, ...
+        'YData', fitted.Intensity};
+    if isempty(dataLine)
+        plotter.plotRawData(ax, dataprops{:});
+    else
+        set(dataLine, dataprops{:});
     end
     if isequal(ax, handles.axes1)
         linkaxes([handles.axes2 handles.axes1], 'x');
@@ -184,9 +189,19 @@ end
     if nargin < 2
         plotter.updateXYLim(handles.axes1);
     end
+    
+    plotter.plotBgFit(ax);
+    plotter.plotOverallFit(ax,fitted);
+    for ii=1:xrd.NumFuncs
+        plotter.plotFittedPeak(ax,fitted,ii);
+    end
+    
     if ~strcmp(previousPlot_, 'fit')
         handles.gui.Legend = 'reset';
     end
+    % Raw Data
+    
+
     end
 % ==============================================================================
 
@@ -206,13 +221,12 @@ end
         cla(handles.axes1);
     end
     plotData(handles);
-    plotBackgroundFit(handles);
+    plotter.plotBgFit(handles.axes1);
     if ~plotter.canPlotSample
         return
     end
     
     % Plot background fit
-    plotter.plotBgFit(handles.axes1);
     for i=1:xrd.NumFuncs
         plotter.plotSamplePeak(handles.axes1, i);
     end

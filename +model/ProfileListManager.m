@@ -365,6 +365,18 @@ this.xrd.PeakPositions(1:end)=0;
                   polyorder = str2double(a{2});
               case 'BackgroundPoints:'
                 bkgdpoints = str2double(a(2:end));
+              case 'Cu-KAlpha1:'
+                  if ~isequal(a{2}, 'n/a')
+                      ka1 = str2double(a{2});
+                  else
+                      ka1 = [];
+                  end
+              case 'Cu-KAlpha2:'
+                  if ~isequal(a{2}, 'n/a')
+                      ka2 = str2double(a{2});
+                  else
+                      ka2 = [];
+                  end
               case 'FitFunction(s):'
                 line = fgetl(fid);
                 fxn = strsplit(line, '; ');
@@ -384,6 +396,13 @@ this.xrd.PeakPositions(1:end)=0;
        end
        this.xrd.Min2T = min;
        this.xrd.Max2T = max;
+       if ~isempty(ka1)
+           this.xrd.KAlpha1 = ka1;
+       end
+       if ~isempty(ka2)
+           this.xrd.KAlpha2 = ka2;
+           this.xrd.CuKa = true;
+       end
        this.xrd.setBackgroundModel(model);
        this.xrd.setBackgroundOrder(polyorder);
        this.xrd.setBackgroundPoints(bkgdpoints);

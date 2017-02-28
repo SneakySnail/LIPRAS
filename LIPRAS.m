@@ -253,6 +253,8 @@ ui.update(handles, 'Constraints');
 function checkbox_CuKa_Callback(hObject, eventdata, handles)
 if get(hObject,'Value')
     handles.profiles.xrd.CuKa=true;
+    handles.profiles.xrd.KAlpha1 = handles.gui.KAlpha1;
+    handles.profiles.xrd.KAlpha2 = handles.gui.KAlpha2;
     set(handles.panel_cuka,'Visible', 'on');
 else
     handles.profiles.xrd.CuKa=false;

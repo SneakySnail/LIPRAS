@@ -165,14 +165,13 @@ newBackgroundPoints(handles);
 handles.gui.NumPeaks = length(fcns);
 handles.gui.FcnNames = fcns;
 
-newFitFunctions(handles);
 handles.gui.ConstraintsInPanel = unique([constraints{:}]);
 if handles.gui.NumPeaks > 2
     handles.gui.ConstraintsInTable = constraints;
 else
     handles.gui.ConstraintsInTable = [];
 end
-updateConstraints(handles);
+updateOptionsTabView(handles);
 newPeakPositions(handles);
 
 handles.gui.Coefficients = coeffs;
@@ -285,12 +284,6 @@ if handles.gui.isFitDirty
 else
     set(handles.panel_coeffs.Children, 'enable', 'on');
 end
-% % Make sure all peak positions are valid before updating the table
-% if isempty(find(handles.profiles.xrd.PeakPositions==0,1))
-%     set(handles.push_update, 'enable', 'on');
-% else
-%     set(handles.push_update, 'enable', 'off');
-% end
 
 if handles.gui.areFuncsReady
     set(handles.push_selectpeak, 'enable', 'on');
@@ -326,7 +319,6 @@ else
     set(handles.checkboxw,'Enable','off');
 end
 
-
 % Constraints
 constraints = handles.profiles.xrd.getConstraints;
 handles.gui.ConstraintsInPanel = constraints;
@@ -340,6 +332,15 @@ if handles.gui.isFitDirty
 else
     set(handles.panel_coeffs.Children, 'enable', 'on');
 end
+
+% Enable CuKa if necessary
+if ~isempty(handles.profiles.CuKa)
+    handles.gui.KAlpha1 = handles.profiles.KAlpha1;
+end
+if handles.profiles.CuKa
+    handles.gui.KAlpha2 = handles.profiles.KAlpha2;
+end
+    
 
 function updateConstraints(handles)
 %CONSTRAINTS should be called when a checkbox is checked in panel_constraints.
