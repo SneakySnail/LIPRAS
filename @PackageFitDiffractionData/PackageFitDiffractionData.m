@@ -76,6 +76,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         OutputPath = ['FitOutputs' filesep];
         numAzim
         recycle_results = 0;
+        ignore_bounds=0;
     end
     
     % ======================================================================== %
@@ -630,15 +631,20 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
 
 
-
         weight = 1./Stro.getData;
-        
+        if Stro.ignore_bounds
+             s = fitoptions('Method', 'NonlinearLeastSquares', ...
+            'StartPoint', SP, ...                 
+            'Algorithm','Levenberg-Marquardt','Weight',weight,'DiffMinChange',...
+            10E-9,'DiffMaxChange',0.001,'MaxIter',1000);
+        else
         s = fitoptions('Method', 'NonlinearLeastSquares', ...
             'StartPoint', SP, ...                 
              'Lower', LB, ...
             'Upper', UB, ...
-            'Weight',weight,'Algorithm','Levenberg-Marquardt','DiffMinChange',10E-9,'DiffMaxChange',0.001,'MaxIter',1000);
-
+            'Weight',weight,'DiffMinChange',...
+            10E-9,'DiffMaxChange',0.001,'MaxIter',1000);
+        end
 
         end
         
