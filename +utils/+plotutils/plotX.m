@@ -134,7 +134,8 @@ end
     props = {'LineStyle', '-', 'LineWidth', 1, 'MarkerFaceColor', [1 1 1], ...
         'Color', 'k', 'Visible', 'on', 'MarkerSize', 5};
     if isvalid(dataLine)
-        set(dataLine, 'XData', xdata, 'YData', ydata, props{:});
+%         set(dataLine, 'XData', xdata, 'YData', ydata, props{:}); % i dont
+%         think this is needed
         setappdata(dataLine, 'xdata', xdata);
         setappdata(dataLine, 'ydata', ydata);
         handles.gui.Plotter.transform(dataLine);

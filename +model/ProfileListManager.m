@@ -396,12 +396,12 @@ this.xrd.PeakPositions(1:end)=0;
        end
        this.xrd.Min2T = min;
        this.xrd.Max2T = max;
-       if ~isempty(ka1)
-           this.xrd.KAlpha1 = ka1;
-       end
        if ~isempty(ka2)
            this.xrd.KAlpha2 = ka2;
            this.xrd.CuKa = true;
+       end
+        if ~isempty(ka1)
+         this.xrd.KAlpha1 = ka1;
        end
        this.xrd.setBackgroundModel(model);
        this.xrd.setBackgroundOrder(polyorder);
