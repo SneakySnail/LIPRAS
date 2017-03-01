@@ -4,15 +4,6 @@ function  plotX(handles, mode, varargin)
 % after calling plotter.XScale.
 persistent previousPlot_
 try
-    % Disable the figure while its plotting
-    focusedObj = gcbo;
-    enabledObjs = findobj(handles.figure1, 'Enable', 'on');
-    for ii=1:length(enabledObjs)
-        try
-            set(enabledObjs(ii), 'Enable', 'inactive');
-        catch
-        end
-    end
     plotter = handles.gui.Plotter;
     filenum = handles.gui.CurrentFile;
     filenames = handles.gui.getFileNames;
@@ -37,6 +28,17 @@ try
     
     handles.checkbox_superimpose.Value = 0;
     % try
+    
+    % Disable the figure while its plotting
+    focusedObj = gco;
+    enabledObjs = findobj(handles.figure1, 'Enable', 'on');
+    for ii=1:length(enabledObjs)
+        try
+            set(enabledObjs(ii), 'Enable', 'inactive');
+        catch
+        end
+    end
+    
     switch lower(mode)
         case 'data'
             plotData(handles, mode);
@@ -62,13 +64,11 @@ try
         case 'fit'
 %             set(handles.axes1.Children, 'visible', 'off');
             utils.plotutils.resizeAxes1ForErrorPlot(handles, 'fit');
-            plotData(handles,mode);
             plotFitError(handles);
             plotFit(handles);
             previousPlot_ = 'fit';
         case 'sample'
-            plotData(handles,mode);
-            plotSampleFit(handles,mode);
+            plotSampleFit(handles);
             previousPlot_ = 'sample';
         case 'allfits'
             plotAllFits(handles);
@@ -81,23 +81,24 @@ try
         case 'stats' %TODO
             plotFitStats(handles);
     end
-    plotter.Mode = previousPlot_;
-%     handles.gui.Legend = 'reset';
-    set(handles.axes1.Children,'visible','on');
-    if strcmp(previousPlot_,'fit')
-       set(handles.axes2.Children,'visible','on');
-    end
     set(enabledObjs, 'Enable', 'on');
     currentFig = get(0,'CurrentFigure');
     if ~isempty(currentFig) && contains(currentFig.Name, 'LIPRAS') && ~isempty(focusedObj)
-        if strcmpi(focusedObj.Type, 'uicontrol')
-%             uicontrol(focusedObj); % Why is this line here? it resets the
-%             tabing on the edit box and
-        elseif strcmpi(focusedObj.Type, 'uitable')
+        if strcmpi(focusedObj.Type, 'uitable')
             uitable(focusedObj);
+        elseif strcmpi(focusedObj.Type, 'uicontrol')
+            uicontrol(focusedObj);
         end
     end
+    %        handles.gui.Legend = 'reset';
+    plotter.Mode = previousPlot_;
+    set(handles.axes1.Children,'visible','on');
     handles.gui.Legend = 'reset';
+    
+    if strcmp(previousPlot_,'fit')
+       set(handles.axes2.Children,'visible','on');
+    end
+    
 catch ex
     ex.getReport
     set(enabledObjs, 'Enable', 'on');
@@ -106,7 +107,10 @@ end
 
 % ==============================================================================
 
-    function dataLine = plotData(handles, mode, axx,j)
+
+
+
+    function dataLine = plotData(handles, axx,j)
     % PLOTDATA Plots the raw data for a specified file number in axes1. 
     %     If there are lines, remove all other lines except data line
     
@@ -126,30 +130,32 @@ end
         dataLine = dataLine(~notDataLineIdx);
     end
     xdata = xrd.getTwoTheta;
+    ydata = xrd.getData(filenum);
+    props = {'LineStyle', '-', 'LineWidth', 1, 'MarkerFaceColor', [1 1 1], ...
+        'Color', 'k', 'Visible', 'on', 'MarkerSize', 5};
     if isvalid(dataLine)
-        set(dataLine, 'XData', xdata, 'YData', ydata);
+        set(dataLine, ...
+            'XData', xdata, ...
+            'YData', ydata, ...
+            props{:});
         setappdata(dataLine, 'xdata', xdata);
         setappdata(dataLine, 'ydata', ydata);
         handles.gui.Plotter.transform(dataLine);
+        
     elseif nargin==4
-                dataLine = plotter.plotRawData(axx, ...
-                            'LineStyle', '-', ...
-                            'LineWidth', 1, ...
-                            'MarkerFaceColor', [1 1 1], ...
-                            'Color', 'k', ...
-                            'Visible', 'on');
-                            dataLine = findobj(axx, 'tag', 'raw');
-        set(dataLine, 'XData', xdata, 'YData', ydata);
-        setappdata(dataLine, 'xdata', xdata);
-        setappdata(dataLine, 'ydata', ydata);
-        handles.gui.Plotter.transform(dataLine);
-    else
         dataLine = plotter.plotRawData(axx, ...
                             'LineStyle', '-', ...
                             'LineWidth', 1, ...
                             'MarkerFaceColor', [1 1 1], ...
                             'Color', 'k', ...
                             'Visible', 'on');
+                              
+        set(dataLine, 'XData', xdata, 'YData', ydata);
+        setappdata(dataLine, 'xdata', xdata);
+        setappdata(dataLine, 'ydata', ydata);
+        handles.gui.Plotter.transform(dataLine);
+    else
+        dataLine = plotter.plotRawData(axx, props{:});
     end
     plotter.updateXYLim(axx,mode);
     end
@@ -164,13 +170,18 @@ end
         fileID = filenum;
     end
     fitted = handles.profiles.getProfileResult{fileID};
-    % Raw Data
+    set(ax.Children, 'visible', 'off');
     dataLine = findobj(ax, 'tag', 'raw');
-    set(dataLine, 'LineStyle', 'none', 'MarkerSize', 3.5, 'MarkerFaceColor', [0 0.18 0.65]);
-    plotter.plotBgFit(ax);
-    plotter.plotOverallFit(ax,fitted);
-    for ii=1:xrd.NumFuncs
-        plotter.plotFittedPeak(ax,fitted,ii);
+    dataprops = {'LineStyle', 'none', ...
+        'MarkerSize', 4, ...
+        'MarkerFaceColor', [0 0.18 0.65], ...
+        'MarkerEdgeColor', 'none',...
+        'XData', fitted.TwoTheta, ...
+        'YData', fitted.Intensity};
+    if isempty(dataLine)
+        plotter.plotRawData(ax, dataprops{:});
+    else
+        set(dataLine, dataprops{:});
     end
     if isequal(ax, handles.axes1)
         linkaxes([handles.axes2 handles.axes1], 'x');
@@ -178,9 +189,19 @@ end
     if nargin < 2
         plotter.updateXYLim(handles.axes1);
     end
+    
+    plotter.plotBgFit(ax);
+    plotter.plotOverallFit(ax,fitted);
+    for ii=1:xrd.NumFuncs
+        plotter.plotFittedPeak(ax,fitted,ii);
+    end
+    
     if ~strcmp(previousPlot_, 'fit')
         handles.gui.Legend = 'reset';
     end
+    % Raw Data
+    
+
     end
 % ==============================================================================
 
@@ -193,14 +214,19 @@ end
 % ==============================================================================
 
 % Plot an example fit using the starting values from table.
-    function handles = plotSampleFit(handles,mode)
+    function handles = plotSampleFit(handles)
     import ui.control.*
     import utils.plotutils.*
+    if ~strcmpi(plotter.Mode, 'sample')
+        cla(handles.axes1);
+    end
+    plotData(handles);
+    plotter.plotBgFit(handles.axes1);
     if ~plotter.canPlotSample
         return
     end
+    
     % Plot background fit
-    plotter.plotBgFit(handles.axes1);
     for i=1:xrd.NumFuncs
         plotter.plotSamplePeak(handles.axes1, i);
     end
@@ -332,6 +358,7 @@ end
         calc = fitted.Background' + fitted.FData';
         Rp(ii) = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
         w = (1./obs); %defines the weighing parameter for Rwp
+        w=w(w~=Inf); obs=obs(w~=Inf); calc=calc(w~=Inf); % Remove infinity values
         Rwp(ii) = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
         DOF = fitted.FmodelGOF.dfe; % degrees of freedom from error
         Rexp(ii)=sqrt(DOF/sum(w.*obs.^2)); % Rexpected
@@ -397,7 +424,7 @@ end
         hold(handles.axes1, 'on');
     end
     line = plotter.plotBgFit(handles.axes1);
-    if ~isempty(line)
+    if isvalid(line) && ~isempty(line)
         result = line.YData;
     else
         result = [];

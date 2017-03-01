@@ -36,6 +36,10 @@ classdef FitResults
     
     properties
         CuKa = false;
+        
+        KAlpha1
+        
+        KAlpha2
     end
     
     
@@ -80,6 +84,8 @@ end
         if profile.CuKa
             this.CuKa = true;
             this.CuKa2Functions = profile.xrd.CuKa2Peak;
+            this.KAlpha1 = profile.xrd.KAlpha1;
+            this.KAlpha2 = profile.xrd.KAlpha2;
         end
         xrd = profile.xrd;
         this.FileName      = strrep(xrd.getFileNames{filenumber}, '.', '_');

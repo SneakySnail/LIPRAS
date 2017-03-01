@@ -54,7 +54,7 @@ delete(findobj(handles.axes1.Children, 'tag', ''));
 function newpoints = deletePoint(handles, point)
 % Finds the index of POINT in the background line plot and deletes it from the plot, then returns
 %   the remaining background points in the plot. 
-bkgdplot = findobj(handles.axes1.Children, 'DisplayName', 'Background Points');
+bkgdplot = findobj(handles.axes1.Children, 'tag', 'background');
 bkgdx = bkgdplot.XData; bkgdy = bkgdplot.YData;
 xidx = utils.findIndex(bkgdx, point);
 bkgdx(xidx) = []; bkgdy(xidx) = [];

@@ -550,10 +550,10 @@ classdef GUIController < handle
             if isempty(start{i})
                 start{i} = -1;
             end
-            if isempty(lower{i})
+            if isempty(lower{i}) || ~isnumeric(lower{i})
                 lower{i} = -1;
             end
-            if isempty(upper{i})
+            if isempty(upper{i}) || ~isnumeric(upper{i})
                 upper{i} = -1;
             end
         end
@@ -733,7 +733,7 @@ classdef GUIController < handle
                 'ColumnWidth', {this.FUNCTION_COLUMN_WIDTH});
             return
         elseif ~iscell(value) || length(value) ~= this.NumPeaks
-            dbstack, keyboard
+            return
         end
         coeffstr = this.ConstraintsInPanel;
         this.resetTableColumnsOfConstraints_(coeffstr);
@@ -741,7 +741,6 @@ classdef GUIController < handle
         data = table.Data(:, 2:end);
         for i=1:length(value)
             if ~isempty(this.FcnNames{i}) 
-                idxChecked = [];
                 if ~isempty(value{i})
                     constraints = cellstr(value{i}')';
                     idxChecked = contains(cols, constraints);

@@ -15,7 +15,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         
     end
     
-    properties (Access = protected)
+    properties 
         DataSet % cell array of DiffractionData objects
         
         Background % Background instance; the same fit for all datasets
@@ -23,15 +23,14 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         FitFunctions % cell array of objects subclassing FitFunctionInterface
         
         FitOutput
-        
-        FitWeight
-        
+                
         Results % An instance of FitResults
-        
-        DisplayName = '';
                 
         PeakPositions_
-        
+    end
+    
+    properties (Hidden)
+%         Validator
     end
     
     properties (Dependent)
@@ -109,11 +108,11 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             Stro.AbsoluteRange = [x(1) x(end)];
             Stro.Background = model.Background(Stro);
         end
-        
         if nargin > 2
             Stro.DataPath = path;
             Stro.OutputPath = [path Stro.OutputPath];
         end
+        
         end
         
         % ==================================================================== %
@@ -161,14 +160,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         
         function datapath = get.DataPath(Stro)
         datapath = Stro.DataSet{1}.DataPath;
-        end
-        
-        function result = hasCuKa(Stro)
-        if Stro.CuKa
-            result = true;
-        else
-            result = false;
-        end
         end
         
         function result = getFileNames(Stro, file)
@@ -589,7 +580,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         function s = getFitOptions(Stro,RecycleSP)
         %FITDATA_ Helper function for fitDataSet. Fits a single file.
 
-        
          % Approx Back Coefficient, in reality we should have the user
         % specify bkg points and then decide whether bkg model should be in
         % LS or not
@@ -639,20 +629,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
 
         end
         
-        function values = generateDefaultFitBounds(Stro)
-        % Generates the default starting, lower, and upper bounds based on the peak
-        % positions and saves it into the property FitInitial.
-        
-        % Check if peak positions and fit functions are valid
-        if ~isempty(find(Stro.PeakPositions==0,1)) || ~isempty(find(cellfun(@isempty,Stro.FitFunctions),1))
-            return
-        end
-        Stro.FitInitial.start = Stro.getDefaultBounds('start');
-        Stro.FitInitial.lower = Stro.getDefaultBounds('lower');
-        Stro.FitInitial.upper = Stro.getDefaultBounds('upper');
-        values = Stro.FitInitial;
-        end
-        
         function position2 = Ka2fromKa1(Stro, position1)
         %KA2FROMKA1 calculates the second peak position using KAlpha1 and KAlpha2.
         %
@@ -678,7 +654,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         for i=1:length(Stro.DataSet)
             Stro.DataSet{i}.Min2T = value;
         end
-        Stro.FitWeight = 1./abs(Stro.getTwoTheta);
         end
         
         function value = get.Max2T(Stro)
@@ -691,7 +666,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         for i=1:length(Stro.DataSet)
             Stro.DataSet{i}.Max2T = value;
         end
-        Stro.FitWeight = 1./abs(Stro.getTwoTheta);
         end
         
         

@@ -319,6 +319,8 @@ classdef FitFunctionInterface < handle
         catch
             result.N = trapz(xdata, ydata) / 2;
         end
+        
+        
         result.f = result.N / max(ydata(xlowi_:xupi_));
         result.w = FitFunctionInterface.DEFAULT_VALUE_W;
         result.m = FitFunctionInterface.DEFAULT_VALUE_M;
@@ -330,6 +332,7 @@ classdef FitFunctionInterface < handle
         initial = this.getDefaultInitialValues(data, peakpos);
         
         xoffset = (data(1,end) - data(1,1)) ./ 10;
+
         result.x = peakpos - xoffset;
         result.N = 0;
         result.f = 0.01;

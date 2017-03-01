@@ -77,6 +77,7 @@ classdef LiprasDialog
             cd(oldpath);
         end
         handles.gui.PriorityStatus = 'Successfully exported plot as an image file.';
+        delete(fig);
         end
         
         function pos = centeredPosition(dSize)

@@ -211,7 +211,7 @@ classdef AxPlotter < matlab.mixin.SetGet
         %   might be performed will not be visible to the user. Any call to this function will
         %   always delete all other lines in the plot.
         %
-        %   PLOTRAWDATA(THIS) plots the raw data with the default line options. 
+        %   PLOTRAWDATA(THIS) plots the raw data with the default line options.
         %
         %   LINE = PLOTRAWDATA(THIS) returns the line object.
         %
@@ -224,7 +224,7 @@ classdef AxPlotter < matlab.mixin.SetGet
         %   only this line.
         %
         %   LINE = PLOTRAWDATA(THIS, AX, VARARGIN) plots the raw data to the axis specified by AX
-        %   with properties specified by VARARGIN. 
+        %   with properties specified by VARARGIN.
         filenum = this.gui.CurrentFile;
         x = this.profiles.xrd.getTwoTheta;
         y = this.profiles.xrd.getData(filenum);
@@ -236,16 +236,16 @@ classdef AxPlotter < matlab.mixin.SetGet
         else
             axx = this.ax;
         end
-            line = plot(axx,x,y,'o',...
-                        'DisplayName', 'Measured Data', ...
-                        'tag', 'raw', ...
-                        'MarkerFaceColor', [1 1 1], ...
-                        'MarkerEdgeColor', 'auto', ...
-                        'MarkerSize', 5, ...
-                        'visible', 'off');
-            setappdata(line, 'xdata', x);
-            setappdata(line, 'ydata', y);
-            this.transform(line);
+        line = plot(axx,x,y,'o',...
+            'DisplayName', 'Measured Data', ...
+            'tag', 'raw', ...
+            'MarkerFaceColor', [1 1 1], ...
+            'MarkerEdgeColor', 'auto', ...
+            'MarkerSize', 5, ...
+            'visible', 'off');
+        setappdata(line, 'xdata', x);
+        setappdata(line, 'ydata', y);
+        this.transform(line);
         if length(varargin) > 1
             set(line, varargin{:});
         end
@@ -260,17 +260,17 @@ classdef AxPlotter < matlab.mixin.SetGet
         xdata = this.profiles.xrd.getTwoTheta;
         ydata = this.profiles.xrd.getData(this.gui.CurrentFile);
         idx = utils.findIndex(xdata, points);
-        line = findobj([ax], 'tag', 'backgroundpoints');
+        line = findobj(ax, 'tag', 'background');
         if isempty(line)
             line = plot(ax, points, ydata(idx), ...
                         'rd', 'MarkerSize', 5, ...
                         'MarkerEdgeColor', 'r', ...
                         'MarkerFaceColor', 'r', ...
-                        'DisplayName', 'Background Points',...
-                        'Tag', 'backgroundpoints', ...
+                        'DisplayName', 'Background',...
+                        'Tag', 'background', ...
                         'Visible', 'off');
         else
-            set(line, 'XData', points, 'YData', ydata(idx));
+            set(line, 'MarkerIndices', idx, 'MarkerFaceColor', 'r');
         end
         setappdata(line, 'xdata', line.XData);
         setappdata(line, 'ydata', line.YData);
@@ -278,7 +278,7 @@ classdef AxPlotter < matlab.mixin.SetGet
         end
         
         function line = plotBgFit(this, ax)
-        line = findobj(ax, 'tag', 'backgroundfit');
+        line = findobj(ax, 'tag', 'background');
         if length(this.profiles.xrd.getBackgroundPoints) <= this.profiles.xrd.getBackgroundOrder
             if ~isempty(line), delete(line); end
             return
@@ -287,14 +287,19 @@ classdef AxPlotter < matlab.mixin.SetGet
         if isempty(bkgdArray)
             return
         end
-        if isempty(line)
+        if isempty(line) || ~isvalid(line)
             line = plot(ax, this.profiles.xrd.getTwoTheta, bkgdArray,...
                 '--r','LineWidth', 1, ...
-                'Tag', 'backgroundfit', ...
+                'Tag', 'background', ...
                 'DisplayName', 'Background', ...
                 'Visible', 'off');
         else
-            set(line, 'XData', this.profiles.xrd.getTwoTheta, 'YData', bkgdArray);
+            set(line, ...
+                'LineStyle', '--', ...
+                'XData', this.profiles.xrd.getTwoTheta, ...
+                'YData', bkgdArray, ...
+                'Marker', 'none', ...
+                'LineWidth', 1);
         end
         setappdata(line,'xdata',line.XData);
         setappdata(line,'ydata',line.YData);
@@ -321,7 +326,7 @@ classdef AxPlotter < matlab.mixin.SetGet
                 set(line, 'YData', fitsample(fcnID,:)+background, ...
                     'DisplayName', ['(' fcnNumStr ') ' this.gui.FcnNames{fcnID}]);
             end
-            if this.profiles.xrd.hasCuKa
+            if this.profiles.CuKa
                 cuKalpha2 = this.profiles.xrd.calculateCuKaPeak(fcnID);
                 cukaLine = findobj([ax.Children], 'tag', ['cuka' fcnNumStr]);
                 if isempty(cukaLine)
@@ -388,11 +393,24 @@ classdef AxPlotter < matlab.mixin.SetGet
                       'YData', fitted.FPeaks(fcnID,:)+fitted.Background);
         end
         if fitted.CuKa
-            line(2) = plot(ax,fitted.TwoTheta,fitted.FCuKa2Peaks(fcnID,:)+fitted.Background,...
-                           ':', 'LineWidth', 2, ...
-                           'DisplayName', ['Cu-K\alpha2 (Peak ', num2str(fcnID), ')'], ...
-                           'Tag', ['cuka' num2str(fcnID)], ...
-                           'Visible', 'off');
+            kaLine = findobj(ax, 'tag', ['cuka' num2str(fcnID)]);
+            if isempty(kaLine)
+                line(2) = plot(ax,fitted.TwoTheta,fitted.FCuKa2Peaks(fcnID,:)+fitted.Background,...
+                    ':', 'LineWidth', 2, ...
+                    'DisplayName', ['Cu-K\alpha2 (Peak ', num2str(fcnID), ')'], ...
+                    'Tag', ['cuka' num2str(fcnID)], ...
+                    'Visible', 'off');
+            else
+                line(2) = kaLine(1);
+                set(line(2),...
+                    'XData', fitted.TwoTheta, ...
+                    'YData', fitted.FCuKa2Peaks(fcnID,:)+fitted.Background, ...
+                    'LineStyle', ':',...
+                    'LineWidth', 2, ...
+                    'DisplayName', ['Cu-K\alpha2 (Peak ', num2str(fcnID), ')'], ...
+                    'Visible', 'off');
+                    
+            end
         end
         for i=1:length(line)
             setappdata(line(i),'xdata',line(i).XData);
@@ -459,7 +477,7 @@ classdef AxPlotter < matlab.mixin.SetGet
         
         function updateXLim(this, axx)
         if isempty([axx.Children]), return, end
-        xrange = [min(this.profiles.xrd.getTwoTheta) max(this.profiles.xrd.getTwoTheta)];
+        xrange = [this.profiles.Min2T this.profiles.Max2T];
         switch this.XScale
             case 'linear'
                 set(axx, 'XLim', xrange);
@@ -511,12 +529,9 @@ classdef AxPlotter < matlab.mixin.SetGet
             mode='na';
         end
         
-        if strcmp(mode,'sample')
-        else
-        
         this.updateXLim(axx);
         this.updateYLim(axx);
-        end
+        
         this.title;
         end
         

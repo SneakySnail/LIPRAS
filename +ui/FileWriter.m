@@ -103,8 +103,18 @@ classdef FileWriter < handle
        fprintf(fid, 'PolynomialOrder: %i\n', fitted.BackgroundOrder);
        fprintf(fid, 'BackgroundPoints:');
        fprintf(fid, ' %f', fitted.BackgroundPoints);
+       if ~isempty(fitted.KAlpha1)
+           fprintf(fid, '\nCu-KAlpha1: %f\n', fitted.KAlpha1);
+       else
+           fprintf(fid, 'Cu-KAlpha1: n/a\n');
+       end
+       if fitted.CuKa
+           fprintf(fid, 'Cu-KAlpha2: %f\n', fitted.KAlpha2);
+       else
+           fprintf(fid, '\nCu-Kalpha2: n/a\n');
+       end
        
-       fprintf(fid,'\n\nFitFunction(s):\n');
+       fprintf(fid,'\nFitFunction(s):\n');
        fprintf(fid,'%s; ', fitted.FunctionNames{:});
        fprintf(fid,'\nConstraints:');
        fprintf(fid, ' {''%s''}', fitted.Constraints{:});
