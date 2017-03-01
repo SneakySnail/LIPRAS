@@ -101,12 +101,10 @@ end
         this.PeakPositions = xrd.PeakPositions;
         this.Constraints = xrd.getConstraints;
         this.FitType       = xrd.getFitType;
-        if filenumber>1
-        this.FitOptions    = xrd.getFitOptions(xrd.FitInitial.start);
-        else
-            xrd.FitInitial.start=[];
+        if and(filenumber>1,xrd.recycle_results==1)
             this.FitOptions    = xrd.getFitOptions;
-
+        else
+            this.FitOptions    = xrd.getFitOptions(xrd.FitInitial.start);
         end
         this.CoeffNames    = coeffnames(this.FitType)';
         this.FitFunctions  = xrd.getFunctions;
@@ -133,9 +131,13 @@ end
                 this.FCuKa2Peaks(i,:) = peak(2,:);
             end
         end
+        
+        if and(filenumber>1,xrd.recycle_results==1)
         xrd.FitInitial.start=this.CoeffValues;
-        this.FitInitial.coeffs = this.CoeffNames;
+        else
         this.FitInitial.start = this.FitOptions.StartPoint;
+        end
+        this.FitInitial.coeffs = this.CoeffNames;
         this.FitInitial.lower = this.FitOptions.Lower;
         this.FitInitial.upper = this.FitOptions.Upper;
         end

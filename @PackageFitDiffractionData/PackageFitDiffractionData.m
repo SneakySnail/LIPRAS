@@ -601,7 +601,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
         
         % For Recycle Results
-        if nargin>1        
+        if Stro.recycle_results        
             % To include or not to include Bkg in LS
             if strcmp(NoBkgLS,'y') 
                 % Bkg in LS         

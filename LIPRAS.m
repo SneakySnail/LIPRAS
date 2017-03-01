@@ -416,9 +416,12 @@ end
 
 function checkbox_recycle_Callback(o, e, handles) %#ok<*DEFNU>
 if get(o, 'value')
-    handles.xrd.recycle_results = 1;
+  handles.xrd.recycle_results = 1;
+  handles.profiles.xrd.recycle_results=1;
 else
-    handles.xrd.recycle_results = 0;
+  handles.xrd.recycle_results = 0;
+  handles.profiles.xrd.recycle_results=0;
+
 end
 
 % Superimpose raw data.
