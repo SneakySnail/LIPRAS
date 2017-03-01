@@ -95,10 +95,16 @@ end
         this.PeakPositions = xrd.PeakPositions;
         this.Constraints = xrd.getConstraints;
         this.FitType       = xrd.getFitType;
-        this.FitOptions    = xrd.getFitOptions;
+        if filenumber>1
+        this.FitOptions    = xrd.getFitOptions(xrd.FitInitial.start);
+        else
+            xrd.FitInitial.start=[];
+            this.FitOptions    = xrd.getFitOptions;
+
+        end
         this.CoeffNames    = coeffnames(this.FitType)';
         this.FitFunctions  = xrd.getFunctions;
-        
+        disp(this.FitOptions.StartPoint)
         [fmodel, fmodelgof] = fit(this.TwoTheta', ...
                                  (this.Intensity - this.Background)', ...
                                   this.FitType, this.FitOptions);
@@ -121,6 +127,7 @@ end
                 this.FCuKa2Peaks(i,:) = peak(2,:);
             end
         end
+        xrd.FitInitial.start=this.CoeffValues;
         this.FitInitial.coeffs = this.CoeffNames;
         this.FitInitial.start = this.FitOptions.StartPoint;
         this.FitInitial.lower = this.FitOptions.Lower;

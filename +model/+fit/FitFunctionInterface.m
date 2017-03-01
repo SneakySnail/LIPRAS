@@ -302,7 +302,7 @@ classdef FitFunctionInterface < handle
         import model.fit.*
         xdata = data(1,:);
         ydata = data(2,:);
-        xoffset = (xdata(end) - xdata(1)) ./ 10;
+        xoffset = (xdata(end) - xdata(1)) ./ 100;
         result.x = peakpos;
         xlow = peakpos - xoffset;
         if xlow < xdata(1)
