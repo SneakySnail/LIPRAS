@@ -110,7 +110,7 @@ end
         end
         this.CoeffNames    = coeffnames(this.FitType)';
         this.FitFunctions  = xrd.getFunctions;
-        disp(this.FitOptions.StartPoint)
+%         disp(this.FitOptions.StartPoint) % to check SP being recycled
         [fmodel, fmodelgof] = fit(this.TwoTheta', ...
                                  (this.Intensity - this.Background)', ...
                                   this.FitType, this.FitOptions);

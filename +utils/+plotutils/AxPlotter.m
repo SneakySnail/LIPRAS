@@ -529,9 +529,11 @@ classdef AxPlotter < matlab.mixin.SetGet
             mode='na';
         end
         
+        if strcmp(mode,'sample')
+        else        
         this.updateXLim(axx);
         this.updateYLim(axx);
-        
+        end
         this.title;
         end
         
