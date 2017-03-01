@@ -4,15 +4,6 @@ function  plotX(handles, mode, varargin)
 % after calling plotter.XScale.
 persistent previousPlot_
 try
-    % Disable the figure while its plotting
-    focusedObj = gcbo;
-    enabledObjs = findobj(handles.figure1, 'Enable', 'on');
-    for ii=1:length(enabledObjs)
-        try
-            set(enabledObjs(ii), 'Enable', 'inactive');
-        catch
-        end
-    end
     plotter = handles.gui.Plotter;
     filenum = handles.gui.CurrentFile;
     filenames = handles.gui.getFileNames;
@@ -37,6 +28,17 @@ try
     
     handles.checkbox_superimpose.Value = 0;
     % try
+    
+        % Disable the figure while its plotting
+    focusedObj = gcbo;
+    enabledObjs = findobj(handles.figure1, 'Enable', 'on');
+    for ii=1:length(enabledObjs)
+        try
+            set(enabledObjs(ii), 'Enable', 'inactive');
+        catch
+        end
+    end
+    
     switch lower(mode)
         case 'data'
             plotData(handles, mode);
@@ -67,7 +69,6 @@ try
             plotFit(handles);
             previousPlot_ = 'fit';
         case 'sample'
-            plotData(handles,mode);
             plotSampleFit(handles,mode);
             previousPlot_ = 'sample';
         case 'allfits'
@@ -87,14 +88,14 @@ try
     if strcmp(previousPlot_,'fit')
        set(handles.axes2.Children,'visible','on');
     end
+    
     set(enabledObjs, 'Enable', 'on');
     currentFig = get(0,'CurrentFigure');
     if ~isempty(currentFig) && contains(currentFig.Name, 'LIPRAS') && ~isempty(focusedObj)
-        if strcmpi(focusedObj.Type, 'uicontrol')
-%             uicontrol(focusedObj); % Why is this line here? it resets the
-%             tabing on the edit box and
-        elseif strcmpi(focusedObj.Type, 'uitable')
-            uitable(focusedObj);
+        if strcmpi(focusedObj.Type, 'uitable')
+                uitable(focusedObj);
+        elseif strcmpi(focusedObj.Type, 'uicontrol')
+            uicontrol(focusedObj);
         end
     end
     handles.gui.Legend = 'reset';
@@ -106,10 +107,14 @@ end
 
 % ==============================================================================
 
+    function disableActiveComponents()
+        % Prevents the user from clicking through the GUI while the figure is plotting
+        
+    end
+
     function dataLine = plotData(handles, mode, axx,j)
     % PLOTDATA Plots the raw data for a specified file number in axes1. 
     %     If there are lines, remove all other lines except data line
-    
     if strcmp(mode,'fit')~=1
         axx = handles.axes1;
         ydata = xrd.getData(filenum);
@@ -126,8 +131,10 @@ end
         dataLine = dataLine(~notDataLineIdx);
     end
     xdata = xrd.getTwoTheta;
+    props = {'LineStyle', '-', 'LineWidth', 1, 'MarkerFaceColor', [1 1 1], ...
+        'Color', 'k', 'Visible', 'on', 'MarkerSize', 5};
     if isvalid(dataLine)
-        set(dataLine, 'XData', xdata, 'YData', ydata);
+        set(dataLine, 'XData', xdata, 'YData', ydata, props{:});
         setappdata(dataLine, 'xdata', xdata);
         setappdata(dataLine, 'ydata', ydata);
         handles.gui.Plotter.transform(dataLine);
@@ -138,7 +145,7 @@ end
                             'MarkerFaceColor', [1 1 1], ...
                             'Color', 'k', ...
                             'Visible', 'on');
-                            dataLine = findobj(axx, 'tag', 'raw');
+        dataLine = findobj(axx, 'tag', 'raw');
         set(dataLine, 'XData', xdata, 'YData', ydata);
         setappdata(dataLine, 'xdata', xdata);
         setappdata(dataLine, 'ydata', ydata);
@@ -196,6 +203,13 @@ end
     function handles = plotSampleFit(handles,mode)
     import ui.control.*
     import utils.plotutils.*
+    
+     if ~strcmpi(plotter.Mode, mode)
+        cla(handles.axes1);
+     end
+  plotData(handles,mode);
+  plotBackgroundFit(handles);
+    
     if ~plotter.canPlotSample
         return
     end
@@ -331,7 +345,7 @@ end
         obs = fitted.Intensity';
         calc = fitted.Background' + fitted.FData';
         Rp(ii) = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
-        w = (1./obs); %defines the weighing parameter for Rwp
+        w = (1./obs); %defines the weighing parameter for Rwp, would need to be adjust depending on what weight was selected
         Rwp(ii) = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
         DOF = fitted.FmodelGOF.dfe; % degrees of freedom from error
         Rexp(ii)=sqrt(DOF/sum(w.*obs.^2)); % Rexpected
