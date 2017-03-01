@@ -173,7 +173,7 @@ end
     fitted = handles.profiles.getProfileResult{fileID};
     % Raw Data
     dataLine = findobj(ax, 'tag', 'raw');
-    set(dataLine, 'LineStyle', 'none', 'MarkerSize', 3.5, 'MarkerFaceColor', [0 0.18 0.65]);
+    set(dataLine, 'LineStyle', 'none', 'MarkerSize', 3.5, 'MarkerFaceColor', [0.08 .17 0.65],'MarkerEdgeColor',[0.08 0.17 0.65]);
     plotter.plotBgFit(ax);
     plotter.plotOverallFit(ax,fitted);
     for ii=1:xrd.NumFuncs
