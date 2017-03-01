@@ -618,7 +618,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
 
 
 
-        weight = Stro.FitWeight;
+        weight = 1./Stro.getData;
         
         s = fitoptions('Method', 'NonlinearLeastSquares', ...
             'StartPoint', SP, ...                 
