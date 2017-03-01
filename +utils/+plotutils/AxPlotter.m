@@ -471,7 +471,7 @@ classdef AxPlotter < matlab.mixin.SetGet
             case 'dspace'
                 set([axx.XLabel], 'String', ['D-Space (' char(197) ')']);
         end
-        drawnow
+        drawnow limitrate % limit rate added for speed
         warning(state.state, state.identifier);
         end
         

@@ -558,21 +558,23 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         % Assumes that Stro.FitFunctions is not empty
         coeffs = Stro.getCoeffs;
         eqnStr = Stro.getEqnStr;
+        NoBkgLS='n';
         
+        % To include or not to include Bkg in LS
+        if strcmp(NoBkgLS,'y') 
         for p=1:Stro.getBackgroundOrder+1
         vars{:,p}=strcat('a',num2str(p));
         vars4(:,p)=sym(strcat('a',num2str(p)));
         end
         syms xv
-        PolyM=char(poly2sym(vars4,xv)); % generates the string poly to add to PF
-        
+        PolyM=char(poly2sym(vars4,xv)); % generates the string poly to add to PF     
         EqnLS=strcat(PolyM,'+',eqnStr);
         coeffsLS=[vars coeffs];
+        result = fittype(EqnLS, 'coefficients', coeffsLS, 'independent', 'xv');
+        end
         
-%         result = fittype(EqnLS, 'coefficients', coeffsLS, 'independent', 'xv');
-        
-% NO bkg in LS
-        result = fittype(eqnStr, 'coefficients', coeffs, 'independent', 'xv');
+        % NO bkg in LS
+        result = fittype(eqnStr, 'coefficients', coeffs, 'independent', 'xv'); 
         
         end
         % ==================================================================== %
@@ -580,39 +582,49 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         function s = getFitOptions(Stro,RecycleSP)
         %FITDATA_ Helper function for fitDataSet. Fits a single file.
 
-         % Approx Back Coefficient, in reality we should have the user
-        % specify bkg points and then decide whether bkg model should be in
-        % LS or not
+        NoBkgLS='n';
+        
+        % To include or not to include Bkg in LS
+        if strcmp(NoBkgLS,'y') 
+        
+        % Approx Back Coefficient, based on selected bkg points, need a way
+        % to override if user selects a higher poly order than number of
+        % points selected
         bkgp=Stro.getBackgroundPoints; 
         bkgdat=Stro.getData;
         for bp=1:length(Stro.getBackgroundPoints)
         ibkg(bp)=FindValue(Stro.getTwoTheta,bkgp(bp));
         bkgd(bp)=bkgdat(ibkg(bp));
+        end       
+        [p,~,~] = polyfit(bkgp,bkgd,Stro.getBackgroundOrder);
         end
         
-        [p,S,mu] = polyfit(bkgp,bkgd,Stro.getBackgroundOrder);
-        
-        if nargin>1
-        
-% Bkg in LS         
-%         SP = RecycleSP;
-%         LB = [-abs(p)*10 Stro.FitInitial.lower];
-%         UB = [abs(p)*10 Stro.FitInitial.upper];
-
+        % For Recycle Results
+        if nargin>1        
+            % To include or not to include Bkg in LS
+            if strcmp(NoBkgLS,'y') 
+                % Bkg in LS         
+                SP = RecycleSP;
+                LB = [-abs(p)*10 Stro.FitInitial.lower];
+                UB = [abs(p)*10 Stro.FitInitial.upper];
+            else
                 % NO bkg in LS
-        SP = [Stro.FitInitial.start];
-        LB = [Stro.FitInitial.lower];
-        UB = [Stro.FitInitial.upper];
-        
+                SP = [Stro.FitInitial.start];
+                LB = [Stro.FitInitial.lower];
+                UB = [Stro.FitInitial.upper];
+            end
         else
-%         SP = [p Stro.getDefaultBounds('start')];
-%         LB = [-abs(p)*10 Stro.FitInitial.lower];
-%         UB = [abs(p)*10 Stro.FitInitial.upper];
-        
-                        % NO bkg in LS
+                        if strcmp(NoBkgLS,'y') 
+        % Bkg in LS
+        SP = [p Stro.getDefaultBounds('start')];
+        LB = [-abs(p)*10 Stro.FitInitial.lower];
+        UB = [abs(p)*10 Stro.FitInitial.upper];
+                        else
+        % NO bkg in LS
         SP = [Stro.FitInitial.start];
         LB = [Stro.FitInitial.lower];
         UB = [Stro.FitInitial.upper];
+                        end
         
         end
 
