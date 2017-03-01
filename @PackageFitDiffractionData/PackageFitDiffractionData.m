@@ -567,21 +567,76 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         % Assumes that Stro.FitFunctions is not empty
         coeffs = Stro.getCoeffs;
         eqnStr = Stro.getEqnStr;
+        
+        for p=1:Stro.getBackgroundOrder+1
+        vars{:,p}=strcat('a',num2str(p));
+        vars4(:,p)=sym(strcat('a',num2str(p)));
+        end
+        syms xv
+        PolyM=char(poly2sym(vars4,xv)); % generates the string poly to add to PF
+        
+        EqnLS=strcat(PolyM,'+',eqnStr);
+        coeffsLS=[vars coeffs];
+        
+%         result = fittype(EqnLS, 'coefficients', coeffsLS, 'independent', 'xv');
+        
+% NO bkg in LS
         result = fittype(eqnStr, 'coefficients', coeffs, 'independent', 'xv');
+        
         end
         % ==================================================================== %
                         
-        function s = getFitOptions(Stro)
+        function s = getFitOptions(Stro,RecycleSP)
         %FITDATA_ Helper function for fitDataSet. Fits a single file.
-        SP = Stro.FitInitial.start;
-        LB = Stro.FitInitial.lower;
-        UB = Stro.FitInitial.upper;
+
+        
+         % Approx Back Coefficient, in reality we should have the user
+        % specify bkg points and then decide whether bkg model should be in
+        % LS or not
+        bkgp=Stro.getBackgroundPoints; 
+        bkgdat=Stro.getData;
+        for bp=1:length(Stro.getBackgroundPoints)
+        ibkg(bp)=FindValue(Stro.getTwoTheta,bkgp(bp));
+        bkgd(bp)=bkgdat(ibkg(bp));
+        end
+        
+        [p,S,mu] = polyfit(bkgp,bkgd,Stro.getBackgroundOrder);
+        
+        if nargin>1
+        
+% Bkg in LS         
+%         SP = RecycleSP;
+%         LB = [-abs(p)*10 Stro.FitInitial.lower];
+%         UB = [abs(p)*10 Stro.FitInitial.upper];
+
+                % NO bkg in LS
+        SP = [Stro.FitInitial.start];
+        LB = [Stro.FitInitial.lower];
+        UB = [Stro.FitInitial.upper];
+        
+        else
+%         SP = [p Stro.getDefaultBounds('start')];
+%         LB = [-abs(p)*10 Stro.FitInitial.lower];
+%         UB = [abs(p)*10 Stro.FitInitial.upper];
+        
+                        % NO bkg in LS
+        SP = [Stro.FitInitial.start];
+        LB = [Stro.FitInitial.lower];
+        UB = [Stro.FitInitial.upper];
+        
+        end
+
+
+
         weight = Stro.FitWeight;
+        
         s = fitoptions('Method', 'NonlinearLeastSquares', ...
-            'StartPoint', SP, ...
-            'Lower', LB, ...
+            'StartPoint', SP, ...                 
+             'Lower', LB, ...
             'Upper', UB, ...
-            'Weight',weight);
+            'Weight',weight,'Algorithm','Levenberg-Marquardt','DiffMinChange',10E-9,'DiffMaxChange',0.001,'MaxIter',1000);
+
+
         end
         
         function values = generateDefaultFitBounds(Stro)

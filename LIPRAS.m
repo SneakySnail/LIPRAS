@@ -15,6 +15,15 @@ if nargin && ischar(varargin{1})
     gui_State.gui_Callback = str2func(varargin{1});
 end
 
+% v=ver;
+% if any(strcmp(cellstr(char(v.Name)),'GUI Layout Toolbox'))~=1
+% 
+%    open 'GUI Layout Toolbox\GUI Layout Toolbox 2.3.1.mltbx';
+% else % Means it is installed
+%     
+% end
+
+
 if nargout
     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
 else
