@@ -346,6 +346,7 @@ end
         calc = fitted.Background' + fitted.FData';
         Rp(ii) = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
         w = (1./obs); %defines the weighing parameter for Rwp, would need to be adjust depending on what weight was selected
+        w=w(w~=Inf); obs=obs(w~=Inf); calc=calc(w~=Inf); % Remove infinity values
         Rwp(ii) = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
         DOF = fitted.FmodelGOF.dfe; % degrees of freedom from error
         Rexp(ii)=sqrt(DOF/sum(w.*obs.^2)); % Rexpected
