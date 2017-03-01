@@ -571,10 +571,11 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         EqnLS=strcat(PolyM,'+',eqnStr);
         coeffsLS=[vars coeffs];
         result = fittype(EqnLS, 'coefficients', coeffsLS, 'independent', 'xv');
-        end
+        else
         
         % NO bkg in LS
         result = fittype(eqnStr, 'coefficients', coeffs, 'independent', 'xv'); 
+        end
         
         end
         % ==================================================================== %

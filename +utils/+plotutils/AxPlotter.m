@@ -499,7 +499,7 @@ classdef AxPlotter < matlab.mixin.SetGet
             case 'sqrt'
                 set([axx.YLabel], 'Interpreter', 'latex', 'String', '$$\sqrt{Intensity}$$ (a.u.)');
         end
-        drawnow
+        drawnow limitrate
         warning(state.state, state.identifier);
         end
         
@@ -568,7 +568,7 @@ classdef AxPlotter < matlab.mixin.SetGet
                 title(axx, varargin{:});
             end
         end
-        drawnow
+        drawnow limitrate
         warning(state.state, state.identifier);
         end
             
