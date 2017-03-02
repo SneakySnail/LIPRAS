@@ -371,9 +371,14 @@ function push_fitdata_Callback(~, ~, handles)
 try
     prfn = handles.profiles.ActiveProfile;    
     fitresults = handles.profiles.fitDataSet(prfn);
+
     if ~isempty(fitresults)
         ui.update(handles, 'results');
-        utils.plotutils.plotX(handles,'fit');
+        if handles.profiles.xrd.BkgLS
+            utils.plotutils.plotX(handles,'BkgLSFit');
+        else
+            utils.plotutils.plotX(handles,'fit');
+        end
     else
         utils.plotutils.plotX(handles,'sample');
     end

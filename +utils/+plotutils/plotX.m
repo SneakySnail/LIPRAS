@@ -175,7 +175,7 @@ end
     % Raw Data
     dataLine = findobj(ax, 'tag', 'raw');
     set(dataLine, 'LineStyle', 'none', 'MarkerSize', 3.5, 'MarkerFaceColor', [0.08 .17 0.65],'MarkerEdgeColor',[0.08 0.17 0.65]);
-    plotter.plotBgFit(ax);
+    plotter.plotBgFit(ax); % what does this do?
     plotter.plotOverallFit(ax,fitted);
     for ii=1:xrd.NumFuncs
         plotter.plotFittedPeak(ax,fitted,ii);
@@ -342,21 +342,39 @@ end
     hTable = handles.table_results;
     fits = handles.profiles.getProfileResult;
     numfiles = length(fits);
-    
-    for ii=1:numfiles
-        fitted = fits{ii};
-        rsquared(ii) = fitted.FmodelGOF.rsquare;
-        adjrsquared(ii) = fitted.FmodelGOF.adjrsquare;
-        rmse(ii) = fitted.FmodelGOF.rmse;
+    if handles.profiles.xrd.BkgLS
+      for ss=1:numfiles
+        fitted = fits{ss};
+        rsquared(ss) = fitted.FmodelGOF.rsquare;
+        adjrsquared(ss) = fitted.FmodelGOF.adjrsquare;
+        rmse(ss) = fitted.FmodelGOF.rmse;
         obs = fitted.Intensity';
-        calc = fitted.Background' + fitted.FData';
-        Rp(ii) = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
+        calc =  fitted.FData';
+        Rp(ss) = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
         w = (1./obs); %defines the weighing parameter for Rwp, would need to be adjust depending on what weight was selected
         w=w(w~=Inf); obs=obs(w~=Inf); calc=calc(w~=Inf); % Remove infinity values
-        Rwp(ii) = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
+        Rwp(ss) = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
         DOF = fitted.FmodelGOF.dfe; % degrees of freedom from error
-        Rexp(ii)=sqrt(DOF/sum(w.*obs.^2)); % Rexpected
-        Rchi2(ii)=(Rwp/Rexp)/100; % reduced chi-squared, GOF
+        Rexp(ss)=sqrt(DOF/sum(w.*obs.^2)); % Rexpected
+        Rchi2(ss)=(Rwp/Rexp)/100; % reduced chi-squared, GOF
+     end
+    else
+    
+    for ss=1:numfiles
+        fitted = fits{ss};
+        rsquared(ss) = fitted.FmodelGOF.rsquare;
+        adjrsquared(ss) = fitted.FmodelGOF.adjrsquare;
+        rmse(ss) = fitted.FmodelGOF.rmse;
+        obs = fitted.Intensity';
+        calc = fitted.Background' + fitted.FData';
+        Rp(ss) = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
+        w = (1./obs); %defines the weighing parameter for Rwp, would need to be adjust depending on what weight was selected
+        w=w(w~=Inf); obs=obs(w~=Inf); calc=calc(w~=Inf); % Remove infinity values
+        Rwp(ss) = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
+        DOF = fitted.FmodelGOF.dfe; % degrees of freedom from error
+        Rexp(ss)=sqrt(DOF/sum(w.*obs.^2)); % Rexpected
+        Rchi2(ss)=(Rwp/Rexp)/100; % reduced chi-squared, GOF
+    end
     end
 %     
 %     close(figure(5))

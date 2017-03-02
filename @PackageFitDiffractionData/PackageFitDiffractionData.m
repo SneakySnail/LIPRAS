@@ -69,7 +69,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         suffix   = '';
         CuKa2Peak
         KAlpha1_ = 1.540000;
-        KAlpha2_ = 1.544426; % nm
+        KAlpha2_ = 1.544426; % Å
         symdata = 0;
         binID = 1:1:24;
         lambda = 1.5405980;
@@ -77,9 +77,9 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         numAzim
         recycle_results = 0;
         ignore_bounds=0;
+        BkgLS=0;
     end
     
-    % ======================================================================== %
     methods
         function Stro = PackageFitDiffractionData(data, filenames, path)
         % Constructor
@@ -116,7 +116,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         
         end
         
-        % ==================================================================== %
     end
     
     methods
@@ -559,10 +558,10 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         % Assumes that Stro.FitFunctions is not empty
         coeffs = Stro.getCoeffs;
         eqnStr = Stro.getEqnStr;
-        NoBkgLS='n';
+        Stro.BkgLS=0;
         
         % To include or not to include Bkg in LS
-        if strcmp(NoBkgLS,'y') 
+        if Stro.BkgLS
         for p=1:Stro.getBackgroundOrder+1
         vars{:,p}=strcat('a',num2str(p));
         vars4(:,p)=sym(strcat('a',num2str(p)));
@@ -583,11 +582,9 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
                         
         function s = getFitOptions(Stro,RecycleSP)
         %FITDATA_ Helper function for fitDataSet. Fits a single file.
-
-        NoBkgLS='n';
         
         % To include or not to include Bkg in LS
-        if strcmp(NoBkgLS,'y') 
+        if Stro.BkgLS
         
         % Approx Back Coefficient, based on selected bkg points, need a way
         % to override if user selects a higher poly order than number of
@@ -604,7 +601,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         % For Recycle Results
         if Stro.recycle_results        
             % To include or not to include Bkg in LS
-            if strcmp(NoBkgLS,'y') 
+            if Stro.BkgLS
                 % Bkg in LS         
                 SP = RecycleSP;
                 LB = [-abs(p)*10 Stro.FitInitial.lower];
@@ -616,7 +613,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
                 UB = [Stro.FitInitial.upper];
             end
         else
-                        if strcmp(NoBkgLS,'y') 
+                        if Stro.BkgLS
         % Bkg in LS
         SP = [p Stro.getDefaultBounds('start')];
         LB = [-abs(p)*10 Stro.FitInitial.lower];
