@@ -143,16 +143,16 @@ classdef GUIController < handle
             fitted = this.Profiles.getProfileResult{1};
              if ~isequal(fitted.FunctionNames, this.FcnNames) || ...
                     ~isequal(fitted.CoeffNames, this.Coefficients) || ...
-                    ~isequal(fitted.FitInitial, this.FitInitial)
+                    ~isequal(fitted.FitInitial.start, this.FitInitial.start)
                 result = true;
-            elseif isequal(this.FcnNames, xrd.getFunctionNames) && ... % this elseif is to yield a result=false after completing a fit
+             elseif isequal(this.FcnNames, xrd.getFunctionNames) && ... % this elseif is to yield a result=false after completing a fit
                 isequal(this.Coefficients, xrd.getCoeffs) && ...
-                isequal(this.FitInitial, xrd.FitInitial)
-            result = false;
+                isequal(fitted.CoeffValues, this.FitResults(:,1)')
+                result = false;
                 
             elseif isequal(this.FcnNames, xrd.getFunctionNames) || ... % this else if is to yield result=true when a constaint has been checked
                 isequal(this.Coefficients, xrd.getCoeffs) || ...
-                isequal(this.FitInitial, xrd.FitInitial)
+                isequal(this.FitInitial.start, xrd.FitInitial.start)
             result = true;
             end
         else

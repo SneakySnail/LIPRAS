@@ -18,11 +18,11 @@ function update(handles, varargin)
 %       'FitInitial'    - VALUE is a cell array {'BOUNDS', 'COEFF', COEFFVAL}.
 %
 model.ProfileListManager.getInstance(handles.profiles);
-if isfield(handles, 'gui') && handles.gui.isFitDirty
-    set(handles.panel_coeffs.Children, 'enable', 'off');
-else
-    set(handles.panel_coeffs.Children, 'enable', 'on');
-end
+% if isfield(handles, 'gui') && handles.gui.isFitDirty % this might not be needed
+%     set(handles.panel_coeffs.Children, 'enable', 'off');
+% else
+%     set(handles.panel_coeffs.Children, 'enable', 'on');
+% end
 
 switch lower(varargin{1})
     case 'reset'
@@ -365,7 +365,17 @@ if isempty(coeffs)
 elseif handles.gui.isFitDirty
     set(handles.table_fitinitial, 'RowName', coeffs, 'Data', cell(length(coeffs), 3));
 end
-handles.gui.FitInitial = handles.profiles.xrd.FitInitial;
+
+if isempty(handles.profiles.FitResults)
+    handles.gui.FitInitial = handles.profiles.xrd.FitInitial;
+elseif and(~isempty(handles.profiles.FitResults),~handles.gui.isFitDirty) % should only pin after fit and with same profile and coefficients
+handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues; % update the table with fit results
+handles.gui.FitInitial = handles.gui.FitInitial;
+else % Updating after changing number of functions and or constraints
+    handles.gui.FitInitial = handles.profiles.xrd.FitInitial;
+
+end
+
 set(handles.panel_coeffs, 'visible', 'on');
 set(handles.panel_coeffs.Children, 'visible', 'on', 'enable', 'on');
 % Enable/disable 'FIT DATA' button depending on if there is an empty cell in

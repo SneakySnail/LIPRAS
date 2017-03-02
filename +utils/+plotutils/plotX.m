@@ -95,7 +95,7 @@ try
         if strcmpi(focusedObj.Type, 'uitable')
                 uitable(focusedObj);
         elseif strcmpi(focusedObj.Type, 'uicontrol')
-            uicontrol(focusedObj);
+%             uicontrol(focusedObj); % why is this here?
         end
     end
     handles.gui.Legend = 'reset';

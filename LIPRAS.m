@@ -1,6 +1,6 @@
 function varargout = LIPRAS(varargin)
 % LIPRAS MATLAB code for LIPRAS.fig
-% 300th commit, yay us!...
+
 % Last Modified by GUIDE v2.5 14-Nov-2016 10:45:23
 
 % Begin initialization code - DO NOT EDIT
