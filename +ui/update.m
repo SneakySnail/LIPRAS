@@ -126,11 +126,11 @@ handles.gui.CurrentProfile = 1;
 handles.menu_saveasimage.Enable = 'on';
 
 if xrd.NumFiles > 1
-    set(handles.checkbox_superimpose,'Visible','on', 'enable', 'on'); % Superimpose Raw Data
+%     set(handles.checkbox_superimpose,'Visible','on', 'enable', 'on'); % Superimpose Raw Data
     set(handles.push_viewall,'Visible','on', 'enable', 'on'); % View All
     handles.gui.PriorityStatus = ['Imported ', num2str(xrd.NumFiles),' files to this dataset.'];
 else
-    set(handles.checkbox_superimpose,'Visible','off'); % Superimpose Raw Data
+%     set(handles.checkbox_superimpose,'Visible','off'); % Superimpose Raw Data
     set(handles.push_viewall,'Visible','off'); % View All
     handles.gui.PriorityStatus = 'Imported 1 file to this dataset.';
 end

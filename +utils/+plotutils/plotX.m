@@ -22,22 +22,14 @@ try
         end
     end
     
-%     if strcmpi(mode, 'fit') && (~handles.profiles.hasFit || handles.gui.isFitDirty)
-%         mode = 'sample';
-%     end
     
     handles.checkbox_superimpose.Value = 0;
     % try
     
         % Disable the figure while its plotting
     focusedObj = gcbo;
-    enabledObjs = findobj(handles.figure1, 'Enable', 'on');
-    for ii=1:length(enabledObjs)
-        try
-            set(enabledObjs(ii), 'Enable', 'inactive');
-        catch
-        end
-    end
+    enabledObjs = findobj(handles.figure1,'Tag','listbox_files');
+    set(enabledObjs, 'enable', 'inactive');
     
     switch lower(mode)
         case 'data'
@@ -93,9 +85,9 @@ try
     currentFig = get(0,'CurrentFigure');
     if ~isempty(currentFig) && contains(currentFig.Name, 'LIPRAS') && ~isempty(focusedObj)
         if strcmpi(focusedObj.Type, 'uitable')
-                uitable(focusedObj);
-        elseif strcmpi(focusedObj.Type, 'uicontrol')
-%             uicontrol(focusedObj); % why is this here?
+            uitable(focusedObj);
+        elseif isfield(focusedObj,'Style') && strcmpi(focusedObj.Style, 'listbox') % no focusedObk.Style is created
+            uicontrol(focusedObj); % why is this here?
         end
     end
     handles.gui.Legend = 'reset';

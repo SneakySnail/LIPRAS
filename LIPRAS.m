@@ -15,15 +15,6 @@ if nargin && ischar(varargin{1})
     gui_State.gui_Callback = str2func(varargin{1});
 end
 
-% v=ver;
-% if any(strcmp(cellstr(char(v.Name)),'GUI Layout Toolbox'))~=1
-% 
-%    open 'GUI Layout Toolbox\GUI Layout Toolbox 2.3.1.mltbx';
-% else % Means it is installed
-%     
-% end
-
-
 if nargout
     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
 else
@@ -371,14 +362,9 @@ function push_fitdata_Callback(~, ~, handles)
 try
     prfn = handles.profiles.ActiveProfile;    
     fitresults = handles.profiles.fitDataSet(prfn);
-
     if ~isempty(fitresults)
         ui.update(handles, 'results');
-        if handles.profiles.xrd.BkgLS
-            utils.plotutils.plotX(handles,'BkgLSFit');
-        else
-            utils.plotutils.plotX(handles,'fit');
-        end
+        utils.plotutils.plotX(handles,'fit');
     else
         utils.plotutils.plotX(handles,'sample');
     end
@@ -429,27 +415,14 @@ else
 
 end
 
-% Superimpose raw data.
-function checkbox_superimpose_Callback(hObject, eventdata, handles)
-cla(handles.axes1)
-% If box is checked, turn on hold in axes1
-if get(hObject,'Value')
-    hold(handles.axes1, 'on')
-    handles.axes1.ColorOrderIndex = 1;
-    utils.plotutils.plotX(handles, 'superimpose');
-else
-    utils.plotutils.plotX(handles);
-end
-handles.gui.Legend = 'reset';
-handles.xrd.Status='Superimposing raw data...';
-
 
 %% Popup callback functions
 
 % Executes on selection change in popup_filename.
 function popup_filename_Callback(hObject, eventdata, handles)
 handles.gui.CurrentFile = hObject.Value;
-superimposed = get(handles.checkbox_superimpose, 'Value');
+% superimposed = get(handles.checkbox_superimpose, 'Value');
+superimposed=0; % LOL fixed
 if superimposed
     utils.plotutils.plotX(handles, 'superimpose');
 else
@@ -480,7 +453,19 @@ handles.gui.Legend = 'on';
 handles.gui.Legend = 'reset';
 
 %% Menu callback functions
-
+function menuPlot_superimpose_Callback(hObject, eventdata, handles)
+ cla(handles.axes1)
+ % If box is checked, turn on hold in axes1
+ if strcmp(hObject.Checked, 'on')
+     hold(handles.axes1, 'on')
+     handles.axes1.ColorOrderIndex = 1;
+     utils.plotutils.plotX(handles, 'superimpose');
+     handles.xrd.PriorityStatus='Superimposing raw data...';
+ else
+     utils.plotutils.plotX(handles);
+ end
+ handles.gui.Legend = 'reset';
+ 
 function menu_save_Callback(~, ~, handles)
 if handles.profiles.hasFit
     handles.profiles.exportProfileParametersFile();
@@ -549,5 +534,3 @@ set(c,'FontSize',11);
 %% Close request functions
 function figure1_CloseRequestFcn(~, ~, handles)
 requestClose(handles);
-
-
