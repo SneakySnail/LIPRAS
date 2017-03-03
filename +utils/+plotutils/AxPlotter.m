@@ -522,10 +522,14 @@ classdef AxPlotter < matlab.mixin.SetGet
         
         function updateXLim(this, axx)
             h=guidata(axx);
+            if isempty(h)
+            else
             zoomstate = getappdata(h.figure1, 'ZoomOnState');
+           
         if isequal(zoomstate, 'on')
            return
-         end
+        end
+           
         if isempty([axx.Children]), return, end
         xrange = [this.profiles.Min2T this.profiles.Max2T];
         switch this.XScale
@@ -535,6 +539,7 @@ classdef AxPlotter < matlab.mixin.SetGet
                 set(axx, 'XLim', sort(this.profiles.dspace(xrange)));
         end
         zoom(h.figure1, 'reset')
+            end
         end
         
         function updateYLabel(this, axx)
@@ -558,6 +563,8 @@ classdef AxPlotter < matlab.mixin.SetGet
         %updateYAxis modifies the y-axis limits based on the minimum and maximum values of the
         %   plotted lines.
          h=guidata(axx);
+         if isempty(h)
+         else
          zoomstate = getappdata(h.figure1, 'ZoomOnState');
          if isequal(zoomstate, 'on')
              return
@@ -577,6 +584,7 @@ classdef AxPlotter < matlab.mixin.SetGet
         ymin = min(ydata)-0.05*ydiff;
         ymax = max(ydata)+0.2*ydiff;
         set(axx, 'YLim', sort([ymin ymax]));
+         end
         end
         
         function updateXYLim(this, axx,mode)
