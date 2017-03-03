@@ -453,11 +453,11 @@ this.xrd.PeakPositions(1:end)=0;
             this.Status = ['Fitting dataset ' num2str(i) ' of ' num2str(this.NumFiles) '...'];
             try
                 % stop the fit if the user closes the msgbox
-                if ~isvalid(msg)
-                    this.Status = 'Stopped fitting dataset.';
-                    fitresults = [];
-                    return
-                end
+%                 if ~isvalid(msg)
+%                     this.Status = 'Stopped fitting dataset.';
+%                     fitresults = [];
+%                     return
+%                 end
                 fitresults{i} = model.FitResults(this, i);
             catch exception
                 delete(msg)

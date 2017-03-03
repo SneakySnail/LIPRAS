@@ -603,19 +603,30 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             % To include or not to include Bkg in LS
             if Stro.BkgLS
                 % Bkg in LS         
-                SP = RecycleSP;
+                SP = Stro.FitInitial.start;
                 LB = [-abs(p)*10 Stro.FitInitial.lower];
                 UB = [abs(p)*10 Stro.FitInitial.upper];
             else
+                if length(Stro.FitInitial.coeffs)<length(Stro.FitInitial.start) % when coming from BkgLS to noBkgLS
+                    dif=length(Stro.FitInitial.start)-length(Stro.FitInitial.coeffs);
+                    Stro.FitInitial.start(1:dif)=[];
+%                     Stro.FitInitial.lower(1:dif)=[];
+%                     Stro.FitInitial.upper(1:dif)=[];
+                end
                 % NO bkg in LS
                 SP = [Stro.FitInitial.start];
                 LB = [Stro.FitInitial.lower];
                 UB = [Stro.FitInitial.upper];
+                
             end
         else
                         if Stro.BkgLS
+                                if length(Stro.FitInitial.coeffs)<length(Stro.FitInitial.start) % when hitting BkgLS sequentially
+                                dif=length(Stro.FitInitial.start)-length(Stro.FitInitial.coeffs);
+                                Stro.FitInitial.start(1:dif)=[];
+                                end
         % Bkg in LS
-        SP = [p Stro.getDefaultBounds('start')];
+        SP = [p Stro.FitInitial.start];
         LB = [-abs(p)*10 Stro.FitInitial.lower];
         UB = [abs(p)*10 Stro.FitInitial.upper];
                         else
