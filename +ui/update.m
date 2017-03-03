@@ -368,8 +368,12 @@ end
 
 if isempty(handles.profiles.FitResults)
     handles.gui.FitInitial = handles.profiles.xrd.FitInitial;
-elseif and(~isempty(handles.profiles.FitResults),~handles.gui.isFitDirty) % should only pin after fit and with same profile and coefficients
+elseif ~isempty(handles.profiles.FitResults) && ~handles.gui.isFitDirty&& ~handles.profiles.xrd.BkgLS % should only pin after fit and with same profile and coefficients and BkgLS
 handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues; % update the table with fit results
+handles.gui.FitInitial = handles.gui.FitInitial;
+elseif ~isempty(handles.profiles.FitResults) && ~handles.gui.isFitDirty&& handles.profiles.xrd.BkgLS 
+    dif=length(handles.profiles.FitResults{1,1}{1}.CoeffValues)-length(handles.profiles.xrd.FitInitial.coeffs)+1;
+handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(dif:end); % update the table with fit results
 handles.gui.FitInitial = handles.gui.FitInitial;
 else % Updating after changing number of functions and or constraints
     handles.gui.FitInitial = handles.profiles.xrd.FitInitial;

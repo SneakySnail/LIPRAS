@@ -558,7 +558,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         % Assumes that Stro.FitFunctions is not empty
         coeffs = Stro.getCoeffs;
         eqnStr = Stro.getEqnStr;
-        Stro.BkgLS=0;
+        Stro.BkgLS=0; % This is where BkgLS is turned on right now, 3-2-2017
         
         % To include or not to include Bkg in LS
         if Stro.BkgLS
@@ -608,7 +608,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
                 UB = [abs(p)*10 Stro.FitInitial.upper];
             else
                 if length(Stro.FitInitial.coeffs)<length(Stro.FitInitial.start) % when coming from BkgLS to noBkgLS
-                    dif=length(Stro.FitInitial.start)-length(Stro.FitInitial.coeffs);
+                    dif=length(Stro.FitInitial.start)-length(Stro.FitInitial.coeffs); % better than bkgorder since it can change i believe
                     Stro.FitInitial.start(1:dif)=[];
 %                     Stro.FitInitial.lower(1:dif)=[];
 %                     Stro.FitInitial.upper(1:dif)=[];

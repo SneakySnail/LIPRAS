@@ -141,6 +141,9 @@ classdef GUIController < handle
         end
         if this.Profiles.hasFit
             fitted = this.Profiles.getProfileResult{1};
+                    if xrd.BkgLS
+                        
+                    else % For when not using BkgLS since it works
              if ~isequal(fitted.FunctionNames, this.FcnNames) || ...
                     ~isequal(fitted.CoeffNames, this.Coefficients) || ...
                     ~isequal(fitted.FitInitial.start, this.FitInitial.start)
@@ -154,7 +157,8 @@ classdef GUIController < handle
                 isequal(this.Coefficients, xrd.getCoeffs) || ...
                 isequal(this.FitInitial.start, xrd.FitInitial.start)
             result = true;
-            end
+             end
+                    end
         else
             result = true;
         end
