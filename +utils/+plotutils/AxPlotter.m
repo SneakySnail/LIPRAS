@@ -540,6 +540,14 @@ classdef AxPlotter < matlab.mixin.SetGet
                             return
                       end
                       zoom(h.figure1, 'reset')
+                              if isempty([axx.Children]), return, end
+                                    xrange = [this.profiles.Min2T this.profiles.Max2T];
+                                    switch this.XScale
+                                        case 'linear'
+                                            set(axx, 'XLim', xrange);
+                                        case 'dspace'
+                                            set(axx, 'XLim', sort(this.profiles.dspace(xrange)));
+                                    end
             end
         end
         
