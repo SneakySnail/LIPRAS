@@ -279,6 +279,7 @@ classdef AxPlotter < matlab.mixin.SetGet
         
         function line = plotBgFit(this, ax, file,Bkg)
         line = findobj(ax, 'tag', 'background');
+        file=this.CurrentFile;
         if length(this.profiles.xrd.getBackgroundPoints) <= this.profiles.xrd.getBackgroundOrder
             if ~isempty(line), delete(line); end
             return
