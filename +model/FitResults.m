@@ -94,7 +94,10 @@ end
         this.FunctionNames = xrd.getFunctionNames;
         this.TwoTheta      = xrd.getTwoTheta;
         this.Intensity     = xrd.getData(filenumber);
+        if xrd.BkgLS
+        else
         this.Background    = xrd.calculateBackground(filenumber);
+        end
         this.BackgroundOrder = xrd.getBackgroundOrder;
         this.BackgroundModel = xrd.getBackgroundModel;
         this.BackgroundPoints = xrd.getBackgroundPoints;
@@ -152,7 +155,10 @@ end
         this.FitInitial.start = this.FitOptions.StartPoint;
         end
             
-        
+        if xrd.BkgLS
+           this.Background=polyval(this.CoeffValues(1,1:this.BackgroundOrder+1), this.TwoTheta);
+        else
+        end
         this.FitInitial.coeffs = this.CoeffNames;
         this.FitInitial.lower = this.FitOptions.Lower;
         this.FitInitial.upper = this.FitOptions.Upper;

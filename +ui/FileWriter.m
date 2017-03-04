@@ -165,10 +165,11 @@ classdef FileWriter < handle
        %PRINTFDATAFILES prints the results of the fit specified by FITTED to a file.
        fprintf(fid, 'This is an output file from a MATLAB routine.\n');
        fprintf(fid, 'All single peak data (column 3+) does not include background intensity.\n\n');
-       fprintf(fid, '2theta \t IntMeas \t BkgdFit \t Peak1 \t Peak2 \t Etc...\n');
+       fprintf(fid, '2theta \t Obs \t Calc \t BkgdFit \t Peak1 \t Peak2 \t Etc...\n');
        
        twotheta = fitted.TwoTheta';
        intmeas = fitted.Intensity';
+       calc=fitted.FData;
        background = fitted.Background';
        peaks = zeros(length(twotheta), length(fitted.FunctionNames));
        for j=1:length(fitted.FunctionNames)
@@ -176,7 +177,7 @@ classdef FileWriter < handle
            peaks(:,j) = peakCalculated(1,:)';
        end
        for i=1:length(twotheta)
-           line = [twotheta(i), intmeas(i), background(i), peaks(i,:)];
+           line = [twotheta(i), intmeas(i), calc(i), background(i), peaks(i,:)];
            fprintf(fid, '%2.5f\t', line(:));
            fprintf(fid, '\n');
        end

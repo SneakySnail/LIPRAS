@@ -277,13 +277,18 @@ classdef AxPlotter < matlab.mixin.SetGet
         this.transform(line);
         end
         
-        function line = plotBgFit(this, ax)
+        function line = plotBgFit(this, ax, file,Bkg)
         line = findobj(ax, 'tag', 'background');
         if length(this.profiles.xrd.getBackgroundPoints) <= this.profiles.xrd.getBackgroundOrder
             if ~isempty(line), delete(line); end
             return
         end
-        bkgdArray = this.profiles.xrd.calculateBackground;
+        if nargin==4
+            bkgdArray=Bkg;
+        else
+        bkgdArray = this.profiles.xrd.calculateBackground(file);
+        end
+        
         if isempty(bkgdArray)
             return
         end
@@ -380,6 +385,7 @@ classdef AxPlotter < matlab.mixin.SetGet
         function line = plotFittedPeak(this, ax, fitted, fcnID)
         %plotFittedPeak     Returns a line object that represents the fit for the function number
         %   specified by fcnID.
+        file=this.CurrentFile;
         Bkg_LS=this.profiles.xrd.BkgLS;
         fcns = fitted.FunctionNames;
         line = findobj(ax, 'tag', ['f' num2str(fcnID)]);
@@ -401,7 +407,7 @@ classdef AxPlotter < matlab.mixin.SetGet
         else
             if Bkg_LS % plotting if Bkg in LS
                             set(line, 'XData', fitted.TwoTheta, ...
-                      'YData', fitted.FPeaks(fcnID,:)+fitted.Background);
+                      'YData', fitted.FPeaks(fcnID,:)+fitted.Background); % needs to be modified based on Bkg from LS
             else
             set(line, 'XData', fitted.TwoTheta, ...
                       'YData', fitted.FPeaks(fcnID,:)+fitted.Background);

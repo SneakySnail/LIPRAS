@@ -558,7 +558,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         % Assumes that Stro.FitFunctions is not empty
         coeffs = Stro.getCoeffs;
         eqnStr = Stro.getEqnStr;
-        Stro.BkgLS=0; % This is where BkgLS is turned on right now, 3-2-2017
+%         Stro.BkgLS=0; % This is where BkgLS is turned on right now, 3-2-2017
         
         % To include or not to include Bkg in LS
         if Stro.BkgLS

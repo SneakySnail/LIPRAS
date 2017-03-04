@@ -405,7 +405,7 @@ end
 
 %% Checkbox callback functions
 
-function checkbox_recycle_Callback(o, e, handles) %#ok<*DEFNU>
+function checkbox_recycle_Callback(o, ~, handles) %#ok<*DEFNU>
 if get(o, 'value')
   handles.xrd.recycle_results = 1;
   handles.profiles.xrd.recycle_results=1;
@@ -415,6 +415,25 @@ else
 
 end
 
+function checkbox_ignoreBounds_Callback(o, ~, handles) %#ok<*DEFNU>
+if get(o, 'value')
+  handles.xrd.ignore_bounds = 1;
+  handles.profiles.xrd. ignore_bounds=1;
+else
+  handles.xrd.ignore_bounds = 0;
+  handles.profiles.xrd.ignore_bounds=0;
+
+end
+
+function checkbox_BkgLS_Callback(o, ~, handles) %#ok<*DEFNU>
+if get(o, 'value')
+  handles.xrd.BkgLS = 1;
+  handles.profiles.xrd.BkgLS=1;
+else
+  handles.xrd.BkgLS = 0;
+  handles.profiles.xrd.BkgLS=0;
+
+end
 
 %% Popup callback functions
 

@@ -167,7 +167,11 @@ end
     % Raw Data
     dataLine = findobj(ax, 'tag', 'raw');
     set(dataLine, 'LineStyle', 'none', 'MarkerSize', 3.5, 'MarkerFaceColor', [0.08 .17 0.65],'MarkerEdgeColor',[0.08 0.17 0.65]);
-    plotter.plotBgFit(ax); % what does this do?
+    if handles.profiles.xrd.BkgLS % background specific to BkgLS otherwise, peaks undershoot in plot window
+    plotter.plotBgFit(ax,filenum,fitted.Background);
+    else
+    plotter.plotBgFit(ax,filenum);
+    end
     plotter.plotOverallFit(ax,fitted);
     for ii=1:xrd.NumFuncs
         plotter.plotFittedPeak(ax,fitted,ii);
@@ -334,7 +338,7 @@ end
     hTable = handles.table_results;
     fits = handles.profiles.getProfileResult;
     numfiles = length(fits);
-    if handles.profiles.xrd.BkgLS
+    if handles.profiles.xrd.BkgLS % for when BkgLS is checked
       for ss=1:numfiles
         fitted = fits{ss};
         rsquared(ss) = fitted.FmodelGOF.rsquare;
