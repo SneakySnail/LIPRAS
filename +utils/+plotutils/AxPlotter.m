@@ -523,12 +523,8 @@ classdef AxPlotter < matlab.mixin.SetGet
         function updateXLim(this, axx)
             h=guidata(axx);
             if isempty(h)
-            else
-            zoomstate = getappdata(h.figure1, 'ZoomOnState');
-           
-        if isequal(zoomstate, 'on')
-           return
-        end
+            
+
            
         if isempty([axx.Children]), return, end
         xrange = [this.profiles.Min2T this.profiles.Max2T];
@@ -538,7 +534,12 @@ classdef AxPlotter < matlab.mixin.SetGet
             case 'dspace'
                 set(axx, 'XLim', sort(this.profiles.dspace(xrange)));
         end
-        zoom(h.figure1, 'reset')
+            else
+                zoomstate = getappdata(h.figure1, 'ZoomOnState');
+                      if isequal(zoomstate, 'on')
+                            return
+                      end
+                      zoom(h.figure1, 'reset')
             end
         end
         
