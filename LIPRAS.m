@@ -302,7 +302,7 @@ else
     handles.profiles.FitInitial = 'new';
     handles.gui.PriorityStatus = 'New peak positions are set.';
     ui.update(handles, 'peakposition');
-    ui.update(handles, 'fitinitial');
+    ui.update(handles, 'fitinitial_peakselect');
     plotX(handles, 'sample');
 end
 

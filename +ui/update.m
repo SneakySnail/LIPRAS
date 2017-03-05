@@ -49,6 +49,8 @@ switch lower(varargin{1})
         updateOptionsTabView(handles);
     case 'fitinitial'
         updateFitBoundsTable(handles);
+    case 'fitinitial_peakselect'
+        updateFitBoundsTable(handles,'peakselect');
     case 'results'
         newFitResults(handles);
 end
@@ -356,9 +358,12 @@ set(handles.panel_coeffs, 'visible', 'on');
 set(handles.panel_coeffs.Children, 'enable', 'on');
 % ==============================================================================
 
-function updateFitBoundsTable(handles)
+function updateFitBoundsTable(handles, origin)
 %UPDATEFITBOUNDS should be called after the 'Update' button in the Options tab is pressed.
 %   It updates the row names of table_fitinitial to display the correct coefficients.
+if nargin <2
+    origin='false';
+end
 coeffs = handles.profiles.xrd.getCoeffs;
 if isempty(coeffs)
     return
@@ -373,8 +378,13 @@ handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues; % 
 handles.gui.FitInitial = handles.gui.FitInitial;
 elseif ~isempty(handles.profiles.FitResults) && ~handles.gui.isFitDirty&& handles.profiles.xrd.BkgLS 
     dif=length(handles.profiles.FitResults{1,1}{1}.CoeffValues)-length(handles.profiles.xrd.FitInitial.coeffs)+1;
+    if strcmp(origin,'peakselect') % for scenarios in which Refine background is selected and user wants to hard reset by using peak selection
+        handles.gui.FitInitial.start=handles.profiles.xrd.FitInitial.start; % update the table with fit results
+        handles.gui.FitInitial = handles.gui.FitInitial;
+    else
 handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(dif:end); % update the table with fit results
 handles.gui.FitInitial = handles.gui.FitInitial;
+    end
 else % Updating after changing number of functions and or constraints
     handles.gui.FitInitial = handles.profiles.xrd.FitInitial;
 
