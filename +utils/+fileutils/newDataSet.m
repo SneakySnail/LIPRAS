@@ -330,7 +330,7 @@ if isempty(listPosElement)
     step = (endPosValue - startPosValue) / (ilen-1);
     listPosValue = (startPosValue:step:endPosValue);
 else
-    listPosValue = textscan(char(listPosElement.getTextContext), '%f');
+    listPosValue = textscan(char(listPosElement.getTextContent), '%f');
     listPosValue = listPosValue{1}';
 end
 

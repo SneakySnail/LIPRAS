@@ -348,9 +348,11 @@ if isnan(evt.NewData)
     handles.gui.PriorityStatus = '<html><font color="red">Not a valid number.';
 	hObject.Data{evt.Indices(1), evt.Indices(2)} = evt.PreviousData;
 else
-    handles.profiles.FitInitial = handles.gui.FitInitial;
-    handles.gui.FitInitial = handles.profiles.FitInitial;
-    ui.update(handles, 'fitinitial');
+       handles.profiles.FitInitial = handles.gui.FitInitial;
+       handles.gui.FitInitial = handles.profiles.FitInitial;
+%     ui.update(handles, 'fitinitial_tableEdit'); %i dont think this is
+%     needed otherwise it resets the table based on edit which is annoying
+%     when editing a value of N9, x9, etc,.,,
     utils.plotutils.plotX(handles, 'sample');
 end
 

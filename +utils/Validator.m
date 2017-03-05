@@ -105,10 +105,10 @@ classdef Validator < handle
        else
            oldBounds = this.profiles.FitInitial;
            oldCoeffs = oldBounds.coeffs;
-           xidx = find(utils.contains(oldBounds.coeffs, 'x'));
-           oldBounds.start(xidx) = -1;
-           oldBounds.lower(xidx) = -1;
-           oldBounds.upper(xidx) = -1;
+%            xidx = find(utils.contains(oldBounds.coeffs, 'x')); % what do these lines do?
+%            oldBounds.start(xidx) = -1;
+%            oldBounds.lower(xidx) = -1;
+%            oldBounds.upper(xidx) = -1;
        end
        numvals = length(newBounds.coeffs);
        fitinitial = struct('coeffs', {newBounds.coeffs}, ...

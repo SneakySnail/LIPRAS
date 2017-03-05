@@ -365,6 +365,12 @@ if nargin <2
     origin='false';
 end
 isFitD=handles.gui.isFitDirty;
+if handles.profiles.xrd.BkgLS % part of reset profile when isFitDirty is true when BkgLS is on
+    handles.checkbox_BkgLS.Value=1;
+else
+    handles.checkbox_BkgLS.Value=0;
+    handles.checkbox_ignoreBounds=0;
+end
 coeffs = handles.profiles.xrd.getCoeffs;
 if isempty(coeffs)
     return
@@ -387,8 +393,9 @@ elseif ~isempty(handles.profiles.FitResults) && ~isFitD&& ~handles.profiles.xrd.
                 if dif<0
                     try % will try to get Fit Results coefficients
                         handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(1:end); % update the table with fit results
-                    catch % if not, it defaults
-                        handles.gui.FitInitial=handles.gui.FitInitial;
+                    catch % if not, it defaults, this option happens when changing # of profile functions after a fit
+                        l=length(handles.profiles.FitResults{1,1}{1}.CoeffValues(1:end));
+                        handles.gui.FitInitial.start(1:l)=handles.profiles.FitResults{1,1}{1}.CoeffValues(1:end);
                     end
                 else
     handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(dif:end); % update the table with fit results
@@ -419,7 +426,9 @@ if isempty(emptyCell)
 else
     set(handles.push_fitdata, 'enable', 'off');
 end
-% ==============================================================================
+% if and(length(handles.gui.FitInitial.coeffs)== length(handles.profiles.FitInitial.coeffs),isFitD)
+%    set(handles.push_fitdata, 'enable', 'off');
+% end
 
 function newFitResults(handles)
 profiles = handles.profiles;
