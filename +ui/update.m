@@ -372,7 +372,10 @@ elseif isFitD
     set(handles.table_fitinitial, 'RowName', coeffs, 'Data', cell(length(coeffs), 3));
 end
 
+try % will only fail when there is no fit
 dif=length(handles.profiles.FitResults{1,1}{1}.CoeffValues)-length(handles.profiles.xrd.FitInitial.coeffs)+1; % diff in coefficients between BkgLS and no BkgLS
+catch
+end
 
 if isempty(handles.profiles.FitResults)
     handles.gui.FitInitial = handles.profiles.xrd.FitInitial;
