@@ -364,20 +364,22 @@ function updateFitBoundsTable(handles, origin)
 if nargin <2
     origin='false';
 end
+isFitD=handles.gui.isFitDirty;
 coeffs = handles.profiles.xrd.getCoeffs;
 if isempty(coeffs)
     return
-elseif handles.gui.isFitDirty
+elseif isFitD
     set(handles.table_fitinitial, 'RowName', coeffs, 'Data', cell(length(coeffs), 3));
 end
 
+dif=length(handles.profiles.FitResults{1,1}{1}.CoeffValues)-length(handles.profiles.xrd.FitInitial.coeffs)+1; % diff in coefficients between BkgLS and no BkgLS
+
 if isempty(handles.profiles.FitResults)
     handles.gui.FitInitial = handles.profiles.xrd.FitInitial;
-elseif ~isempty(handles.profiles.FitResults) && ~handles.gui.isFitDirty&& ~handles.profiles.xrd.BkgLS % should only pin after fit and with same profile and coefficients and BkgLS
-handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues; % update the table with fit results
+elseif ~isempty(handles.profiles.FitResults) && ~isFitD&& ~handles.profiles.xrd.BkgLS % should only pin after fit and with same profile and coefficients and BkgLS
+handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(dif:end); % update the table with fit results
 handles.gui.FitInitial = handles.gui.FitInitial;
-elseif ~isempty(handles.profiles.FitResults) && ~handles.gui.isFitDirty&& handles.profiles.xrd.BkgLS 
-    dif=length(handles.profiles.FitResults{1,1}{1}.CoeffValues)-length(handles.profiles.xrd.FitInitial.coeffs)+1;
+elseif ~isempty(handles.profiles.FitResults) && ~isFitD&& handles.profiles.xrd.BkgLS 
     if strcmp(origin,'peakselect') % for scenarios in which Refine background is selected and user wants to hard reset by using peak selection
         handles.gui.FitInitial.start=handles.profiles.xrd.FitInitial.start; % update the table with fit results
         handles.gui.FitInitial = handles.gui.FitInitial;

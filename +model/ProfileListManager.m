@@ -438,7 +438,7 @@ this.xrd.PeakPositions(1:end)=0;
        fclose(fid);
        end
        
-       function results = getProfileResult(this, profnum)
+       function results = getProfileResult(this, ~)
        results = this.FitResults{1};
        end
        
