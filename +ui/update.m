@@ -380,11 +380,25 @@ end
 if isempty(handles.profiles.FitResults)
     handles.gui.FitInitial = handles.profiles.xrd.FitInitial;
 elseif ~isempty(handles.profiles.FitResults) && ~isFitD&& ~handles.profiles.xrd.BkgLS % should only pin after fit and with same profile and coefficients and BkgLS
-handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(dif:end); % update the table with fit results
-handles.gui.FitInitial = handles.gui.FitInitial;
+         if strcmp(origin,'peakselect') % for scenarios in which Refine background is selected and user wants to hard reset by using peak selection
+        handles.gui.FitInitial=handles.profiles.xrd.FitInitial; % update the table with fit results
+        handles.gui.FitInitial = handles.gui.FitInitial;
+         else
+                if dif<0
+                    try % will try to get Fit Results coefficients
+                        handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(1:end); % update the table with fit results
+                    catch % if not, it defaults
+                        handles.gui.FitInitial=handles.gui.FitInitial;
+                    end
+                else
+    handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(dif:end); % update the table with fit results
+                end
+                handles.gui.FitInitial = handles.gui.FitInitial;
+
+         end
 elseif ~isempty(handles.profiles.FitResults) && ~isFitD&& handles.profiles.xrd.BkgLS 
     if strcmp(origin,'peakselect') % for scenarios in which Refine background is selected and user wants to hard reset by using peak selection
-        handles.gui.FitInitial.start=handles.profiles.xrd.FitInitial.start; % update the table with fit results
+        handles.gui.FitInitial=handles.profiles.xrd.FitInitial; % update the table with fit results
         handles.gui.FitInitial = handles.gui.FitInitial;
     else
 handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(dif:end); % update the table with fit results
