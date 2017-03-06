@@ -8,6 +8,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         % This adds properties which can be accessed through xrdItems in
         %ProfileListManager.m line ~93
         FitInitial
+        PrevNumFcn
         OriginalFitInitial
         MonoWavelength
         AbsoluteRange

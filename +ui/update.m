@@ -392,15 +392,16 @@ elseif ~isempty(handles.profiles.FitResults) && ~isFitD&& ~handles.profiles.xrd.
         handles.gui.FitInitial = handles.gui.FitInitial;
          else
 
-                if dif<0
-                    try % will try to get Fit Results coefficients
-                        handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(1:end); % update the table with fit results
-                    catch % if not, it defaults, this option happens when changing # of profile functions after a fit
-                        l=length(handles.profiles.FitResults{1,1}{1}.CoeffValues(1:end));
-                        handles.gui.FitInitial.start(1:l)=handles.profiles.FitResults{1,1}{1}.CoeffValues(1:end);
-                    end
-                elseif isequal(handles.profiles.xrd.FitInitial.coeffs,handles.profiles.xrd.OriginalFitInitial.coeffs)
+                if  isequal(handles.profiles.xrd.FitInitial.coeffs,handles.profiles.xrd.OriginalFitInitial.coeffs)
                     handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(dif:end); % update the table with fit results
+                elseif dif<0
+%                     try % will try to get Fit Results coefficients
+%                         handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(1:end); % update the table with fit results
+%                     catch % if not, it defaults, this option happens when changing # of profile functions after a fit
+%                         l=length(handles.profiles.FitResults{1,1}{1}.CoeffValues(1:end));
+%                         handles.gui.FitInitial.start(1:l)=handles.profiles.FitResults{1,1}{1}.CoeffValues(1:end);
+%                     end
+                
                 end
 %                 handles.gui.FitInitial = handles.gui.FitInitial;
 

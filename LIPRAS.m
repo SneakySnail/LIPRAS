@@ -315,6 +315,7 @@ function edit_numpeaks_Callback(src, eventdata, handles)
 %   EVENTDATA can be used to pass test values to this function by creating a structure with a
 %   field 'test' containing the value(s) to use.
 handles.profiles.NumPeaks = src.getValue;
+
 ui.update(handles, 'NumPeaks');
 ui.update(handles, 'functions');
 ui.update(handles, 'constraints');
@@ -365,7 +366,7 @@ function push_fitdata_Callback(~, ~, handles)
 try
     prfn = handles.profiles.ActiveProfile;    
     fitresults = handles.profiles.fitDataSet(prfn);
-    handles.profiles.xrd.OriginalFitInitial.coeffs=handles.gui.FitInitial.coeffs;
+    handles.profiles.xrd.OriginalFitInitial.coeffs=handles.gui.FitInitial.coeffs; % this is so when switching constraints, the table wont update with fitted values until a fit is done
 
     if ~isempty(fitresults)
         ui.update(handles, 'results');
