@@ -1,6 +1,8 @@
 # LIPRAS, Line-Profile Analysis Software
+Authors: Giovanni Esteves, Klarissa Ramos, Chris Fancher, and Jacob Jones
 An easy to use GUI that enables customizable peak fitting. For any region of the inputted data, user can choose which profile functions to apply to the fit, constrain profile functions, and view the resulting fit in terms of the profile functions chosen.
 
+LIPRAS BSD License,
 Copyright (c) 2017, North Carolina State University
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided
