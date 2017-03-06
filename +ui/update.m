@@ -393,7 +393,12 @@ elseif ~isempty(handles.profiles.FitResults) && ~isFitD&& ~handles.profiles.xrd.
          else
 
                 if  isequal(handles.profiles.xrd.FitInitial.coeffs,handles.profiles.xrd.OriginalFitInitial.coeffs)
+                        try
                     handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(dif:end); % update the table with fit results
+                        catch
+                        end
+                        
+                        
                 elseif dif<0
 %                     try % will try to get Fit Results coefficients
 %                         handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(1:end); % update the table with fit results
