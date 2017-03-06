@@ -8,6 +8,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         % This adds properties which can be accessed through xrdItems in
         %ProfileListManager.m line ~93
         FitInitial
+        OriginalFitInitial
         MonoWavelength
         AbsoluteRange
         
@@ -604,8 +605,8 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             if Stro.BkgLS
                 % Bkg in LS         
                 SP = Stro.FitInitial.start;
-                LB = [-abs(p)*10 Stro.FitInitial.lower];
-                UB = [abs(p)*10 Stro.FitInitial.upper];
+                LB = [-abs(p)*1000 Stro.FitInitial.lower];
+                UB = [abs(p)*1000 Stro.FitInitial.upper];
             else
                 if length(Stro.FitInitial.coeffs)<length(Stro.FitInitial.start) % when coming from BkgLS to noBkgLS
                     dif=length(Stro.FitInitial.start)-length(Stro.FitInitial.coeffs); % better than bkgorder since it can change i believe
@@ -627,8 +628,8 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
                                 end
         % Bkg in LS
         SP = [p Stro.FitInitial.start];
-        LB = [-abs(p)*10 Stro.FitInitial.lower];
-        UB = [abs(p)*10 Stro.FitInitial.upper];
+        LB = [-abs(p)*1000 Stro.FitInitial.lower];
+        UB = [abs(p)*1000 Stro.FitInitial.upper];
                         else
         % NO bkg in LS
         SP = [Stro.FitInitial.start];

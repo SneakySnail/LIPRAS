@@ -369,7 +369,7 @@ if handles.profiles.xrd.BkgLS % part of reset profile when isFitDirty is true wh
     handles.checkbox_BkgLS.Value=1;
 else
     handles.checkbox_BkgLS.Value=0;
-    handles.checkbox_ignoreBounds=0;
+    handles.checkbox_ignoreBounds.Value=0;
 end
 coeffs = handles.profiles.xrd.getCoeffs;
 if isempty(coeffs)
@@ -385,6 +385,7 @@ end
 
 if isempty(handles.profiles.FitResults)
     handles.gui.FitInitial = handles.profiles.xrd.FitInitial;
+    handles.profiles.xrd.OriginalFitInitial=handles.profiles.xrd.FitInitial; % First instance in preserving FitInitial originally created
 elseif ~isempty(handles.profiles.FitResults) && ~isFitD&& ~handles.profiles.xrd.BkgLS % should only pin after fit and with same profile and coefficients and BkgLS
          if strcmp(origin,'peakselect') % for scenarios in which Refine background is selected and user wants to hard reset by using peak selection
         handles.gui.FitInitial=handles.profiles.xrd.FitInitial; % update the table with fit results
@@ -412,6 +413,7 @@ handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(dif
 handles.gui.FitInitial = handles.gui.FitInitial;
     end
 else % Updating after changing number of functions and or constraints
+    
     handles.gui.FitInitial = handles.profiles.xrd.FitInitial;
 
 end

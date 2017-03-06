@@ -304,6 +304,7 @@ else
     ui.update(handles, 'peakposition');
     ui.update(handles, 'fitinitial_peakselect');
     plotX(handles, 'sample');
+    handles.profiles.xrd.OriginalFitInitial=handles.profiles.xrd.FitInitial;
 end
 
 % Executes when the handles.edit_numpeaks spinner value is changed.
