@@ -145,6 +145,7 @@ classdef GUIController < handle
                                          if ~isequal(this.FitInitial.coeffs, xrd.getCoeffs)
                                     result = true;
                                     xrd.BkgLS=0;
+                                    xrd.ignore_bounds=0;
                                          end
                         
                     else % For when not using BkgLS since it works, reversed or

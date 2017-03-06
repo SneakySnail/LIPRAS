@@ -365,9 +365,9 @@ if nargin <2
     origin='false';
 end
 isFitD=handles.gui.isFitDirty;
-if handles.profiles.xrd.BkgLS % part of reset profile when isFitDirty is true when BkgLS is on
+if and(~isFitD, handles.profiles.xrd.BkgLS) % part of reset profile when isFitDirty is true when BkgLS is on
     handles.checkbox_BkgLS.Value=1;
-else
+elseif and(isFitD, handles.profiles.xrd.BkgLS)
     handles.checkbox_BkgLS.Value=0;
     handles.checkbox_ignoreBounds.Value=0;
 end
