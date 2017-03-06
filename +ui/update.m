@@ -391,6 +391,7 @@ elseif ~isempty(handles.profiles.FitResults) && ~isFitD&& ~handles.profiles.xrd.
         handles.gui.FitInitial=handles.profiles.xrd.FitInitial; % update the table with fit results
         handles.gui.FitInitial = handles.gui.FitInitial;
          else
+
                 if dif<0
                     try % will try to get Fit Results coefficients
                         handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(1:end); % update the table with fit results
@@ -398,10 +399,10 @@ elseif ~isempty(handles.profiles.FitResults) && ~isFitD&& ~handles.profiles.xrd.
                         l=length(handles.profiles.FitResults{1,1}{1}.CoeffValues(1:end));
                         handles.gui.FitInitial.start(1:l)=handles.profiles.FitResults{1,1}{1}.CoeffValues(1:end);
                     end
-                else
-    handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(dif:end); % update the table with fit results
+                elseif isequal(handles.profiles.xrd.FitInitial.coeffs,handles.profiles.xrd.OriginalFitInitial.coeffs)
+                    handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(dif:end); % update the table with fit results
                 end
-                handles.gui.FitInitial = handles.gui.FitInitial;
+%                 handles.gui.FitInitial = handles.gui.FitInitial;
 
          end
 elseif ~isempty(handles.profiles.FitResults) && ~isFitD&& handles.profiles.xrd.BkgLS 
@@ -415,7 +416,6 @@ handles.gui.FitInitial = handles.gui.FitInitial;
 else % Updating after changing number of functions and or constraints
     
     handles.gui.FitInitial = handles.profiles.xrd.FitInitial;
-
 end
 
 set(handles.panel_coeffs, 'visible', 'on');

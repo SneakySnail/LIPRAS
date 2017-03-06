@@ -365,6 +365,8 @@ function push_fitdata_Callback(~, ~, handles)
 try
     prfn = handles.profiles.ActiveProfile;    
     fitresults = handles.profiles.fitDataSet(prfn);
+    handles.profiles.xrd.OriginalFitInitial.coeffs=handles.gui.FitInitial.coeffs;
+
     if ~isempty(fitresults)
         ui.update(handles, 'results');
         utils.plotutils.plotX(handles,'fit');
