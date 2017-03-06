@@ -367,7 +367,7 @@ end
 isFitD=handles.gui.isFitDirty;
 if and(~isFitD, handles.profiles.xrd.BkgLS) % part of reset profile when isFitDirty is true when BkgLS is on
     handles.checkbox_BkgLS.Value=1;
-elseif and(isFitD, handles.profiles.xrd.BkgLS)
+elseif and(isFitD, ~handles.profiles.xrd.BkgLS)
     handles.checkbox_BkgLS.Value=0;
     handles.checkbox_ignoreBounds.Value=0;
 end

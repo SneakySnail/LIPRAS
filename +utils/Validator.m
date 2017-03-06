@@ -122,6 +122,10 @@ classdef Validator < handle
                fitinitial.start(i) = newBounds.start(i);
                fitinitial.lower(i) = newBounds.lower(i);
                fitinitial.upper(i) = newBounds.upper(i);
+           elseif ~this.xrd.BkgLS
+               fitinitial.start(i) = newBounds.start(i);
+               fitinitial.lower(i) = newBounds.lower(i);
+               fitinitial.upper(i) = newBounds.upper(i);
            else
                % Overwrite all negative values
                if oldBounds.start(oldCoeffIdx) < 0
