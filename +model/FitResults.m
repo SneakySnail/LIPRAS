@@ -116,7 +116,7 @@ end
         end
         this.CoeffNames    = coeffnames(this.FitType)';
         this.FitFunctions  = xrd.getFunctions;
-        disp(this.FitOptions.StartPoint) % to check SP being recycled
+%         disp(this.FitOptions.StartPoint) % to check SP being recycled
 
         if xrd.BkgLS
                     [fmodel, fmodelgof] = fit(this.TwoTheta', ...
