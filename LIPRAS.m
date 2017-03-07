@@ -124,7 +124,7 @@ function push_newbkgd_Callback(hObject, eventdata, handles)
 %    issue a warning.
 import utils.plotutils.*
 plotX(handles,'data');
-handles.checkbox_superimpose.Value = 0;
+% handles.checkbox_superimpose.Value = 0;
 handles.gui.PriorityStatus = 'Selecting background points... Press the ESC key to cancel, "Z" to toogle zoom capability, and "Enter" to finish.';
 mode = get(handles.group_bkgd_edit_mode.SelectedObject, 'String');
 points = selectBackgroundPoints(handles, mode);
@@ -447,7 +447,7 @@ end
 function popup_filename_Callback(hObject, eventdata, handles)
 handles.gui.CurrentFile = hObject.Value;
 % superimposed = get(handles.checkbox_superimpose, 'Value');
-superimposed=0; % LOL fixed
+superimposed=strcmp(handles.menuPlot_superimpose.Checked,'on'); % LOL fixed
 if superimposed
     utils.plotutils.plotX(handles, 'superimpose');
 else
@@ -480,6 +480,11 @@ handles.gui.Legend = 'reset';
 %% Menu callback functions
 function menuPlot_superimpose_Callback(hObject, eventdata, handles)
  cla(handles.axes1)
+ if strcmp(hObject.Checked,'on')
+     hObject.Checked='off';
+ else
+ hObject.Checked='on';
+ end
  % If box is checked, turn on hold in axes1
  if strcmp(hObject.Checked, 'on')
      hold(handles.axes1, 'on')

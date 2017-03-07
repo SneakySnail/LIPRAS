@@ -7,6 +7,7 @@ lines = handles.axes1.Children;
 if ~isempty(lines)
     notDataLineIdx = ~strcmpi(get(lines, 'tag'), 'raw');
     delete(handles.axes1.Children(notDataLineIdx));
+    set(lines(notDataLineIdx==0),'LineStyle','-');
 end
 utils.plotutils.plotX(handles, 'backgroundfit');
 dataLine = findobj(handles.axes1, 'tag', 'raw');
