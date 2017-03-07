@@ -619,6 +619,14 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         LB = [-abs(p)*1000 Stro.FitInitial.lower];
         UB = [abs(p)*1000 Stro.FitInitial.upper];
                         else
+                                % For when unselecting 'Refine Bkg' and
+                                % 'Recyle' then hitting fit
+                              
+                                if length(Stro.FitInitial.coeffs)<length(Stro.FitInitial.start) % when hitting BkgLS sequentially
+                                dif=length(Stro.FitInitial.start)-length(Stro.FitInitial.coeffs);
+                                Stro.FitInitial.start(1:dif)=[];
+                                end
+                            
         % NO bkg in LS
         SP = [Stro.FitInitial.start];
         LB = [Stro.FitInitial.lower];
