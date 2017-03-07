@@ -175,7 +175,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
         result = names;
         end
-        % ==================================================================== %
+        
         
         function vals = get.PeakPositions(Stro)
         vals = zeros(1, Stro.NumFuncs);
@@ -254,7 +254,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             result = unique([constrained unconstrained], 'stable');
         end
         end
-        % ==================================================================== %
         
         function value = get.NumFiles(Stro)
         if isempty(Stro.DataSet)
@@ -264,7 +263,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
         
         end
-        % ==================================================================== %
         
         function value = getFunctionNames(Stro, file)
         value = [];
@@ -284,7 +282,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             value = Stro.FitFunctions{file}.Name;
         end
         end
-        % ==================================================================== %
         
         function result = get.NumFuncs(Stro)
         
@@ -295,7 +292,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
         
         end
-        % ==================================================================== %
         
         function Stro = constrain(Stro, coeff, fcnID)
         %CONSTRAIN(STRO, COEFF, FCNID) constrains the coefficient name (without
@@ -339,7 +335,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             end
         end
         end
-        % ==================================================================== %
         
         function Stro = unconstrain(Stro, coeff, fcnID)
         % COEFF is a string
@@ -359,7 +354,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             end 
         end
         end
-        % ==================================================================== %
         
         function output = getConstraints(Stro, arg)
         %OUTPUT = GETCONSTRAINTS_(STRO, ARG) returns two different types of
@@ -409,7 +403,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
         
         end
-        % ==================================================================== %
         
         function str = getEqnStr(Stro)
         %GETEQNSTR Returns a combined string equation of all the functions in the
@@ -429,7 +422,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             end
         end
         end
-        % ==================================================================== %
         
         function out = calculateBackground(Stro, file)
         Stro.Background.update2T([Stro.Min2T Stro.Max2T]);
@@ -438,7 +430,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
         out = Stro.Background.calculateFit(file);
         end
-        % ==================================================================== %
         
         function output = calculateFitInitial(Stro, fitinitial)
         %CALCULATEFITINITIAL calculates the current functions and returns an
@@ -461,7 +452,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             output(i,invalidNums) = 0;
         end
         end
-        % ==================================================================== %
 
         function Stro = setBackgroundPoints(Stro, points)
         %
@@ -472,7 +462,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         Stro.Background = Stro.Background.update2T([Stro.Min2T, Stro.Max2T]);
         Stro.Background.InitialPoints = points;
         end
-        % ======================================================================
         
         function Stro = setBackgroundOrder(Stro, value)
         Stro.Background.Order = value;
@@ -543,7 +532,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         output = utils.contains(lower(name), 'asym');
         
         end
-        % ==================================================================== %
         
         function output = getFunctions(Stro, fcnID)
         output = [];
@@ -580,7 +568,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
         
         end
-        % ==================================================================== %
                         
         function s = getFitOptions(Stro,RecycleSP)
         %FITDATA_ Helper function for fitDataSet. Fits a single file.

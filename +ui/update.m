@@ -395,6 +395,7 @@ elseif ~isempty(handles.profiles.FitResults) && ~isFitD&& ~handles.profiles.xrd.
                 if  isequal(handles.profiles.xrd.FitInitial.coeffs,handles.profiles.xrd.OriginalFitInitial.coeffs)
                         try
                     handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(dif:end); % update the table with fit results
+                    handles.profiles.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(dif:end); % update the actual FitInitial fed into LS and Parameter File
                         catch
                         end
                         
@@ -418,6 +419,8 @@ elseif ~isempty(handles.profiles.FitResults) && ~isFitD&& handles.profiles.xrd.B
     else
 handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(dif:end); % update the table with fit results
 handles.gui.FitInitial = handles.gui.FitInitial;
+handles.profiles.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(dif:end); % update the actual FitInitial fed into LS and Parameter File
+
     end
 else % Updating after changing number of functions and or constraints
     

@@ -79,14 +79,14 @@ classdef FileWriter < handle
        %
        %VARARGIN must have at least 1 element, where the last element is the extension to the file.
        profnum = this.Profiles.getCurrentProfileNumber;
-       str = [outpath fitname '_Profile_' num2str(profnum)];
+       str = [outpath fitname];
        for i=1:length(varargin)-1
            str = [str '_' varargin{i}]; %#ok<AGROW>
        end
        ext = varargin{end};
        n = 1;
        while exist([str ext], 'file') == 2
-           str = [str ' (' num2str(n) ')']; %#ok<AGROW>
+           str = [str ' _' num2str(n)]; %#ok<AGROW>
            n=n+1;
        end
        str = [str ext];
