@@ -434,7 +434,9 @@ this.xrd.PeakPositions(1:end)=0;
        ub    = textscan(line,'%s');
        ub    = ub{1}';
        init.upper    = str2double(ub(2:end));
+       this.FitResults=[];
        this.xrd.FitInitial = init;
+       this.xrd.FitInitial.coeffs=coeff;
        fclose(fid);
        end
        
