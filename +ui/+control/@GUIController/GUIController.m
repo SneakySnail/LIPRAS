@@ -22,10 +22,6 @@ classdef GUIController < handle
         
         PriorityStatus % Sets the statusbar text regardless of whether there is text 
         
-        SelectedCoeffResult
-        
-        SelectedPlotViewResult
-        
         YPlotScale
         
         XPlotScale
@@ -302,38 +298,6 @@ classdef GUIController < handle
         
         function wavelength = get.KAlpha2(this)
         wavelength = str2double(this.hg.edit_kalpha2.String);
-        end
-        
-        function set.SelectedCoeffResult(this, coeff)
-        % In table_results, selects the checkbox in the same row as COEFF 
-        table = this.hg.table_results;
-        row = find(strcmpi(table.RowName, coeff), 1);
-        table.Data(:,1) = {false};
-        table.Data{row, 1} = true;
-        end
-        
-        function set.SelectedPlotViewResult(this, view)
-        if strcmpi(view, 'peakfit')
-            this.hg.btns3.SelectedObject = this.hg.radio_peakeqn;
-        elseif strcmpi(view, 'coeff')
-            this.hg.btns3.SelectedObject = this.hg.radio_coeff;
-        end
-        end
-        
-        function value = get.SelectedPlotViewResult(this)
-        switch this.hg.btns3.SelectedObject.String
-            case 'Peak Fit'
-                value = 'peakfit';
-            case 'Coefficient Trends'
-                value = 'coeff';
-        end
-        end
-        
-        function idx = get.SelectedCoeffResult(this)
-        % Returns the index of the selected coefficient in table_results.
-        table = this.hg.table_results;
-        idx = find([table.Data{:,1}], 1);
-        
         end
         
         function set.FileNames(this, strcell)
