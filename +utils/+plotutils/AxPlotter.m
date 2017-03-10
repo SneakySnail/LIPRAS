@@ -110,7 +110,7 @@ classdef AxPlotter < matlab.mixin.SetGet
         %
         %   VAL = an integer 
         this.hg.popup_filename.Value = val;
-        this.hg.listbox_files.Value = val;
+        this.hg.listbox_results.Value = val;
         this.hg.text_filenum.String = [num2str(val) ' of ' num2str(length(this.FileNames))];
         this.CurrentFileNumber_ = val;
         this.title;

@@ -21,7 +21,7 @@ switch viewname
             'ColumnFormat', {'numeric'}, ...
             'ColumnWidth', {75}, ...
             'ColumnEditable', false);
-        set(handles.listbox_files, 'enable', 'on');
+        set(handles.listbox_results, 'enable', 'on');
         set(handles.popup_filename, 'enable', 'on');
         handles.gui.Plotter.updateXLabel(handles.axes1);
         handles.gui.Plotter.updateYLabel(handles.axes1);
@@ -30,7 +30,7 @@ switch viewname
     case 'coeff'
         cla(handles.axes1)
         handles.btns3.SelectedObject = handles.radio_coeff;
-        set(handles.listbox_files, 'enable', 'off');
+        set(handles.listbox_results, 'enable', 'off');
         set(handles.popup_filename, 'enable', 'off');
         coefflength = length(fitted.CoeffNames);
         set(handles.table_results, ...

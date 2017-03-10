@@ -28,7 +28,7 @@ try
     
         % Disable the figure while its plotting
     focusedObj = gcbo;
-    enabledObjs = findobj(handles.figure1,'Tag','listbox_files');
+    enabledObjs = findobj(handles.figure1,'Tag','listbox_results');
     set(enabledObjs, 'enable', 'inactive');
     
     switch lower(mode)

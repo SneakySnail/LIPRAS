@@ -454,7 +454,7 @@ else
     utils.plotutils.plotX(handles);
 end
 
-function listbox_files_Callback(hObject,evt, handles)
+function listbox_results_Callback(hObject,evt, handles)
 handles.gui.CurrentFile = hObject.Value;
 utils.plotutils.plotX(handles);
 

@@ -339,7 +339,7 @@ classdef GUIController < handle
         function set.FileNames(this, strcell)
         % Updates both the listbox in Tab 3 and the popup above the axes1.
         this.hg.popup_filename.String = strcell;
-        this.hg.listbox_files.String = strcell;
+        this.hg.listbox_results.String = strcell;
         end
         
         function set.hg(this, handles)
@@ -831,7 +831,7 @@ classdef GUIController < handle
         filenames = this.hg.popup_filename.String;
         filenames = flip(filenames);
         set(this.hg.popup_filename, 'String', filenames);
-        this.hg.listbox_files.String = filenames;
+        this.hg.listbox_results.String = filenames;
         end
         
         % Returns the coefficients row name as a 1xN cell array of strings.
