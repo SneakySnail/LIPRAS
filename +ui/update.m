@@ -107,7 +107,7 @@ handles.gui.ConstraintsInTable = [];
 function resetResultsTabView(handles)
 % Reset Results tab view
 handles.table_results.Data = cell([4 4]);
-handles.btns3.SelectedObject = handles.radio_peakeqn;
+handles.panel_choosePlotView.SelectedObject = handles.radio_peakeqn;
 
 function newDataSet(handles)
 clear(['+utils' filesep '+plotutils' filesep 'plotX'])
@@ -444,11 +444,30 @@ end
 function newFitResults(handles)
 profiles = handles.profiles;
 if profiles.hasFit
+    fitted = profiles.getProfileResult{handles.gui.CurrentFile};
+    coeffvals = getCoeffResultsForFillingTable(handles);
+    
     set(handles.push_fitdata, 'enable', 'on');
     set(handles.tab2_next, 'visible', 'on');
     set(handles.menu_save,'Enable','on');
     set(handles.tabpanel, 'TabEnables', {'on', 'on', 'on'});
     set(handles.push_viewall, 'enable', 'on', 'visible', 'on');
+    set(handles.table_results, ...
+            'Data', num2cell(coeffvals), ...
+            'RowName', fitted.CoeffNames, ...
+            'ColumnName', num2cell(1:handles.profiles.NumFiles), ...
+            'ColumnFormat', {'numeric'}, ...
+            'ColumnWidth', {75}, ...
+            'ColumnEditable', false);
     
     handles.gui.onPlotFitChange('peakfit');
 end
+
+function coeffvals = getCoeffResultsForFillingTable(handles)
+fitresults = handles.profiles.getProfileResult;
+fitted = fitresults{handles.gui.CurrentFile};
+coeffvals = zeros(length(fitresults), length(fitted.CoeffNames));
+for i=1:length(fitresults)
+    coeffvals(i, :) = fitresults{i}.CoeffValues;
+end
+coeffvals = transpose(coeffvals);

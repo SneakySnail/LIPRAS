@@ -366,8 +366,9 @@ function push_fitdata_Callback(~, ~, handles)
 try
     prfn = handles.profiles.ActiveProfile;    
     fitresults = handles.profiles.fitDataSet(prfn);
-    handles.profiles.xrd.OriginalFitInitial.coeffs=handles.gui.FitInitial.coeffs; % this is so when switching constraints, the table wont update with fitted values until a fit is done
-
+    
+    % this is so when switching constraints, the table wont update with fitted values until a fit is done
+    handles.profiles.xrd.OriginalFitInitial.coeffs=handles.gui.FitInitial.coeffs; 
     if ~isempty(fitresults)
         ui.update(handles, 'results');
         utils.plotutils.plotX(handles,'fit');
@@ -381,15 +382,11 @@ catch ME
     return
 end
 
+function tool_help_ClickedCallback(hObject, evt, handles)
+handles.figure1.CSHelpMode = 'on';
+
 function push_fitstats_Callback(~, ~, handles)
 handles.gui.onPlotFitChange('stats');
-
-
-function table_results_CellEditCallback(hObject,evt,handles)
-hObject.Data(:,1) = {false};
-hObject.Data{evt.Indices(1), 1} = true;
-utils.plotutils.plotX(handles, 'coeff');
-
 
 % Executes on button press in push_viewall.
 function push_viewall_Callback(hObject, eventdata, handles)
@@ -455,7 +452,23 @@ else
 end
 
 function listbox_results_Callback(hObject,evt, handles)
-handles.gui.CurrentFile = hObject.Value;
+%listbox_results_Callback executes when the selection is changed in the 
+%   listbox in the Results tab.
+%
+%   - If 'Peak Fit' view is selected, the listbox displays a list of all
+%   the files. When the selection is changed, it plots the fit for the 
+%   new selection.
+%   - If 'Coefficient Trends' is selected, the listbox displays a list of
+%   the coefficient names. When the selection is changed, it plots the
+%   coefficient values in a sequence for all files.
+selectedPlotView = handles.panel_choosePlotView.SelectedObject;
+selectedListItem = hObject.Value;
+switch selectedPlotView
+    case handles.radio_peakeqn
+        handles.gui.CurrentFile = selectedListItem;
+    case handles.radio_coeff
+        %TODO
+end
 utils.plotutils.plotX(handles);
 
 %% Toobar callback functions
@@ -559,6 +572,22 @@ set(h, 'Position',[500 440 400 180]) % posx, posy, horiz, vert
 ah=get(h,'CurrentAxes');
 c=get(ah,'Children');
 set(c,'FontSize',11);
+
+function panel_choosePlotView_SelectionChangedFcn(hObject, evt, handles)
+% Executes upon Plot View change in the Results tab.
+
+switch hObject.SelectedObject
+    case handles.radio_peakeqn
+        handles.gui.onPlotFitChange('peakfit');
+        
+    case handles.radio_coeff
+        handles.gui.onPlotFitChange('coeff');
+        
+    case handles.radio_statistics
+        hObject.SelectedObject = evt.OldValue;
+        handles.gui.onPlotFitChange('stats');
+        
+end
 
 
 %% Close request functions
