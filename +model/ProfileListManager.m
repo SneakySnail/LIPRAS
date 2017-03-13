@@ -434,9 +434,21 @@ this.xrd.PeakPositions(1:end)=0;
        ub    = textscan(line,'%s');
        ub    = ub{1}';
        init.upper    = str2double(ub(2:end));
+       % Read Bkg Coeffs if they are there
+       fgetl(fid);
+       line=fgetl(fid);
+       if line==-1
+       else
+           line=fgetl(fid);
+           BkgC=textscan(line,'%s');
+           BkgC=BkgC{1}';       
+           this.xrd.BkgCoeff=str2double(BkgC(2:end));
+
+       end
        this.FitResults=[];
        this.xrd.FitInitial = init;
        this.xrd.FitInitial.coeffs=coeff;
+
        fclose(fid);
        end
        

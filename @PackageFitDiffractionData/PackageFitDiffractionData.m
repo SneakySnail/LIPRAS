@@ -9,6 +9,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         %ProfileListManager.m line ~93
         FitInitial
         PrevNumFcn
+        BkgCoeff
         OriginalFitInitial
         MonoWavelength
         AbsoluteRange

@@ -116,6 +116,15 @@ end
         end
         this.CoeffNames    = coeffnames(this.FitType)';
         this.FitFunctions  = xrd.getFunctions;
+        
+        if xrd.BkgLS && ~isempty(xrd.BkgCoeff) && filenumber==1 % handling bkgCoeff refined and how they cycle after being refined
+            this.FitOptions.StartPoint(1:this.BackgroundOrder+1)=xrd.BkgCoeff;
+            
+        elseif xrd.BkgLS && ~isempty(xrd.BkgCoeff) && this.BackgroundOrder+1<length(xrd.BkgCoeff) && filenumber==1
+            disp('Bkg Order less than Bkg coefficients stored')
+        elseif xrd.BkgLS && xrd.recycle_results && ~isempty(xrd.BkgCoeff)
+            %Nothing keep it rolling
+        end
 %         disp(this.FitOptions.StartPoint) % to check SP being recycled
 
         if xrd.BkgLS
@@ -155,8 +164,8 @@ end
         this.FitInitial.start = this.FitOptions.StartPoint;
         end
             
-        if xrd.BkgLS
-           this.Background=polyval(this.CoeffValues(1,1:this.BackgroundOrder+1), this.TwoTheta);
+        if xrd.BkgLS % evaluates Poly Bkg based on refined Bkg Coefficients
+           this.Background=polyval(this.CoeffValues(1,1:this.BackgroundOrder+1), this.TwoTheta); 
         else
         end
         this.FitInitial.coeffs = this.CoeffNames;

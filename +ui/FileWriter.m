@@ -120,15 +120,34 @@ classdef FileWriter < handle
        fprintf(fid, ' {''%s''}', fitted.Constraints{:});
        fprintf(fid, '\nPeakPosition(s): ');
        fprintf(fid, '%f ', fitted.PeakPositions);
-       
+       if any(contains(fitted.CoeffNames, 'a'))  
+          id=max(1:fitted.BackgroundOrder+2); % so that bkg coefficients dont get written to output parameter file
+          bkgc=1;
+       else
+           id=1; % should not trigger unless bkg was not refined
+           bkgc=0;
+       end
        fprintf(fid, '\n\n== Initial Fit Parameters ==\n');
-       fprintf(fid, '%s ', fitted.CoeffNames{:}); %write coefficient names
+       fprintf(fid, '%s ', fitted.CoeffNames{id:end}); %write coefficient names
        fprintf(fid, '\nSP: ');
-       fprintf(fid, '%#.3f ', fitted.FitOptions.StartPoint);
+       fprintf(fid, '%#.5f ', fitted.FitOptions.StartPoint(id:end));
        fprintf(fid, '\nLB: ');
-       fprintf(fid, '%#.3f ', fitted.FitOptions.Lower);
+       if isempty(fitted.FitOptions.Lower) % when No Bounds was checked
+       fprintf(fid, '%#.5f ', (fitted.CoeffValues(id:end)-5*fitted.CoeffError(id:end)));
        fprintf(fid, '\nUB: ');
-       fprintf(fid, '%#.3f ', fitted.FitOptions.Upper);
+       fprintf(fid, '%#.5f ', (fitted.CoeffValues(id:end)+5*fitted.CoeffError(id:end)));   
+       else
+       fprintf(fid, '%#.5f ', fitted.FitOptions.Lower(id:end));
+       fprintf(fid, '\nUB: ');
+       fprintf(fid, '%#.5f ', fitted.FitOptions.Upper(id:end));
+       end
+       
+       if bkgc
+       fprintf(fid, '\n\n== Bkg Coeffs ==\n');
+       fprintf(fid,'SP: ');
+       fprintf(fid, '%#.5f ', fitted.FitOptions.StartPoint(1:id-1));
+       end
+       
        end
         
        function printFmodelValues(fitted, fid)
@@ -150,10 +169,16 @@ classdef FileWriter < handle
        fprintf(fid, '%s; ', fitted.FunctionNames{:});     
        fprintf(fid, '\n\n');
        
+        if any(contains(fitted.CoeffNames, 'a'))  
+          id=max(1:fitted.BackgroundOrder+2); % so that bkg coefficients dont get written to output parameter file
+       else
+           id=1; % should not trigger unless bkg was not refined
+       end
+       
        % Write column headers in the order: 
        %    FileName, N1, N1_Error, x1, x1_Error, (more coeffs)..., sse, rsquare, dfe, adjrsquare, rmse
        fprintf(fid, 'FileName\t');
-       for i=1:length(fitted.CoeffValues)
+       for i=1:length(fitted.CoeffValues(id:end))
            fprintf(fid, '%s\t%s\t', fitted.CoeffNames{i}, [fitted.CoeffNames{i} '_Error']);
        end
        fields = fieldnames(fitted.FmodelGOF);
