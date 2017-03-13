@@ -547,19 +547,52 @@ function menu_help_Callback(~,~)
 % ah=get(h,'CurrentAxes');
 % c=get(ah,'Children');
 % set(c,'FontSize',11);
+choosedialog
+    function choice = choosedialog
+btnsize=40;
+r1v=80;
+r1h=15;
 
-% Construct a questdlg with two options
-choice = questdlg('LIPRAS Documentation', ...
-	'LIPRAS','Ok', ...
-	'LIPRAS Web Page','Ok');
 
-% Handle response
-switch choice
-    case 'Ok'
-    case 'LIPRAS Web Page'
-        web('https://www.mse.ncsu.edu/research/jones/tools','-browser')
+    d = dialog('Position',[300 300 350 200],'Name','LIPRAS- Help');
+    txt = uicontrol('Parent',d,...
+           'Style','text',...
+           'Position',[70 120 210 40],...
+           'String','Select Topic','FontSize',11);
+       
+    btn1 = uicontrol('Parent',d,...
+           'Position',[125 10 100 btnsize],...
+           'String','Close','FontSize',11,...
+           'Callback','delete(gcf)');
+              
+    btn2 = uicontrol('Parent',d,...
+           'Position',[r1h r1v 100 btnsize],...
+           'FontSize',11,...
+           'Callback',@web1);
+       set(btn2, 'String', '<html>LIPRAS<br>Web Page');
+       
+    btn3 = uicontrol('Parent',d,...
+           'Position',[r1h+110 r1v 100 btnsize],...
+           'FontSize',11,...
+           'Callback',@web2);
+     set(btn3, 'String', '<html>Least-Squares<br>Fitting');
 
-end
+       
+      btn4 = uicontrol('Parent',d,...
+           'Position',[r1h+220 r1v 100 btnsize],...
+           'FontSize',11,...
+           'Callback',@web3);
+            set(btn4, 'String', '<html>Statistics');
+       
+    % Wait for d to close before running to completion
+    uiwait(d);
+
+        function web1(source,event)
+            web('https://www.mse.ncsu.edu/research/jones/tools','-browser')
+        function web2(source,event)
+            web('https://www.mathworks.com/help/curvefit/least-squares-fitting.html#bq_5kr9-3','-browser')
+        function web3(source,event)
+            web('https://www.mathworks.com/help/curvefit/evaluating-goodness-of-fit.html','-browser')
 
 
 function menu_about_Callback(~,~)
