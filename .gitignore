@@ -21,3 +21,5 @@ jmouseemu.m
 *.asv
 
 +model/desktop.ini
+
+**/*.html

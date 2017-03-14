@@ -450,7 +450,7 @@ this.xrd.PeakPositions(1:end)=0;
             prfn = this.getCurrentProfileNumber;
         end
         fitresults = cell(1, this.NumFiles);
-        msg = LiprasDialog.fittingDataSet;
+        msg = LiprasDialogCollection.fittingDataSet;
         for i=1:this.NumFiles
             this.Status = ['Fitting dataset ' num2str(i) ' of ' num2str(this.NumFiles) '...'];
             try

@@ -1,14 +1,26 @@
-classdef LiprasDialog
-    % Generates dialog boxes 
+classdef LiprasDialogCollection
+    % Class method to hold static functions that create dialog boxes.
     properties (Constant)
         ScreenSize = get(0, 'ScreenSize');
         
     end
     
     methods (Static)
+        function dlg = createCSHelpDialog()
+        %csHelpDialog creates a help dialog if one doesn't already
+        %exist and returns the handle to it. 
+        titleStr = 'Help';
+        helpStr = ui.LiprasInteractiveHelp.OpeningHelpStr;
+        options = struct('Interpreter','tex', 'WindowStyle', 'normal');
+        
+        dlg = msgbox(helpStr, titleStr, 'help', options);
+        set(dlg, 'DeleteFcn', @(o,e)helpDlg_DeleteFcn(o,e));
+        utils.figAlwaysOnTop(dlg);
+        end
+        
         function dlg = fittingDataSet()
         % Creates a dialog box with a Cancel button while waiting for fitting to complete.
-        dPosition = LiprasDialog.centeredPosition([400 150]);
+        dPosition = LiprasDialogCollection.centeredPosition([400 150]);
         msg = {'Peak fitting in progress. Please wait...', '', ...
                 'Close this window to cancel the fit or minimize it to continue working.'};
         dlg = dialog('Name', 'Fitting Dataset...', ...
@@ -42,6 +54,8 @@ classdef LiprasDialog
         end
         
         function exportPlotAsImage(handles)
+        %exportPlotAsImage prompts the user to select a file output
+        %   format. 
         name = 'Export Plot';
         prompt = 'Select the output format:';
         listed = {'.jpg', '.png', '.tif', '.pdf'};
@@ -86,8 +100,18 @@ classdef LiprasDialog
         function pos = centeredPosition(dSize)
         % Returns a 1x2 numeric array POS of the position the dialog box of size DSIZE should be 
         %   located to be centered on the screen.
-        pos = 0.5*[LiprasDialog.ScreenSize(3)-dSize(1), LiprasDialog.ScreenSize(4)-dSize(2)];
+        pos = 0.5*[LiprasDialogCollection.ScreenSize(3)-dSize(1), LiprasDialog.ScreenSize(4)-dSize(2)];
         pos = [pos dSize];
         end
     end
+end
+
+function helpDlg_DeleteFcn(hObject, ~)
+%helpDlg_DeleteFcn executes when the cshelp dialog box is closed.
+helper = getappdata(hObject, 'helper');
+if ~isempty(helper.hFig) && isvalid(helper.hFig)
+    handles = guidata(helper.hFig);
+    handles.gui.HelpMode = 'off';
+end
+delete(hObject);
 end

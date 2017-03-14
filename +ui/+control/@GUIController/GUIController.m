@@ -18,6 +18,8 @@ classdef GUIController < handle
     properties (Dependent)
         DataPath
         
+        HelpMode
+        
         Status % Sets the statusbar text if there is no text or if at least 2 seconds have passed
         
         PriorityStatus % Sets the statusbar text regardless of whether there is text 
@@ -30,7 +32,7 @@ classdef GUIController < handle
         
         CurrentProfile
         
-        % Integer of the file number visible in the plot
+        % Integer of the selected file
         CurrentFile
         
         NumPeaks
@@ -78,6 +80,7 @@ classdef GUIController < handle
    
     properties (Hidden)
         Data
+        HelpMode_
         NumPeakPositions
         Range2t
         DefaultOutputPath = ['FitOutputs' filesep];
@@ -189,6 +192,19 @@ classdef GUIController < handle
         
         function set.PriorityStatus(this, text)
         this.hg.statusbarObj.setText(text);
+        end
+        
+        function set.HelpMode(this, mode)
+        this.HelpMode_ = mode;
+        this.hg.figure1.CSHelpMode = mode;
+        helper = getappdata(this.hg.figure1, 'helper');
+        if isequal(mode, 'on')
+            helper.helpModeDidTurnOn(this.hg.figure1);
+        end
+        end
+        
+        function mode = get.HelpMode(this)
+        mode = this.HelpMode_;
         end
         
         function set.DataPath(this, pathname)
@@ -870,11 +886,8 @@ classdef GUIController < handle
         else
             value = true;
         end
-        
         end
-        
-        
     end
-    
 end
+
 

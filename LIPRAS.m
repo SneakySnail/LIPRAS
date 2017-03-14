@@ -137,7 +137,7 @@ handles.profiles.BackgroundPoints = points;
 ui.update(handles, 'backgroundpoints');
 utils.plotutils.plotX(handles, 'background');
 if length(points) <= handles.gui.PolyOrder
-    LiprasDialog.PolyNotUniqueWarning;
+    LiprasDialogCollection.PolyNotUniqueWarning;
 end
 
 function menu_xplotscale_Callback(o,e,handles)
@@ -383,7 +383,7 @@ catch ME
 end
 
 function tool_help_ClickedCallback(hObject, evt, handles)
-handles.figure1.CSHelpMode = 'on';
+handles.gui.HelpMode = hObject.State;
 
 function push_fitstats_Callback(~, ~, handles)
 handles.gui.onPlotFitChange('stats');
@@ -546,7 +546,7 @@ guidata(handles.figure1, handles);
 
 % Executes when the menu item 'Export->As Image' is clicked.
 function menu_saveasimage_Callback(o,e,handles)
-LiprasDialog.exportPlotAsImage(handles);
+LiprasDialogCollection.exportPlotAsImage(handles);
 
 
 function menu_preferences_Callback(~,~,~)
