@@ -195,11 +195,15 @@ classdef GUIController < handle
         end
         
         function set.HelpMode(this, mode)
+        % mode is `on` or `off`
         this.HelpMode_ = mode;
         this.hg.figure1.CSHelpMode = mode;
         helper = getappdata(this.hg.figure1, 'helper');
         if isequal(mode, 'on')
             helper.helpModeDidTurnOn(this.hg.figure1);
+        else
+            helper.helpModeDidTurnOff(this.hg.figure1);
+            this.hg.tool_help.State = 'off';
         end
         end
         

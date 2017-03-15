@@ -2,18 +2,17 @@ classdef LiprasDialogCollection
     % Class method to hold static functions that create dialog boxes.
     properties (Constant)
         ScreenSize = get(0, 'ScreenSize');
-        
+        HelpDlgTitle = 'LIPRAS Help';
     end
     
     methods (Static)
         function dlg = createCSHelpDialog()
         %csHelpDialog creates a help dialog if one doesn't already
         %exist and returns the handle to it. 
-        titleStr = 'Help';
-        helpStr = ui.LiprasInteractiveHelp.OpeningHelpStr;
-        options = struct('Interpreter','tex', 'WindowStyle', 'normal');
+        import ui.LiprasInteractiveHelp
+        helpStr = LiprasInteractiveHelp.OpeningHelpStr;
         
-        dlg = msgbox(helpStr, titleStr, 'help', options);
+        dlg = helpdlg(helpStr, LiprasDialogCollection.HelpDlgTitle);
         set(dlg, 'DeleteFcn', @(o,e)helpDlg_DeleteFcn(o,e));
         utils.figAlwaysOnTop(dlg);
         end
@@ -109,9 +108,13 @@ end
 function helpDlg_DeleteFcn(hObject, ~)
 %helpDlg_DeleteFcn executes when the cshelp dialog box is closed.
 helper = getappdata(hObject, 'helper');
-if ~isempty(helper.hFig) && isvalid(helper.hFig)
-    handles = guidata(helper.hFig);
-    handles.gui.HelpMode = 'off';
+try
+    if ~isempty(helper.hFig) && isvalid(helper.hFig)
+        handles = guidata(helper.hFig);
+        handles.gui.HelpMode = 'off';
+    end
+catch ME
+    errordlg(getReport(ME))
 end
 delete(hObject);
 end

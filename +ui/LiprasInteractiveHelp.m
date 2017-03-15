@@ -15,7 +15,7 @@ classdef LiprasInteractiveHelp < handle
     %   Author(s): Klarissa Ramos 03/2017
     
     properties
-        hFig % handle to the figure where cshelp is turned on
+        hFig % handle to the figure where cshelp was turned on
     end
    
     properties (Hidden)
@@ -23,17 +23,17 @@ classdef LiprasInteractiveHelp < handle
         % clicked object. If the user closes the help dialog, CSHelpMode 
         % is also turned off.
         HelpDlg_ 
-        HelpStr_
+        HelpStr_ = '';
     end
     
     % Tex-enabled help messages for components in the GUI
     properties (Constant, Hidden)
-        Formatting     = {'\fontsize{11}'};
+        Format         = '\fontsize{11}';
         OpeningHelpStr = {'Welcome to the interactive help for LIPRAS!' ... 
                           '' ...
-                          'Click on anything inside the figure to learn more about it.' ...
-                          ''
-                          'Close this dialog or '};
+                          'To learn more about what each button does, click on anything inside the figure.' ...
+                          '' ...
+                          'Close this window to exit Help Mode.'};
         
     end
   
@@ -53,38 +53,40 @@ classdef LiprasInteractiveHelp < handle
        
     methods
         function helpModeDidTurnOn(this, fig)
-        % Executes when the help mode for FIG is turned on. It creates and returns
-        %   a new help dialog that is always on top.
+        % Executes when the help mode for FIG is turned on. It creates
+        %   a new help dialog that is always on top and returns it.
         dlg = LiprasDialogCollection.createCSHelpDialog();
-        this.HelpDlg_ = dlg;
-        setappdata(dlg, 'helper', fig);
-        end
-
-
-        function edit_2T_HelpFcn(hObject, evt)
-        %EDIT_2T_HELPFCN executes when the edit 2T boxes are clicked while 
-        %   CSHelpMode is on.
+        setappdata(dlg, 'helper', this);
+        setappdata(this.hFig, 'hDlg', dlg);
         end
         
-        function backgroundEditMode_HelpFcn(hObject, evt)
-        %BACKGROUNDEDITMODE_HELPFCN executes when anything inside the 
-        %   background's Edit Mode panel is clicked while CSHelpMode is on.
-        
-        end
-        
-        
-    end
-    
-    methods
         function set.HelpStr(this, str)
         this.HelpStr_ = str;
+        title = LiprasDialogCollection.HelpDlgTitle;
+        oldDlg = getappdata(this.hFig, 'hDlg');
+        if isempty(oldDlg) || ~isvalid(oldDlg)
+            location = this.hFig.Position(1:2);
+        else
+            location = oldDlg.Position(1:2);
+        end
+        dlg = helpdlg(str, title);
+        set(dlg, 'Position', [location dlg.Position(3:4)]);
         
+        setappdata(dlg, 'helper', this);
+        setappdata(this.hFig, 'hDlg', dlg);
         end
         
         function str = get.HelpStr(this)
         str = this.HelpStr_;
         end
+        
+        function helpModeDidTurnOff(this, fig)
+        % Executes when the help mode for FIG is turned off. Deletes
+        % the help dialog if it exists
+        delete(this.HelpDlg_);
+        end
     end
+
     
     methods (Static)
         function init(fig)
@@ -105,7 +107,20 @@ function fig_HelpFcn(dlg, evt)
 %   user clicks somewhere inside the figure if `CSHelpMode`
 %   is turned on.
 
-% Open a help dialog
-clickedObj = gco;
+% Default message to display if there is no tooltip
+noHelpYetString = {'Sorry, there is no help available yet.', ...
+                   '', ...
+                   'Coming soon!'};
+try
+    clickedObj = gco;
+    helper = getappdata(dlg, 'helper');
+    msg = clickedObj.TooltipString;
+    if isempty(noHelpYetString)
+        msg = noHelpYetString;
+    end
+catch ME
+    msg = noHelpYetString;
+end
 
+helper.HelpStr = msg;
 end
