@@ -1,13 +1,36 @@
-# LIPRAS, Line-Profile Analysis Software
-Authors: Giovanni Esteves, Klarissa Ramos, Chris Fancher, and Jacob Jones
+# Line-Profile Analysis Software (LIPPRAS)
 
-An easy to use GUI that enables customizable peak fitting. For any region of the inputted data, user can choose which profile functions to apply to the fit, constrain profile functions, and view the resulting fit in terms of the profile functions chosen.
+##Authors
+Giovanni Esteves, Klarissa Ramos, Chris Fancher, and Jacob Jones
 
+## What is LIPRAS?
+LIPRAS [*LEEP-ruhs*], short for **Line-Profile Analysis Software**, is a graphical user interface for least-squares fitting of profile regions in powder diffraction data. For any region of the inputted data, user can choose which profile functions to apply to the fit, constrain profile functions, and view the resulting fit in terms of the profile functions chosen. It is available on both Mac and Windows operating systems.
+
+## Why should I use it?
+You can use LIPRAS to visualize and analyze a set of measured diffraction files. 
+
+With LIPRAS, you can:
+
+* Customize the background fit <*add more stuff here?*> 
+* Quickly extract relevant peak information about the **position**, **full-width half-max (FWHM)**, **intensity**, and **peak shape**
+* Fit up to **20 peaks** in the current profile region
+* Choose from 5 different peak-shape functions: **Gaussian**, **Lorentzian**, **Pseudo-Voigt**, and **Pearson VII**, with an additional modified function **Asymmetric Pearson VII**
+* Automatically calculate **Cu-K$\alpha$2 peaks** in laboratory x-ray data
+* Change any of the starting fit values and instantly view a sample plot of the fit, all before you even hit the **Fit** button
+* 
+
+
+## Installation
+You can start using LIPRAS  
+
+
+## License
 LIPRAS BSD License,
 Copyright (c) 2017, North Carolina State University
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided
 that the following conditions are met:
+
 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the
 following disclaimer.
 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
