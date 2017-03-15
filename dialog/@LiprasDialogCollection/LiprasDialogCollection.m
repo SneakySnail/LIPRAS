@@ -99,7 +99,8 @@ classdef LiprasDialogCollection
         function pos = centeredPosition(dSize)
         % Returns a 1x2 numeric array POS of the position the dialog box of size DSIZE should be 
         %   located to be centered on the screen.
-        pos = 0.5*[LiprasDialogCollection.ScreenSize(3)-dSize(1), LiprasDialog.ScreenSize(4)-dSize(2)];
+        pos = 0.5*[LiprasDialogCollection.ScreenSize(3)-dSize(1), ...
+                   LiprasDialogCollection.ScreenSize(4)-dSize(2)];
         pos = [pos dSize];
         end
     end
