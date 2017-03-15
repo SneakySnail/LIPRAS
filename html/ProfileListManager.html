@@ -1,0 +1,1096 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>ProfileListManager</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-03-12"><meta name="DC.source" content="ProfileListManager.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="keyword">classdef</span> ProfileListManager &lt; handle &amp; matlab.mixin.SetGet
+    <span class="comment">%PROFILELISTMANAGER Maintains a list of PackageFitDiffractionData objects.</span>
+    <span class="comment">%   Only a single instance is allowed. To get the handle to the currently</span>
+    <span class="comment">%   existing ProfileListManager instance, call the static method</span>
+    <span class="comment">%   ProfileListManager.getInstance.</span>
+   <span class="keyword">properties</span>
+
+       DataPath = [];
+
+       OutputPath = [<span class="string">'FitOutputs'</span> filesep];
+
+       FitResults <span class="comment">% each profile results in a cell</span>
+
+   <span class="keyword">end</span>
+
+   <span class="keyword">properties</span> (Dependent)
+       ActiveProfile
+
+       FileNames
+
+       NumFiles
+
+       Min2T
+
+       Max2T
+
+       BackgroundPoints
+
+       NumPeaks
+
+       FcnNames
+
+       PeakPositions
+
+       FitInitial
+   <span class="keyword">end</span>
+
+   <span class="keyword">properties</span> (Dependent, Hidden)
+       xrd
+
+       CuKa
+
+       KAlpha1=1.54000;
+
+       KAlpha2 = 1.544426;
+   <span class="keyword">end</span>
+
+   <span class="keyword">properties</span> (SetObservable)
+       Status <span class="comment">% has priority over the GUIController status</span>
+   <span class="keyword">end</span>
+
+   <span class="keyword">properties</span> (Hidden)
+       ext <span class="comment">% file type for this dataset</span>
+       FullTwoThetaRange
+<span class="comment">%        FullIntensityData</span>
+       Temperature
+       kBeta
+       RKa1Ka2
+
+       Validator
+
+       ValidFunctions = {<span class="string">'Gaussian'</span>, <span class="string">'Lorentzian'</span>, <span class="string">'Pearson VII'</span>, <span class="string">'Pseudo-Voigt'</span>, <span class="string">'Asymmetric Pearson VII'</span>};
+
+       xrdContainer
+
+       initialXRD_
+
+       Writer
+
+      CurrentProfileNumber_ = 0;
+
+   <span class="keyword">end</span>
+
+
+   <span class="keyword">methods</span> (Access = private)
+       <span class="keyword">function</span> this = ProfileListManager()
+       this.xrdContainer = [];
+       <span class="keyword">end</span>
+   <span class="keyword">end</span>
+
+   <span class="keyword">methods</span>
+       <span class="keyword">function</span> set.Min2T(this, min2t)
+       this.xrd.Min2T = this.Validator.min2T(min2t);
+       this.xrd.setBackgroundPoints(this.Validator.backgroundPoints);
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> min2t = get.Min2T(this)
+       min2t = this.xrd.Min2T;
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> set.Max2T(this, max2t)
+       this.xrd.Max2T = this.Validator.max2T(max2t);
+       this.xrd.setBackgroundPoints(this.Validator.backgroundPoints);
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> max2t = get.Max2T(this)
+       max2t = this.xrd.Max2T;
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> set.BackgroundPoints(this, points)
+       validpoints = this.Validator.backgroundPoints(points);
+       this.xrd.setBackgroundPoints(validpoints);
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> points = get.BackgroundPoints(this)
+       points = this.Validator.backgroundPoints();
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> set.NumPeaks(this, num)
+       num = this.Validator.numberOfPeaks(num);
+       oldfcns = this.FcnNames;
+       newfcns = cell(1,num);
+       <span class="keyword">for</span> i=1:num
+           <span class="keyword">if</span> i &lt;= length(oldfcns) &amp;&amp; ~isempty(oldfcns{i})
+               newfcns{i} = oldfcns{i};
+           <span class="keyword">else</span>
+               <span class="keyword">break</span>
+           <span class="keyword">end</span>
+       <span class="keyword">end</span>
+       this.xrd.setFunctions(newfcns);
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> num = get.NumPeaks(this)
+       <span class="comment">% Returns the number of unique peaks</span>
+       peakcoeffs = find(contains(this.xrd.getCoeffs, <span class="string">'x'</span>));
+       num = length(peakcoeffs);
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> set.FcnNames(this, fcns)
+       <span class="comment">% fcns is a string cell array</span>
+       this.xrd.setFunctions(fcns);
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> fcns = get.FcnNames(this)
+       <span class="comment">% Returns a string cell array of the function names</span>
+       fcns = this.xrd.getFunctionNames;
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> set.PeakPositions(this, pos)
+       this.xrd.PeakPositions = this.Validator.peakPositions(pos);
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> pos = get.PeakPositions(this)
+       pos = this.Validator.peakPositions;
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> set.FitInitial(this, fitbounds)
+       <span class="comment">% If FitInitial is set to 'default', it fills all the empty coefficicient values with default</span>
+       <span class="comment">% values but doesn't replace any existing ones.</span>
+       <span class="comment">%</span>
+       <span class="comment">% If FitInitial is set to 'new', it overwrites all empty fit initial values with the default</span>
+       <span class="comment">% coefficient values.</span>
+       <span class="keyword">if</span> ischar(fitbounds)
+           defaultBounds = this.xrd.getDefaultBounds;
+           <span class="keyword">if</span> strcmpi(fitbounds, <span class="string">'default'</span>)
+               this.xrd.FitInitial = this.Validator.defaultFitBoundsPreserved(defaultBounds);
+           <span class="keyword">elseif</span> strcmpi(fitbounds, <span class="string">'new'</span>)
+               this.xrd.FitInitial = defaultBounds;
+               this.xrd.FitInitial = this.Validator.verifiedFitBounds(defaultBounds);
+           <span class="keyword">end</span>
+       <span class="keyword">else</span>
+           this.xrd.FitInitial = this.Validator.verifiedFitBounds(fitbounds);
+       <span class="keyword">end</span>
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> vals = get.FitInitial(this)
+       vals = this.xrd.FitInitial;
+       <span class="keyword">end</span>
+
+   <span class="keyword">end</span>
+
+   <span class="keyword">methods</span>
+       <span class="keyword">function</span> isNew = newXRD(this, path, filename)
+       isNew = false;
+        <span class="keyword">try</span>
+    PrefFile=fopen(<span class="string">'Preference File.txt'</span>,<span class="string">'r'</span>);
+    this.DataPath=fscanf(PrefFile,<span class="string">'%c'</span>);
+    this.DataPath(end)=[]; <span class="comment">% method above adds a white space at the last character that messes with import</span>
+    fclose(PrefFile);
+        <span class="keyword">catch</span>
+        <span class="keyword">end</span>
+
+
+       <span class="keyword">if</span> nargin &lt; 2
+           [data, filename, path] = utils.fileutils.newDataSet(this.DataPath);
+           <span class="keyword">if</span> isempty(data)
+               <span class="keyword">return</span>
+           <span class="keyword">end</span>
+       <span class="keyword">else</span> <span class="comment">% if xrd was already created, just save as the new xrd</span>
+           data = utils.fileutils.newDataSet(path,filename);
+       <span class="keyword">end</span>
+       isNew = true;
+       this.reset();
+       this.initialXRD_ = PackageFitDiffractionData(data, filename);
+       this.initialXRD_.DataPath = path;
+       this.ext = data(1).ext;
+
+       xrdItem = this.initialXRD_;
+       this.FullTwoThetaRange = xrdItem.getTwoTheta;
+       this.DataPath = xrdItem.DataPath;
+       xrdItem.OutputPath = [xrdItem.DataPath <span class="string">'FitOutputs'</span> filesep];
+       xrdItem.MonoWavelength=data.Wavelength;
+       this.OutputPath = xrdItem.OutputPath;
+       this.Writer = ui.FileWriter(this);
+       this.xrdContainer = this.initialXRD_;
+
+       <span class="keyword">if</span> strcmpi(this.ext, <span class="string">'.xrdml'</span>)
+           this.Temperature = {data.Temperature};
+           this.KAlpha1 = data(1).KAlpha1;
+           this.KAlpha2 = data(1).KAlpha2;
+           this.kBeta = data(1).kBeta;
+           this.RKa1Ka2 = data(1).RKa1Ka2;
+           this.CuKa = true;
+       <span class="keyword">else</span>
+           this.CuKa = false;
+       <span class="keyword">end</span>
+
+       this.Validator = utils.Validator(this, this.xrd);
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> files = get.FileNames(this)
+       <span class="keyword">if</span> isempty(this.xrd)
+           files = <span class="string">''</span>;
+           <span class="keyword">return</span>
+       <span class="keyword">end</span>
+       files = this.xrd.getFileNames;
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> numfiles = get.NumFiles(this)
+       <span class="keyword">if</span> isempty(this.xrd)
+           numfiles = 0;
+           <span class="keyword">return</span>
+       <span class="keyword">end</span>
+       numfiles = length(this.xrd.getFileNames);
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> set.CuKa(this, value)
+       <span class="keyword">if</span> ~isempty(this.xrd)
+           this.xrd.CuKa = value;
+       <span class="keyword">end</span>
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> val = get.CuKa(this)
+       val = [];
+       <span class="keyword">if</span> isempty(this.xrd)
+           <span class="keyword">return</span>
+       <span class="keyword">end</span>
+       val = this.xrd.CuKa;
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> set.KAlpha1(this, value)
+       <span class="keyword">try</span>
+           this.xrd.KAlpha1 = value;
+       <span class="keyword">catch</span>
+       <span class="keyword">end</span>
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> val = get.KAlpha1(this)
+       val = [];
+       <span class="keyword">if</span> ~isempty(this.xrd)
+           val = this.xrd.KAlpha1;
+       <span class="keyword">end</span>
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> set.KAlpha2(this, value)
+       <span class="keyword">try</span>
+           <span class="keyword">if</span> ~isempty(this.xrd)
+               this.xrd.KAlpha2 = value;
+           <span class="keyword">end</span>
+       <span class="keyword">catch</span>
+       <span class="keyword">end</span>
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> val = get.KAlpha2(this)
+       val = [];
+       <span class="keyword">try</span>
+           <span class="keyword">if</span> ~isempty(this.xrd)
+               val = this.xrd.KAlpha2;
+           <span class="keyword">end</span>
+       <span class="keyword">catch</span>
+       <span class="keyword">end</span>
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> set.ActiveProfile(this, number)
+       <span class="keyword">if</span> number &lt; 1
+           this.CurrentProfileNumber_ = 1;
+       <span class="keyword">elseif</span> number &gt; this.getNumProfiles
+           this.CurrentProfileNumber_ = this.getNumProfiles;
+       <span class="keyword">else</span>
+           this.CurrentProfileNumber_ = number;
+       <span class="keyword">end</span>
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> number = get.ActiveProfile(this)
+       number = 1;
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> this = reset(this)
+       <span class="keyword">if</span> isempty(this.initialXRD_)
+           this.xrdContainer = [];
+           this.CurrentProfileNumber_ = 0;
+           this.Writer = [];
+       <span class="keyword">else</span>
+<span class="comment">%            this.xrdContainer = copy(this.initialXRD_);</span>
+this.FitResults=[];
+this.xrd.FitInitial=[];
+this.xrd.PeakPositions(1:end)=0;
+           this.Writer = ui.FileWriter(this);
+       <span class="keyword">end</span>
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> output = hasData(this)
+        <span class="keyword">if</span> isempty(this.xrdContainer)
+            output = false;
+        <span class="keyword">else</span>
+            output = true;
+        <span class="keyword">end</span>
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> a = hasFit(this)
+        <span class="keyword">if</span> isempty(this.FitResults) || isempty(this.FitResults{1})
+            a = false;
+        <span class="keyword">else</span>
+            a = true;
+        <span class="keyword">end</span>
+        <span class="keyword">end</span>
+
+
+       <span class="keyword">function</span> num = getCurrentProfileNumber(this)
+       num = this.CurrentProfileNumber_;
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> value = getNumProfiles(this)
+       <span class="comment">%GETNUMPROFILES Returns the total number of profiles.</span>
+       <span class="keyword">if</span> isempty(this.xrdContainer)
+           value = 0;
+       <span class="keyword">else</span>
+           value = length(this.xrdContainer);
+       <span class="keyword">end</span>
+       <span class="keyword">end</span>
+
+
+       <span class="keyword">function</span> this = exportProfileParametersFile(this)
+       <span class="comment">% Assuming there is already a fit</span>
+       this.Writer.saveAsFitParameters(this.getProfileResult);
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> this = importProfileParametersFile(this, filename)
+       <span class="comment">%IMPORTPROFILEPARAMETERSFILE(PATH, FILENAME) Reads a parameters file into</span>
+       <span class="comment">%    the current profile.</span>
+       fid = fopen(filename, <span class="string">'r'</span>);
+       <span class="keyword">if</span> fid == -1
+           errordlg(<span class="string">'Parameter file could not be opened.'</span>)
+       <span class="keyword">end</span>
+       <span class="keyword">while</span> ~feof(fid)
+          line = fgetl(fid);
+          a = strsplit(line,<span class="string">' '</span>);
+          <span class="keyword">switch</span> a{1}
+              <span class="keyword">case</span> <span class="string">'2ThetaRange:'</span>
+                  min = str2double(a{2});
+                  max = str2double(a{3});
+              <span class="keyword">case</span> <span class="string">'BackgroundModel:'</span>
+                  model = a{2};
+              <span class="keyword">case</span> <span class="string">'PolynomialOrder:'</span>
+                  polyorder = str2double(a{2});
+              <span class="keyword">case</span> <span class="string">'BackgroundPoints:'</span>
+                bkgdpoints = str2double(a(2:end));
+              <span class="keyword">case</span> <span class="string">'Cu-KAlpha1:'</span>
+                  <span class="keyword">if</span> ~isequal(a{2}, <span class="string">'n/a'</span>)
+                      ka1 = str2double(a{2});
+                  <span class="keyword">else</span>
+                      ka1 = [];
+                  <span class="keyword">end</span>
+              <span class="keyword">case</span> <span class="string">'Cu-KAlpha2:'</span>
+                  <span class="keyword">if</span> ~isequal(a{2}, <span class="string">'n/a'</span>)
+                      ka2 = str2double(a{2});
+                  <span class="keyword">else</span>
+                      ka2 = [];
+                  <span class="keyword">end</span>
+              <span class="keyword">case</span> <span class="string">'FitFunction(s):'</span>
+                line = fgetl(fid);
+                fxn = strsplit(line, <span class="string">'; '</span>);
+                <span class="keyword">if</span> isempty(fxn{end})
+                    fxn(end) = [];
+                <span class="keyword">end</span>
+              <span class="keyword">case</span> <span class="string">'PeakPosition(s):'</span>
+                peakpos = str2double(a(2:end));
+                peakpos = peakpos(1:length(fxn));
+              <span class="keyword">case</span> <span class="string">'Constraints:'</span>
+                  this.xrd.unconstrain(<span class="string">'Nxfwm'</span>);
+                  str = a(2:end);
+            <span class="keyword">case</span> <span class="string">'=='</span>
+                <span class="keyword">break</span>
+              <span class="keyword">otherwise</span>
+          <span class="keyword">end</span>
+       <span class="keyword">end</span>
+       this.xrd.Min2T = min;
+       this.xrd.Max2T = max;
+       <span class="keyword">if</span> ~isempty(ka2)
+           this.xrd.KAlpha2 = ka2;
+           this.xrd.CuKa = true;
+       <span class="keyword">end</span>
+        <span class="keyword">if</span> ~isempty(ka1)
+         this.xrd.KAlpha1 = ka1;
+       <span class="keyword">end</span>
+       this.xrd.setBackgroundModel(model);
+       this.xrd.setBackgroundOrder(polyorder);
+       this.xrd.setBackgroundPoints(bkgdpoints);
+       this.xrd.setFunctions(fxn);
+       this.xrd.PeakPositions = peakpos;
+       <span class="keyword">for</span> i=1:length(str)
+           cons = strtok(str{i}, <span class="string">'{''''}'</span>);
+           this.xrd.constrain(cons, i);
+       <span class="keyword">end</span>
+       <span class="comment">% Read coefficient names</span>
+       line  = fgetl(fid);
+       coeff = textscan(line, <span class="string">'%s'</span>);
+       coeff = coeff{1}';
+       <span class="keyword">if</span> ~isequal(coeff, this.xrd.getCoeffs)
+           error(<span class="string">'Coefficients do not match'</span>)
+       <span class="keyword">end</span>
+       <span class="comment">% Read SP values</span>
+       line  = fgetl(fid);
+       start    = textscan(line,<span class="string">'%s'</span>);
+       start    = start{1}';
+       init.start    = str2double(start(2:end));
+       <span class="comment">% Read UB values</span>
+       line  = fgetl(fid);
+       lower    = textscan(line,<span class="string">'%s'</span>);
+       lower    = lower{1}';
+       init.lower    = str2double(lower(2:end));
+       <span class="comment">% Read LB values</span>
+       line  = fgetl(fid);
+       ub    = textscan(line,<span class="string">'%s'</span>);
+       ub    = ub{1}';
+       init.upper    = str2double(ub(2:end));
+       this.FitResults=[];
+       this.xrd.FitInitial = init;
+       this.xrd.FitInitial.coeffs=coeff;
+       fclose(fid);
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> results = getProfileResult(this, ~)
+       results = this.FitResults{1};
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> fitresults = fitDataSet(this, prfn)
+        <span class="comment">% Fits the entire dataset for the current profile and saves it as a cell array of FitResults.</span>
+        <span class="keyword">if</span> nargin &lt; 2
+            prfn = this.getCurrentProfileNumber;
+        <span class="keyword">end</span>
+        fitresults = cell(1, this.NumFiles);
+        msg = LiprasDialog.fittingDataSet;
+        <span class="keyword">for</span> i=1:this.NumFiles
+            this.Status = [<span class="string">'Fitting dataset '</span> num2str(i) <span class="string">' of '</span> num2str(this.NumFiles) <span class="string">'...'</span>];
+            <span class="keyword">try</span>
+                <span class="comment">% stop the fit if the user closes the msgbox</span>
+<span class="comment">%                 if ~isvalid(msg)</span>
+<span class="comment">%                     this.Status = 'Stopped fitting dataset.';</span>
+<span class="comment">%                     fitresults = [];</span>
+<span class="comment">%                     return</span>
+<span class="comment">%                 end</span>
+                fitresults{i} = model.FitResults(this, i);
+            <span class="keyword">catch</span> exception
+                delete(msg)
+                exception.getReport
+                rethrow(exception)
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+        delete(msg);
+        this.FitResults{prfn} = fitresults;
+        this.Writer.printFitOutputs(fitresults);
+        <span class="keyword">end</span>
+   <span class="keyword">end</span>
+
+   <span class="keyword">methods</span>
+       <span class="keyword">function</span> value = get.xrd(this)
+       value = [];
+       <span class="keyword">try</span>
+           value = this.xrdContainer(1);
+       <span class="keyword">catch</span>
+       <span class="keyword">end</span>
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> set.xrd(this, xrd)
+       this.xrdContainer(this.CurrentProfileNumber_) = xrd;
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> xdata = dspace(this, twotheta)
+        xdata = this.KAlpha1 ./ (2*sind(twotheta./2));
+       <span class="keyword">end</span>
+
+       <span class="keyword">function</span> xdata = twotheta(this, dspace)
+       xdata = 2*asind(this.KAlpha1 ./ (2*dspace));
+       <span class="keyword">end</span>
+   <span class="keyword">end</span>
+
+   <span class="keyword">methods</span> (Static)
+
+       <span class="keyword">function</span> singleObj = getInstance(obj)
+       <span class="keyword">persistent</span> localObj;
+       <span class="keyword">if</span> nargin &gt; 0
+           localObj = obj;
+       <span class="keyword">elseif</span> isempty(localObj) || ~isvalid(localObj)
+           localObj = model.ProfileListManager();
+       <span class="keyword">end</span>
+       singleObj = localObj;
+       <span class="keyword">end</span>
+   <span class="keyword">end</span>
+
+
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+classdef ProfileListManager < handle & matlab.mixin.SetGet
+    %PROFILELISTMANAGER Maintains a list of PackageFitDiffractionData objects.
+    %   Only a single instance is allowed. To get the handle to the currently
+    %   existing ProfileListManager instance, call the static method
+    %   ProfileListManager.getInstance.
+   properties
+       
+       DataPath = [];
+       
+       OutputPath = ['FitOutputs' filesep];
+       
+       FitResults % each profile results in a cell
+       
+   end
+   
+   properties (Dependent)
+       ActiveProfile
+       
+       FileNames 
+       
+       NumFiles
+       
+       Min2T
+       
+       Max2T
+       
+       BackgroundPoints
+       
+       NumPeaks
+       
+       FcnNames
+       
+       PeakPositions
+       
+       FitInitial
+   end
+   
+   properties (Dependent, Hidden)
+       xrd
+       
+       CuKa
+       
+       KAlpha1=1.54000;
+       
+       KAlpha2 = 1.544426; 
+   end
+   
+   properties (SetObservable)
+       Status % has priority over the GUIController status
+   end
+   
+   properties (Hidden)
+       ext % file type for this dataset
+       FullTwoThetaRange
+%        FullIntensityData
+       Temperature
+       kBeta
+       RKa1Ka2
+       
+       Validator 
+       
+       ValidFunctions = {'Gaussian', 'Lorentzian', 'Pearson VII', 'Pseudo-Voigt', 'Asymmetric Pearson VII'};
+       
+       xrdContainer
+       
+       initialXRD_
+       
+       Writer
+              
+      CurrentProfileNumber_ = 0;
+      
+   end
+   
+   
+   methods (Access = private)
+       function this = ProfileListManager()
+       this.xrdContainer = [];
+       end
+   end
+   
+   methods 
+       function set.Min2T(this, min2t)
+       this.xrd.Min2T = this.Validator.min2T(min2t);
+       this.xrd.setBackgroundPoints(this.Validator.backgroundPoints);
+       end
+       
+       function min2t = get.Min2T(this)
+       min2t = this.xrd.Min2T;
+       end
+       
+       function set.Max2T(this, max2t)
+       this.xrd.Max2T = this.Validator.max2T(max2t);
+       this.xrd.setBackgroundPoints(this.Validator.backgroundPoints);
+       end
+       
+       function max2t = get.Max2T(this)
+       max2t = this.xrd.Max2T;
+       end
+       
+       function set.BackgroundPoints(this, points)
+       validpoints = this.Validator.backgroundPoints(points);
+       this.xrd.setBackgroundPoints(validpoints);
+       end
+       
+       function points = get.BackgroundPoints(this)
+       points = this.Validator.backgroundPoints();
+       end
+       
+       function set.NumPeaks(this, num)
+       num = this.Validator.numberOfPeaks(num);
+       oldfcns = this.FcnNames;
+       newfcns = cell(1,num);
+       for i=1:num
+           if i <= length(oldfcns) && ~isempty(oldfcns{i})
+               newfcns{i} = oldfcns{i};
+           else
+               break
+           end
+       end
+       this.xrd.setFunctions(newfcns);
+       end
+       
+       function num = get.NumPeaks(this)
+       % Returns the number of unique peaks
+       peakcoeffs = find(contains(this.xrd.getCoeffs, 'x'));
+       num = length(peakcoeffs);
+       end
+       
+       function set.FcnNames(this, fcns)
+       % fcns is a string cell array
+       this.xrd.setFunctions(fcns);
+       end
+       
+       function fcns = get.FcnNames(this)
+       % Returns a string cell array of the function names
+       fcns = this.xrd.getFunctionNames;
+       end
+       
+       function set.PeakPositions(this, pos)
+       this.xrd.PeakPositions = this.Validator.peakPositions(pos);
+       end
+       
+       function pos = get.PeakPositions(this)
+       pos = this.Validator.peakPositions;
+       end
+       
+       function set.FitInitial(this, fitbounds)
+       % If FitInitial is set to 'default', it fills all the empty coefficicient values with default
+       % values but doesn't replace any existing ones.
+       %
+       % If FitInitial is set to 'new', it overwrites all empty fit initial values with the default
+       % coefficient values.
+       if ischar(fitbounds)
+           defaultBounds = this.xrd.getDefaultBounds;
+           if strcmpi(fitbounds, 'default')
+               this.xrd.FitInitial = this.Validator.defaultFitBoundsPreserved(defaultBounds);
+           elseif strcmpi(fitbounds, 'new')
+               this.xrd.FitInitial = defaultBounds;
+               this.xrd.FitInitial = this.Validator.verifiedFitBounds(defaultBounds);
+           end
+       else
+           this.xrd.FitInitial = this.Validator.verifiedFitBounds(fitbounds);
+       end
+       end
+       
+       function vals = get.FitInitial(this)
+       vals = this.xrd.FitInitial;
+       end
+       
+   end
+   
+   methods
+       function isNew = newXRD(this, path, filename)
+       isNew = false;
+        try
+    PrefFile=fopen('Preference File.txt','r');
+    this.DataPath=fscanf(PrefFile,'%c');
+    this.DataPath(end)=[]; % method above adds a white space at the last character that messes with import
+    fclose(PrefFile);
+        catch
+        end
+       
+       
+       if nargin < 2
+           [data, filename, path] = utils.fileutils.newDataSet(this.DataPath);
+           if isempty(data)
+               return
+           end
+       else % if xrd was already created, just save as the new xrd
+           data = utils.fileutils.newDataSet(path,filename);
+       end
+       isNew = true;
+       this.reset();
+       this.initialXRD_ = PackageFitDiffractionData(data, filename);
+       this.initialXRD_.DataPath = path;
+       this.ext = data(1).ext;
+       
+       xrdItem = this.initialXRD_;
+       this.FullTwoThetaRange = xrdItem.getTwoTheta;
+       this.DataPath = xrdItem.DataPath;
+       xrdItem.OutputPath = [xrdItem.DataPath 'FitOutputs' filesep];
+       xrdItem.MonoWavelength=data.Wavelength;
+       this.OutputPath = xrdItem.OutputPath;
+       this.Writer = ui.FileWriter(this);
+       this.xrdContainer = this.initialXRD_;
+       
+       if strcmpi(this.ext, '.xrdml')
+           this.Temperature = {data.Temperature};
+           this.KAlpha1 = data(1).KAlpha1;
+           this.KAlpha2 = data(1).KAlpha2;
+           this.kBeta = data(1).kBeta;
+           this.RKa1Ka2 = data(1).RKa1Ka2;
+           this.CuKa = true;
+       else
+           this.CuKa = false;
+       end
+       
+       this.Validator = utils.Validator(this, this.xrd);
+       end
+       
+       function files = get.FileNames(this)
+       if isempty(this.xrd)
+           files = '';
+           return
+       end
+       files = this.xrd.getFileNames;
+       end
+       
+       function numfiles = get.NumFiles(this)
+       if isempty(this.xrd)
+           numfiles = 0;
+           return
+       end
+       numfiles = length(this.xrd.getFileNames);
+       end
+       
+       function set.CuKa(this, value)
+       if ~isempty(this.xrd)
+           this.xrd.CuKa = value;
+       end
+       end
+       
+       function val = get.CuKa(this)
+       val = [];
+       if isempty(this.xrd)
+           return
+       end
+       val = this.xrd.CuKa;
+       end
+       
+       function set.KAlpha1(this, value)
+       try
+           this.xrd.KAlpha1 = value;
+       catch
+       end
+       end
+       
+       function val = get.KAlpha1(this)
+       val = [];
+       if ~isempty(this.xrd)
+           val = this.xrd.KAlpha1;
+       end
+       end
+       
+       function set.KAlpha2(this, value)
+       try
+           if ~isempty(this.xrd)
+               this.xrd.KAlpha2 = value;
+           end
+       catch
+       end
+       end
+       
+       function val = get.KAlpha2(this)
+       val = [];
+       try
+           if ~isempty(this.xrd)
+               val = this.xrd.KAlpha2;
+           end
+       catch
+       end
+       end
+       
+       function set.ActiveProfile(this, number)
+       if number < 1
+           this.CurrentProfileNumber_ = 1;
+       elseif number > this.getNumProfiles
+           this.CurrentProfileNumber_ = this.getNumProfiles;
+       else
+           this.CurrentProfileNumber_ = number;
+       end
+       end
+       
+       function number = get.ActiveProfile(this)
+       number = 1;
+       end
+       
+       function this = reset(this)
+       if isempty(this.initialXRD_)
+           this.xrdContainer = [];
+           this.CurrentProfileNumber_ = 0;
+           this.Writer = [];
+       else
+%            this.xrdContainer = copy(this.initialXRD_);
+this.FitResults=[];
+this.xrd.FitInitial=[];
+this.xrd.PeakPositions(1:end)=0;
+           this.Writer = ui.FileWriter(this);
+       end
+       end
+       
+       function output = hasData(this)
+        if isempty(this.xrdContainer)
+            output = false;
+        else
+            output = true;
+        end
+       end 
+       
+       function a = hasFit(this)
+        if isempty(this.FitResults) || isempty(this.FitResults{1})
+            a = false;
+        else
+            a = true;
+        end
+        end
+       
+       
+       function num = getCurrentProfileNumber(this)
+       num = this.CurrentProfileNumber_;
+       end
+       
+       function value = getNumProfiles(this)
+       %GETNUMPROFILES Returns the total number of profiles.
+       if isempty(this.xrdContainer)
+           value = 0;
+       else
+           value = length(this.xrdContainer);
+       end
+       end
+       
+       
+       function this = exportProfileParametersFile(this)
+       % Assuming there is already a fit
+       this.Writer.saveAsFitParameters(this.getProfileResult);
+       end
+        
+       function this = importProfileParametersFile(this, filename)
+       %IMPORTPROFILEPARAMETERSFILE(PATH, FILENAME) Reads a parameters file into
+       %    the current profile.
+       fid = fopen(filename, 'r');
+       if fid == -1
+           errordlg('Parameter file could not be opened.')
+       end
+       while ~feof(fid)
+          line = fgetl(fid);
+          a = strsplit(line,' ');
+          switch a{1}
+              case '2ThetaRange:'
+                  min = str2double(a{2});
+                  max = str2double(a{3});
+              case 'BackgroundModel:'
+                  model = a{2};
+              case 'PolynomialOrder:'
+                  polyorder = str2double(a{2});
+              case 'BackgroundPoints:'
+                bkgdpoints = str2double(a(2:end));
+              case 'Cu-KAlpha1:'
+                  if ~isequal(a{2}, 'n/a')
+                      ka1 = str2double(a{2});
+                  else
+                      ka1 = [];
+                  end
+              case 'Cu-KAlpha2:'
+                  if ~isequal(a{2}, 'n/a')
+                      ka2 = str2double(a{2});
+                  else
+                      ka2 = [];
+                  end
+              case 'FitFunction(s):'
+                line = fgetl(fid);
+                fxn = strsplit(line, '; ');
+                if isempty(fxn{end})
+                    fxn(end) = [];
+                end
+              case 'PeakPosition(s):'
+                peakpos = str2double(a(2:end));
+                peakpos = peakpos(1:length(fxn));
+              case 'Constraints:'
+                  this.xrd.unconstrain('Nxfwm');
+                  str = a(2:end);
+            case '=='
+                break
+              otherwise
+          end
+       end
+       this.xrd.Min2T = min;
+       this.xrd.Max2T = max;
+       if ~isempty(ka2)
+           this.xrd.KAlpha2 = ka2;
+           this.xrd.CuKa = true;
+       end
+        if ~isempty(ka1)
+         this.xrd.KAlpha1 = ka1;
+       end
+       this.xrd.setBackgroundModel(model);
+       this.xrd.setBackgroundOrder(polyorder);
+       this.xrd.setBackgroundPoints(bkgdpoints);
+       this.xrd.setFunctions(fxn);
+       this.xrd.PeakPositions = peakpos;
+       for i=1:length(str)
+           cons = strtok(str{i}, '{''''}');
+           this.xrd.constrain(cons, i);
+       end
+       % Read coefficient names
+       line  = fgetl(fid);
+       coeff = textscan(line, '%s');
+       coeff = coeff{1}';
+       if ~isequal(coeff, this.xrd.getCoeffs)
+           error('Coefficients do not match')
+       end
+       % Read SP values
+       line  = fgetl(fid);
+       start    = textscan(line,'%s');
+       start    = start{1}';
+       init.start    = str2double(start(2:end));
+       % Read UB values
+       line  = fgetl(fid);
+       lower    = textscan(line,'%s');
+       lower    = lower{1}';
+       init.lower    = str2double(lower(2:end));
+       % Read LB values
+       line  = fgetl(fid);
+       ub    = textscan(line,'%s');
+       ub    = ub{1}';
+       init.upper    = str2double(ub(2:end));
+       this.FitResults=[];
+       this.xrd.FitInitial = init;
+       this.xrd.FitInitial.coeffs=coeff;
+       fclose(fid);
+       end
+       
+       function results = getProfileResult(this, ~)
+       results = this.FitResults{1};
+       end
+       
+       function fitresults = fitDataSet(this, prfn)
+        % Fits the entire dataset for the current profile and saves it as a cell array of FitResults.
+        if nargin < 2
+            prfn = this.getCurrentProfileNumber;
+        end
+        fitresults = cell(1, this.NumFiles);
+        msg = LiprasDialog.fittingDataSet;
+        for i=1:this.NumFiles
+            this.Status = ['Fitting dataset ' num2str(i) ' of ' num2str(this.NumFiles) '...'];
+            try
+                % stop the fit if the user closes the msgbox
+%                 if ~isvalid(msg)
+%                     this.Status = 'Stopped fitting dataset.';
+%                     fitresults = [];
+%                     return
+%                 end
+                fitresults{i} = model.FitResults(this, i);
+            catch exception
+                delete(msg)
+                exception.getReport
+                rethrow(exception)
+            end
+        end
+        delete(msg);
+        this.FitResults{prfn} = fitresults;
+        this.Writer.printFitOutputs(fitresults);
+        end
+   end
+        
+   methods
+       function value = get.xrd(this)
+       value = [];
+       try
+           value = this.xrdContainer(1);
+       catch
+       end
+       end
+       
+       function set.xrd(this, xrd)
+       this.xrdContainer(this.CurrentProfileNumber_) = xrd;
+       end
+       
+       function xdata = dspace(this, twotheta)
+        xdata = this.KAlpha1 ./ (2*sind(twotheta./2));
+       end
+       
+       function xdata = twotheta(this, dspace)
+       xdata = 2*asind(this.KAlpha1 ./ (2*dspace));
+       end
+   end
+   
+   methods (Static)
+       
+       function singleObj = getInstance(obj)
+       persistent localObj;
+       if nargin > 0
+           localObj = obj;
+       elseif isempty(localObj) || ~isvalid(localObj)
+           localObj = model.ProfileListManager(); 
+       end
+       singleObj = localObj;
+       end
+   end
+   
+   
+end
+##### SOURCE END #####
+--></body></html>
