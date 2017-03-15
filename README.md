@@ -4,7 +4,7 @@
 Giovanni Esteves, Klarissa Ramos, Chris Fancher, and Jacob Jones
 
 ## What is LIPRAS?
-LIPRAS [*LEEP-ruhs*], short for **Line-Profile Analysis Software**, is a graphical user interface for least-squares fitting of profile regions in powder diffraction data. For any region of the inputted data, user can choose which profile functions to apply to the fit, constrain profile functions, and view the resulting fit in terms of the profile functions chosen. It is available on both Mac and Windows operating systems.
+LIPRAS [*LEEP-ruhs*], short for **Line-Profile Analysis Software**, is a graphical user interface for least-squares fitting of peaks in powder diffraction data. For any region of the inputted data, user can choose which profile functions to apply to the fit, constrain profile functions, and view the resulting fit in terms of the profile functions chosen. It is available on both Mac and Windows operating systems.
 
 ## Why should I use it?
 You can use LIPRAS to visualize and analyze a set of measured diffraction files. 
@@ -16,8 +16,9 @@ With LIPRAS, you can:
 * Fit up to **20 peaks** in the current profile region
 * Choose from 5 different peak-shape functions: **Gaussian**, **Lorentzian**, **Pseudo-Voigt**, and **Pearson VII**, with an additional modified function **Asymmetric Pearson VII**
 * Automatically calculate **Cu-K$\alpha$2 peaks** in laboratory x-ray data
-* Change any of the starting fit values and instantly view a sample plot of the fit, all before you even hit the **Fit** button
-* 
+* Change any of the starting fit values and instantly view a sample plot of the fit, all before you even hit the Fit button
+* Visualize your results with a plot of the **Peak Fit** equation an error plot, or switch to the **Coefficient Trends** view to observe patterns within your data set
+* And much more!
 
 
 ## Installation
