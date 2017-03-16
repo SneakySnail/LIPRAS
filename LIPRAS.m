@@ -193,6 +193,11 @@ end
 % Plots the background points selected.
 function push_fitbkgd_Callback(hObject, ~, handles)
 import utils.plotutils.*
+
+if Validate_bkg(handles) % checks to make sure BkgOrder is not greater than points selected
+    return
+end
+
 if ~handles.gui.areFuncsReady || handles.gui.isFitDirty 
     plotX(handles, 'background');
 else
@@ -278,6 +283,13 @@ function push_update_Callback(hObject, ~, handles)
 % This function sets the table_fitinitial in the GUI to have the coefficients for the new
 % user-inputted function names.
 % It also saves handles.guidata into handles.xrd
+
+% Doesnt update if BkgOrder is larger than points selected
+if Validate_bkg(handles) % checks to make sure BkgOrder is not greater than points selected
+    return
+end
+         
+
 handles.profiles.FcnNames = handles.gui.FcnNames;
 handles.profiles.FitInitial = 'default';
 
@@ -288,13 +300,20 @@ utils.plotutils.plotX(handles,'sample');
 handles.gui.Legend = 'reset';
 
 handles.gui.PriorityStatus = 'Fit options were updated.';
+ 
 
 
 % Executes on button press of 'Select Peak(s)'.
 function push_selectpeak_Callback(hObject, ~, handles)
 import utils.contains
 import utils.plotutils.*
+
+if Validate_bkg(handles) % checks to make sure BkgOrder is not greater than points selected
+    return
+end
+
 positions = utils.plotutils.selectPeakPoints(handles);
+
 if length(positions) < handles.profiles.NumPeaks
     plotX(handles, 'sample');
 else
@@ -363,6 +382,11 @@ guidata(hObject,handles)
 
 % Executes on button press in push_fitdata.
 function push_fitdata_Callback(~, ~, handles)
+    
+if Validate_bkg(handles)
+    return
+end
+    
 try
     prfn = handles.profiles.ActiveProfile;    
     fitresults = handles.profiles.fitDataSet(prfn);
@@ -536,17 +560,128 @@ function menu_saveasimage_Callback(o,e,handles)
 LiprasDialog.exportPlotAsImage(handles);
 
 
-function menu_preferences_Callback(~,~,~)
-folder_name=uigetdir;
-PreferenceFile=fopen('Preference File.txt','w');
-fprintf(PreferenceFile,'%s\n',folder_name);
+function menu_preferences_Callback(o,e,handles)
+    pref(o,e,handles);
+    
+
+    function Wgt=pref(o,e,handles)
+btnsize=30;
+r1v=50;
+r1h=15;
+textb=10;
+
+    d = dialog('Position',[50 700 350 200],'Name','Preferences');
+
+    btn1 = uicontrol('Parent',d,...
+           'Position',[125 10 100 btnsize],...
+           'String','Close','FontSize',textb,...
+           'Callback','delete(gcf)');
+    
+% Starting Director for Files      
+    edbox1= uicontrol('Parent',d,...
+           'Position',[r1h-90 r1v+45 300 btnsize],...
+           'Style','text',...
+           'FontSize',textb, 'String','Set Starting Directory:');
+       
+    btn2 = uicontrol('Parent',d,...
+           'Position',[r1h+200 r1v+50 100 btnsize],...
+           'FontSize',textb,...
+           'Callback',@openD);
+       set(btn2, 'String', '<html><center>Select Directory</center>');
+       
+% LSQ Weights
+          edbox2= uicontrol('Parent',d,...
+           'Position',[r1h-90 r1v-5 300 btnsize],...
+           'Style','text',...
+           'FontSize',textb, 'String','Least Squares Weights:');         
+            
+            pop1=uicontrol('Parent',d,...
+                'Position', [r1h+200 r1v 100 btnsize],...
+                'FontSize',textb,...
+                'String', {'None','1/obs','1/sqrt(obs)','1/max(obs)','Linear','Sqrt','Log10'},...
+                'Style','popup',...
+                'Callback',@(o,e)LIPRAS('weight',o,e,handles));
+try            
+lst=handles.profiles.xrd.Weights;
+catch
+    lst='None';
+end
+if strcmp(lst,'None');id=1;
+elseif strcmp(lst,'1/obs');id=2;
+elseif strcmp(lst,'1/sqrt(obs)'); id=3;
+elseif strcmp(lst,'1/max(obs)');id=4;
+elseif strcmp(lst,'Linear'); id=5;
+elseif strcmp(lst,'Sqrt'); id=6;
+elseif strcmp(lst,'Log10'); id=7;
+else
+    id=1;
+end
+             set(pop1,'Value',id)
+             
+             
+    % Unique Save      
+                chkbox1 = uicontrol('Parent',d,...
+           'Position',[r1h+250 r1v+97 100 btnsize],...
+           'FontSize',textb,...
+           'Style','checkbox',...
+           'Callback',@(o,e)LIPRAS('uniqueSav',o,e,handles));
+       try
+                if handles.profiles.xrd.UniqueSave==1
+                    set(chkbox1,'Value',1);
+                else
+                end
+       catch
+       end
+       
+          textbox3= uicontrol('Parent',d,...
+           'Position',[r1h-90 r1v+90 300 btnsize],...
+           'Style','text',...
+           'FontSize',textb, 'String','Toggle Unique Save:');         
+       
+       uiwait(d)
+
+
+    
+    function openD(~,~,~)
+        folder_name=uigetdir;
+            PreferenceFile=fopen('Preference File.txt','w');
+            fprintf(PreferenceFile,'%s\n',folder_name);
+            fclose all;
+ 
+            function weight(o, ~, handles)
+                val=o.Value; % identifies what was selected
+                w=o.String(val);
+                try
+                dd=['Setting weights to ' w];
+                handles.profiles.xrd.Weights=w{:};
+                disp(dd)
+                catch
+                    msgbox('Load Data First')
+                end
+           
+                
+                function uniqueSav(hObject,~,handles)
+                val=hObject.Value; % identifies what was selected
+                if val
+                    try
+                    handles.profiles.xrd.UniqueSave=1;
+                    disp('Unique Save On')
+                    catch
+                        msgbox('Load Data First')
+                    end
+                else
+                    try
+                    handles.profiles.xrd.UniqueSave=0;
+                    catch
+                        msgbox('Load Data First')
+                    end
+                    disp('Unique Save Off')
+                end
+               
+
 
 function menu_help_Callback(~,~)
-% h=msgbox('LIPRAS Web Page- https://www.mse.ncsu.edu/research/jones/tools', 'Help');
-% set(h, 'Position',[500 440 400 50]) % posx, posy, height, width
-% ah=get(h,'CurrentAxes');
-% c=get(ah,'Children');
-% set(c,'FontSize',11);
+
 choosedialog
     function choice = choosedialog
 btnsize=40;
@@ -612,6 +747,24 @@ I=flipud(I);
 image(I)
 truesize
 
+    function vali=Validate_bkg(handles)
+        
+             if length(handles.profiles.xrd.getBackgroundPoints) <= handles.profiles.xrd.getBackgroundOrder
+                  d = dialog('Position',[300 500 300 120],'Name','Warning:');
+        txt = uicontrol('Parent',d,...
+              'Style','text',...
+              'Position',[25 10 270 100],...
+              'String',{'Polynomial order is greater than or equal to the number of points selected, add more background points or reduce polynomial order'},'FontSize',10);
+        btn1 = uicontrol('Parent',d,...
+           'Position',[100 10 100 30],...
+           'String','Ok','FontSize',11,...
+           'Callback','delete(gcf)');
+       vali=1;
+                return 
+             else
+                 vali=0;
+            end
+    
 
 %% Close request functions
 function figure1_CloseRequestFcn(~, ~, handles)

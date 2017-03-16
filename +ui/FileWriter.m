@@ -36,8 +36,27 @@ classdef FileWriter < handle
            fits = {fits};
        end
        profnum = this.Profiles.getCurrentProfileNumber;
-       outpath = [this.OutputPath 'FitData' filesep];
-       masterfilename = [outpath fits{1}.FileName '_Master_Profile_' num2str(profnum) '.Fmodel'];
+       if this.Profiles.xrd.UniqueSave
+              index = 0;
+            iprefix = '00';
+            while exist(strcat(this.OutputPath,'Fit_',strcat(iprefix,num2str(index))),'dir') ==7
+                index = index + 1;
+                if index > 100
+                    iprefix = '';
+                elseif index > 10
+                    iprefix = '0';
+                end
+            end
+            outpath=strcat(this.OutputPath,'Fit_',strcat(iprefix,num2str(index)), filesep);  
+            mkdir(outpath)
+       else
+            outpath = [this.OutputPath 'FitData' filesep];
+            if exist(outpath,'dir')==0 % incase user deletes this folder
+                mkdir(outpath)
+            end
+       end
+      
+       masterfilename = [outpath fits{1}.FileName '_Master_Profile_' '.Fmodel'];
        fidmaster = fopen(masterfilename, 'w');
        this.printFmodelHeader(fits{1}, fidmaster);
        
@@ -78,18 +97,24 @@ classdef FileWriter < handle
        %FITNAME is the name of the file that was fitted. 
        %
        %VARARGIN must have at least 1 element, where the last element is the extension to the file.
-       profnum = this.Profiles.getCurrentProfileNumber;
        str = [outpath fitname];
        for i=1:length(varargin)-1
            str = [str '_' varargin{i}]; %#ok<AGROW>
        end
        ext = varargin{end};
-       n = 1;
-       while exist([str ext], 'file') == 2
-           str = [str ' _' num2str(n)]; %#ok<AGROW>
-           n=n+1;
-       end
-       str = [str ext];
+       
+            index = 0;
+            iprefix = '00';
+       while exist(strcat(str,'_',strcat(iprefix,num2str(index)),'.txt'),'file') ==2
+                index = index + 1;
+                if index > 100
+                    iprefix = '';
+                elseif index > 10
+                    iprefix = '0';
+                end
+        end
+            str=[strcat(str,'_',strcat(iprefix,num2str(index))) ext];  
+       
        end
        
    end
