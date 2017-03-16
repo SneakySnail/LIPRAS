@@ -91,6 +91,8 @@ handles.statusbarObj.setText(handles.profiles.Status);
 %  Executes on button press in button_browse.
 function button_browse_Callback(hObject, evt, handles)
 handles.gui.PriorityStatus = 'Browsing for dataset... ';
+
+
 if isfield(evt, 'test')
     isNew = handles.profiles.newXRD(evt.path, evt.filename);
 else
@@ -387,6 +389,11 @@ if Validate_bkg(handles)
     return
 end
     
+% From Preferences
+handles.profiles.xrd.Weights=handles.profiles.Weights;
+handles.profiles.xrd.UniqueSave=handles.profiles.UniqueSave;
+
+
 try
     prfn = handles.profiles.ActiveProfile;    
     fitresults = handles.profiles.fitDataSet(prfn);
@@ -543,11 +550,15 @@ if filename ~= 0
 end
 
 function menu_FileResetProfile_Callback(o,e,handles)
+    if isempty(handles.profiles.xrd)
+        msgbox('Nothing to reset')
+    else
 handles.profiles.reset;
 cla(handles.axes1);
 ui.update(handles, 'dataset');
 utils.plotutils.plotX(handles, 'data');
 handles.gui.Legend = 'reset';
+    end
 
 function menu_restart_Callback(o,e,handles)
 delete(handles.figure1);
@@ -564,7 +575,7 @@ function menu_preferences_Callback(o,e,handles)
     pref(o,e,handles);
     
 
-    function Wgt=pref(o,e,handles)
+    function pref(~,~,handles)
 btnsize=30;
 r1v=50;
 r1h=15;
@@ -573,9 +584,14 @@ textb=10;
     d = dialog('Position',[50 700 350 200],'Name','Preferences');
 
     btn1 = uicontrol('Parent',d,...
-           'Position',[125 10 100 btnsize],...
+           'Position',[175 10 100 btnsize],...
            'String','Close','FontSize',textb,...
            'Callback','delete(gcf)');
+       
+     btns = uicontrol('Parent',d,...
+           'Position',[50 10 100 btnsize],...
+           'String','Save to File','TooltipString','Save Preferences to a text file that is read with newly imported data','FontSize',textb,...
+           'Callback',@(o,e)LIPRAS('SavePref',o,e,handles));
     
 % Starting Director for Files      
     edbox1= uicontrol('Parent',d,...
@@ -585,8 +601,8 @@ textb=10;
        
     btn2 = uicontrol('Parent',d,...
            'Position',[r1h+200 r1v+50 100 btnsize],...
-           'FontSize',textb,...
-           'Callback',@openD);
+           'FontSize',textb,'TooltipString','After selecting directory, hit "Save to File" to preserve for next LIPRAS startup',...
+           'Callback',@(o,e)LIPRAS('openD',o,e,handles));
        set(btn2, 'String', '<html><center>Select Directory</center>');
        
 % LSQ Weights
@@ -599,10 +615,10 @@ textb=10;
                 'Position', [r1h+200 r1v 100 btnsize],...
                 'FontSize',textb,...
                 'String', {'None','1/obs','1/sqrt(obs)','1/max(obs)','Linear','Sqrt','Log10'},...
-                'Style','popup',...
+                'Style','popup','TooltipString','Takes immediate effect, hit "Save to File" to preserve for next LIPRAS startup',...
                 'Callback',@(o,e)LIPRAS('weight',o,e,handles));
 try            
-lst=handles.profiles.xrd.Weights;
+lst=handles.profiles.Weights;
 catch
     lst='None';
 end
@@ -623,10 +639,10 @@ end
                 chkbox1 = uicontrol('Parent',d,...
            'Position',[r1h+250 r1v+97 100 btnsize],...
            'FontSize',textb,...
-           'Style','checkbox',...
+           'Style','checkbox','TooltipString','Generates new folder everytime a fit is conducted, takes immediate effect, hit "Save to File" to preserve for next LIPRAS startup',...
            'Callback',@(o,e)LIPRAS('uniqueSav',o,e,handles));
        try
-                if handles.profiles.xrd.UniqueSave==1
+                if handles.profiles.UniqueSave==1
                     set(chkbox1,'Value',1);
                 else
                 end
@@ -642,18 +658,26 @@ end
 
 
     
-    function openD(~,~,~)
+    function openD(~,~,handles)
         folder_name=uigetdir;
-            PreferenceFile=fopen('Preference File.txt','w');
-            fprintf(PreferenceFile,'%s\n',folder_name);
-            fclose all;
+
+handles.profiles.DataPath=folder_name;
  
+        function SavePref(~,~,handles)
+       PreferenceFile=fopen('Preference File.txt','w');
+            fprintf(PreferenceFile,'%s %s\n','OpenDirectory=',handles.profiles.DataPath);
+            fprintf(PreferenceFile,'%s %s\n','Weights=',handles.profiles.Weights);
+            fprintf(PreferenceFile,'%s %i\n','UniqueSave=',handles.profiles.UniqueSave);
+
+            fclose all;
+            
+
             function weight(o, ~, handles)
                 val=o.Value; % identifies what was selected
                 w=o.String(val);
                 try
                 dd=['Setting weights to ' w];
-                handles.profiles.xrd.Weights=w{:};
+                handles.profiles.Weights=w{:};
                 disp(dd)
                 catch
                     msgbox('Load Data First')
@@ -664,14 +688,14 @@ end
                 val=hObject.Value; % identifies what was selected
                 if val
                     try
-                    handles.profiles.xrd.UniqueSave=1;
+                    handles.profiles.UniqueSave=1;
                     disp('Unique Save On')
                     catch
                         msgbox('Load Data First')
                     end
                 else
                     try
-                    handles.profiles.xrd.UniqueSave=0;
+                    handles.profiles.UniqueSave=0;
                     catch
                         msgbox('Load Data First')
                     end
@@ -683,7 +707,8 @@ end
 function menu_help_Callback(~,~)
 
 choosedialog
-    function choice = choosedialog
+
+    function choosedialog
 btnsize=40;
 r1v=80;
 r1h=15;
@@ -722,11 +747,11 @@ textb=10;
     % Wait for d to close before running to completion
     uiwait(d);
 
-        function web1(source,event)
+        function web1(~,~)
             web('https://www.mse.ncsu.edu/research/jones/tools','-browser')
-        function web2(source,event)
+        function web2(~,~)
             web('https://www.mathworks.com/help/curvefit/least-squares-fitting.html#bq_5kr9-3','-browser')
-        function web3(source,event)
+        function web3(~,~)
             web('https://www.mathworks.com/help/curvefit/evaluating-goodness-of-fit.html','-browser')
 
 

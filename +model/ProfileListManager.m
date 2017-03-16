@@ -8,7 +8,8 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        DataPath = [];
        
        OutputPath = ['FitOutputs' filesep];
-       
+       Weights='None'
+       UniqueSave=0;
        FitResults % each profile results in a cell
        
    end
@@ -174,12 +175,17 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        isNew = false;
         try
     PrefFile=fopen('Preference File.txt','r');
-    this.DataPath=fscanf(PrefFile,'%c');
-    this.DataPath(end)=[]; % method above adds a white space at the last character that messes with import
+    dat=fscanf(PrefFile,'%c');
+    sdat=strsplit(dat,'\n');
+    data_path=strsplit(sdat{1},'= ');
+    rWeights=strsplit(sdat{2},'= ');
+    rUniqueSave=strsplit(sdat{3},'= ');
     fclose(PrefFile);
         catch
         end
-       
+        
+        this.DataPath=data_path{2};
+
        
        if nargin < 2
            [data, filename, path] = utils.fileutils.newDataSet(this.DataPath);
@@ -203,6 +209,10 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        this.OutputPath = xrdItem.OutputPath;
        this.Writer = ui.FileWriter(this);
        this.xrdContainer = this.initialXRD_;
+       
+       this.Weights=rWeights{2};
+       this.DataPath=data_path{2};
+       this.UniqueSave=str2double(rUniqueSave{2});
        
        if strcmpi(this.ext, '.xrdml')
            this.Temperature = {data.Temperature};

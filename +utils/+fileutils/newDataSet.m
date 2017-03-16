@@ -2,12 +2,12 @@
 function [data, filename, datapath] = newDataSet(datapath, filename)
 %   DATAPATH is the folder to initially open.
 try
-    PrefFile=fopen('Preference File.txt','r');
-    data_path=fscanf(PrefFile,'%c');
-    data_path(end)=[]; % method above adds a white space at the last character that messes with import
-    fclose(PrefFile);
+%     PrefFile=fopen('Preference File.txt','r');
+%     data_path=fscanf(PrefFile,'%c');
+%     data_path(end)=[]; % method above adds a white space at the last character that messes with import
+%     fclose(PrefFile);
 catch
-    data_path=cd;
+%     data_path=cd;
 end
 
 % allowedFiles = {'*.csv; *.txt; *.xy; *.fxye; *.dat; *.xrdml; *.chi; *.spr'}; % underdevelopment
