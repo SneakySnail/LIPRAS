@@ -1,5 +1,0 @@
-This is an output file from a MATLAB routine.
-The following peaks are all of the type: Asymmetric Pearson VII; Asymmetric Pearson VII; 
-
-FileName	NL1	NL1_Error	NR1	NR1_Error	x1	x1_Error	f1	f1_Error	mL1	mL1_Error	mR1	mR1_Error	NL2	NL2_Error	NR2	NR2_Error	x2	x2_Error	f2	f2_Error	mL2	mL2_Error	mR2	mR2_Error	sse	rsquare	dfe	adjrsquare	rmse	
-PZT-000_xy	21.29230	1.02612	34.35791	3.37019	1.62379	0.00046	0.01541	0.00113	2.51551	0.76081	0.84592	0.09400	21.96351	1.25900	19.15392	1.19646	1.66793	0.00049	0.01583	0.00117	5.39187	4.48923	7.53924	7.93313	658.06957	0.99762	76.00000	0.99728	2.94259	
