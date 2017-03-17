@@ -181,10 +181,13 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
     rWeights=strsplit(sdat{2},'= ');
     rUniqueSave=strsplit(sdat{3},'= ');
     fclose(PrefFile);
+    this.DataPath=data_path{2};
+    this.Weights=rWeights{2};
+    this.UniqueSave=str2double(rUniqueSave{2});
+
         catch
         end
         
-        this.DataPath=data_path{2};
 
        
        if nargin < 2
@@ -210,9 +213,7 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        this.Writer = ui.FileWriter(this);
        this.xrdContainer = this.initialXRD_;
        
-       this.Weights=rWeights{2};
-       this.DataPath=data_path{2};
-       this.UniqueSave=str2double(rUniqueSave{2});
+
        
        if strcmpi(this.ext, '.xrdml')
            this.Temperature = {data.Temperature};
