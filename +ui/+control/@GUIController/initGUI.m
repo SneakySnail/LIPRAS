@@ -19,7 +19,6 @@ addControlListeners();
     setappdata(handles.figure1, 'oldpath', path);
     directory = strsplit(which('LIPRAS'),filesep);
     addpath(strjoin(directory(1:end-1),filesep)); % add root directory of LIPRAS to path
-    addpath(genpath([pwd '/callbacks']));
     addpath(genpath([pwd '/dialog']));
     addpath(genpath([pwd '/listener']));
     end
@@ -46,6 +45,8 @@ addControlListeners();
         'ClickedCallback', @(o,e)utils.plotutils.toggleZoom(o,e));
     set(handles.uitoggletool2, ...
         'ClickedCallback', @(o,e)utils.plotutils.toggleZoom(o,e));
+    set(handles.tool_help, ...
+        'ClickedCallback', @(o,e)LIPRAS('tool_help_ClickedCallback',o,e,guidata(o)));
     
     % Requires a Java status bar to exist
     if ~isfield(handles, 'statusbarObj')
@@ -75,11 +76,9 @@ addControlListeners();
     set([handles.axes1 handles.axes2], 'Units', 'normalized');
     setappdata(handles.axes1, 'OriginalSize', handles.axes1.OuterPosition);
     setappdata(handles.axes2, 'OriginalSize', handles.axes2.OuterPosition);
+    
+    ui.LiprasInteractiveHelp.init(handles.figure1);
     end
-% ==========================================================================
-
-
-
 % ==========================================================================
 
 % Creates the Java status bar, used for updating the user on GUI actions. Throws

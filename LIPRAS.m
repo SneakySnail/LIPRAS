@@ -139,7 +139,7 @@ handles.profiles.BackgroundPoints = points;
 ui.update(handles, 'backgroundpoints');
 utils.plotutils.plotX(handles, 'background');
 if length(points) <= handles.gui.PolyOrder
-    LiprasDialog.PolyNotUniqueWarning;
+    LiprasDialogCollection.PolyNotUniqueWarning;
 end
 
 function menu_xplotscale_Callback(o,e,handles)
@@ -397,8 +397,9 @@ handles.profiles.xrd.UniqueSave=handles.profiles.UniqueSave;
 try
     prfn = handles.profiles.ActiveProfile;    
     fitresults = handles.profiles.fitDataSet(prfn);
-    handles.profiles.xrd.OriginalFitInitial.coeffs=handles.gui.FitInitial.coeffs; % this is so when switching constraints, the table wont update with fitted values until a fit is done
-
+    
+    % this is so when switching constraints, the table wont update with fitted values until a fit is done
+    handles.profiles.xrd.OriginalFitInitial.coeffs=handles.gui.FitInitial.coeffs; 
     if ~isempty(fitresults)
         ui.update(handles, 'results');
         utils.plotutils.plotX(handles,'fit');
@@ -412,15 +413,11 @@ catch ME
     return
 end
 
+function tool_help_ClickedCallback(hObject, evt, handles)
+handles.gui.HelpMode = hObject.State;
+
 function push_fitstats_Callback(~, ~, handles)
 handles.gui.onPlotFitChange('stats');
-
-
-function table_results_CellEditCallback(hObject,evt,handles)
-hObject.Data(:,1) = {false};
-hObject.Data{evt.Indices(1), 1} = true;
-utils.plotutils.plotX(handles, 'coeff');
-
 
 % Executes on button press in push_viewall.
 function push_viewall_Callback(hObject, eventdata, handles)
@@ -485,8 +482,24 @@ else
     utils.plotutils.plotX(handles);
 end
 
-function listbox_files_Callback(hObject,evt, handles)
-handles.gui.CurrentFile = hObject.Value;
+function listbox_results_Callback(hObject,evt, handles)
+%listbox_results_Callback executes when the selection is changed in the 
+%   listbox in the Results tab.
+%
+%   - If 'Peak Fit' view is selected, the listbox displays a list of all
+%   the files. When the selection is changed, it plots the fit for the 
+%   new selection.
+%   - If 'Coefficient Trends' is selected, the listbox displays a list of
+%   the coefficient names. When the selection is changed, it plots the
+%   coefficient values in a sequence for all files.
+selectedPlotView = handles.panel_choosePlotView.SelectedObject;
+selectedListItem = hObject.Value;
+switch selectedPlotView
+    case handles.radio_peakeqn
+        handles.gui.CurrentFile = selectedListItem;
+    case handles.radio_coeff
+        %TODO
+end
 utils.plotutils.plotX(handles);
 
 %% Toobar callback functions
@@ -568,7 +581,7 @@ guidata(handles.figure1, handles);
 
 % Executes when the menu item 'Export->As Image' is clicked.
 function menu_saveasimage_Callback(o,e,handles)
-LiprasDialog.exportPlotAsImage(handles);
+LiprasDialogCollection.exportPlotAsImage(handles);
 
 
 function menu_preferences_Callback(o,e,handles)
@@ -771,6 +784,24 @@ I=imread('Logo_R4.png');
 I=flipud(I);
 image(I)
 truesize
+
+
+function panel_choosePlotView_SelectionChangedFcn(hObject, evt, handles)
+% Executes upon Plot View change in the Results tab.
+
+switch hObject.SelectedObject
+    case handles.radio_peakeqn
+        handles.gui.onPlotFitChange('peakfit');
+        
+    case handles.radio_coeff
+        handles.gui.onPlotFitChange('coeff');
+        
+    case handles.radio_statistics
+        hObject.SelectedObject = evt.OldValue;
+        handles.gui.onPlotFitChange('stats');
+        
+end
+
 
     function vali=Validate_bkg(handles)
         

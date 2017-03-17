@@ -28,7 +28,7 @@ try
     
         % Disable the figure while its plotting
     focusedObj = gcbo;
-    enabledObjs = findobj(handles.figure1,'Tag','listbox_files');
+    enabledObjs = findobj(handles.figure1,'Tag','listbox_results');
     set(enabledObjs, 'enable', 'inactive');
     
     switch lower(mode)
@@ -308,13 +308,19 @@ end
 
     function plotCoefficients(handles)
     cla(handles.axes1)
+    if handles.panel_choosePlotView.SelectedObject ~= handles.radio_coeff
+        keyboard % delete -- testing only
+        return
+    end
     utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');    
     hTable = handles.table_results;
-    for gh=1:size(handles.profiles.FitResults{1,1},2)
-        CI(gh)=handles.profiles.FitResults{1,1}{gh}.FmodelCI(1,find(cell2mat(handles.table_results.Data(:,1)),1));
+    row = handles.listbox_results.Value;
+    CI = zeros(1, handles.profiles.NumFiles);
+    for gh=1:handles.profiles.NumFiles
+        fitted = handles.profiles.FitResults{1}{gh};
+        CI(gh) = fitted.FmodelCI(1,row);
     end
-    row = find(cell2mat(hTable.Data(:,1)),1);
-    rowvals = cell2mat(hTable.Data(row, 2:end));
+    rowvals = cell2mat(hTable.Data(row,:));
     err=rowvals-CI;
     line = errorbar(handles.axes1, ...
         1:xrd.NumFiles, rowvals, err,'-d', ...

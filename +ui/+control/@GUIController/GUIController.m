@@ -18,13 +18,11 @@ classdef GUIController < handle
     properties (Dependent)
         DataPath
         
+        HelpMode
+        
         Status % Sets the statusbar text if there is no text or if at least 2 seconds have passed
         
         PriorityStatus % Sets the statusbar text regardless of whether there is text 
-        
-        SelectedCoeffResult
-        
-        SelectedPlotViewResult
         
         YPlotScale
         
@@ -34,7 +32,7 @@ classdef GUIController < handle
         
         CurrentProfile
         
-        % Integer of the file number visible in the plot
+        % Integer of the selected file
         CurrentFile
         
         NumPeaks
@@ -82,6 +80,7 @@ classdef GUIController < handle
    
     properties (Hidden)
         Data
+        HelpMode_
         NumPeakPositions
         Range2t
         DefaultOutputPath = ['FitOutputs' filesep];
@@ -195,6 +194,23 @@ classdef GUIController < handle
         this.hg.statusbarObj.setText(text);
         end
         
+        function set.HelpMode(this, mode)
+        % mode is `on` or `off`
+        this.HelpMode_ = mode;
+        this.hg.figure1.CSHelpMode = mode;
+        helper = getappdata(this.hg.figure1, 'helper');
+        if isequal(mode, 'on')
+            helper.helpModeDidTurnOn(this.hg.figure1);
+        else
+            helper.helpModeDidTurnOff(this.hg.figure1);
+            this.hg.tool_help.State = 'off';
+        end
+        end
+        
+        function mode = get.HelpMode(this)
+        mode = this.HelpMode_;
+        end
+        
         function set.DataPath(this, pathname)
         component = this.hg.edit8;
         if isempty(pathname)
@@ -304,42 +320,10 @@ classdef GUIController < handle
         wavelength = str2double(this.hg.edit_kalpha2.String);
         end
         
-        function set.SelectedCoeffResult(this, coeff)
-        % In table_results, selects the checkbox in the same row as COEFF 
-        table = this.hg.table_results;
-        row = find(strcmpi(table.RowName, coeff), 1);
-        table.Data(:,1) = {false};
-        table.Data{row, 1} = true;
-        end
-        
-        function set.SelectedPlotViewResult(this, view)
-        if strcmpi(view, 'peakfit')
-            this.hg.btns3.SelectedObject = this.hg.radio_peakeqn;
-        elseif strcmpi(view, 'coeff')
-            this.hg.btns3.SelectedObject = this.hg.radio_coeff;
-        end
-        end
-        
-        function value = get.SelectedPlotViewResult(this)
-        switch this.hg.btns3.SelectedObject.String
-            case 'Peak Fit'
-                value = 'peakfit';
-            case 'Coefficient Trends'
-                value = 'coeff';
-        end
-        end
-        
-        function idx = get.SelectedCoeffResult(this)
-        % Returns the index of the selected coefficient in table_results.
-        table = this.hg.table_results;
-        idx = find([table.Data{:,1}], 1);
-        
-        end
-        
         function set.FileNames(this, strcell)
         % Updates both the listbox in Tab 3 and the popup above the axes1.
         this.hg.popup_filename.String = strcell;
-        this.hg.listbox_files.String = strcell;
+        this.hg.listbox_results.String = strcell;
         end
         
         function set.hg(this, handles)
@@ -831,7 +815,7 @@ classdef GUIController < handle
         filenames = this.hg.popup_filename.String;
         filenames = flip(filenames);
         set(this.hg.popup_filename, 'String', filenames);
-        this.hg.listbox_files.String = filenames;
+        this.hg.listbox_results.String = filenames;
         end
         
         % Returns the coefficients row name as a 1xN cell array of strings.
@@ -906,11 +890,8 @@ classdef GUIController < handle
         else
             value = true;
         end
-        
         end
-        
-        
     end
-    
 end
+
 

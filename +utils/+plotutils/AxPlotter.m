@@ -106,14 +106,14 @@ classdef AxPlotter < matlab.mixin.SetGet
         % ======================================================================
         
         function set.CurrentFile(this, val)
-        %   VAL = a structure with field names 'Axis' and 'FileNumber'
-        %
-        %   VAL = an integer 
+        %   
         this.hg.popup_filename.Value = val;
-        this.hg.listbox_files.Value = val;
         this.hg.text_filenum.String = [num2str(val) ' of ' num2str(length(this.FileNames))];
         this.CurrentFileNumber_ = val;
         this.title;
+        if this.hg.panel_choosePlotView.SelectedObject == this.hg.radio_peakeqn
+            this.hg.listbox_results.Value = val;
+        end
         end
         
         function num = get.CurrentFile(this)
@@ -649,7 +649,7 @@ classdef AxPlotter < matlab.mixin.SetGet
                 title(axx, varargin{:});
             end
         end
-        drawnow limitrate
+%         drawnow limitrate
         warning(state.state, state.identifier);
         end
             
