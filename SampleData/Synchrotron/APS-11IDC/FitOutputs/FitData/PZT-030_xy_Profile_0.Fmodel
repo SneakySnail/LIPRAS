@@ -1,0 +1,5 @@
+This is an output file from a MATLAB routine.
+The following peaks are all of the type: Pseudo-Voigt; Pseudo-Voigt; 
+
+FileName	a1	a1_Error	a2	a2_Error	a3	a3_Error	a4	a4_Error	N1	N1_Error	x1	x1_Error	f1	f1_Error	w1	w1_Error	sse	rsquare	dfe	adjrsquare	rmse	
+PZT-030_xy	348.48448	8946.17499	-819.04631	44422.73800	-139.50972	73427.31318	1097.47011	40398.93511	27.99327	1.56869	1.62392	0.00017	0.01615	0.00056	0.66794	0.11844	24.84165	1.39575	1.66735	0.00016	0.01501	0.00052	0.58774	0.12688	26590.76799	0.99706	76.00000	0.99663	18.70504	

@@ -15,6 +15,8 @@ switch viewname
         handles.panel_choosePlotView.SelectedObject = handles.radio_coeff;
         changeListedItemsToCoeffs(handles);
         plotX(handles, 'coeff');
+    case 'stats'
+        plotX(handles,'stats')
 end
 
 function changeListedItemsToFiles(handles)

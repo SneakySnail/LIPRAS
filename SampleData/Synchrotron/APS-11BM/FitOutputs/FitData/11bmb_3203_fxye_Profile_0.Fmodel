@@ -1,0 +1,5 @@
+This is an output file from a MATLAB routine.
+The following peaks are all of the type: Lorentzian; Lorentzian; 
+
+FileName	a1	a1_Error	a2	a2_Error	a3	a3_Error	a4	a4_Error	N1	N1_Error	x1	x1_Error	sse	rsquare	dfe	adjrsquare	rmse	
+11bmb_3203_fxye	-613.66589	2029.74236	18861.46360	60969.07462	-193088.70221	610413.77878	658490.85641	2036969.77961	63.55184	1.32787	9.93516	0.00013	0.01097	0.00033	182.33333	1.93531	9.99884	0.00006	0.01052	0.00014	369.78949	0.99783	191.00000	0.99772	1.39143	
