@@ -9,10 +9,10 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         %ProfileListManager.m line ~93
         FitInitial
         PrevNumFcn
+        BkgCoeff
         OriginalFitInitial
         MonoWavelength
         AbsoluteRange
-        
         XData
         
     end
@@ -80,6 +80,9 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         recycle_results = 0;
         ignore_bounds=0;
         BkgLS=0;
+        Weights='None';
+        UniqueSave=0;
+
     end
     
     methods
@@ -634,9 +637,24 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
                         end
         
         end
-
-
-        weight = 1./Stro.getData;
+        
+%Weights, depending on preference
+if strcmp(Stro.Weights,'None')
+    weight=Stro.getData./Stro.getData;
+elseif strcmp(Stro.Weights,'1/obs')
+    weight = 1./Stro.getData;
+elseif strcmp(Stro.Weights,'1/sqrt(obs)')
+    weight=1./sqrt(Stro.getData);
+elseif strcmp(Stro.Weights,'1/max(obs)')
+    weight=Stro.getData./max(Stro.getData);
+elseif strcmp(Stro.Weights,'Linear')
+    weight=Stro.getData;
+elseif strcmp(Stro.Weights,'Sqrt')
+    weight=sqrt(Stro.getData);
+elseif strcmp(Stro.Weights,'Log10')
+    weight=log10(Stro.getData);
+end
+           
         if Stro.ignore_bounds
              s = fitoptions('Method', 'NonlinearLeastSquares', ...
             'StartPoint', SP, ...                 

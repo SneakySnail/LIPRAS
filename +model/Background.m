@@ -54,9 +54,15 @@ classdef Background
         end
         
         function bkgdArray = calculateFit(this, file)
-        % Calculates the resulting background fit.
+        % Calculates the resulting background fit.        
         twotheta = this.xrd.getTwoTheta();
         bkgdArray = [];
+        
+        if ~isempty(this.xrd.BkgCoeff)&& this.xrd.BkgLS % for when viewing Bkg after refining it
+            P=this.xrd.BkgCoeff;
+            bkgdArray = polyval(P, twotheta);
+        else
+            
         if length(this.InitialPoints) < this.Order
             return
         end
@@ -66,6 +72,8 @@ classdef Background
         elseif strcmpi(this.Model, this.ModelNames{2})
             P = this.getSplineFit(file);
             bkgdArray = fnval(P, twotheta);
+        end
+        
         end
         end
         

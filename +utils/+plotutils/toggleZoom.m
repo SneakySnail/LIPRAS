@@ -15,6 +15,7 @@ switch zoomstate
 end
 
     function zoomOn(direction)
+        zoom reset
     set(z, 'enable', 'on');
     switch direction
         case 'Zoom In'

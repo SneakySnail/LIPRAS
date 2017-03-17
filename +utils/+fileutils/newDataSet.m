@@ -2,12 +2,12 @@
 function [data, filename, datapath] = newDataSet(datapath, filename)
 %   DATAPATH is the folder to initially open.
 try
-    PrefFile=fopen('Preference File.txt','r');
-    data_path=fscanf(PrefFile,'%c');
-    data_path(end)=[]; % method above adds a white space at the last character that messes with import
-    fclose(PrefFile);
+%     PrefFile=fopen('Preference File.txt','r');
+%     data_path=fscanf(PrefFile,'%c');
+%     data_path(end)=[]; % method above adds a white space at the last character that messes with import
+%     fclose(PrefFile);
 catch
-    data_path=cd;
+%     data_path=cd;
 end
 
 % allowedFiles = {'*.csv; *.txt; *.xy; *.fxye; *.dat; *.xrdml; *.chi; *.spr'}; % underdevelopment
@@ -58,8 +58,11 @@ for i=1:length(filename)
         datatemp = readFile(fid, ext);
     elseif strcmp(ext, '.fxye')
         datatemp = readFXYE(i,fullFileName);
+        try
         data.Temperature=datatemp.temperature;
         data.Wavelength=datatemp.wave;
+        catch
+        end
     elseif strcmp(ext, '.chi')
         datatemp = readFile(fid, ext);
     elseif strcmp(ext, '.dat')
@@ -182,9 +185,11 @@ temp1=transpose(fscanf(fid,'%f',[3 inf]));%opens the file listed above and obtai
 temp1=[dline;temp1];
 data.two_theta = temp1(:,1)./100; % divides by 100 since units in fxye are in centi-degrees
 data.data_fit = temp1(:,2);
+try
 data.temperature=Temperature;
 data.wave=Wavelength;
-
+catch
+end
 
 fclose(fid);
 

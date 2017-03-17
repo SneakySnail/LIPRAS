@@ -36,8 +36,27 @@ classdef FileWriter < handle
            fits = {fits};
        end
        profnum = this.Profiles.getCurrentProfileNumber;
-       outpath = [this.OutputPath 'FitData' filesep];
-       masterfilename = [outpath fits{1}.FileName '_Master_Profile_' num2str(profnum) '.Fmodel'];
+       if this.Profiles.xrd.UniqueSave
+              index = 0;
+            iprefix = '00';
+            while exist(strcat(this.OutputPath,'Fit_',strcat(iprefix,num2str(index))),'dir') ==7
+                index = index + 1;
+                if index > 100
+                    iprefix = '';
+                elseif index > 10
+                    iprefix = '0';
+                end
+            end
+            outpath=strcat(this.OutputPath,'Fit_',strcat(iprefix,num2str(index)), filesep);  
+            mkdir(outpath)
+       else
+            outpath = [this.OutputPath 'FitData' filesep];
+            if exist(outpath,'dir')==0 % incase user deletes this folder
+                mkdir(outpath)
+            end
+       end
+      
+       masterfilename = [outpath fits{1}.FileName '_Master_Profile_' '.Fmodel'];
        fidmaster = fopen(masterfilename, 'w');
        this.printFmodelHeader(fits{1}, fidmaster);
        
@@ -78,18 +97,24 @@ classdef FileWriter < handle
        %FITNAME is the name of the file that was fitted. 
        %
        %VARARGIN must have at least 1 element, where the last element is the extension to the file.
-       profnum = this.Profiles.getCurrentProfileNumber;
        str = [outpath fitname];
        for i=1:length(varargin)-1
            str = [str '_' varargin{i}]; %#ok<AGROW>
        end
        ext = varargin{end};
-       n = 1;
-       while exist([str ext], 'file') == 2
-           str = [str ' _' num2str(n)]; %#ok<AGROW>
-           n=n+1;
-       end
-       str = [str ext];
+       
+            index = 0;
+            iprefix = '00';
+       while exist(strcat(str,'_',strcat(iprefix,num2str(index)),'.txt'),'file') ==2
+                index = index + 1;
+                if index > 100
+                    iprefix = '';
+                elseif index > 10
+                    iprefix = '0';
+                end
+        end
+            str=[strcat(str,'_',strcat(iprefix,num2str(index))) ext];  
+       
        end
        
    end
@@ -120,15 +145,34 @@ classdef FileWriter < handle
        fprintf(fid, ' {''%s''}', fitted.Constraints{:});
        fprintf(fid, '\nPeakPosition(s): ');
        fprintf(fid, '%f ', fitted.PeakPositions);
-       
+       if any(contains(fitted.CoeffNames, 'a'))  
+          id=max(1:fitted.BackgroundOrder+2); % so that bkg coefficients dont get written to output parameter file
+          bkgc=1;
+       else
+           id=1; % should not trigger unless bkg was not refined
+           bkgc=0;
+       end
        fprintf(fid, '\n\n== Initial Fit Parameters ==\n');
-       fprintf(fid, '%s ', fitted.CoeffNames{:}); %write coefficient names
+       fprintf(fid, '%s ', fitted.CoeffNames{id:end}); %write coefficient names
        fprintf(fid, '\nSP: ');
-       fprintf(fid, '%#.3f ', fitted.FitOptions.StartPoint);
+       fprintf(fid, '%#.5f ', fitted.FitOptions.StartPoint(id:end));
        fprintf(fid, '\nLB: ');
-       fprintf(fid, '%#.3f ', fitted.FitOptions.Lower);
+       if isempty(fitted.FitOptions.Lower) % when No Bounds was checked
+       fprintf(fid, '%#.5f ', (fitted.CoeffValues(id:end)-5*fitted.CoeffError(id:end)));
        fprintf(fid, '\nUB: ');
-       fprintf(fid, '%#.3f ', fitted.FitOptions.Upper);
+       fprintf(fid, '%#.5f ', (fitted.CoeffValues(id:end)+5*fitted.CoeffError(id:end)));   
+       else
+       fprintf(fid, '%#.5f ', fitted.FitOptions.Lower(id:end));
+       fprintf(fid, '\nUB: ');
+       fprintf(fid, '%#.5f ', fitted.FitOptions.Upper(id:end));
+       end
+       
+       if bkgc
+       fprintf(fid, '\n\n== Bkg Coeffs ==\n');
+       fprintf(fid,'SP: ');
+       fprintf(fid, '%#.5f ', fitted.FitOptions.StartPoint(1:id-1));
+       end
+       
        end
         
        function printFmodelValues(fitted, fid)
@@ -150,10 +194,16 @@ classdef FileWriter < handle
        fprintf(fid, '%s; ', fitted.FunctionNames{:});     
        fprintf(fid, '\n\n');
        
+        if any(contains(fitted.CoeffNames, 'a'))  
+          id=max(1:fitted.BackgroundOrder+2); % so that bkg coefficients dont get written to output parameter file
+       else
+           id=1; % should not trigger unless bkg was not refined
+       end
+       
        % Write column headers in the order: 
        %    FileName, N1, N1_Error, x1, x1_Error, (more coeffs)..., sse, rsquare, dfe, adjrsquare, rmse
        fprintf(fid, 'FileName\t');
-       for i=1:length(fitted.CoeffValues)
+       for i=1:length(fitted.CoeffValues(id:end))
            fprintf(fid, '%s\t%s\t', fitted.CoeffNames{i}, [fitted.CoeffNames{i} '_Error']);
        end
        fields = fieldnames(fitted.FmodelGOF);

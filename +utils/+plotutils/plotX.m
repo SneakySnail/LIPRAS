@@ -344,40 +344,56 @@ end
     hTable = handles.table_results;
     fits = handles.profiles.getProfileResult;
     numfiles = length(fits);
-    if handles.profiles.xrd.BkgLS % for when BkgLS is checked
       for ss=1:numfiles
-        fitted = fits{ss};
+    fitted = fits{ss};
+    obs = fitted.Intensity';
+    
+if strcmp(handles.profiles.xrd.Weights,'None')
+    w=obs./obs;
+elseif strcmp(handles.profiles.xrd.Weights,'1/obs')
+    w = 1./obs;
+elseif strcmp(handles.profiles.xrd.Weights,'1/sqrt(obs)')
+    w=1./sqrt(obs);
+elseif strcmp(handles.profiles.xrd.Weights,'1/max(obs)')
+    w=obs./max(obs);
+elseif strcmp(handles.profiles.xrd.Weights,'Linear')
+    w=obs;
+elseif strcmp(handles.profiles.xrd.Weights,'Sqrt')
+    w=sqrt(obs);
+elseif strcmp(handles.profiles.xrd.Weights,'Log10')
+    w=log10(obs);
+end
+    
+    if handles.profiles.xrd.BkgLS % for when BkgLS is checked
+        calc=fitted.FData'; 
         rsquared(ss) = fitted.FmodelGOF.rsquare;
         adjrsquared(ss) = fitted.FmodelGOF.adjrsquare;
         rmse(ss) = fitted.FmodelGOF.rmse;
-        obs = fitted.Intensity';
-        calc =  fitted.FData';
         Rp(ss) = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
-        w = (1./obs); %defines the weighing parameter for Rwp, would need to be adjust depending on what weight was selected
         w=w(w~=Inf); obs=obs(w~=Inf); calc=calc(w~=Inf); % Remove infinity values
         Rwp(ss) = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
         DOF = fitted.FmodelGOF.dfe; % degrees of freedom from error
         Rexp(ss)=sqrt(DOF/sum(w.*obs.^2)); % Rexpected
-        Rchi2(ss)=(Rwp/Rexp)/100; % reduced chi-squared, GOF
-     end
+%         Rchi2(ss)=(Rwp/Rexp)/100; % reduced chi-squared, GOF, taken out
+%         because its specific to when w=1/obs;
+        Rchi2(ss)=sum((obs-calc).^2./obs)/(DOF);
+
+     
     else
-    
-    for ss=1:numfiles
-        fitted = fits{ss};
-        rsquared(ss) = fitted.FmodelGOF.rsquare;
-        adjrsquared(ss) = fitted.FmodelGOF.adjrsquare;
-        rmse(ss) = fitted.FmodelGOF.rmse;
         obs = fitted.Intensity';
         calc = fitted.Background' + fitted.FData';
+        rsquared(ss) = fitted.FmodelGOF.rsquare;
+        adjrsquared(ss) = fitted.FmodelGOF.adjrsquare;
+        rmse(ss) = fitted.FmodelGOF.rmse;
         Rp(ss) = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
-        w = (1./obs); %defines the weighing parameter for Rwp, would need to be adjust depending on what weight was selected
         w=w(w~=Inf); obs=obs(w~=Inf); calc=calc(w~=Inf); % Remove infinity values
         Rwp(ss) = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
         DOF = fitted.FmodelGOF.dfe; % degrees of freedom from error
         Rexp(ss)=sqrt(DOF/sum(w.*obs.^2)); % Rexpected
-        Rchi2(ss)=(Rwp/Rexp)/100; % reduced chi-squared, GOF
+        Rchi2(ss)=sum((obs-calc).^2./obs)/(DOF);
+    
     end
-    end
+      end
 %     
 %     close(figure(5))
     scrsz = get(groot,'ScreenSize');

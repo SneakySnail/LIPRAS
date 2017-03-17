@@ -184,7 +184,10 @@ set(handles.tab2_next, 'visible', 'off');
 set(handles.panel_coeffs.Children, 'enable', 'on');
 set(handles.push_update, 'enable', 'on');
 set(handles.push_selectpeak, 'enable', 'on');
+handles.gui.Plotter.updateXYLim 
 utils.plotutils.plotX(handles, 'sample');
+handles.gui.Plotter.updateXYLim 
+
 % ==============================================================================
 
 function newBackgroundModel(handles)
@@ -391,32 +394,21 @@ elseif ~isempty(handles.profiles.FitResults) && ~isFitD&& ~handles.profiles.xrd.
         handles.gui.FitInitial=handles.profiles.xrd.FitInitial; % update the table with fit results
         handles.gui.FitInitial = handles.gui.FitInitial;
          else
-
                 if  isequal(handles.profiles.xrd.FitInitial.coeffs,handles.profiles.xrd.OriginalFitInitial.coeffs)
                         try
+                    handles.profiles.xrd.BkgCoeff=handles.profiles.FitResults{1,1}{1}.CoeffValues(1:dif-1); % writting bkg coefficients
                     handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(dif:end); % update the table with fit results
                     handles.profiles.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(dif:end); % update the actual FitInitial fed into LS and Parameter File
                         catch
-                        end
-                        
-                        
-                elseif dif<0
-%                     try % will try to get Fit Results coefficients
-%                         handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(1:end); % update the table with fit results
-%                     catch % if not, it defaults, this option happens when changing # of profile functions after a fit
-%                         l=length(handles.profiles.FitResults{1,1}{1}.CoeffValues(1:end));
-%                         handles.gui.FitInitial.start(1:l)=handles.profiles.FitResults{1,1}{1}.CoeffValues(1:end);
-%                     end
-                
+                        end                       
                 end
-%                 handles.gui.FitInitial = handles.gui.FitInitial;
-
          end
 elseif ~isempty(handles.profiles.FitResults) && ~isFitD&& handles.profiles.xrd.BkgLS 
     if strcmp(origin,'peakselect') % for scenarios in which Refine background is selected and user wants to hard reset by using peak selection
         handles.gui.FitInitial=handles.profiles.xrd.FitInitial; % update the table with fit results
         handles.gui.FitInitial = handles.gui.FitInitial;
     else
+handles.profiles.xrd.BkgCoeff=handles.profiles.FitResults{1,1}{1}.CoeffValues(1:dif-1); % writting bkg coefficients
 handles.gui.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(dif:end); % update the table with fit results
 handles.gui.FitInitial = handles.gui.FitInitial;
 handles.profiles.FitInitial.start=handles.profiles.FitResults{1,1}{1}.CoeffValues(dif:end); % update the actual FitInitial fed into LS and Parameter File

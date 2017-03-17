@@ -8,7 +8,8 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        DataPath = [];
        
        OutputPath = ['FitOutputs' filesep];
-       
+       Weights='None'
+       UniqueSave=0;
        FitResults % each profile results in a cell
        
    end
@@ -174,12 +175,20 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        isNew = false;
         try
     PrefFile=fopen('Preference File.txt','r');
-    this.DataPath=fscanf(PrefFile,'%c');
-    this.DataPath(end)=[]; % method above adds a white space at the last character that messes with import
+    dat=fscanf(PrefFile,'%c');
+    sdat=strsplit(dat,'\n');
+    data_path=strsplit(sdat{1},'= ');
+    rWeights=strsplit(sdat{2},'= ');
+    rUniqueSave=strsplit(sdat{3},'= ');
     fclose(PrefFile);
+    this.DataPath=data_path{2};
+    this.Weights=rWeights{2};
+    this.UniqueSave=str2double(rUniqueSave{2});
+
         catch
         end
-       
+        
+
        
        if nargin < 2
            [data, filename, path] = utils.fileutils.newDataSet(this.DataPath);
@@ -203,6 +212,8 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        this.OutputPath = xrdItem.OutputPath;
        this.Writer = ui.FileWriter(this);
        this.xrdContainer = this.initialXRD_;
+       
+
        
        if strcmpi(this.ext, '.xrdml')
            this.Temperature = {data.Temperature};
@@ -434,9 +445,21 @@ this.xrd.PeakPositions(1:end)=0;
        ub    = textscan(line,'%s');
        ub    = ub{1}';
        init.upper    = str2double(ub(2:end));
+       % Read Bkg Coeffs if they are there
+       fgetl(fid);
+       line=fgetl(fid);
+       if line==-1
+       else
+           line=fgetl(fid);
+           BkgC=textscan(line,'%s');
+           BkgC=BkgC{1}';       
+           this.xrd.BkgCoeff=str2double(BkgC(2:end));
+
+       end
        this.FitResults=[];
        this.xrd.FitInitial = init;
        this.xrd.FitInitial.coeffs=coeff;
+
        fclose(fid);
        end
        

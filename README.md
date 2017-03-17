@@ -1,10 +1,14 @@
-# Line-Profile Analysis Software (LIPPRAS)
+
+# Line-Profile Analysis Software (LIPRAS)
+
 
 ##Authors
 Giovanni Esteves, Klarissa Ramos, Chris Fancher, and Jacob Jones
 
 ## What is LIPRAS?
-LIPRAS [*LEEP-ruhs*], short for **Line-Profile Analysis Software**, is a graphical user interface for least-squares fitting of peaks in powder diffraction data. For any region of the inputted data, user can choose which profile functions to apply to the fit, constrain profile functions, and view the resulting fit in terms of the profile functions chosen. It is available on both Mac and Windows operating systems.
+
+**LIPRAS** [*LEEP-ruhs*], short for **Line-Profile Analysis Software**, is a graphical user interface for least-squares fitting of peaks in powder diffraction data. For any region of the inputted data, user can choose which profile functions to apply to the fit, constrain profile functions, and view the resulting fit in terms of the profile functions chosen. It is available on both Mac and Windows operating systems.
+
 
 ## Why should I use it?
 You can use LIPRAS to visualize and analyze a set of measured diffraction files. 
