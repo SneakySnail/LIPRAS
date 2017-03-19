@@ -780,7 +780,7 @@ set(h, 'Position',[500 440 400 300]) % posx, posy, horiz, vert
 ah=get(h,'CurrentAxes');
 c=get(ah,'Children');
 set(c,'FontSize',10);
-I=imread('Logo_R4.png');
+I=imread('Logo/Logo_R4.png');
 I=flipud(I);
 image(I)
 truesize
