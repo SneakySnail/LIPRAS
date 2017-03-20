@@ -11,22 +11,22 @@ Giovanni Esteves, Klarissa Ramos, Chris Fancher, and Jacob Jones
 
 
 ## Why should I use it?
-You can use LIPRAS to visualize and analyze a set of measured diffraction files. 
+You can use LIPRAS to visualize and analyze a diffraction data. 
 
 With LIPRAS, you can:
 
-* Customize the background fit <*add more stuff here?*> 
+* Customize the background fit  
 * Quickly extract relevant peak information about the **position**, **full-width half-max (FWHM)**, **intensity**, and **peak shape**
 * Fit up to **20 peaks** in the current profile region
 * Choose from 5 different peak-shape functions: **Gaussian**, **Lorentzian**, **Pseudo-Voigt**, and **Pearson VII**, with an additional modified function **Asymmetric Pearson VII**
-* Automatically calculate **Cu-K\alpha2 peaks** in laboratory x-ray data
+* Automatically calculate **Cu-Kalpha2 peaks** in laboratory x-ray data
 * Change any of the starting fit values and instantly view a sample plot of the fit, all before you even hit the Fit button
 * Visualize your results with a plot of the **Peak Fit** equation an error plot, or switch to the **Coefficient Trends** view to observe patterns within your data set
 * And much more!
 
 
 ## Installation
-You can start using LIPRAS  
+You can start using LIPRAS  in MATLAB after downloading GUI Layout Toolbox with a **MATLAB version 2016b or greater**. 
 
 
 ## License
