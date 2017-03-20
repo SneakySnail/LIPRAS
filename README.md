@@ -19,7 +19,7 @@ With LIPRAS, you can:
 * Quickly extract relevant peak information about the **position**, **full-width half-max (FWHM)**, **intensity**, and **peak shape**
 * Fit up to **20 peaks** in the current profile region
 * Choose from 5 different peak-shape functions: **Gaussian**, **Lorentzian**, **Pseudo-Voigt**, and **Pearson VII**, with an additional modified function **Asymmetric Pearson VII**
-* Automatically calculate **Cu-K$\alpha$2 peaks** in laboratory x-ray data
+* Automatically calculate **Cu-K\alpha2 peaks** in laboratory x-ray data
 * Change any of the starting fit values and instantly view a sample plot of the fit, all before you even hit the Fit button
 * Visualize your results with a plot of the **Peak Fit** equation an error plot, or switch to the **Coefficient Trends** view to observe patterns within your data set
 * And much more!
