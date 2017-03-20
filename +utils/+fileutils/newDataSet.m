@@ -11,7 +11,14 @@ catch
 end
 
 % allowedFiles = {'*.csv; *.txt; *.xy; *.fxye; *.dat; *.xrdml; *.chi; *.spr'}; % underdevelopment
-allowedFiles = {'*.csv; *.xy; *.fxye;*.xrdml; *.chi'};
+if ispc
+allowedFiles = {'*.csv; *.xls; *.xlsx; *.xy; *.fxye;*.xrdml; *.chi'};
+elseif ismac
+    allowedFiles = {'*.xls;*.xlsx; *.xy; *.fxye;*.xrdml; *.chi'};
+else % Defaults to Windows
+    allowedFiles = {'*.csv; *.xls; *.xlsx; *.xy; *.fxye;*.xrdml; *.chi'};
+
+end
 
 title = 'Select Diffraction Pattern to Fit';
 if nargin < 1    
@@ -49,7 +56,7 @@ for i=1:length(filename)
     fullFileName = strcat(path, filename{i});
     fid = fopen(fullFileName, 'r');
     
-    if strcmp(ext, '.csv')
+    if strcmp(ext, '.csv')|| strcmp(ext, '.xls')||strcmp(ext, '.xlsx') % For MAC, .csv should not be selected
         datatemp = readSpreadsheet(fullFileName);
     elseif strcmp(ext, '.txt')
 
