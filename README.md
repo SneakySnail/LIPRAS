@@ -14,7 +14,7 @@ Giovanni Esteves, Klarissa Ramos, Chris Fancher, and Jacob Jones
 You can use LIPRAS to visualize and analyze diffraction data. 
 
 Authors: Giovanni Esteves, Klarissa Ramos, Chris Fancher, and Jacob Jones
-
+<ol>
 • Quickly extract relevant peak information about the **position**, **full width at half maximum (FWHM)**, and **intensity**
 • Customize the background fit by either treating it separately (Polynomial or Spline) or including it in the least-square routine (Polynomial only)
 • Fit up to **20 peaks** in the current profile region 
@@ -27,7 +27,7 @@ Authors: Giovanni Esteves, Klarissa Ramos, Chris Fancher, and Jacob Jones
 • Resulting coefficients values can be viewed with file number 
 • Parameters files can be written and used to recreate fits and detail what fit parameters and profile shape functions were used
 • Accepts the following **file types: .xy, .xls, .xlsx, .fxye, .xrdml, .chi, .csv (Windows Only)**
-
+</ol>
 
 ## Installation
 **MATLAB Users**
