@@ -15,18 +15,18 @@ You can use LIPRAS to visualize and analyze diffraction data.
 
 Authors: Giovanni Esteves, Klarissa Ramos, Chris Fancher, and Jacob Jones
 <ol>
-<li>• Quickly extract relevant peak information about the **position**, **full width at half maximum (FWHM)**, and **intensity**</li>
-<li>• Customize the background fit by either treating it separately (Polynomial or Spline) or including it in the least-square routine (Polynomial only)</li>
-<li>• Fit up to **20 peaks** in the current profile region </li>
-<li>• Choose from 5 different peak-shape functions: **Gaussian, Lorentzian, Pseudo-Voigt, and Pearson VII**, with an additional modified function **Asymmetric Pearson VII** </li>
-<li>• Peak-shape functions can be constrained in terms of intensity, peak position, FWHM, and mixing coefficient</li>
-<li>• Automatically calculate **Cu-Kalpha2** peaks when working with laboratory X-ray data </li>
-<li>• Change any of the starting fit values and instantly view a sample plot of the fit, before conducting a fit</li>
-<li>• For multiple diffraction patterns, results from previous fit are subsequent starting parameters for next fit </li>
-<li>• Visualize results with a plot of the resulting peak fit and residual plot</li>
-<li>• Resulting coefficients values can be viewed with file number </li>
-<li>• Parameters files can be written and used to recreate fits and detail what fit parameters and profile shape functions were used</li>
-<li>• Accepts the following **file types: .xy, .xls, .xlsx, .fxye, .xrdml, .chi, .csv (Windows Only)**</li>
+<li>* Quickly extract relevant peak information about the **position**, **full width at half maximum (FWHM)**, and **intensity**</li>
+<li>* Customize the background fit by either treating it separately (Polynomial or Spline) or including it in the least-square routine (Polynomial only)</li>
+<li>* Fit up to **20 peaks** in the current profile region </li>
+<li>* Choose from 5 different peak-shape functions: **Gaussian, Lorentzian, Pseudo-Voigt, and Pearson VII**, with an additional modified function **Asymmetric Pearson VII** </li>
+<li>* Peak-shape functions can be constrained in terms of intensity, peak position, FWHM, and mixing coefficient</li>
+<li>* Automatically calculate **Cu-Kalpha2** peaks when working with laboratory X-ray data </li>
+<li>* Change any of the starting fit values and instantly view a sample plot of the fit, before conducting a fit</li>
+<li>* For multiple diffraction patterns, results from previous fit are subsequent starting parameters for next fit </li>
+<li>* Visualize results with a plot of the resulting peak fit and residual plot</li>
+<li>* Resulting coefficients values can be viewed with file number </li>
+<li>* Parameters files can be written and used to recreate fits and detail what fit parameters and profile shape functions were used</li>
+<li>* Accepts the following **file types: .xy, .xls, .xlsx, .fxye, .xrdml, .chi, .csv (Windows Only)**</li>
 </ol>
 
 ## Installation
