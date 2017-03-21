@@ -761,7 +761,7 @@ textb=10;
     uiwait(d);
 
         function web1(~,~)
-            web('https://www.mse.ncsu.edu/research/jones/tools','-browser')
+            web('https://sneakysnail.github.io/LIPRAS/','-browser')
         function web2(~,~)
             web('https://www.mathworks.com/help/curvefit/least-squares-fitting.html#bq_5kr9-3','-browser')
         function web3(~,~)
