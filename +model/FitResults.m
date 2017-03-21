@@ -118,7 +118,9 @@ end
         this.FitFunctions  = xrd.getFunctions;
         
         if xrd.BkgLS && ~isempty(xrd.BkgCoeff) && filenumber==1 % handling bkgCoeff refined and how they cycle after being refined
-            this.FitOptions.StartPoint(1:this.BackgroundOrder+1)=xrd.BkgCoeff;
+            if length(xrd.BkgCoeff)==this.BackgroundOrder+1           % when BkgOrder is switched after a refined bkg has been done    
+            this.FitOptions.StartPoint(1:this.BackgroundOrder+1)=xrd.BkgCoeff;            
+            end
             
         elseif xrd.BkgLS && ~isempty(xrd.BkgCoeff) && this.BackgroundOrder+1<length(xrd.BkgCoeff) && filenumber==1
             disp('Bkg Order less than Bkg coefficients stored')
