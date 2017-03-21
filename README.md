@@ -7,26 +7,33 @@ Giovanni Esteves, Klarissa Ramos, Chris Fancher, and Jacob Jones
 
 ## What is LIPRAS?
 
-**LIPRAS** [*LEEP-ruhs*], short for **Line-Profile Analysis Software**, is a graphical user interface for least-squares fitting of peaks in powder diffraction data. For any region of the inputted data, user can choose which profile functions to apply to the fit, constrain profile functions, and view the resulting fit in terms of the profile functions chosen. It is available on both Mac and Windows operating systems.
+**LIPRAS** [*LEEP-ruhs*], short for **Line-Profile Analysis Software**, is a graphical user interface for least-squares fitting of Bragg peaks in powder diffraction data. For any region of the inputted data, user can choose which profile functions to apply to the fit, constrain profile functions, and view the resulting fit in terms of the profile functions chosen. 
 
 
 ## Why should I use it?
-You can use LIPRAS to visualize and analyze a diffraction data. 
+You can use LIPRAS to visualize and analyze diffraction data. 
 
-With LIPRAS, you can:
+Authors: Giovanni Esteves, Klarissa Ramos, Chris Fancher, and Jacob Jones
 
-* Customize the background fit  
-* Quickly extract relevant peak information about the **position**, **full-width half-max (FWHM)**, **intensity**, and **peak shape**
-* Fit up to **20 peaks** in the current profile region
-* Choose from 5 different peak-shape functions: **Gaussian**, **Lorentzian**, **Pseudo-Voigt**, and **Pearson VII**, with an additional modified function **Asymmetric Pearson VII**
-* Automatically calculate **Cu-Kalpha2 peaks** in laboratory x-ray data
-* Change any of the starting fit values and instantly view a sample plot of the fit, all before you even hit the Fit button
-* Visualize your results with a plot of the **Peak Fit** equation an error plot, or switch to the **Coefficient Trends** view to observe patterns within your data set
-* And much more!
+• Quickly extract relevant peak information about the **position**, **full width at half maximum (FWHM)**, and **intensity**
+• Customize the background fit by either treating it separately (Polynomial or Spline) or including it in the least-square routine (Polynomial only)
+• Fit up to **20 peaks** in the current profile region 
+• Choose from 5 different peak-shape functions: **Gaussian, Lorentzian, Pseudo-Voigt, and Pearson VII**, with an additional modified function **Asymmetric Pearson VII** 
+• Peak-shape functions can be constrained in terms of intensity, peak position, FWHM, and mixing coefficient
+• Automatically calculate **Cu-Kalpha2** peaks when working with laboratory X-ray data 
+• Change any of the starting fit values and instantly view a sample plot of the fit, before conducting a fit
+• For multiple diffraction patterns, results from previous fit are subsequent starting parameters for next fit 
+• Visualize results with a plot of the resulting peak fit and residual plot
+• Resulting coefficients values can be viewed with file number 
+• Parameters files can be written and used to recreate fits and detail what fit parameters and profile shape functions were used
+• Accepts the following **file types: .xy, .xls, .xlsx, .fxye, .xrdml, .chi, .csv (Windows Only)**
 
 
 ## Installation
-You can start using LIPRAS  in MATLAB after downloading GUI Layout Toolbox with a **MATLAB version 2016b or greater**. 
+**MATLAB Users**
+**Requires MATLAB 2016b and GUI Layout Toolbox to run**
+
+You can start using LIPRAS in MATLAB after downloading GUI Layout Toolbox with a **MATLAB version 2016b or greater**. 
 
 GUI Layout Toolbox: https://www.mathworks.com/matlabcentral/fileexchange/47982-gui-layout-toolbox
 
