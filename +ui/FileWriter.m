@@ -145,7 +145,7 @@ classdef FileWriter < handle
        fprintf(fid, ' {''%s''}', fitted.Constraints{:});
        fprintf(fid, '\nPeakPosition(s): ');
        fprintf(fid, '%f ', fitted.PeakPositions);
-       if any(contains(fitted.CoeffNames, 'a'))  
+       if any(contains(fitted.CoeffNames, 'bkg'))  
           id=max(1:fitted.BackgroundOrder+2); % so that bkg coefficients dont get written to output parameter file
           bkgc=1;
        else
@@ -178,7 +178,7 @@ classdef FileWriter < handle
        function printFmodelValues(fitted, fid)
        fprintf(fid, '%s\t',fitted.FileName);
        
-       if any(contains(fitted.CoeffNames, 'a'))  
+       if any(contains(fitted.CoeffNames, 'bkg'))  
           id=max(1:fitted.BackgroundOrder+2); % so that bkg coefficients dont get written to output parameter file
        else
            id=1; % should not trigger unless bkg was not refined
@@ -201,7 +201,7 @@ classdef FileWriter < handle
        fprintf(fid, '%s; ', fitted.FunctionNames{:});     
        fprintf(fid, '\n\n');
        
-        if any(contains(fitted.CoeffNames, 'a'))  
+        if any(contains(fitted.CoeffNames, 'bkg'))  
           id=max(1:fitted.BackgroundOrder+2); % so that bkg coefficients dont get written to output parameter file
        else
            id=1; % should not trigger unless bkg was not refined

@@ -556,7 +556,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         % To include or not to include Bkg in LS
         if Stro.BkgLS
         for p=1:Stro.getBackgroundOrder+1
-        vars{:,p}=strcat('a',num2str(p));
+        vars{:,p}=strcat('bkg',num2str(p));
         end
         syms xv
         PolyM=char(poly2sym(vars,xv)); % generates the string poly to add to PF     
