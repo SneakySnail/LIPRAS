@@ -555,12 +555,17 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         
         % To include or not to include Bkg in LS
         if Stro.BkgLS
-        for p=1:Stro.getBackgroundOrder+1
-        vars{:,p}=strcat('bkg',num2str(p));
+        for p=1:Stro.getBackgroundOrder+1 % Symbolix Tool not Supported in MATLAB Compiler. If I discontinue Stand-alone revert to 22a25fa
+            if p==1
+        Eq{:,p}=strcat('bkg','+');
+            vars{:,p}=strcat('bkg');
+            else
+        Eq{:,p}=strcat('bkg',num2str(p-1),'*','xv','^',num2str(p-1),'+');
+                        vars{:,p}=strcat('bkg',num2str(p-1));
+            end
         end
-        syms xv
-        PolyM=char(poly2sym(vars,xv)); % generates the string poly to add to PF     
-        EqnLS=strcat(PolyM,'+',eqnStr);
+        PolyM=strcat(Eq{:});
+        EqnLS=strcat(PolyM,eqnStr);
         coeffsLS=[vars coeffs];
         result = fittype(EqnLS, 'coefficients', coeffsLS, 'independent', 'xv');
         else

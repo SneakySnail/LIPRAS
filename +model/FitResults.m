@@ -165,6 +165,7 @@ end
         end
             
         if xrd.BkgLS % evaluates Poly Bkg based on refined Bkg Coefficients
+            this.CoeffValues(1,1:this.BackgroundOrder+1)=fliplr(this.CoeffValues(1,1:this.BackgroundOrder+1));
            this.Background=polyval(this.CoeffValues(1,1:this.BackgroundOrder+1), this.TwoTheta); 
         else
         end
