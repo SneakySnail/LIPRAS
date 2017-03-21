@@ -594,7 +594,7 @@ r1v=50;
 r1h=15;
 textb=10;
 
-    d = dialog('Position',[50 700 350 200],'Name','Preferences');
+    d = dialog('Position',[100 400 350 200],'Name','Preferences');
 
     btn1 = uicontrol('Parent',d,...
            'Position',[175 10 100 btnsize],...

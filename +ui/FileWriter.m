@@ -177,9 +177,16 @@ classdef FileWriter < handle
         
        function printFmodelValues(fitted, fid)
        fprintf(fid, '%s\t',fitted.FileName);
+       
+       if any(contains(fitted.CoeffNames, 'a'))  
+          id=max(1:fitted.BackgroundOrder+2); % so that bkg coefficients dont get written to output parameter file
+       else
+           id=1; % should not trigger unless bkg was not refined
+       end
+       
        % print coeffvalues of Fmodel
-       for i=1:length(fitted.CoeffValues)
-           fprintf(fid, '%.5f\t%.5f\t', fitted.CoeffValues(i), fitted.CoeffError(i));
+       for i=1:length(fitted.CoeffValues(id:end))
+           fprintf(fid, '%.5f\t%.5f\t', fitted.CoeffValues(id+i-1), fitted.CoeffError(id+i-1));
        end
        % print FmodelGOF
        fprintf(fid, '%.5f\t%.5f\t%.5f\t%.5f\t%.5f\t', fitted.FmodelGOF.sse, ...
@@ -204,7 +211,7 @@ classdef FileWriter < handle
        %    FileName, N1, N1_Error, x1, x1_Error, (more coeffs)..., sse, rsquare, dfe, adjrsquare, rmse
        fprintf(fid, 'FileName\t');
        for i=1:length(fitted.CoeffValues(id:end))
-           fprintf(fid, '%s\t%s\t', fitted.CoeffNames{i}, [fitted.CoeffNames{i} '_Error']);
+           fprintf(fid, '%s\t%s\t', fitted.CoeffNames{id+i-1}, [fitted.CoeffNames{id+i-1} '_Error']);
        end
        fields = fieldnames(fitted.FmodelGOF);
        fprintf(fid, '%s\t', fields{:}); % write GOF names

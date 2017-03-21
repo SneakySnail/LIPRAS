@@ -557,10 +557,9 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         if Stro.BkgLS
         for p=1:Stro.getBackgroundOrder+1
         vars{:,p}=strcat('a',num2str(p));
-        vars4(:,p)=sym(strcat('a',num2str(p)));
         end
         syms xv
-        PolyM=char(poly2sym(vars4,xv)); % generates the string poly to add to PF     
+        PolyM=char(poly2sym(vars,xv)); % generates the string poly to add to PF     
         EqnLS=strcat(PolyM,'+',eqnStr);
         coeffsLS=[vars coeffs];
         result = fittype(EqnLS, 'coefficients', coeffsLS, 'independent', 'xv');
