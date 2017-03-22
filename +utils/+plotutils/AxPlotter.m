@@ -610,8 +610,12 @@ classdef AxPlotter < matlab.mixin.SetGet
             mode='na';
         end
         
-        if strcmp(mode,'sample')
-        else        
+        if axx.XLim(2)==length(this.FileNames)+1  % for when coming from coefficient trends
+        this.updateXLim(axx);
+        this.updateYLim(axx);
+        elseif strcmp(mode,'sample')   % should trigger when plotting sample
+            
+        else
         this.updateXLim(axx);
         this.updateYLim(axx);
         end
