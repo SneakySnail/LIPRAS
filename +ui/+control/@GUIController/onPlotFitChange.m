@@ -26,7 +26,7 @@ set(handles.text_results, 'String', 'Files');
 handles.gui.CurrentFile = 1;
 
 function changeListedItemsToCoeffs(handles)
-set(handles.listbox_results, 'String', handles.profiles.FitResults{1}{1}.CoeffNames); % More specific, originally handles.gui.CoeffNames, 
+set(handles.listbox_results, 'String', handles.gui.Coefficients); % More specific, originally handles.gui.CoeffNames, 
 set(handles.text_results, 'String', 'Coefficients');
 set(handles.popup_filename, 'enable', 'off');
 handles.listbox_results.Value = 1;

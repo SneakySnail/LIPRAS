@@ -315,6 +315,11 @@ end
     utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');    
     hTable = handles.table_results;
     row = handles.listbox_results.Value;
+    NumCoef_all=size(hTable.Data,1);
+    NumCoef=length(handles.gui.Coefficients);
+    if NumCoef_all~=NumCoef %for when bkg was refined, this way bkg coeffs dont get plotted
+        row=NumCoef_all-NumCoef+row;
+    end
     CI = zeros(1, handles.profiles.NumFiles);
     for gh=1:handles.profiles.NumFiles
         fitted = handles.profiles.FitResults{1}{gh};
