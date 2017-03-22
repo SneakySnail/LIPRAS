@@ -38,7 +38,7 @@ You can start using LIPRAS in MATLAB after downloading GUI Layout Toolbox with a
 
 GUI Layout Toolbox: https://www.mathworks.com/matlabcentral/fileexchange/47982-gui-layout-toolbox
 ## Acknowledgement
-This website is based in part upon work supported by the National Science Foundation under Grant No. 1409399 Any opinions, findings and conclusions or recommendations expressed in this website are those of the author(s) and do not necessarily reflect the views of the National Science Foundation (NSF).
+This website is based in part upon work supported by the National Science Foundation under Grant No. 1409399. Any opinions, findings and conclusions or recommendations expressed in this website are those of the author(s) and do not necessarily reflect the views of the National Science Foundation (NSF).
 
 ## License
 LIPRAS BSD License,
