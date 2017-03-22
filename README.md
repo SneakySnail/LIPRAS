@@ -3,9 +3,9 @@
 
 
 ## Authors
-Giovanni Esteves, Klarissa Ramos, Chris Fancher, and Jacob Jones
+Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones
 
-<b> Histroy: </b>The backbone of the code was originally created by Jacob Jones during his post doc years in MATLAB back in 2007. In 2014, Chris Fancher continued development of the code created by Jacob and successfully turned it into a class structure within MATLAB. Giovanni further builded upon Chris's version by polishing the code and adding features to enhances its feasability to new users. Finally, in 2016 Klarissa joined the Jones Research group and jointly with Giovanni they restructured the class structure file into a graphical user interface (GUI) which is now known as LIPRAS.
+<b> History: </b>The backbone of the code was originally created by Jacob L. Jones during his post doc back in 2006-2007. In 2014, Chris M. Fancher continued development of the code created by Jacob and successfully turned it into a class file within MATLAB. Giovanni Esteves further built upon Chris's version by polishing the code and adding features to enhances its feasibility to new users. Finally, in 2016 Klarissa Ramos joined the Jones Research group and jointly with Giovanni they restructured the class file into a graphical user interface (GUI) which is now known as LIPRAS.
 
 ## What is LIPRAS?
 
@@ -16,7 +16,7 @@ Giovanni Esteves, Klarissa Ramos, Chris Fancher, and Jacob Jones
 <b> Why use LIPRAS?</b> You can use LIPRAS to visualize and analyze diffraction data.
 
 <li> Quickly extract relevant peak information about the <b>position, full width at half maximum (FWHM), and intensity</b> </li>
-<li> Customize the background fit by either treating it separately (Polynomial or Spline) or including it in the least-square routine (Polynomial only)</li>
+<li> Customize the background fit by either treating it separately (Polynomial or Spline) or including it in the least-squares routine (Polynomial only)</li>
 <li> Fit up to <b>20 peaks</b> in the current profile region </li>
 <li> Choose from 5 different peak-shape functions: <b>Gaussian, Lorentzian, Pseudo-Voigt, and Pearson VII, and Asymmetric Pearson VII</b> </li>
 <li> Peak-shape functions can be constrained in terms of intensity, peak position, FWHM, and mixing coefficient</li>
@@ -32,11 +32,13 @@ Giovanni Esteves, Klarissa Ramos, Chris Fancher, and Jacob Jones
 ## Installation
 **MATLAB Users**
 
-**Requires MATLAB 2016b and GUI Layout Toolbox to run**
+**Requires MATLAB 2016b and GUI Layout Toolbox**
 
 You can start using LIPRAS in MATLAB after downloading GUI Layout Toolbox with a MATLAB version 2016b or greater. 
 
 GUI Layout Toolbox: https://www.mathworks.com/matlabcentral/fileexchange/47982-gui-layout-toolbox
+## Acknowledgement
+This website is based in part upon work supported by the National Science Foundation under Grant No. 1409399 Any opinions, findings and conclusions or recommendations expressed in this website are those of the author(s) and do not necessarily reflect the views of the National Science Foundation (NSF).
 
 ## License
 LIPRAS BSD License,
