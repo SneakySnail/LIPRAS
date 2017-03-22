@@ -290,7 +290,9 @@ function push_update_Callback(hObject, ~, handles)
 if Validate_bkg(handles) % checks to make sure BkgOrder is not greater than points selected
     return
 end
-         
+ if handles.radio_coeff.Value
+handles.gui.onPlotFitChange('peakfit')
+ end
 
 handles.profiles.FcnNames = handles.gui.FcnNames;
 handles.profiles.FitInitial = 'default';
