@@ -40,8 +40,8 @@ You can start using LIPRAS in MATLAB after downloading GUI Layout Toolbox with a
 
 This version is not updated as often as the GitHub repository since it needs to be compiled using a specific MATLAB license on a specific computer. 
 
-LIPRAS_1.0, uploaded on 3-22-2017:
-[LIPRAS_Windows_StandAlone.zip](https://github.com/SneakySnail/LIPRAS/files/862892/LIPRAS_Windows_StandAlone.zip)
+LIPRAS_1.0, uploaded to SourceForge:
+*[Stand-Alone Version Download](https://sourceforge.net/projects/lipras/)
 
 
 
