@@ -30,13 +30,21 @@ Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones
 
 
 ## Installation
-**MATLAB Users**
+**<font size=4>MATLAB Users</font>**
 
-**Requires MATLAB 2016b and GUI Layout Toolbox**
-
+**Requires MATLAB 2016b and GUI Layout Toolbox**<br>
 You can start using LIPRAS in MATLAB after downloading GUI Layout Toolbox with a MATLAB version 2016b or greater. 
+<br>GUI Layout Toolbox: https://www.mathworks.com/matlabcentral/fileexchange/47982-gui-layout-toolbox
 
-GUI Layout Toolbox: https://www.mathworks.com/matlabcentral/fileexchange/47982-gui-layout-toolbox
+**<font size=4>Stand-Alone Version (NO MATLAB NEEDED)</font>**
+
+This version is not updated as often as the GitHub repository since it needs to be compiled using a specific MATLAB license on a specific computer. 
+
+LIPRAS_1.0, uploaded on 3-22-2017:
+[LIPRAS_Windows_StandAlone.zip](https://github.com/SneakySnail/LIPRAS/files/862892/LIPRAS_Windows_StandAlone.zip)
+
+
+
 ## Acknowledgement
 This website is based in part upon work supported by the National Science Foundation under Grant No. 1409399. Any opinions, findings and conclusions or recommendations expressed in this website are those of the author(s) and do not necessarily reflect the views of the National Science Foundation (NSF).
 
