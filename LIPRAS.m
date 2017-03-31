@@ -785,7 +785,7 @@ set(c,'FontSize',10);
 I=imread(strcat('Logo',filesep,'Logo_R4.png'));
 I=flipud(I);
 image(I)
-truesize
+
 
 
 function panel_choosePlotView_SelectionChangedFcn(hObject, evt, handles)
