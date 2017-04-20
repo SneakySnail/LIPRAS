@@ -907,6 +907,7 @@ I=flipud(I);
 image(I);
 
 
+
 function panel_choosePlotView_SelectionChangedFcn(hObject, evt, handles)
 % Executes upon Plot View change in the Results tab.
 

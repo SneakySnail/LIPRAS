@@ -32,8 +32,8 @@ Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones
 ## Installation
 **MATLAB Users**
 
-**Requires MATLAB 2016b and GUI Layout Toolbox**<br>
-You can start using LIPRAS in MATLAB after downloading GUI Layout Toolbox with a MATLAB version 2016b or greater. 
+**Requires MATLAB 2016b, Curve Fitting Toolbox, and GUI Layout Toolbox**<br>
+You can start using LIPRAS in MATLAB after downloading GUI Layout Toolbox with a MATLAB version 2016b or greater thats equipped with Curve Fitting Toolbox. 
 <br>GUI Layout Toolbox: https://www.mathworks.com/matlabcentral/fileexchange/47982-gui-layout-toolbox
 
 **Stand-Alone Version (NO MATLAB NEEDED)**
