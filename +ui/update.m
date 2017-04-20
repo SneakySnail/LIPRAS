@@ -57,7 +57,7 @@ end
 set(findobj(handles.figure1, 'enable','inactive'), 'enable', 'on');
 assignin('base', 'handles', handles);
 guidata(handles.figure1, handles);
-% ==============================================================================
+
 
 function reset(handles)
 clear(['+utils' filesep '+plotutils' filesep 'plotX'])
@@ -149,7 +149,7 @@ end
 handles.gui.Legend = 'on';
 handles.gui.Legend = 'reset';
 
-% ==============================================================================
+
 
 function newParameterFile(handles)
 %UPDATEPARAMETERS is called when a new parameter file is read in. This function updates
@@ -188,13 +188,13 @@ handles.gui.Plotter.updateXYLim
 utils.plotutils.plotX(handles, 'sample');
 handles.gui.Plotter.updateXYLim 
 
-% ==============================================================================
+
 
 function newBackgroundModel(handles)
 if isequal(handles.gui.BackgroundModel, 'Spline') && handles.gui.PolyOrder == 1
     handles.gui.PolyOrder = 2;
 end
-% ==============================================================================
+
 
 function newBackgroundPoints(handles)
 import utils.plotutils.*
@@ -227,7 +227,7 @@ else
         delete(handles.axes1.Children(notDataLineIdx));
     end
 end
-% ==============================================================================
+
 
 
 function newNumberOfPeaks(handles)
@@ -280,7 +280,7 @@ else
     set(handles.push_update, 'enable', 'on');
     set(handles.push_selectpeak, 'enable', 'on');
 end
-% ==============================================================================
+
 
 function updateOptionsTabView(handles)
 % Updates the GUI components when the fit function changes
@@ -354,12 +354,12 @@ function updateConstraints(handles)
 %   It uses the values saved in handles.profiles.xrd to update the GUI, so it should
 %   only be called AFTER handles.profiles.xrd is updated. 
 
-% ==============================================================================
+
 
 function newPeakPositions(handles)
 set(handles.panel_coeffs, 'visible', 'on');
 set(handles.panel_coeffs.Children, 'enable', 'on');
-% ==============================================================================
+
 
 function updateFitBoundsTable(handles, origin)
 %UPDATEFITBOUNDS should be called after the 'Update' button in the Options tab is pressed.

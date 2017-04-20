@@ -683,12 +683,12 @@ end
         lambda2 = Stro.KAlpha2; %Ka2
         position2 = 180 / pi * (2*asin(lambda2/lambda1*sin(pi / 180 * (position1/2))));
         end
-        % ==================================================================== %
+        
     end
    
          
     
-    % ==================================================================== %
+    
     
     methods
         function value = get.Min2T(Stro)
@@ -722,7 +722,7 @@ end
             a = false;
         end
         end
-        % ==================================================================== %
+        
         
         function a = hasBackground(Stro)
         if isempty(Stro.Background) || isempty(Stro.Background.getInitialPoints)

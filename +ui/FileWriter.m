@@ -62,11 +62,13 @@ classdef FileWriter < handle
        
        for i=1:length(fits)
            filename = [fits{i}.FileName '_Profile_' num2str(profnum)];
-           fmodelfilename = [outpath filename '.Fmodel'];
-           fidmodel = fopen(fmodelfilename, 'w');
-           this.printFmodelHeader(fits{i}, fidmodel);
-           this.printFmodelValues(fits{i}, fidmodel);
-           fclose(fidmodel);
+           
+    % For individual Fmodels, activate this section
+%            fmodelfilename = [outpath filename '.Fmodel'];
+%            fidmodel = fopen(fmodelfilename, 'w');
+%            this.printFmodelHeader(fits{i}, fidmodel);
+%            this.printFmodelValues(fits{i}, fidmodel);
+%            fclose(fidmodel);
            
            fdatafilename = [outpath filename '.Fdata'];
            fiddata = fopen(fdatafilename, 'w');

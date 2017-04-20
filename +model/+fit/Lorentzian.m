@@ -37,7 +37,7 @@ classdef Lorentzian < model.fit.FitFunctionInterface
         end
         
         end
-        % ==========================================================================================
+        
     end
     
     methods
@@ -53,13 +53,13 @@ classdef Lorentzian < model.fit.FitFunctionInterface
         str = [coeff{Nidx} '*1/pi* (0.5*' coeff{fidx} '/((xv-', ...
             coeff{xidx} ')^2+(0.5*' coeff{fidx} ')^2))'];
         end
-        % ==========================================================================================
+        
         
         function value = getCoeffs(this)
         this.ConstrainedLogical(4:5) = false;
         value = getCoeffs@model.fit.FitFunctionInterface(this);
         end
-        % ==========================================================================================
+        
        
         function output = getDefaultInitialValues(this, data, peakpos)
         value = getDefaultInitialValues@model.fit.FitFunctionInterface(this, data, peakpos);
@@ -67,7 +67,7 @@ classdef Lorentzian < model.fit.FitFunctionInterface
         output.x = value.x;
         output.f = value.f;
         end
-        % ==========================================================================================
+        
         
         function output = getDefaultLowerBounds(this, data, peakpos)
         value = getDefaultLowerBounds@model.fit.FitFunctionInterface(this, data, peakpos);
@@ -75,7 +75,7 @@ classdef Lorentzian < model.fit.FitFunctionInterface
         output.x = value.x;
         output.f = value.f;
         end
-        % ==========================================================================================
+        
         
         function output = getDefaultUpperBounds(this, data, peakpos)
         value = getDefaultUpperBounds@model.fit.FitFunctionInterface(this, data, peakpos);
@@ -84,7 +84,7 @@ classdef Lorentzian < model.fit.FitFunctionInterface
         output.x = value.x;
         output.f = value.f;
         end
-        % ==========================================================================================
+        
     end
     
     methods (Static)
@@ -92,13 +92,13 @@ classdef Lorentzian < model.fit.FitFunctionInterface
         %ISWCONSTRAINED overrides the parent class function to always return false.
         result = false;
         end
-        % ==========================================================================================
+        
         
         function result = isMConstrained()
         %ISMCONSTRAINED overrides the parent class function to always return false.
         result = false;
         end
-        % ==========================================================================================
+        
         
     end
     
