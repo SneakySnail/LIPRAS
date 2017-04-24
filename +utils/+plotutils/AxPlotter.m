@@ -72,7 +72,7 @@ classdef AxPlotter < matlab.mixin.SetGet
         set([handles.axes1.XLabel], 'Interpreter', 'tex');
         set([handles.axes1.YLabel], 'Interpreter', 'tex');
         end
-        % ======================================================================
+        
         
         function set.Mode(this, mode)
         if isempty(mode)
@@ -103,7 +103,7 @@ classdef AxPlotter < matlab.mixin.SetGet
         name = [this.FileNames{this.CurrentFile} ' (' num2str(this.CurrentFile) ...
             ' of ' num2str(totalfiles) ')'];
         end
-        % ======================================================================
+        
         
         function set.CurrentFile(this, val)
         %   
@@ -154,7 +154,7 @@ classdef AxPlotter < matlab.mixin.SetGet
         this.transform(this.ax.Children);
         this.transformXData_(this.axerr.Children);
         end
-        % ======================================================================
+        
         
         function set.YScale(this, type)
         this.YScale_ = type;
@@ -162,7 +162,7 @@ classdef AxPlotter < matlab.mixin.SetGet
         this.transform(this.ax.Children);
         this.updateYLim(this.ax);
         end
-        % ======================================================================
+        
         
         function name = get.YScale(this)
         name = this.YScale_;
@@ -644,7 +644,7 @@ classdef AxPlotter < matlab.mixin.SetGet
             filename = this.FileNames{filenum};
             title(axx, [filename ' (' num2str(filenum) ' of ' num2str(length(this.FileNames)) ')'], ...
                 'Interpreter', 'none', ...
-                'FontSize', 14, 'FontName','default');
+                'FontSize', 12, 'FontName','default');
             if ~isempty(varargin)
                 title(axx, varargin{:});
             end

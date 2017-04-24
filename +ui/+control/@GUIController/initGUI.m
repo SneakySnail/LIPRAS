@@ -11,7 +11,7 @@ createJavaStatusBar();
 guidata(handles.figure1, handles);
 addControlListeners();
 
-% ==============================================================================
+
 
 
 %% helper functions
@@ -22,8 +22,8 @@ addControlListeners();
     addpath(genpath([pwd '/dialog']));
     addpath(genpath([pwd '/listener']));
     end
-% ==========================================================================
-% ==========================================================================
+
+
 
     function addControlListeners()
     addlistener(handles.profiles, 'Status', ...
@@ -79,7 +79,7 @@ addControlListeners();
     
     ui.LiprasInteractiveHelp.init(handles.figure1);
     end
-% ==========================================================================
+
 
 % Creates the Java status bar, used for updating the user on GUI actions. Throws
 % an exception if the Java object could not be created.
@@ -103,7 +103,7 @@ addControlListeners();
         throw(MException(msgId, msg));
     end
     end
-% ==========================================================================
+
 
 
 

@@ -62,11 +62,13 @@ classdef FileWriter < handle
        
        for i=1:length(fits)
            filename = [fits{i}.FileName '_Profile_' num2str(profnum)];
-           fmodelfilename = [outpath filename '.Fmodel'];
-           fidmodel = fopen(fmodelfilename, 'w');
-           this.printFmodelHeader(fits{i}, fidmodel);
-           this.printFmodelValues(fits{i}, fidmodel);
-           fclose(fidmodel);
+           
+    % For individual Fmodels, activate this section
+%            fmodelfilename = [outpath filename '.Fmodel'];
+%            fidmodel = fopen(fmodelfilename, 'w');
+%            this.printFmodelHeader(fits{i}, fidmodel);
+%            this.printFmodelValues(fits{i}, fidmodel);
+%            fclose(fidmodel);
            
            fdatafilename = [outpath filename '.Fdata'];
            fiddata = fopen(fdatafilename, 'w');
@@ -224,8 +226,11 @@ classdef FileWriter < handle
        fprintf(fid, 'All single peak data (column 3+) does not include background intensity.\n\n');
        nPeaks=size(fitted.FPeaks,1);
         for p=1:nPeaks
-        vars{:,p}=strcat(' Peak',num2str(p), ' \t');
+                vars{:,p}=strcat(' Peak',num2str(p), ' \t');
         end
+                    if fitted.CuKa && ~isempty(fitted.FCuKa2Peaks) % this is for Kalpha2
+                        vars{:,p+1}=strcat('Kalpha2...',' \t');                   
+                    end
         t='2theta \t Obs \t Calc \t BkgdFit \t';
         nw=strcat(t,[vars{:}],' \n');
        fprintf(fid, nw);
@@ -233,21 +238,19 @@ classdef FileWriter < handle
        twotheta = fitted.TwoTheta';
        intmeas = fitted.Intensity';
        calc=fitted.FData;
-       background = fitted.Background';
-       peaks = zeros(length(twotheta), length(fitted.FunctionNames));
-       for j=1:length(fitted.FunctionNames)
-           peakCalculated = fitted.calculatePeakFit(j);
-           peaks(:,j) = peakCalculated(1,:)';
-       end
+       background = fitted.Background';  
+                       if fitted.CuKa && ~isempty(fitted.FCuKa2Peaks)
+                            peaks=[fitted.FPeaks' fitted.FCuKa2Peaks']; % combines the matrixes together to write to FData
+                       else
+                            peaks=fitted.FPeaks';
+                       end
        for i=1:length(twotheta)
            line = [twotheta(i), intmeas(i), calc(i), background(i), peaks(i,:)];
            fprintf(fid, '%2.5f\t', line(:));
            fprintf(fid, '\n');
        end
        end
-
        
    end
-   
-    
+
 end

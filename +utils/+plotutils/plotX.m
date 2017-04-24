@@ -97,7 +97,7 @@ catch ex
     errordlg(ex.message)
 end
 
-% ==============================================================================
+
 
     function disableActiveComponents()
         % Prevents the user from clicking through the GUI while the figure is plotting
@@ -153,7 +153,7 @@ end
     end
     plotter.updateXYLim(axx,mode);
     end
-% ==============================================================================
+
 
 
     function plotFit(handles, ax, fileID)
@@ -167,12 +167,12 @@ end
     % Raw Data
     dataLine = findobj(ax, 'tag', 'raw');
     set(dataLine, 'LineStyle', 'none', 'MarkerSize', 3.5, 'MarkerFaceColor', [0.08 .17 0.65],'MarkerEdgeColor',[0.08 0.17 0.65]);
+    plotter.plotOverallFit(ax,fitted);
     if handles.profiles.xrd.BkgLS % background specific to BkgLS otherwise, peaks undershoot in plot window
     plotter.plotBgFit(ax,filenum,fitted.Background);
     else
     plotter.plotBgFit(ax,filenum);
     end
-    plotter.plotOverallFit(ax,fitted);
     for ii=1:xrd.NumFuncs
         plotter.plotFittedPeak(ax,fitted,ii);
     end
@@ -186,7 +186,7 @@ end
         handles.gui.Legend = 'reset';
     end
     end
-% ==============================================================================
+
 
 %
     function plotFitError(handles)
@@ -194,7 +194,7 @@ end
     plotter.plotFitErr(handles.axes2, fitted);
     
     end
-% ==============================================================================
+
 
 % Plot an example fit using the starting values from table.
     function handles = plotSampleFit(handles,mode)
@@ -220,7 +220,7 @@ end
     handles.gui.Legend = 'reset';
     plotter.updateXYLim(handles.axes1,'sample'); % this always comes from sample
     end
-% ==============================================================================
+
 
     function plotSuperimposed(handles)
     % Like plotData, except turns on hold to enable multiple
@@ -255,7 +255,7 @@ end
     handles.gui.Legend = 'reset';
     plotter.updateXYLim(handles.axes1);
     end
-% ==============================================================================
+
 
 % Makes a new figure and plots each fit for the entire dataset.
     function plotAllFits(handles)
@@ -289,7 +289,7 @@ end
             filename = filenames{j};
             title(ax(j), [filename ' (' num2str(j) ' of ' num2str(length(filenames)) ')'], ...
                 'Interpreter', 'none', ...
-                'FontSize', 14, ...
+                'FontSize', 12, ...
                 'FontName','default');
         end
         linkaxes(ax,'xy');
@@ -303,7 +303,7 @@ end
         rethrow(exception)
     end
 end
-% ==============================================================================
+
 
 
     function plotCoefficients(handles)
@@ -342,7 +342,7 @@ end
     handles.axes1.YLabel.String = [];
     handles.gui.Legend = 'reset';
     end
-% ==============================================================================
+
 
 % plots the statistics of all the fits, when 'Fit Statistics' is selected
     function plotFitStats(handles)
@@ -412,37 +412,37 @@ end
         'MarkerSize', 8, ...
         'MarkerFaceColor', [0 0 0], ...
         'DisplayName', 'R^2')
-    ylabel(ax(1),'R^2','FontSize',14);
+    ylabel(ax(1),'R^2','FontSize',12);
 
     plot(ax(2),1:numfiles, adjrsquared, '-or', ...
         'MarkerSize', 8, ...
         'MarkerFaceColor', [0 0 0], ...
         'DisplayName', 'AdjR^2')
-    ylabel(ax(2),'Adjusted R^2','FontSize',14);
+    ylabel(ax(2),'Adjusted R^2','FontSize',12);
 
     plot(ax(3),1:numfiles, rmse, '-og', ...
         'MarkerSize', 8, ...
         'MarkerFaceColor', [0 0 0], ...
         'DisplayName', 'RMSE');
-    ylabel(ax(3),'Root MSE','FontSize',14);
+    ylabel(ax(3),'Root MSE','FontSize',12);
     
     plot(ax(4),1:numfiles, Rp, '-o','Color',[0.85 0.33 0], ...
         'MarkerSize', 8, ...
         'MarkerFaceColor', [0 0 0], ...
         'DisplayName', 'Rp');
-    ylabel(ax(4),'Rp','FontSize',14);
+    ylabel(ax(4),'Rp','FontSize',12);
     
     plot(ax(5),1:numfiles, Rwp, '-om', ...
         'MarkerSize', 8, ...
         'MarkerFaceColor', [0 0 0], ...
         'DisplayName', 'RMSE')
-    ylabel(ax(5),'Rwp','FontSize',14)
+    ylabel(ax(5),'Rwp','FontSize',12)
     
     plot(ax(6),1:numfiles, Rchi2, '-o', ...
         'MarkerSize', 8, ...
         'MarkerFaceColor', [0 0 0], ...
         'DisplayName', 'Reduced \chi^2')
-    ylabel(ax(6),'Reduced \chi^2','FontSize',14)
+    ylabel(ax(6),'Reduced \chi^2','FontSize',12)
     
     for ii=1:length(ax)
         xlabel(ax(ii),'File Number');
@@ -450,7 +450,7 @@ end
     xlim(ax, [0 numfiles+1]);
     linkaxes(ax, 'x')
     end
-% ==============================================================================
+
 
     function result = plotBackgroundFit(handles)
     %UNTITLED9 Summary of this function goes here

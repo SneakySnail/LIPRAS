@@ -10,6 +10,9 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        OutputPath = ['FitOutputs' filesep];
        Weights='None'
        UniqueSave=0;
+       ImageFormat='TIFF';
+       ImageRes='100 DPI';
+       ImageSaveAll=0;
        FitResults % each profile results in a cell
        
    end
@@ -172,22 +175,7 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
    
    methods
        function isNew = newXRD(this, path, filename)
-       isNew = false;
-        try
-    PrefFile=fopen('Preference File.txt','r');
-    dat=fscanf(PrefFile,'%c');
-    sdat=strsplit(dat,'\n');
-    data_path=strsplit(sdat{1},'= ');
-    rWeights=strsplit(sdat{2},'= ');
-    rUniqueSave=strsplit(sdat{3},'= ');
-    fclose(PrefFile);
-    this.DataPath=data_path{2};
-    this.Weights=rWeights{2};
-    this.UniqueSave=str2double(rUniqueSave{2});
-
-        catch
-        end
-        
+       isNew = false;      
 
        
        if nargin < 2

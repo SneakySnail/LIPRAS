@@ -105,7 +105,7 @@ for i=1:length(filename)
     fclose(fid);
 end
 end
-% ==============================================================================
+
 
 function data = readSpreadsheet(filename)
 temp = xlsread(filename);
@@ -150,7 +150,7 @@ end
 data.two_theta = temp(1,:);
 data.data_fit = temp(2,:);
 end
-% ==============================================================================
+
 
 function data=readFXYE(fileIndex,inFile)
 fid = fopen(inFile,'r');
@@ -298,14 +298,14 @@ skiplines = index;
 fid = fopen(inFile,'r');
 readFile(fileIndex,fid)
 end
-% ==============================================================================
+
 
 function data = parseXRDML(filename)
 %PARSEXRDML reads an xml file with the extension .xrdml. If there are multiple scans in one file,
 %this function assumes that the 2theta range is the same for all scans.
 
 
-% =====
+
 dom = xmlread(filename);
 
 intensityElements = dom.getElementsByTagName('intensities');

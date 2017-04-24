@@ -36,17 +36,39 @@ guidata(hObject, handles);
 
 handles.gui = GUIController.getInstance(hObject);
 handles = GUIController.initGUI(handles);
+handles.OrigCD=cd;
+% Preference File Read on LIPRAS start up
+        try
+    PrefFile=fopen('Preference File.txt','r');
+    dat=fscanf(PrefFile,'%c');
+    sdat=strsplit(dat,'\n');
+    data_path=strsplit(sdat{1},'= ');
+    rWeights=strsplit(sdat{2},'= ');
+    rUniqueSave=strsplit(sdat{3},'= ');
+    rImageRes=strsplit(sdat{4},'= ');
+    rImageFormat=strsplit(sdat{5},'= ');
+    rImageExportAll=strsplit(sdat{6},'= ');
+    fclose(PrefFile);
+    handles.profiles.DataPath=data_path{2};
+    handles.profiles.Weights=rWeights{2};
+    handles.profiles.UniqueSave=str2double(rUniqueSave{2});
+    handles.profiles.ImageRes=rImageRes{2};
+    handles.profiles.ImageFormat=rImageFormat{2};
+    handles.profiles.ImageSaveAll=str2double(rImageExportAll{2});
+        catch
+        end
+
 
 assignin('base','handles',handles);
 % Update handles structure
 guidata(hObject, handles);
-%===============================================================================
+
 
 % Outputs from this function are returned to the command line.
 function varargout = LIPRAS_OutputFcn(~, ~, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
-%===============================================================================
+
 
 function LIPRAS_DeleteFcn(hObject, eventdata, handles)
 % Executes before closing the GUI, even if the function delete() is called instead of manually 
@@ -476,8 +498,7 @@ end
 % Executes on selection change in popup_filename.
 function popup_filename_Callback(hObject, eventdata, handles)
 handles.gui.CurrentFile = hObject.Value;
-% superimposed = get(handles.checkbox_superimpose, 'Value');
-superimposed=strcmp(handles.menuPlot_superimpose.Checked,'on'); % LOL fixed
+superimposed=strcmp(handles.menuPlot_superimpose.Checked,'on'); 
 if superimposed
     utils.plotutils.plotX(handles, 'superimpose');
 else
@@ -577,13 +598,23 @@ handles.gui.Legend = 'reset';
 
 function menu_restart_Callback(o,e,handles)
 delete(handles.figure1);
+try
 fig = LIPRAS;
+catch
+    cd(handles.OrigCD)
+    fig=LIPRAS;
+    disp('Switching to LIPRAS Directory...')
+end
 handles = guidata(fig);
 guidata(handles.figure1, handles);
 
 % Executes when the menu item 'Export->As Image' is clicked.
 function menu_saveasimage_Callback(o,e,handles)
+    if ~isempty(handles.profiles.FitResults)
 LiprasDialogCollection.exportPlotAsImage(handles);
+    else
+       msgbox('Conduct a fit first')
+    end
 
 
 function menu_preferences_Callback(o,e,handles)
@@ -592,11 +623,11 @@ function menu_preferences_Callback(o,e,handles)
 
     function pref(~,~,handles)
 btnsize=30;
-r1v=50;
-r1h=15;
+r1v=120;
+r1h=20;
 textb=10;
 
-    d = dialog('Position',[100 400 350 200],'Name','Preferences');
+    d = dialog('Position',[100 400 350 250],'Name','Preferences');
 
     btn1 = uicontrol('Parent',d,...
            'Position',[175 10 100 btnsize],...
@@ -610,24 +641,24 @@ textb=10;
     
 % Starting Director for Files      
     edbox1= uicontrol('Parent',d,...
-           'Position',[r1h-90 r1v+45 300 btnsize],...
-           'Style','text',...
+           'Position',[r1h r1v+60 300 btnsize],...
+           'Style','text','HorizontalAlignment','left',...
            'FontSize',textb, 'String','Set Starting Directory:');
        
     btn2 = uicontrol('Parent',d,...
-           'Position',[r1h+200 r1v+50 100 btnsize],...
+           'Position',[r1h+200 r1v+65 100 btnsize],...
            'FontSize',textb,'TooltipString','After selecting directory, hit "Save to File" to preserve for next LIPRAS startup',...
            'Callback',@(o,e)LIPRAS('openD',o,e,handles));
        set(btn2, 'String', '<html><center>Select Directory</center>');
        
 % LSQ Weights
           edbox2= uicontrol('Parent',d,...
-           'Position',[r1h-90 r1v-5 300 btnsize],...
-           'Style','text',...
+           'Position',[r1h r1v+25 300 btnsize],...
+           'Style','text','HorizontalAlignment','left',...
            'FontSize',textb, 'String','Least Squares Weights:');         
             
             pop1=uicontrol('Parent',d,...
-                'Position', [r1h+200 r1v 100 btnsize],...
+                'Position', [r1h+200 r1v+30 100 btnsize],...
                 'FontSize',textb,...
                 'String', {'None','1/obs','1/sqrt(obs)','1/max(obs)','Linear','Sqrt','Log10'},...
                 'Style','popup','TooltipString','Takes immediate effect, hit "Save to File" to preserve for next LIPRAS startup',...
@@ -652,8 +683,8 @@ end
              
     % Unique Save      
                 chkbox1 = uicontrol('Parent',d,...
-           'Position',[r1h+250 r1v+97 100 btnsize],...
-           'FontSize',textb,...
+           'Position',[r1h+240 r1v+97 100 btnsize],...
+           'FontSize',textb,'HorizontalAlignment','left',...
            'Style','checkbox','TooltipString','Generates new folder everytime a fit is conducted, takes immediate effect, hit "Save to File" to preserve for next LIPRAS startup',...
            'Callback',@(o,e)LIPRAS('uniqueSav',o,e,handles));
        try
@@ -665,14 +696,81 @@ end
        end
        
           textbox3= uicontrol('Parent',d,...
-           'Position',[r1h-90 r1v+90 300 btnsize],...
-           'Style','text',...
+           'Position',[r1h r1v+90 200 btnsize],...
+           'Style','text','HorizontalAlignment','left',...
            'FontSize',textb, 'String','Toggle Unique Save:');         
+       
+% Image Pref
+          textbox4= uicontrol('Parent',d,...
+           'Position',[r1h r1v-10 300 btnsize],...
+           'Style','text','HorizontalAlignment','left',...
+           'FontSize',textb, 'String','Image Resolution:');    
+       
+                   pop4=uicontrol('Parent',d,...
+                'Position', [r1h+200 r1v-5 100 btnsize],...
+                'FontSize',textb,...
+                'String', {'50 DPI','100 DPI','200 DPI','300 DPI','600 DPI'},...
+                'Style','popup','TooltipString','Takes immediate effect, hit "Save to File" to preserve for next LIPRAS startup',...
+                'Callback',@(o,e)LIPRAS('ImagePref',o,e,handles,'DPI'));
+    try            
+lst=handles.profiles.ImageRes;
+    catch
+    lst='50 DPI'; % default
+    end
+if strcmp(lst,'50 DPI');id=1;elseif strcmp(lst,'100 DPI');id=2;elseif strcmp(lst,'200 DPI'); id=3;elseif strcmp(lst,'300 DPI');id=4;
+elseif strcmp(lst,'600 DPI'); id=5;
+else
+    id=1;
+end
+             set(pop4,'Value',id)          
+%        
+                 textbox5= uicontrol('Parent',d,...
+           'Position',[r1h r1v-45 300 btnsize],...
+           'Style','text','HorizontalAlignment','left',...
+           'FontSize',textb, 'String','Image Type:'); 
+       
+                          pop5=uicontrol('Parent',d,...
+                'Position', [r1h+200 r1v-40 100 btnsize],...
+                'FontSize',textb,...
+                'String', {'TIFF','JPEG','PNG','PDF','BMP','EPSC','SVG'},...
+                'Style','popup','TooltipString','Takes immediate effect, hit "Save to File" to preserve for next LIPRAS startup',...
+                'Callback',@(o,e)LIPRAS('ImagePref',o,e,handles,'Format'));
+    try            
+lst=handles.profiles.ImageFormat;
+    catch
+    lst='TIFF'; % default
+    end
+if strcmp(lst,'TIFF');id=1;elseif strcmp(lst,'JPEG');id=2;elseif strcmp(lst,'PNG'); id=3;elseif strcmp(lst,'PDF');id=4;
+elseif strcmp(lst,'BMP'); id=5;elseif strcmp(lst,'EPSC'); id=6;elseif strcmp(lst,'SVG'); id=7;
+else
+    id=1;
+end
+             set(pop5,'Value',id)             
+            
+       %
+                  textbox6= uicontrol('Parent',d,...
+           'Position',[r1h r1v-80 300 btnsize],...
+           'Style','text','HorizontalAlignment','left',...
+           'FontSize',textb, 'String','Image Save All:'); 
+       
+                       chkbox6 = uicontrol('Parent',d,...
+           'Position',[r1h+240 r1v-70 100 btnsize],...
+           'FontSize',textb,'HorizontalAlignment','left',...
+           'Style','checkbox','TooltipString','Toogle to export all images for all files, instead of currently viewed fit (default)',...
+           'Callback',@(o,e)LIPRAS('ImagePref',o,e,handles,'ExportAll'));
+       
+      try
+                if handles.profiles.ImageSaveAll==1
+                    set(chkbox6,'Value',1);
+                else
+                end
+       catch
+       end
+       
        
        uiwait(d)
 
 
-    
     function openD(~,~,handles)
         folder_name=uigetdir;
 
@@ -683,6 +781,9 @@ handles.profiles.DataPath=folder_name;
             fprintf(PreferenceFile,'%s %s\n','OpenDirectory=',handles.profiles.DataPath);
             fprintf(PreferenceFile,'%s %s\n','Weights=',handles.profiles.Weights);
             fprintf(PreferenceFile,'%s %i\n','UniqueSave=',handles.profiles.UniqueSave);
+            fprintf(PreferenceFile,'%s %s\n','ImageRes=',handles.profiles.ImageRes);
+            fprintf(PreferenceFile,'%s %s\n','ImageFormat=',handles.profiles.ImageFormat);
+            fprintf(PreferenceFile,'%s %i\n','ImageExportAll=',handles.profiles.ImageSaveAll);
 
             fclose all;
             
@@ -697,7 +798,26 @@ handles.profiles.DataPath=folder_name;
                 catch
                     msgbox('Load Data First')
                 end
-           
+
+       function ImagePref(o,~,handles,type)
+if strcmp(type,'DPI')
+    val=o.Value;
+    w=o.String(val);
+    handles.profiles.ImageRes=w{1};
+    
+elseif strcmp(type,'Format')
+     val=o.Value;
+    w=o.String(val);
+     handles.profiles.ImageFormat=w{1};
+   
+elseif strcmp(type,'ExportAll')
+    val=o.Value;
+    if val
+        handles.profiles.ImageSaveAll=1;
+    else
+        handles.profiles.ImageSaveAll=0;
+    end
+end
                 
                 function uniqueSav(hObject,~,handles)
                 val=hObject.Value; % identifies what was selected
@@ -784,7 +904,7 @@ c=get(ah,'Children');
 set(c,'FontSize',10);
 I=imread(strcat('Logo',filesep,'Logo_R4.png'));
 I=flipud(I);
-image(I)
+image(I);
 
 
 
