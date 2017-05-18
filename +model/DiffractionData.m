@@ -12,6 +12,7 @@ classdef DiffractionData
     properties (Hidden, GetAccess = protected, SetAccess = immutable)
         FullTwoTheta
         FullIntensityData
+        FullErrorData
     end
     
     properties (Hidden)
@@ -24,6 +25,7 @@ classdef DiffractionData
         % Constructor
         this.FullTwoTheta = data.two_theta(fileIndex,:);
         this.FullIntensityData = data.data_fit(fileIndex,:);
+        this.FullErrorData=data.error(fileIndex, :);
         [path, name, ext] = fileparts(filename);
         this.DataPath = path;
         this.FileName = [name ext];
@@ -48,6 +50,21 @@ classdef DiffractionData
         indices = utils.findIndex(this.FullTwoTheta, range);
         
         result = this.FullIntensityData(indices(1):indices(2));
+        end
+        
+                function result = getDataErrors(this, range)
+        %GETDATAINTENSITY Returns the intensity data in the range specified by
+        %   the argument 'range'. If the range isn't specified, it uses the
+        %   Min2T and Max2T properties.
+        %
+        %RANGE - 1x2 numeric array of the two theta range
+        if nargin < 2
+            range = [this.Min2T this.Max2T];
+        end
+        
+        indices = utils.findIndex(this.FullTwoTheta, range);
+        
+        result = this.FullErrorData(indices(1):indices(2));
         end
         
         function result = getDataTwoTheta(this, range)

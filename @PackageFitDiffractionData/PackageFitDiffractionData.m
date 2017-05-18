@@ -645,18 +645,10 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
 %Weights, depending on preference
 if strcmp(Stro.Weights,'None')
     weight=int./int;
-elseif strcmp(Stro.Weights,'1/obs')
+elseif strcmp(Stro.Weights,'1/obs')||strcmp(Stro.Weights,'Default')
     weight = 1./int;
 elseif strcmp(Stro.Weights,'1/sqrt(obs)')
     weight=1./sqrt(int);
-elseif strcmp(Stro.Weights,'1/max(obs)')
-    weight=int./max(int);
-elseif strcmp(Stro.Weights,'Linear')
-    weight=int;
-elseif strcmp(Stro.Weights,'Sqrt')
-    weight=sqrt(int);
-elseif strcmp(Stro.Weights,'Log10')
-    weight=log10(int);
 end
            
         if Stro.ignore_bounds

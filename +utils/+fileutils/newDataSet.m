@@ -12,11 +12,11 @@ end
 
 % allowedFiles = {'*.csv; *.txt; *.xy; *.fxye; *.dat; *.xrdml; *.chi; *.spr'}; % underdevelopment
 if ispc
-allowedFiles = {'*.csv; *.xls; *.xlsx; *.xy; *.fxye;*.xrdml; *.chi'};
+allowedFiles = {'*.csv; *.xls; *.xlsx; *.xy; *.xye; *.fxye;*.xrdml; *.chi'};
 elseif ismac
-    allowedFiles = {'*.xls;*.xlsx; *.xy; *.fxye;*.xrdml; *.chi'};
+    allowedFiles = {'*.xls;*.xlsx; *.xy; *.xye; *.fxye;*.xrdml; *.chi'};
 else % Defaults to Windows
-    allowedFiles = {'*.csv; *.xls; *.xlsx; *.xy; *.fxye;*.xrdml; *.chi'};
+    allowedFiles = {'*.csv; *.xls; *.xlsx; *.xy; *.xye; *.fxye;*.xrdml; *.chi'};
 
 end
 
@@ -61,7 +61,7 @@ for i=1:length(filename)
     elseif strcmp(ext, '.txt')
 
         datatemp = readTXT(i,fullFileName);
-    elseif strcmp(ext, '.xy')
+    elseif strcmp(ext, '.xy')||strcmp(ext, '.xye')
         datatemp = readFile(fid, ext);
     elseif strcmp(ext, '.fxye')
         datatemp = readFXYE(i,fullFileName);
@@ -72,6 +72,8 @@ for i=1:length(filename)
         end
     elseif strcmp(ext, '.chi')
         datatemp = readFile(fid, ext);
+        datatemp.error=1./datatemp.data_fit;
+
     elseif strcmp(ext, '.dat')
         datatemp = readFile(fid, ext);
     elseif strcmp(ext, '.xrdml')
@@ -100,6 +102,12 @@ for i=1:length(filename)
     else
         data.two_theta(i,:) = datatemp.two_theta;
         data.data_fit(i,:) = datatemp.data_fit;
+        try
+        data.error(i,:)=datatemp.error;
+        catch % in cases where error is not specified upon read
+        data.error(i,:)=sqrt(data.data_fit(i,:));
+        end
+
     end    
     
     fclose(fid);
@@ -126,18 +134,25 @@ end
 % reshapes based on for loop results
 temp = temp(p:end,:);
 
-% now takes the first two columns of intesity and 2-theta and transpose
-temp = temp(:,1:2)';
+% now takes the first three columns of intesity and 2-theta and transpose
+temp = temp(:,1:3)';
 data.two_theta = temp(1,:);
 data.data_fit = temp(2,:);
+try
+data.error=temp(3,:);
+catch
+end
 end
 
 
-function data = readFile(fid, ext)
+function data = readFile(fid, ext) 
 data = struct('two_theta',[],'data_fit',[],'KAlpha1',[],'KAlpha2',[],...
     'kBeta',[],'RKa1Ka2',[],'Temperature',[], 'ext',ext);
 if strcmp(ext, '.xy')
     temp = fscanf(fid,'%f',[2 ,inf]);
+elseif strcmp(ext,'.xye')
+    temp = fscanf(fid,'%f',[3 inf]);
+    data.error=temp(3,:);
 elseif strcmp( ext, '.fxye')
     temp = fscanf(fid,'%f',[3 ,inf]);
     temp(1,:) = temp(1,:) ./ 100;
@@ -192,6 +207,8 @@ temp1=transpose(fscanf(fid,'%f',[3 inf]));%opens the file listed above and obtai
 temp1=[dline;temp1];
 data.two_theta = temp1(:,1)./100; % divides by 100 since units in fxye are in centi-degrees
 data.data_fit = temp1(:,2);
+data.error=temp1(:,3); % will become weights for fit for diffraction patterns
+
 try
 data.temperature=Temperature;
 data.wave=Wavelength;
@@ -259,44 +276,6 @@ data.wave=Wavelength;
 
 fclose(fid)
 
-end
-
-
-function readWithHeader(fileIndex,inFile)
-keyboard
-%TODO: NOT IMPLEMENTED
-
-fid = fopen(inFile,'r');
-index = 0;
-done = 0;
-while done == 0
-    line = fgetl(fid);
-    a = strsplit(line, ' ');
-    try
-        if strcmp(a(2),'Temp')
-            temp = sprintf('%s*', cell2mat(a(5)));
-            Stro.temperature(fileIndex) = sscanf(temp, '%f*');
-        end
-        if strcmp(a(1), '')
-            S = sprintf('%s*', cell2mat(a(2)));
-        else
-            S = sprintf('%s*', cell2mat(a(1)));
-        end
-        N = sscanf(S, '%f*');
-        if isempty(N)
-            
-        elseif isa(N, 'double')
-            done = 1;
-        end
-    catch
-        
-    end
-    
-    index = index + 1;
-end
-skiplines = index;
-fid = fopen(inFile,'r');
-readFile(fileIndex,fid)
 end
 
 

@@ -660,7 +660,7 @@ textb=10;
             pop1=uicontrol('Parent',d,...
                 'Position', [r1h+200 r1v+30 100 btnsize],...
                 'FontSize',textb,...
-                'String', {'None','1/obs','1/sqrt(obs)','1/max(obs)','Linear','Sqrt','Log10'},...
+                'String', {'Default','None','1/obs','1/sqrt(obs)'},...
                 'Style','popup','TooltipString','Takes immediate effect, hit "Save to File" to preserve for next LIPRAS startup',...
                 'Callback',@(o,e)LIPRAS('weight',o,e,handles));
 try            
@@ -668,13 +668,11 @@ lst=handles.profiles.Weights;
 catch
     lst='None';
 end
-if strcmp(lst,'None');id=1;
-elseif strcmp(lst,'1/obs');id=2;
-elseif strcmp(lst,'1/sqrt(obs)'); id=3;
-elseif strcmp(lst,'1/max(obs)');id=4;
-elseif strcmp(lst,'Linear'); id=5;
-elseif strcmp(lst,'Sqrt'); id=6;
-elseif strcmp(lst,'Log10'); id=7;
+if strcmp(lst,'Default');id=1;
+elseif strcmp(lst,'None');id=2;
+elseif strcmp(lst,'1/obs');id=3;
+elseif strcmp(lst,'1/sqrt(obs)'); id=4;
+
 else
     id=1;
 end

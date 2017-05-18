@@ -126,6 +126,14 @@ end
         else
         this.FitOptions    = xrd.getFitOptions(filenumber);
         end
+        
+        if strcmp(profile.Weights,'Default')
+            if ~isempty(profile.Errors)
+                this.FitOptions.Weights=1./(xrd.DataSet{filenumber}.getDataErrors).^2; % default to 1/sigma^2 when errors are read in or generated upon file read
+            else
+                this.FitOptions.Weights=1./xrd.DataSet{filenumber}.getDataIntensity;
+            end
+        end
         this.CoeffNames    = coeffnames(this.FitType)';
         this.FitFunctions  = xrd.getFunctions;
         
