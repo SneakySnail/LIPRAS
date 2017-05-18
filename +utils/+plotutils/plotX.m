@@ -395,6 +395,7 @@ end
         Rexp(ss)=sqrt(DOF/sum(w.*obs.^2)); % Rexpected
 %         Rchi2(ss)=(Rwp/Rexp)/100; % reduced chi-squared, GOF, taken out
 %         because its specific to when w=1/obs;
+%         Rchi2(ss)=sum(((obs-calc)./w).^2)/DOF;
         Rchi2(ss)=sum((obs-calc).^2./obs)/(DOF);
 
      

@@ -21,8 +21,12 @@ classdef FitResults
         
         Rchi2
         
+        FitInfo
+        
         FmodelCI
 
+        CovJacobianFit
+        
         CoeffNames
 
         CoeffValues
@@ -138,11 +142,11 @@ end
 %         disp(this.FitOptions.StartPoint) % to check SP being recycled
 
         if xrd.BkgLS
-                    [fmodel, fmodelgof] = fit(this.TwoTheta', ...
+                    [fmodel, fmodelgof, outputMatrix] = fit(this.TwoTheta', ...
                                  (this.Intensity)', ...
                                   this.FitType, this.FitOptions);
         else
-        [fmodel, fmodelgof] = fit(this.TwoTheta', ...
+        [fmodel, fmodelgof, outputMatrix] = fit(this.TwoTheta', ...
                                  (this.Intensity - this.Background)', ...
                                   this.FitType, this.FitOptions);
         end
@@ -152,7 +156,8 @@ end
         this.FmodelGOF = fmodelgof;
         this.FmodelCI  = fmodelci;
         this.LSWeights=this.FitOptions.Weights;
-        
+        this.FitInfo=outputMatrix;
+%         this.CovJacobianFit=(this.FitInfo.Jacobian'*this.FitInfo.Jacobian)^(-1)*this.FmodelGOF.rmse^2;
         this.FData       = fmodel(this.TwoTheta)';
         this.FPeaks      = zeros(length(xrd.getFunctions),length(this.FData));
         this.FCuKa2Peaks = zeros(length(xrd.getFunctions),length(this.FData));
