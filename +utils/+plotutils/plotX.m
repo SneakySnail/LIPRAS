@@ -55,6 +55,20 @@ try
             utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
         case 'fit'
 %             set(handles.axes1.Children, 'visible', 'off');
+            R1=num2str(handles.profiles.FitResults{1}{filenum}.Rp);
+            R2=num2str(handles.profiles.FitResults{1}{filenum}.Rwp);
+            R3=num2str(handles.profiles.FitResults{1}{filenum}.Rchi2);
+%             Resi=strcat('Rp: ',R1,' % ',',',' Rwp: ', R2,' % ',',',' Rchi2: ',R3,' % ');
+Resi1=['Rp:' ' ' R1 ' %'];
+Resi2=['Rwp:' ' ' R2 ' %'];
+Resi3=['Rchi2:' ' ' R3];
+            handles.FitStats1.FontSize=11; handles.FitStats1.FontWeight='bold';            
+            handles.FitStats2.FontSize=11; handles.FitStats2.FontWeight='bold';          
+            handles.FitStats3.FontSize=11; handles.FitStats3.FontWeight='bold'; 
+            handles.FitStats1.String=Resi1;
+            handles.FitStats2.String=Resi2;
+            handles.FitStats3.String=Resi3;
+
             utils.plotutils.resizeAxes1ForErrorPlot(handles, 'fit');
             plotData(handles,mode);
             plotFitError(handles);
