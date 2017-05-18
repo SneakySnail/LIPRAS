@@ -178,7 +178,9 @@ classdef FileWriter < handle
        end
         
        function printFmodelValues(fitted, fid)
-       fprintf(fid, '%s\t',fitted.FileName);
+       
+
+           fprintf(fid, '%s\t',fitted.FileName);
        
        if any(contains(fitted.CoeffNames, 'bkg'))  
           id=max(1:fitted.BackgroundOrder+2); % so that bkg coefficients dont get written to output parameter file
@@ -191,9 +193,9 @@ classdef FileWriter < handle
            fprintf(fid, '%.5f\t%.5f\t', fitted.CoeffValues(id+i-1), fitted.CoeffError(id+i-1));
        end
        % print FmodelGOF
-       fprintf(fid, '%.5f\t%.5f\t%.5f\t%.5f\t%.5f\t', fitted.FmodelGOF.sse, ...
+       fprintf(fid, '%.5f\t%.5f\t%.5f\t%.5f\t%.5f\t%.5f\t%.5f\t%.5f\t', fitted.FmodelGOF.sse, ...
            fitted.FmodelGOF.rsquare, fitted.FmodelGOF.dfe, fitted.FmodelGOF.adjrsquare, ...
-           fitted.FmodelGOF.rmse);
+           fitted.FmodelGOF.rmse,fitted.Rp,fitted.Rwp,fitted.Rchi2);
        fprintf(fid, '\n');
        end
        
@@ -216,6 +218,10 @@ classdef FileWriter < handle
            fprintf(fid, '%s\t%s\t', fitted.CoeffNames{id+i-1}, [fitted.CoeffNames{id+i-1} '_Error']);
        end
        fields = fieldnames(fitted.FmodelGOF);
+       fields{end+1}='%Rp';
+       fields{end+1}='%Rwp';
+       fields{end+1}='RChi2';
+
        fprintf(fid, '%s\t', fields{:}); % write GOF names
        fprintf(fid, '\n');
        end

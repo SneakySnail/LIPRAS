@@ -13,6 +13,14 @@ classdef FitResults
         
         FmodelGOF
         
+        LSWeights
+        
+        Rp
+        
+        Rwp
+        
+        Rchi2
+        
         FmodelCI
 
         CoeffNames
@@ -106,13 +114,13 @@ end
         this.FitType       = xrd.getFitType;
         
         if and(filenumber>1,xrd.recycle_results==1)
-            this.FitOptions    = xrd.getFitOptions;
+            this.FitOptions    = xrd.getFitOptions(filenumber);
         elseif filenumber==1 && xrd.BkgLS && xrd.recycle_results
             xrd.recycle_results=0;
-            this.FitOptions    = xrd.getFitOptions;
+            this.FitOptions    = xrd.getFitOptions(filenumber);
             xrd.recycle_results=1;
         else
-        this.FitOptions    = xrd.getFitOptions;
+        this.FitOptions    = xrd.getFitOptions(filenumber);
         end
         this.CoeffNames    = coeffnames(this.FitType)';
         this.FitFunctions  = xrd.getFunctions;
@@ -143,12 +151,32 @@ end
         this.Fmodel    = fmodel;
         this.FmodelGOF = fmodelgof;
         this.FmodelCI  = fmodelci;
+        this.LSWeights=this.FitOptions.Weights;
         
         this.FData       = fmodel(this.TwoTheta)';
         this.FPeaks      = zeros(length(xrd.getFunctions),length(this.FData));
         this.FCuKa2Peaks = zeros(length(xrd.getFunctions),length(this.FData));
         this.CoeffValues = coeffvalues(fmodel);
         this.CoeffError  = 0.5 * (fmodelci(2,:) - fmodelci(1,:));
+        
+% Rp, Rwp, and Rchi2 Calculations
+  obs=this.Intensity';
+  w=this.LSWeights';
+
+    if any(contains(this.CoeffNames,'bkg')) % for when BkgLS is checked
+        calc=this.FData'; 
+        this.Rp = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
+        this.Rwp = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
+        DOF = this.FmodelGOF.dfe; % degrees of freedom from error
+        this.Rchi2=sum((obs-calc).^2./obs)/(DOF);
+    else
+        obs = this.Intensity';
+        calc = this.Background' + this.FData';
+        this.Rp = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
+        this.Rwp= (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
+        DOF = this.FmodelGOF.dfe; % degrees of freedom from error
+        this.Rchi2=sum((obs-calc).^2./obs)/(DOF);
+    end
 
         for i=1:length(this.FitFunctions)
              peak = this.calculatePeakFit(i);

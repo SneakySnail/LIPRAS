@@ -576,9 +576,9 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         
         end
                         
-        function s = getFitOptions(Stro,RecycleSP)
+        function s = getFitOptions(Stro,filenum)
         %FITDATA_ Helper function for fitDataSet. Fits a single file.
-        
+        int=Stro.getData(filenum);
         % To include or not to include Bkg in LS
         if Stro.BkgLS
         
@@ -586,7 +586,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         % to override if user selects a higher poly order than number of
         % points selected
         bkgp=Stro.getBackgroundPoints; 
-        bkgdat=Stro.getData;
+        bkgdat=Stro.getData(filenum);
         for bp=1:length(Stro.getBackgroundPoints)
         ibkg(bp)=FindValue(Stro.getTwoTheta,bkgp(bp));
         bkgd(bp)=bkgdat(ibkg(bp));
@@ -644,19 +644,19 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         
 %Weights, depending on preference
 if strcmp(Stro.Weights,'None')
-    weight=Stro.getData./Stro.getData;
+    weight=int./int;
 elseif strcmp(Stro.Weights,'1/obs')
-    weight = 1./Stro.getData;
+    weight = 1./int;
 elseif strcmp(Stro.Weights,'1/sqrt(obs)')
-    weight=1./sqrt(Stro.getData);
+    weight=1./sqrt(int);
 elseif strcmp(Stro.Weights,'1/max(obs)')
-    weight=Stro.getData./max(Stro.getData);
+    weight=int./max(int);
 elseif strcmp(Stro.Weights,'Linear')
-    weight=Stro.getData;
+    weight=int;
 elseif strcmp(Stro.Weights,'Sqrt')
-    weight=sqrt(Stro.getData);
+    weight=sqrt(int);
 elseif strcmp(Stro.Weights,'Log10')
-    weight=log10(Stro.getData);
+    weight=log10(int);
 end
            
         if Stro.ignore_bounds
