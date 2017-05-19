@@ -886,6 +886,8 @@ textb=10;
             web('https://www.mathworks.com/help/curvefit/least-squares-fitting.html#bq_5kr9-3','-browser')
         function web3(~,~)
             web('https://www.mathworks.com/help/curvefit/evaluating-goodness-of-fit.html','-browser')
+        function webupdate(~,~)
+            web('http://www.mathworks.com/matlabcentral/fileexchange/62162-line-profile-analysis-software--lipras-','-browser')
 
 
 function menu_about_Callback(~,~)
@@ -941,7 +943,41 @@ end
                 vali=0;
             end
     
+function checkforupdates(~,~,~)
+            cV='1.2'; % THIS NEEDS TO BE CHANGED WITH UPDATES
+options = weboptions('ContentType','auto');
+% data=webread('https://github.com/SneakySnail/LIPRAS/commits/Development',options);          
+data=webread('https://github.com/SneakySnail/LIPRAS/releases',options); % for releases
+% b=strsplit(data,'/SneakySnail/LIPRAS/commit/');% for commits
+b=strsplit(data,'/SneakySnail/LIPRAS/tree/'); % for Releases
+if strcmp(b{2}(1:3),cV)
+        d = dialog('Position',[550 550 350 100],'Name','LIPRAS');
+            txt = uicontrol('Parent',d,...
+           'Style','text',...
+           'Position',[70 40 210 40],...
+           'String','LIPRAS is up to date','FontSize',11);
+    btn1 = uicontrol('Parent',d,...
+           'Position',[125 10 100 30],...
+           'String','Close','FontSize',12,...
+           'Callback','delete(gcf)');
 
+else
+            d = dialog('Position',[550 550 350 150],'Name','LIPRAS');
+            txt = uicontrol('Parent',d,...
+           'Style','text',...
+           'Position',[70 70 210 60],...
+           'String','Please check MATLAB FileExchange for latest update','FontSize',11);
+    btn1 = uicontrol('Parent',d,...
+           'Position',[125 10 100 30],...
+           'String','Close','FontSize',12,...
+           'Callback','delete(gcf)');
+        btn2 = uicontrol('Parent',d,...
+           'Position',[125 50 100 30],...
+           'FontSize',12,...
+           'Callback',@webupdate);
+       set(btn2, 'String', '<html><center>Download</center>');
+
+end
 %% Close request functions
 function figure1_CloseRequestFcn(~, ~, handles)
 requestClose(handles);
