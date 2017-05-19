@@ -892,6 +892,7 @@ textb=10;
 
 function menu_about_Callback(~,~,handles)
 % Displays a message box
+
 tex=['LIPRAS, version:' ' ' num2str(handles.profiles.LIPRAS_Version)];
 h = msgbox({tex 'Authors: Klarissa Ramos, Giovanni Esteves, ' ...
     'Chris Fancher, and Jacob Jones' ' ' 'North Carolina State University (2016)' '' ...
