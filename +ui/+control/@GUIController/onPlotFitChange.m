@@ -9,11 +9,17 @@ switch viewname
         changeListedItemsToFiles(handles);
         handles.gui.Plotter.updateXLabel(handles.axes1);
         handles.gui.Plotter.updateYLabel(handles.axes1);
+        handles.FitStats1.Visible='on';
+        handles.FitStats2.Visible='on';
+        handles.FitStats3.Visible='on';
         plotX(handles, 'fit');
     case 'coeff'
         cla(handles.axes1)
         handles.panel_choosePlotView.SelectedObject = handles.radio_coeff;
         changeListedItemsToCoeffs(handles);
+        handles.FitStats1.Visible='off';
+        handles.FitStats2.Visible='off';
+        handles.FitStats3.Visible='off';
         plotX(handles, 'coeff');
     case 'stats'
         plotX(handles,'stats')

@@ -124,7 +124,9 @@ if isNew % if not the same dataset as before
     ui.update(handles, 'dataset');
     cla(handles.axes1);
     utils.plotutils.plotX(handles, 'data');
-
+            handles.FitStats1.Visible='off';
+            handles.FitStats2.Visible='off';
+            handles.FitStats3.Visible='off';
 else
     handles.gui.PriorityStatus = '';
 end
@@ -507,8 +509,7 @@ end
 
 function listbox_results_Callback(hObject,evt, handles)
 %listbox_results_Callback executes when the selection is changed in the 
-%   listbox in the Results tab.
-%
+
 %   - If 'Peak Fit' view is selected, the listbox displays a list of all
 %   the files. When the selection is changed, it plots the fit for the 
 %   new selection.
@@ -677,7 +678,6 @@ else
     id=1;
 end
              set(pop1,'Value',id)
-             disp(id)
              
     % Unique Save      
                 chkbox1 = uicontrol('Parent',d,...
@@ -890,7 +890,7 @@ textb=10;
 
 function menu_about_Callback(~,~)
 % Displays a message box
-h = msgbox({'LIPRAS, version: 1.0' 'Authors: Klarissa Ramos, Giovanni Esteves, ' ...
+h = msgbox({'LIPRAS, version: 1.2' 'Authors: Klarissa Ramos, Giovanni Esteves, ' ...
     'Chris Fancher, and Jacob Jones' ' ' 'North Carolina State University (2016)' '' ...
     'Contact Information' 'Giovanni Esteves' 'Email: gesteves21@gmail.com' ...
     'Jacob Jones' 'Email: jacobjones@ncsu.edu'}, 'About');
@@ -925,20 +925,20 @@ end
 
     function vali=Validate_bkg(handles)
         
-             if length(handles.profiles.xrd.getBackgroundPoints) <= handles.profiles.xrd.getBackgroundOrder
+            if length(handles.profiles.xrd.getBackgroundPoints) <= handles.profiles.xrd.getBackgroundOrder
                   d = dialog('Position',[300 500 300 120],'Name','Warning:');
-        txt = uicontrol('Parent',d,...
+            txt = uicontrol('Parent',d,...
               'Style','text',...
               'Position',[25 10 270 100],...
               'String',{'Polynomial order is greater than or equal to the number of points selected, add more background points or reduce polynomial order'},'FontSize',10);
-        btn1 = uicontrol('Parent',d,...
+            btn1 = uicontrol('Parent',d,...
            'Position',[100 10 100 30],...
            'String','Ok','FontSize',11,...
            'Callback','delete(gcf)');
-       vali=1;
+                vali=1;
                 return 
-             else
-                 vali=0;
+            else
+                vali=0;
             end
     
 
