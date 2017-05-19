@@ -55,6 +55,23 @@ try
             utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
         case 'fit'
 %             set(handles.axes1.Children, 'visible', 'off');
+            R1=num2str(handles.profiles.FitResults{1}{filenum}.Rp);
+            R2=num2str(handles.profiles.FitResults{1}{filenum}.Rwp);
+            R3=num2str(handles.profiles.FitResults{1}{filenum}.Rchi2);
+%             Resi=strcat('Rp: ',R1,' % ',',',' Rwp: ', R2,' % ',',',' Rchi2: ',R3,' % ');
+Resi1=['Rp:' ' ' R1 ' %'];
+Resi2=['Rwp:' ' ' R2 ' %'];
+Resi3=['GOF:' ' ' R3];
+            handles.FitStats1.FontSize=11; handles.FitStats1.FontWeight='bold';            
+            handles.FitStats2.FontSize=11; handles.FitStats2.FontWeight='bold';          
+            handles.FitStats3.FontSize=11; handles.FitStats3.FontWeight='bold'; 
+            handles.FitStats1.String=Resi1;
+            handles.FitStats2.String=Resi2;
+            handles.FitStats3.String=Resi3;
+            handles.FitStats1.Visible='on';
+            handles.FitStats2.Visible='on';
+            handles.FitStats3.Visible='on';
+
             utils.plotutils.resizeAxes1ForErrorPlot(handles, 'fit');
             plotData(handles,mode);
             plotFitError(handles);
@@ -355,7 +372,7 @@ end
     
 if strcmp(handles.profiles.xrd.Weights,'None')
     w=obs./obs;
-elseif strcmp(handles.profiles.xrd.Weights,'1/obs')
+elseif strcmp(handles.profiles.xrd.Weights,'1/obs')||strcmp(handles.profiles.xrd.Weights,'Default')
     w = 1./obs;
 elseif strcmp(handles.profiles.xrd.Weights,'1/sqrt(obs)')
     w=1./sqrt(obs);
@@ -376,12 +393,12 @@ end
         rmse(ss) = fitted.FmodelGOF.rmse;
         Rp(ss) = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
         w=w(w~=Inf); obs=obs(w~=Inf); calc=calc(w~=Inf); % Remove infinity values
-        Rwp(ss) = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
+
         DOF = fitted.FmodelGOF.dfe; % degrees of freedom from error
-        Rexp(ss)=sqrt(DOF/sum(w.*obs.^2)); % Rexpected
-%         Rchi2(ss)=(Rwp/Rexp)/100; % reduced chi-squared, GOF, taken out
-%         because its specific to when w=1/obs;
-        Rchi2(ss)=sum((obs-calc).^2./obs)/(DOF);
+        er=transpose(handles.profiles.xrd.DataSet{ss}.getDataErrors);
+        Rwp(ss) = sqrt(sum(((obs-calc)./er).^2)./sum(obs.^2./er.^2))*100 ; %Calculate Rwp
+        Rexp(ss)=sqrt(DOF/sum(obs.^2./er.^2))*100; % Rexpected
+        Rchi2(ss)= sum(((obs-calc)./er).^2)/DOF; % true Red-Chi^2
 
      
     else
@@ -392,10 +409,16 @@ end
         rmse(ss) = fitted.FmodelGOF.rmse;
         Rp(ss) = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
         w=w(w~=Inf); obs=obs(w~=Inf); calc=calc(w~=Inf); % Remove infinity values
-        Rwp(ss) = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
+        er=transpose(handles.profiles.xrd.DataSet{ss}.getDataErrors);
+%         Rwp(ss) = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
+        Rwp(ss) = sqrt(sum(((obs-calc)./er).^2)./sum(obs.^2./er.^2))*100 ; %Calculate Rwp
+
         DOF = fitted.FmodelGOF.dfe; % degrees of freedom from error
-        Rexp(ss)=sqrt(DOF/sum(w.*obs.^2)); % Rexpected
-        Rchi2(ss)=sum((obs-calc).^2./obs)/(DOF);
+        Rexp(ss)=sqrt(DOF/sum(obs.^2./er.^2))*100; % Rexpected
+%         Rchi2(ss)=(Rwp2(ss)/Rexp(ss)).^2;
+%         Rchi2(ss)=sum((obs-calc).^2./obs)/(DOF); % specific to 1/obs
+        Rchi2(ss)= sum(((obs-calc)./er).^2)/DOF; % true Red-Chi^2
+
     
     end
       end

@@ -13,8 +13,20 @@ classdef FitResults
         
         FmodelGOF
         
+        LSWeights
+        
+        Rp
+        
+        Rwp
+        
+        Rchi2
+        
+        FitInfo
+        
         FmodelCI
 
+        CovJacobianFit
+        
         CoeffNames
 
         CoeffValues
@@ -106,13 +118,21 @@ end
         this.FitType       = xrd.getFitType;
         
         if and(filenumber>1,xrd.recycle_results==1)
-            this.FitOptions    = xrd.getFitOptions;
+            this.FitOptions    = xrd.getFitOptions(filenumber);
         elseif filenumber==1 && xrd.BkgLS && xrd.recycle_results
             xrd.recycle_results=0;
-            this.FitOptions    = xrd.getFitOptions;
+            this.FitOptions    = xrd.getFitOptions(filenumber);
             xrd.recycle_results=1;
         else
-        this.FitOptions    = xrd.getFitOptions;
+        this.FitOptions    = xrd.getFitOptions(filenumber);
+        end
+        
+        if strcmp(profile.Weights,'Default')
+            if ~isempty(profile.Errors)
+                this.FitOptions.Weights=1./(xrd.DataSet{filenumber}.getDataErrors).^2; % default to 1/sigma^2 when errors are read in or generated upon file read
+            else
+                this.FitOptions.Weights=1./xrd.DataSet{filenumber}.getDataIntensity;
+            end
         end
         this.CoeffNames    = coeffnames(this.FitType)';
         this.FitFunctions  = xrd.getFunctions;
@@ -130,11 +150,11 @@ end
 %         disp(this.FitOptions.StartPoint) % to check SP being recycled
 
         if xrd.BkgLS
-                    [fmodel, fmodelgof] = fit(this.TwoTheta', ...
+                    [fmodel, fmodelgof, outputMatrix] = fit(this.TwoTheta', ...
                                  (this.Intensity)', ...
                                   this.FitType, this.FitOptions);
         else
-        [fmodel, fmodelgof] = fit(this.TwoTheta', ...
+        [fmodel, fmodelgof, outputMatrix] = fit(this.TwoTheta', ...
                                  (this.Intensity - this.Background)', ...
                                   this.FitType, this.FitOptions);
         end
@@ -143,12 +163,37 @@ end
         this.Fmodel    = fmodel;
         this.FmodelGOF = fmodelgof;
         this.FmodelCI  = fmodelci;
-        
+        this.LSWeights=this.FitOptions.Weights;
+        this.FitInfo=outputMatrix;
+%         this.CovJacobianFit=(this.FitInfo.Jacobian'*this.FitInfo.Jacobian)^(-1)*this.FmodelGOF.rmse^2;
         this.FData       = fmodel(this.TwoTheta)';
         this.FPeaks      = zeros(length(xrd.getFunctions),length(this.FData));
         this.FCuKa2Peaks = zeros(length(xrd.getFunctions),length(this.FData));
         this.CoeffValues = coeffvalues(fmodel);
         this.CoeffError  = 0.5 * (fmodelci(2,:) - fmodelci(1,:));
+        
+% Rp, Rwp, and Rchi2 Calculations
+  obs=this.Intensity';
+  w=this.LSWeights';
+
+    if any(contains(this.CoeffNames,'bkg')) % for when BkgLS is checked
+        calc=this.FData'; 
+        DOF = this.FmodelGOF.dfe; % degrees of freedom from error
+        er=transpose(xrd.DataSet{filenumber}.getDataErrors);
+        
+        this.Rp = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
+        this.Rwp = sqrt(sum(((obs-calc)./er).^2)./sum(obs.^2./er.^2))*100 ; %Calculate Rwp
+        this. Rchi2= sum(((obs-calc)./er).^2)/DOF; % true Red-Chi^2
+    else
+        obs = this.Intensity';
+        calc = this.Background' + this.FData';        
+        DOF = this.FmodelGOF.dfe; % degrees of freedom from error
+        er=transpose(xrd.DataSet{filenumber}.getDataErrors);
+        
+        this.Rp = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
+        this.Rwp = sqrt(sum(((obs-calc)./er).^2)./sum(obs.^2./er.^2))*100 ; %Calculate Rwp
+        this. Rchi2= sum(((obs-calc)./er).^2)/DOF; % true Red-Chi^2
+    end
 
         for i=1:length(this.FitFunctions)
              peak = this.calculatePeakFit(i);

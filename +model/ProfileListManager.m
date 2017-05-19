@@ -5,14 +5,16 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
     %   ProfileListManager.getInstance.
    properties
        
+       LIPRAS_Version=398;
        DataPath = [];
        
        OutputPath = ['FitOutputs' filesep];
-       Weights='None'
+       Weights='Default'
        UniqueSave=0;
        ImageFormat='TIFF';
        ImageRes='100 DPI';
        ImageSaveAll=0;
+       Errors=[];
        FitResults % each profile results in a cell
        
    end
@@ -194,6 +196,7 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        
        xrdItem = this.initialXRD_;
        this.FullTwoThetaRange = xrdItem.getTwoTheta;
+       this.Errors=data.error;
        this.DataPath = xrdItem.DataPath;
        xrdItem.OutputPath = [xrdItem.DataPath 'FitOutputs' filesep];
        xrdItem.MonoWavelength=data.Wavelength;

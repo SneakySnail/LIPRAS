@@ -178,7 +178,9 @@ classdef FileWriter < handle
        end
         
        function printFmodelValues(fitted, fid)
-       fprintf(fid, '%s\t',fitted.FileName);
+       
+
+           fprintf(fid, '%s\t',fitted.FileName);
        
        if any(contains(fitted.CoeffNames, 'bkg'))  
           id=max(1:fitted.BackgroundOrder+2); % so that bkg coefficients dont get written to output parameter file
@@ -191,9 +193,9 @@ classdef FileWriter < handle
            fprintf(fid, '%.5f\t%.5f\t', fitted.CoeffValues(id+i-1), fitted.CoeffError(id+i-1));
        end
        % print FmodelGOF
-       fprintf(fid, '%.5f\t%.5f\t%.5f\t%.5f\t%.5f\t', fitted.FmodelGOF.sse, ...
+       fprintf(fid, '%.5f\t%.5f\t%.5f\t%.5f\t%.5f\t%.5f\t%.5f\t%.5f\t', fitted.FmodelGOF.sse, ...
            fitted.FmodelGOF.rsquare, fitted.FmodelGOF.dfe, fitted.FmodelGOF.adjrsquare, ...
-           fitted.FmodelGOF.rmse);
+           fitted.FmodelGOF.rmse,fitted.Rp,fitted.Rwp,fitted.Rchi2);
        fprintf(fid, '\n');
        end
        
@@ -216,6 +218,10 @@ classdef FileWriter < handle
            fprintf(fid, '%s\t%s\t', fitted.CoeffNames{id+i-1}, [fitted.CoeffNames{id+i-1} '_Error']);
        end
        fields = fieldnames(fitted.FmodelGOF);
+       fields{end+1}='%Rp';
+       fields{end+1}='%Rwp';
+       fields{end+1}='RChi2';
+
        fprintf(fid, '%s\t', fields{:}); % write GOF names
        fprintf(fid, '\n');
        end
@@ -231,7 +237,7 @@ classdef FileWriter < handle
                     if fitted.CuKa && ~isempty(fitted.FCuKa2Peaks) % this is for Kalpha2
                         vars{:,p+1}=strcat('Kalpha2...',' \t');                   
                     end
-        t='2theta \t Obs \t Calc \t BkgdFit \t';
+        t='2theta \t Obs \t Calc \t BkgdFit \t Weights \t';
         nw=strcat(t,[vars{:}],' \n');
        fprintf(fid, nw);
        
@@ -239,14 +245,15 @@ classdef FileWriter < handle
        intmeas = fitted.Intensity';
        calc=fitted.FData;
        background = fitted.Background';  
+       Weights=fitted.LSWeights;
                        if fitted.CuKa && ~isempty(fitted.FCuKa2Peaks)
                             peaks=[fitted.FPeaks' fitted.FCuKa2Peaks']; % combines the matrixes together to write to FData
                        else
                             peaks=fitted.FPeaks';
                        end
        for i=1:length(twotheta)
-           line = [twotheta(i), intmeas(i), calc(i), background(i), peaks(i,:)];
-           fprintf(fid, '%2.5f\t', line(:));
+           line = [twotheta(i), intmeas(i), calc(i), background(i), Weights(i),peaks(i,:)];
+           fprintf(fid, '%2.8f\t', line(:));
            fprintf(fid, '\n');
        end
        end

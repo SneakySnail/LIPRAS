@@ -29,6 +29,7 @@ switch lower(varargin{1})
         reset(handles)
     case 'dataset'
         newDataSet(handles);
+        handles.profiles.Weights='Default'; % sets to default after reading in dataset
     case 'tabchange'
         
     case 'filenumber'
@@ -195,7 +196,6 @@ if isequal(handles.gui.BackgroundModel, 'Spline') && handles.gui.PolyOrder == 1
     handles.gui.PolyOrder = 2;
 end
 
-
 function newBackgroundPoints(handles)
 import utils.plotutils.*
 handles.container_numpeaks.Visible = 'on';
@@ -227,8 +227,6 @@ else
         delete(handles.axes1.Children(notDataLineIdx));
     end
 end
-
-
 
 function newNumberOfPeaks(handles)
 numpeaks = handles.profiles.xrd.NumFuncs;
@@ -280,7 +278,6 @@ else
     set(handles.push_update, 'enable', 'on');
     set(handles.push_selectpeak, 'enable', 'on');
 end
-
 
 function updateOptionsTabView(handles)
 % Updates the GUI components when the fit function changes
@@ -345,21 +342,10 @@ end
 if handles.profiles.CuKa
     handles.gui.KAlpha2 = handles.profiles.KAlpha2;
 end
-    
-
-function updateConstraints(handles)
-%CONSTRAINTS should be called when a checkbox is checked in panel_constraints.
-%   This function adds a new constraint column in table_paramselection, with default
-%   values for rows where the peak function isn't empty will be set to TRUE.
-%   It uses the values saved in handles.profiles.xrd to update the GUI, so it should
-%   only be called AFTER handles.profiles.xrd is updated. 
-
-
 
 function newPeakPositions(handles)
 set(handles.panel_coeffs, 'visible', 'on');
 set(handles.panel_coeffs.Children, 'enable', 'on');
-
 
 function updateFitBoundsTable(handles, origin)
 %UPDATEFITBOUNDS should be called after the 'Update' button in the Options tab is pressed.
@@ -426,12 +412,10 @@ set(handles.panel_coeffs.Children, 'visible', 'on', 'enable', 'on');
 emptyCell = find(cellfun(@isempty, handles.table_fitinitial.Data), 1);
 if isempty(emptyCell) 
     set(handles.push_fitdata, 'enable', 'on');
+    pause(0.5) % this is needed otherwise the GUI is too fast and wont activate...
 else
     set(handles.push_fitdata, 'enable', 'off');
 end
-% if and(length(handles.gui.FitInitial.coeffs)== length(handles.profiles.FitInitial.coeffs),isFitD)
-%    set(handles.push_fitdata, 'enable', 'off');
-% end
 
 function newFitResults(handles)
 profiles = handles.profiles;
