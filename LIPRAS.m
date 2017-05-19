@@ -945,13 +945,13 @@ end
             end
     
 function checkforupdates(~,~,handles)
-            cV=num2str(handles.profiles.LIPRAS_Version); 
+            cV=handles.profiles.LIPRAS_Version; 
 options = weboptions('ContentType','auto');
-% data=webread('https://github.com/SneakySnail/LIPRAS/commits/Development',options);          
-data=webread('https://github.com/SneakySnail/LIPRAS/releases',options); % for releases
-% b=strsplit(data,'/SneakySnail/LIPRAS/commit/');% for commits
-b=strsplit(data,'/SneakySnail/LIPRAS/tree/'); % for Releases
-if strcmp(b{2}(1:3),cV)
+data=webread('https://github.com/SneakySnail/LIPRAS/tree/master',options); % for releases based on commit number
+b1=strsplit(data,'<span class="num text-emphasized">\n');
+c=strsplit(b1{4},' '); % number of releases
+b=strsplit(b1{2},' ');
+if isequal(str2double(b{2}),cV)
         d = dialog('Position',[550 550 350 100],'Name','LIPRAS');
             txt = uicontrol('Parent',d,...
            'Style','text',...
@@ -967,7 +967,7 @@ else
             txt = uicontrol('Parent',d,...
            'Style','text',...
            'Position',[70 70 210 60],...
-           'String','Please check MATLAB FileExchange for latest update','FontSize',11);
+           'String','New version available, check MATLAB FileExchange','FontSize',11);
     btn1 = uicontrol('Parent',d,...
            'Position',[125 10 100 30],...
            'String','Close','FontSize',12,...
