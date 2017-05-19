@@ -890,9 +890,10 @@ textb=10;
             web('http://www.mathworks.com/matlabcentral/fileexchange/62162-line-profile-analysis-software--lipras-','-browser')
 
 
-function menu_about_Callback(~,~)
+function menu_about_Callback(~,~,handles)
 % Displays a message box
-h = msgbox({'LIPRAS, version: 1.2' 'Authors: Klarissa Ramos, Giovanni Esteves, ' ...
+tex=['LIPRAS, version:' ' ' num2str(handles.profiles.LIPRAS_Version)];
+h = msgbox({tex 'Authors: Klarissa Ramos, Giovanni Esteves, ' ...
     'Chris Fancher, and Jacob Jones' ' ' 'North Carolina State University (2016)' '' ...
     'Contact Information' 'Giovanni Esteves' 'Email: gesteves21@gmail.com' ...
     'Jacob Jones' 'Email: jacobjones@ncsu.edu'}, 'About');
@@ -943,8 +944,8 @@ end
                 vali=0;
             end
     
-function checkforupdates(~,~,~)
-            cV='1.2'; % THIS NEEDS TO BE CHANGED WITH UPDATES
+function checkforupdates(~,~,handles)
+            cV=num2str(handles.profiles.LIPRAS_Version); 
 options = weboptions('ContentType','auto');
 % data=webread('https://github.com/SneakySnail/LIPRAS/commits/Development',options);          
 data=webread('https://github.com/SneakySnail/LIPRAS/releases',options); % for releases
