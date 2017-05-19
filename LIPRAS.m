@@ -666,7 +666,7 @@ textb=10;
 try            
 lst=handles.profiles.Weights;
 catch
-    lst='None';
+    lst='Default';
 end
 if strcmp(lst,'Default');id=1;
 elseif strcmp(lst,'None');id=2;
@@ -677,7 +677,7 @@ else
     id=1;
 end
              set(pop1,'Value',id)
-             
+             disp(id)
              
     % Unique Save      
                 chkbox1 = uicontrol('Parent',d,...

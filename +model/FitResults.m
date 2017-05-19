@@ -178,17 +178,21 @@ end
 
     if any(contains(this.CoeffNames,'bkg')) % for when BkgLS is checked
         calc=this.FData'; 
-        this.Rp = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
-        this.Rwp = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
         DOF = this.FmodelGOF.dfe; % degrees of freedom from error
-        this.Rchi2=sum((obs-calc).^2./obs)/(DOF);
+        er=transpose(xrd.DataSet{filenumber}.getDataErrors);
+        
+        this.Rp = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
+        this.Rwp = sqrt(sum(((obs-calc)./er).^2)./sum(obs.^2./er.^2))*100 ; %Calculate Rwp
+        this. Rchi2= sum(((obs-calc)./er).^2)/DOF; % true Red-Chi^2
     else
         obs = this.Intensity';
-        calc = this.Background' + this.FData';
-        this.Rp = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
-        this.Rwp= (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
+        calc = this.Background' + this.FData';        
         DOF = this.FmodelGOF.dfe; % degrees of freedom from error
-        this.Rchi2=sum((obs-calc).^2./obs)/(DOF);
+        er=transpose(xrd.DataSet{filenumber}.getDataErrors);
+        
+        this.Rp = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
+        this.Rwp = sqrt(sum(((obs-calc)./er).^2)./sum(obs.^2./er.^2))*100 ; %Calculate Rwp
+        this. Rchi2= sum(((obs-calc)./er).^2)/DOF; % true Red-Chi^2
     end
 
         for i=1:length(this.FitFunctions)

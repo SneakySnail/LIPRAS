@@ -80,7 +80,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         recycle_results = 0;
         ignore_bounds=0;
         BkgLS=0;
-        Weights='None';
+        Weights='Default';
         UniqueSave=0;
 
     end

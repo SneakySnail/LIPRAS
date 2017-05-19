@@ -68,6 +68,9 @@ Resi3=['GOF:' ' ' R3];
             handles.FitStats1.String=Resi1;
             handles.FitStats2.String=Resi2;
             handles.FitStats3.String=Resi3;
+            handles.FitStats1.Visible='on';
+            handles.FitStats2.Visible='on';
+            handles.FitStats3.Visible='on';
 
             utils.plotutils.resizeAxes1ForErrorPlot(handles, 'fit');
             plotData(handles,mode);
@@ -390,14 +393,12 @@ end
         rmse(ss) = fitted.FmodelGOF.rmse;
         Rp(ss) = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
         w=w(w~=Inf); obs=obs(w~=Inf); calc=calc(w~=Inf); % Remove infinity values
-        Rwp(ss) = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
-        Rwp(ss) = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
 
         DOF = fitted.FmodelGOF.dfe; % degrees of freedom from error
-        Rexp(ss)=sqrt(DOF/sum(w.*obs.^2)); % Rexpected
-        Rchi2(ss)=(Rwp/Rexp)/100; % reduced chi-squared, GOF, taken out
-        Rchi2(ss)= sum(((obs-calc)./transpose(handles.profiles.xrd.DataSet{ss}.getDataErrors)).^2)/DOF; % true Red-Chi^2
-%         Rchi2(ss)=sum((obs-calc).^2./obs)/(DOF);
+        er=transpose(handles.profiles.xrd.DataSet{ss}.getDataErrors);
+        Rwp(ss) = sqrt(sum(((obs-calc)./er).^2)./sum(obs.^2./er.^2))*100 ; %Calculate Rwp
+        Rexp(ss)=sqrt(DOF/sum(obs.^2./er.^2))*100; % Rexpected
+        Rchi2(ss)= sum(((obs-calc)./er).^2)/DOF; % true Red-Chi^2
 
      
     else
@@ -409,14 +410,14 @@ end
         Rp(ss) = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
         w=w(w~=Inf); obs=obs(w~=Inf); calc=calc(w~=Inf); % Remove infinity values
         er=transpose(handles.profiles.xrd.DataSet{ss}.getDataErrors);
-        Rwp(ss) = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
-        Rwp2(ss) = sqrt(sum(((obs-calc)./er).^2)./sum(obs.^2./er.^2))*100 ; %Calculate Rwp
+%         Rwp(ss) = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
+        Rwp(ss) = sqrt(sum(((obs-calc)./er).^2)./sum(obs.^2./er.^2))*100 ; %Calculate Rwp
 
         DOF = fitted.FmodelGOF.dfe; % degrees of freedom from error
         Rexp(ss)=sqrt(DOF/sum(obs.^2./er.^2))*100; % Rexpected
-        Rchi2(ss)=(Rwp2(ss)/Rexp(ss)).^2;
+%         Rchi2(ss)=(Rwp2(ss)/Rexp(ss)).^2;
 %         Rchi2(ss)=sum((obs-calc).^2./obs)/(DOF); % specific to 1/obs
-        Rchi22(ss)= sum(((obs-calc)./er).^2)/DOF; % true Red-Chi^2
+        Rchi2(ss)= sum(((obs-calc)./er).^2)/DOF; % true Red-Chi^2
 
     
     end

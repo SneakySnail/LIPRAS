@@ -29,6 +29,7 @@ switch lower(varargin{1})
         reset(handles)
     case 'dataset'
         newDataSet(handles);
+        handles.profiles.Weights='Default'; % sets to default after reading in dataset
     case 'tabchange'
         
     case 'filenumber'

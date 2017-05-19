@@ -8,7 +8,7 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        DataPath = [];
        
        OutputPath = ['FitOutputs' filesep];
-       Weights='None'
+       Weights='Default'
        UniqueSave=0;
        ImageFormat='TIFF';
        ImageRes='100 DPI';
