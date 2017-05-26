@@ -72,7 +72,7 @@ for i=1:length(filename)
         end
     elseif strcmp(ext, '.chi')
         datatemp = readFile(fid, ext);
-        datatemp.error=1./datatemp.data_fit;
+        datatemp.error=sqrt(datatemp.data_fit);
 
     elseif strcmp(ext, '.dat')
         datatemp = readFile(fid, ext);

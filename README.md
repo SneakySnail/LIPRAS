@@ -26,7 +26,7 @@ Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones
 <li> Visualize results with a plot of the resulting peak fit and residual plot</li>
 <li> Resulting coefficients values can be viewed with file number </li>
 <li> Parameters files can be written and used to recreate fits and detail what fit parameters and profile shape functions were used</li>
-<li> Accepts the following <b>file types: .xy, .xls, .xlsx, .fxye, .xrdml, .chi, .csv (Windows Only)</b></li>
+<li> Accepts the following <b>file types: .xy, .xye, .xls, .xlsx, .fxye, .xrdml, .chi, .csv (Windows Only)</b></li>
 
 
 ## Installation
