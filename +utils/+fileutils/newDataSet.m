@@ -89,6 +89,7 @@ for i=1:length(filename)
         data.KAlpha2(i,:)=datatemp.KAlpha2;
         data.RKa1Ka2(i,:)=datatemp.RKa1Ka2;
         data.ext = ext;
+        data.error=sqrt(datatemp.data_fit);
             
         else % for XRDML that are single scans
         data.two_theta(i,:) = datatemp.two_theta;
@@ -98,6 +99,8 @@ for i=1:length(filename)
         data.KAlpha2(i,:)=datatemp.KAlpha2;
         data.RKa1Ka2(i,:)=datatemp.RKa1Ka2;
         data.ext = ext;
+        data.error=sqrt(datatemp.data_fit);
+
         end
     else
         data.two_theta(i,:) = datatemp.two_theta;
