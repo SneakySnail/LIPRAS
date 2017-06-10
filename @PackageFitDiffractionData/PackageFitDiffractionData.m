@@ -565,6 +565,11 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             end
         end
         PolyM=strcat(Eq{:});
+        m=num2str(mean( Stro.getTwoTheta));
+        s=num2str(std( Stro.getTwoTheta));
+        newxv=strcat('((xv-',m,')/',s,')');
+        PolyM=strrep(PolyM,'xv',newxv);
+
         EqnLS=strcat(PolyM,eqnStr);
         coeffsLS=[vars coeffs];
         result = fittype(EqnLS, 'coefficients', coeffsLS, 'independent', 'xv');
@@ -591,6 +596,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         bkgd(bp)=bkgdat(ibkg(bp));
         end       
         [p,~,~] = polyfit(bkgp,bkgd,Stro.getBackgroundOrder);
+        p=fliplr(p); % i think this is needed since line above spits them with highest order first.
         end
         
 % For Recycle Results

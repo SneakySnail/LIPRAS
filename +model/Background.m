@@ -60,7 +60,8 @@ classdef Background
         
         if ~isempty(this.xrd.BkgCoeff)&& this.xrd.BkgLS % for when viewing Bkg after refining it
             P=this.xrd.BkgCoeff;
-            bkgdArray = polyval(P, twotheta);
+            mu=[mean(twotheta) std(twotheta)]; % centering and scaling         
+            bkgdArray = polyval(P,twotheta,[],mu);
         else
             
         if length(this.InitialPoints) < this.Order

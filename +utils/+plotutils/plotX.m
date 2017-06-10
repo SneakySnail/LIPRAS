@@ -54,14 +54,12 @@ try
             plotSuperimposed(handles);
             utils.plotutils.resizeAxes1ForErrorPlot(handles, 'data');
         case 'fit'
-%             set(handles.axes1.Children, 'visible', 'off');
-            R1=num2str(handles.profiles.FitResults{1}{filenum}.Rp);
-            R2=num2str(handles.profiles.FitResults{1}{filenum}.Rwp);
-            R3=num2str(handles.profiles.FitResults{1}{filenum}.Rchi2);
-%             Resi=strcat('Rp: ',R1,' % ',',',' Rwp: ', R2,' % ',',',' Rchi2: ',R3,' % ');
-Resi1=['Rp:' ' ' R1 ' %'];
-Resi2=['Rwp:' ' ' R2 ' %'];
-Resi3=['GOF:' ' ' R3];
+            R1=num2str(round(handles.profiles.FitResults{1}{filenum}.Rp,4));
+            R2=num2str(round(handles.profiles.FitResults{1}{filenum}.Rwp,4));
+            R3=num2str(round(handles.profiles.FitResults{1}{filenum}.Rchi2,4));
+            Resi1=['Rp:' ' ' R1 ' %'];
+            Resi2=['Rwp:' ' ' R2 ' %'];
+            Resi3=['GOF:' ' ' R3];
             handles.FitStats1.FontSize=11; handles.FitStats1.FontWeight='bold';            
             handles.FitStats2.FontSize=11; handles.FitStats2.FontWeight='bold';          
             handles.FitStats3.FontSize=11; handles.FitStats3.FontWeight='bold'; 
