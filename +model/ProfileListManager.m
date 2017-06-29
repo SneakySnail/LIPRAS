@@ -5,7 +5,7 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
     %   ProfileListManager.getInstance.
    properties
        
-       LIPRAS_Version=417;
+       LIPRAS_Version=418;
        DataPath = [];
        
        OutputPath = ['FitOutputs' filesep];
