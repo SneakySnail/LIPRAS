@@ -28,17 +28,42 @@ while true
         % Delete temporary points in plot
         delete(findobj(handles.axes1.Children, 'tag', ''));
         return
+    elseif key==3
+
+    if exist('NewPoints','var')==0
+        newPoints=oldPoints;
     end
+            if isempty(newPoints)
+                break
+            end
+            handles.profiles.BackgroundPoints = newPoints;
+lines = handles.axes1.Children;
+if ~isempty(lines)
+    notDataLineIdx = ~strcmpi(get(lines, 'tag'), 'raw');
+    delete(handles.axes1.Children(notDataLineIdx));
+end
+                oldPoints = handles.profiles.xrd.getBackgroundPoints;
+                utils.plotutils.plotX(handles, 'backgroundpoints');
+                newPoints = deletePoint(handles, p);
+                newPoints = sort(newPoints);  
+            RClick=1;
+
+    else
+        RClick=0;
+    end
+    if RClick==1
+    else
     switch lower(mode)
         case 'new'
-            newPoints = plotPoint(handles, oldPoints, p);
+            newPoints = plotPoint(handles, oldPoints, p,'*r');
         case 'add'
-            newPoints = plotPoint(handles, oldPoints, p);
+            newPoints = plotPoint(handles, oldPoints, p,'*b');
         case 'delete'
             newPoints = deletePoint(handles, p);
             if isempty(newPoints)
                 break
             end
+    end
     end
     oldPoints = newPoints;
     
@@ -61,9 +86,9 @@ bkgdx(xidx) = []; bkgdy(xidx) = [];
 set(bkgdplot, 'XData', bkgdx, 'YData', bkgdy);
 newpoints = bkgdx;
 
-function newpoints = plotPoint(handles, oldPoints, point)
+function newpoints = plotPoint(handles, oldPoints, point,col)
 dataLine = findobj(handles.axes1.Children, 'tag', 'raw');
 xdata = dataLine.XData; ydata = dataLine.YData;
 pointIdx = utils.findIndex(xdata, point);
-plot(handles.axes1, point, ydata(pointIdx), '*r');
+plot(handles.axes1, point, ydata(pointIdx), col,'MarkerSize',8,'LineWidth',1.3);
 newpoints = [oldPoints point];

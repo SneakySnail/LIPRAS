@@ -540,14 +540,27 @@ classdef GUIController < handle
         lower = hObject.Data(:, 2)';
         upper = hObject.Data(:, 3)';
         for i=1:length(start)
+
             if isempty(start{i})
                 start{i} = -1;
             end
             if isempty(lower{i}) || ~isnumeric(lower{i})
+                if ~isnumeric(lower{i})
+                     lower{i}=str2double(lower{i});
+                end
+                if ~isnumeric(lower{i})           
                 lower{i} = -1;
+                else
+                end
             end
             if isempty(upper{i}) || ~isnumeric(upper{i})
+                if ~isnumeric(upper{i})
+                     upper{i}=str2double(upper{i});
+                end
+                if ~isnumeric(upper{i})           
                 upper{i} = -1;
+                else
+                end
             end
         end
         output.coeffs = this.Coefficients;

@@ -145,7 +145,11 @@ classdef Validator < handle
                end
            end
            % Make sure lower and upper peak position are within range
-           if find(utils.contains(newBounds.coeffs{i}, 'x'),1)
+           s= length(find(newBounds.start<0));
+           l= length(find(newBounds.lower<0));
+           u= length(find(newBounds.upper<0));
+           nC=length(newBounds.start);
+           if ~isempty(find(utils.contains(newBounds.coeffs{i}, 'x'),1)) && s~=nC && l~=nC && u~=nC
                fitinitial.lower(i) = max(fitinitial.lower(i), this.xrd.Min2T);
                fitinitial.upper(i) = min(fitinitial.upper(i), this.xrd.Max2T);
            end

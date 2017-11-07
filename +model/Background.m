@@ -60,8 +60,21 @@ classdef Background
         
         if ~isempty(this.xrd.BkgCoeff)&& this.xrd.BkgLS % for when viewing Bkg after refining it
             P=this.xrd.BkgCoeff;
+            if length(this.xrd.BkgCoeff)~=this.Order+1 % for when
+                order = this.Order;
+                x = this.InitialPoints;
+                intensity = this.xrd.getData(file);
+                y = intensity(this.InitialPointsIdx);
+                [P, s, mu] = polyfit(x, y, order);
+            else
             mu=[mean(twotheta) std(twotheta)]; % centering and scaling         
+            end
+try % this for when previewing... mu from polyval not same as mu from line 75
             bkgdArray = polyval(P,twotheta,[],mu);
+catch
+                mu=[mean(twotheta) std(twotheta)]; % centering and scaling         
+                bkgdArray = polyval(P,twotheta,[],mu);
+end
         else
             
         if length(this.InitialPoints) < this.Order

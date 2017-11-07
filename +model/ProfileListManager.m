@@ -5,7 +5,7 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
     %   ProfileListManager.getInstance.
    properties
        
-       LIPRAS_Version=417;
+       LIPRAS_Version=420; % LIPRAS version number, must match comitt on GitHub or it asks for update
        DataPath = [];
        
        OutputPath = ['FitOutputs' filesep];
@@ -14,6 +14,7 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        ImageFormat='TIFF';
        ImageRes='100 DPI';
        ImageSaveAll=0;
+       GUIColor=[1 1 1]; % default GUI color by MATLAB
        Errors=[];
        FitResults % each profile results in a cell
        

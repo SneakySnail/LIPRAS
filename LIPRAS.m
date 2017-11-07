@@ -29,7 +29,12 @@ import ui.control.*
 import model.*
 import utils.fileutils.*
 
-% Choose default command line output for FDGUI
+MFileLoc=which('LIPRAS.m'); % location of LIPRAS m-file
+try % try to go to M-File Location
+cd(MFileLoc(1:end-8)) % the number 8 is the number of characters in "LIPRAS.m"
+catch
+end
+% Choose default command line output for LIPRAS
 handles.output = hObject;
 handles.profiles = ProfileListManager.getInstance();
 guidata(hObject, handles);
@@ -48,6 +53,8 @@ handles.OrigCD=cd;
     rImageRes=strsplit(sdat{4},'= ');
     rImageFormat=strsplit(sdat{5},'= ');
     rImageExportAll=strsplit(sdat{6},'= ');
+    Gcolor=strsplit(sdat{7},'= ');
+
     fclose(PrefFile);
     handles.profiles.DataPath=data_path{2};
     handles.profiles.Weights=rWeights{2};
@@ -55,12 +62,32 @@ handles.OrigCD=cd;
     handles.profiles.ImageRes=rImageRes{2};
     handles.profiles.ImageFormat=rImageFormat{2};
     handles.profiles.ImageSaveAll=str2double(rImageExportAll{2});
+    handles.profiles.GUIColor= str2num(Gcolor{2});
         catch
         end
 
+        % To Change Color
+  lis=struct2cell(handles);
+  n=1;
+  Gcolor=handles.profiles.GUIColor; % this will change the GUI color, but only does with MATLAB can change opening gui color
+  for i=1:length(lis)
+      try
+          lis{i}.Color=Gcolor;
+      catch
+          a(n)=i;
+          n=n+1;
+      end
+      try
+          lis{i}.BackgroundColor=Gcolor;
+      catch
+      end
+  end
+       
 
 assignin('base','handles',handles);
 % Update handles structure
+checkforupdates(1,1,handles,'Short')
+
 guidata(hObject, handles);
 
 
@@ -227,7 +254,8 @@ end
 if ~handles.gui.areFuncsReady || handles.gui.isFitDirty 
     plotX(handles, 'background');
 else
-    plotX(handles, 'sample');
+handles.profiles.xrd.calculateBackground;
+plotX(handles, 'sample');
 end
 
 
@@ -317,9 +345,26 @@ end
  if handles.radio_coeff.Value
 handles.gui.onPlotFitChange('peakfit')
  end
-
+%  
+if isempty(handles.profiles.FitInitial) 
+    s=1;
+else
+           s= length(find(handles.profiles.FitInitial.start<0));
+           l= length(find(handles.profiles.FitInitial.lower<0));
+           u= length(find(handles.profiles.FitInitial.upper<0));
+           nC=length(handles.profiles.FitInitial.start);
+           try
+               nnC=length(handles.gui.FitInitial.coeffs);
+           catch
+           end
+end
 handles.profiles.FcnNames = handles.gui.FcnNames;
 handles.profiles.FitInitial = 'default';
+
+           try
+               nnC=length(handles.profiles.FitInitial.coeffs);
+           catch
+           end
 
 cla(handles.axes1);
 ui.update(handles, 'fitinitial');
@@ -328,6 +373,13 @@ utils.plotutils.plotX(handles,'sample');
 handles.gui.Legend = 'reset';
 
 handles.gui.PriorityStatus = 'Fit options were updated.';
+if s==0 && l==0 && u==0
+else
+if s==1 || s==nC || s~=nnC
+    handles.table_fitinitial.Enable='off';
+    handles.gui.PriorityStatus='Now Select Peak Posistions using Select Peak(s)';
+end
+end
  
 
 
@@ -341,7 +393,10 @@ if Validate_bkg(handles) % checks to make sure BkgOrder is not greater than poin
 end
 
 positions = utils.plotutils.selectPeakPoints(handles);
-
+if sum(positions)==0
+    msgbox('No more points to delete, try again')
+    return
+end
 if length(positions) < handles.profiles.NumPeaks
     plotX(handles, 'sample');
 else
@@ -402,6 +457,13 @@ else
 %     ui.update(handles, 'fitinitial_tableEdit'); %i dont think this is
 %     needed otherwise it resets the table based on edit which is annoying
 %     when editing a value of N9, x9, etc,.,,
+    emptyCell = find(cellfun(@isempty, handles.table_fitinitial.Data), 1);
+    if isempty(emptyCell) 
+    set(handles.push_fitdata, 'enable', 'on');
+    pause(0.5) % this is needed otherwise the GUI is too fast and wont activate...
+    else
+    set(handles.push_fitdata, 'enable', 'off');
+    end
     utils.plotutils.plotX(handles, 'sample');
 end
 
@@ -782,6 +844,8 @@ handles.profiles.DataPath=folder_name;
             fprintf(PreferenceFile,'%s %s\n','ImageRes=',handles.profiles.ImageRes);
             fprintf(PreferenceFile,'%s %s\n','ImageFormat=',handles.profiles.ImageFormat);
             fprintf(PreferenceFile,'%s %i\n','ImageExportAll=',handles.profiles.ImageSaveAll);
+            fprintf(PreferenceFile,'%s %f %f %f \n','GUIColor=',handles.profiles.GUIColor(1),handles.profiles.GUIColor(2),handles.profiles.GUIColor(3));
+
 
             fclose all;
             
@@ -843,14 +907,14 @@ choosedialog
 
     function choosedialog
 btnsize=40;
-r1v=80;
+r1v=120;
 r1h=15;
 textb=10;
 
     d = dialog('Position',[300 300 350 200],'Name','LIPRAS- Help');
     txt = uicontrol('Parent',d,...
            'Style','text',...
-           'Position',[70 120 210 40],...
+           'Position',[70 150 210 40],...
            'String','Select Topic','FontSize',11);
        
     btn1 = uicontrol('Parent',d,...
@@ -876,7 +940,14 @@ textb=10;
            'FontSize',textb,...
            'Callback',@web3);
             set(btn4, 'String', '<html><center>Statistics</center>');
-       
+      
+       btn5 = uicontrol('Parent',d,...
+           'Position',[125 r1v-50 100 btnsize],...
+           'FontSize',textb,...
+           'Callback',@web4);
+            set(btn5, 'String', '<html><center>LIPRAS Manual</center>');
+            
+            
     % Wait for d to close before running to completion
     uiwait(d);
 
@@ -886,6 +957,13 @@ textb=10;
             web('https://www.mathworks.com/help/curvefit/least-squares-fitting.html#bq_5kr9-3','-browser')
         function web3(~,~)
             web('https://www.mathworks.com/help/curvefit/evaluating-goodness-of-fit.html','-browser')
+        function web4(~,~)
+            try
+                open('LIPRAS_Manual_5.pdf')
+                disp('worked')
+            catch
+            web('https://github.com/SneakySnail/LIPRAS/blob/master/LIPRAS_Manual_5.pdf','-browser')
+            end
         function webupdate(~,~)
             web('http://www.mathworks.com/matlabcentral/fileexchange/62162-line-profile-analysis-software--lipras-','-browser')
 
@@ -945,41 +1023,61 @@ end
                 vali=0;
             end
     
-function checkforupdates(~,~,handles)
+function checkforupdates(~,~,handles,ini)
+    if nargin<4
+        ini='na';
+    end
             cV=handles.profiles.LIPRAS_Version; 
 options = weboptions('ContentType','auto');
 data=webread('https://github.com/SneakySnail/LIPRAS/tree/master',options); % for releases based on commit number
 b1=strsplit(data,'<span class="num text-emphasized">\n');
 c=strsplit(b1{4},' '); % number of releases
 b=strsplit(b1{2},' ');
-if isequal(str2double(b{2}),cV)
+if and(isequal(str2double(b{2}),cV),strcmp(ini,'na'))
         d = dialog('Position',[550 550 350 100],'Name','LIPRAS');
             txt = uicontrol('Parent',d,...
            'Style','text',...
-           'Position',[70 40 210 40],...
+           'Position',[70 50 210 40],...
            'String','LIPRAS is up to date','FontSize',11);
+       txt2 = uicontrol('Parent',d,...
+           'Style','text',...
+           'Position',[70 25 210 40],...
+           'String',['Current Version: ' num2str(handles.profiles.LIPRAS_Version)],'FontSize',11); %%%
     btn1 = uicontrol('Parent',d,...
            'Position',[125 10 100 30],...
            'String','Close','FontSize',12,...
            'Callback','delete(gcf)');
 
-else
+elseif ~isequal(str2double(b{2}),cV)
             d = dialog('Position',[550 550 350 150],'Name','LIPRAS');
             txt = uicontrol('Parent',d,...
            'Style','text',...
-           'Position',[70 70 210 60],...
+           'Position',[70 30 210 60],...
            'String','New version available, check MATLAB FileExchange','FontSize',11);
+              txt2 = uicontrol('Parent',d,...
+           'Style','text',...
+           'Position',[70 90 210 25],...
+           'String',['Current Version: ' num2str(handles.profiles.LIPRAS_Version)],'FontSize',11); %%%
+              txt3 = uicontrol('Parent',d,...
+           'Style','text',...
+           'Position',[70 120 210 25],...
+           'String',['Available Version: ' num2str(b{2})],'FontSize',11); %%%
     btn1 = uicontrol('Parent',d,...
-           'Position',[125 10 100 30],...
+           'Position',[190 10 100 30],...
            'String','Close','FontSize',12,...
            'Callback','delete(gcf)');
         btn2 = uicontrol('Parent',d,...
-           'Position',[125 50 100 30],...
+           'Position',[60 10 100 30],...
            'FontSize',12,...
            'Callback',@webupdate);
        set(btn2, 'String', '<html><center>Download</center>');
 
 end
+
+    function pushbutton44_Callback(~,~,handles)
+        f=helpdlg('Initiating Bayesian Inference GUI: Alpha release, some of these analysis can take anywhere from several seconds to hours');
+        waitfor(f)
+evalin('base','BayesLIPRASGUI')
 %% Close request functions
 function figure1_CloseRequestFcn(~, ~, handles)
 requestClose(handles);

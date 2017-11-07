@@ -9,13 +9,14 @@ Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones
 
 ## What is LIPRAS?
 
-**LIPRAS** [*LEEP-ruhs*], short for **Line-Profile Analysis Software**, is a graphical user interface for least-squares fitting of Bragg peaks in powder diffraction data. For any region of the inputted data, user can choose which profile functions to apply to the fit, constrain profile functions, and view the resulting fit in terms of the profile functions chosen. 
+**LIPRAS** [*LEEP-ruhs*], short for **Line-Profile Analysis Software**, is a graphical user interface for least-squares fitting of Bragg peaks in powder diffraction data. For any region of the inputted data, user can choose which profile functions to apply to the fit, constrain profile functions, and view the resulting fit in terms of the profile functions chosen. A Bayesian inference analysis can be carried out on the resulting least-squares result to generate a full description of the errors for all profile parameters.
 
 
 ## Features in LIPRAS
 <b> Why use LIPRAS?</b> You can use LIPRAS to visualize and analyze diffraction data.
 
 <li> Quickly extract relevant peak information about the <b>position, full width at half maximum (FWHM), and intensity</b> </li>
+<li>Conduct Bayesian inference on least-squares results using a Markov Chain Monte Carlo algorithm</li>
 <li> Customize the background fit by either treating it separately (Polynomial or Spline) or including it in the least-squares routine (Polynomial only)</li>
 <li> Fit up to <b>20 peaks</b> in the current profile region </li>
 <li> Choose from 5 different peak-shape functions: <b>Gaussian, Lorentzian, Pseudo-Voigt, and Pearson VII, and Asymmetric Pearson VII</b> </li>
@@ -33,16 +34,21 @@ Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones
 **MATLAB Users**
 
 **Requires MATLAB 2016b, Curve Fitting Toolbox, and GUI Layout Toolbox**<br>
-You can start using LIPRAS in MATLAB after downloading GUI Layout Toolbox with a MATLAB version 2016b or greater thats equipped with Curve Fitting Toolbox. 
-<br>GUI Layout Toolbox: https://www.mathworks.com/matlabcentral/fileexchange/47982-gui-layout-toolbox
+You can start using LIPRAS in MATLAB after downloading GUI Layout Toolbox with a MATLAB version 2016b or greater thats equipped with Curve Fitting Toolbox. The Statistics and Machine Learning Toolbox is required for Bayesian analysis, but not for peak fitting.
+
+GUI Layout Toolbox: https://www.mathworks.com/matlabcentral/fileexchange/47982-gui-layout-toolbox
 
 **Stand-Alone Version (NO MATLAB NEEDED)**
 
 This version is not updated as often as the GitHub repository since it needs to be compiled using a specific MATLAB license on a specific computer. 
 
-LIPRAS_1.0, uploaded to SourceForge:
+LIPRAS, uploaded to SourceForge:
 *[Stand-Alone Version Download](https://sourceforge.net/projects/lipras/)
 
+**If you use LIPRAS for your research, please cite it (choose one):**
+
+1. Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones. LIPRAS: Line-Profile Analysis Software. (2017). DOI: 10.13140/RG.2.2.29970.25282/3
+2. Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones. LIPRAS: Line-Profile Analysis Software. (2017). https://github.com/SneakySnail/LIPRAS
 
 
 ## Acknowledgement
@@ -59,7 +65,7 @@ that the following conditions are met:
 following disclaimer.
 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
 the following disclaimer in the documentation and/or other materials provided with the distribution.
-3. The names “North Carolina State University”, “NCSU” and any trade‐name, personal name,
+3. The names “North Carolina State University�?, “NCSU�? and any trade�?name, personal name,
 trademark, trade device, service mark, symbol, image, icon, or any abbreviation, contraction or
 simulation thereof owned by North Carolina State University must not be used to endorse or promote
 products derived from this software without prior written permission.
