@@ -1,3 +1,4 @@
+![stack Overflow](https://github.com/SneakySnail/LIPRAS/blob/master/Logo/Logo_R3.png?raw=true)
 # Line-Profile Analysis Software (LIPRAS)
 
 
