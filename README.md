@@ -1,3 +1,4 @@
+![stack Overflow](https://github.com/SneakySnail/LIPRAS/blob/master/Logo/Logo_R3.png?raw=true)
 # Line-Profile Analysis Software (LIPRAS)
 
 
@@ -64,7 +65,7 @@ that the following conditions are met:
 following disclaimer.
 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
 the following disclaimer in the documentation and/or other materials provided with the distribution.
-3. The names “North Carolina State University�?, “NCSU�? and any trade�?name, personal name,
+3. The names â€œNorth Carolina State Universityâ€?, â€œNCSUâ€? and any tradeâ€?name, personal name,
 trademark, trade device, service mark, symbol, image, icon, or any abbreviation, contraction or
 simulation thereof owned by North Carolina State University must not be used to endorse or promote
 products derived from this software without prior written permission.
