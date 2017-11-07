@@ -149,6 +149,10 @@ end
         end
 %         disp(this.FitOptions.StartPoint) % to check SP being recycled
 
+if any(this.FitOptions.Weights==Inf)
+this.FitOptions.Weights(this.FitOptions.Weights==Inf)=.01; % sets to low value because intensity is low
+end
+
         if xrd.BkgLS
                     [fmodel, fmodelgof, outputMatrix] = fit(this.TwoTheta', ...
                                  (this.Intensity)', ...
@@ -180,6 +184,9 @@ end
         calc=this.FData'; 
         DOF = this.FmodelGOF.dfe; % degrees of freedom from error
         er=transpose(xrd.DataSet{filenumber}.getDataErrors);
+        if any(er==0)
+        er(er==0)=mean(er);
+        end
         
         this.Rp = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
         this.Rwp = sqrt(sum(((obs-calc)./er).^2)./sum(obs.^2./er.^2))*100 ; %Calculate Rwp
@@ -193,6 +200,10 @@ end
         calc = this.Background' + this.FData';        
         DOF = this.FmodelGOF.dfe; % degrees of freedom from error
         er=transpose(xrd.DataSet{filenumber}.getDataErrors);
+        
+        if any(er==0) % for when some Weight values are Inf due to 0 intensity
+        er(er==0)=mean(er);
+        end
         
         this.Rp = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
         this.Rwp = sqrt(sum(((obs-calc)./er).^2)./sum(obs.^2./er.^2))*100 ; %Calculate Rwp

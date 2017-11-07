@@ -138,7 +138,12 @@ end
 temp = temp(p:end,:);
 
 % now takes the first three columns of intesity and 2-theta and transpose
+try
 temp = temp(:,1:3)';
+catch
+    temp = temp(:,1:2)';
+end
+
 data.two_theta = temp(1,:);
 data.data_fit = temp(2,:);
 try
