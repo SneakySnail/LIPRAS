@@ -216,18 +216,24 @@ handlesB.uitable2.Data(:,2:end)=[];
 handlesB.uitable2.RowName=handlesB.OD.profiles.FitInitial.coeffs;
 handlesB.listbox1.String=handlesB.OD.profiles.FileNames;
 handlesB.uitable1.RowName=handlesB.OD.profiles.FitInitial.coeffs;
+handlesB.uitable1.Data=[handlesB.BD.SP' handlesB.BD.LB' handlesB.BD.UB' handlesB.BD.param_sd'];
 
 % to update if user changes profile and runs Bayesian, otherwise leave it
 % if the user is using "Custom Bounds"
-if length(handlesB.uitable1.Data(:,1))~=length(handlesB.OD.profiles.FitResults{1}{1}.CoeffNames)
     idBkg=handlesB.OD.profiles.xrd.getBackgroundOrder+2;
     if handlesB.OD.profiles.xrd.BkgLS==1
     else
         idBkg=1;
     end
+if length(handlesB.uitable1.Data(:,1))~=length(handlesB.OD.profiles.FitResults{1}{1}.CoeffNames(idBkg:end))
+try
+    handlesB.uitable1.Data=[handlesB.BD.SP' handlesB.BD.LB' handlesB.BD.UB' handlesB.BD.param_sd'];
+catch
     handlesB.uitable1.Data=[handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'...
     handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'-handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'...
     handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'+handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)' handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'/1.96];
+
+end
 end
 
 idF=handlesB.listbox1.Value; % this will be based on which file to view
