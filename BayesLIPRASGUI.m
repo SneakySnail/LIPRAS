@@ -22,7 +22,7 @@ function varargout = BayesLIPRASGUI(varargin)
 
 % Edit the above text to modify the response to help BayesLIPRASGUI
 
-% Last Modified by GUIDE v2.5 21-Sep-2017 19:19:16
+% Last Modified by GUIDE v2.5 07-Nov-2017 19:58:40
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -189,7 +189,7 @@ function pushbutton1_Callback(hObject, eventdata, handlesB)
 % handlesB    structure with handlesB and user data (see GUIDATA)
 NewDat=evalin('base','handles');
 Sig2=str2double(handlesB.edit2.String);
-Sig2SD=sqrt(Sig2)*10;
+Sig2SD=str2double(handlesB.edit7.String);
 Sig2LB=str2double(handlesB.edit5.String);
 Sig2UB=str2double(handlesB.edit6.String);
 iterations=str2double(handlesB.edit1.String);
@@ -211,6 +211,9 @@ SD=handlesB.uitable1.Data(:,4)';
 BD=BayesianLIPRAS_F(NewDat, SP, LB, UB, SD, Sig2, Sig2SD, Sig2UB, Sig2LB,iterations, burnin,Naive, Default);
 handlesB.BD=BD;
 
+if BD.fault==1
+    return
+end
 handlesB.uitable2.Data=BD.acc_ratio;
 handlesB.uitable2.Data(:,2:end)=[];
 handlesB.uitable2.RowName=handlesB.OD.profiles.FitInitial.coeffs;
@@ -220,7 +223,14 @@ handlesB.uitable1.Data=[handlesB.BD.SP' handlesB.BD.LB' handlesB.BD.UB' handlesB
 
 % to update if user changes profile and runs Bayesian, otherwise leave it
 % if the user is using "Custom Bounds"
-    idBkg=handlesB.OD.profiles.xrd.getBackgroundOrder+2;
+
+handlesB.edit2.String=handlesB.BD.sigma2;
+handlesB.edit7.String=handlesB.BD.sigma2sd;
+handlesB.edit5.String=handlesB.BD.sigma2lb;
+handlesB.edit6.String=handlesB.BD.sigma2ub;
+
+
+idBkg=handlesB.OD.profiles.xrd.getBackgroundOrder+2;
     if handlesB.OD.profiles.xrd.BkgLS==1
     else
         idBkg=1;
@@ -240,6 +250,8 @@ idF=handlesB.listbox1.Value; % this will be based on which file to view
 subD=5;
 nbins=20;
 
+handlesB.text11.String=round(BD.accS(:,1),4); % sigma for model
+
 try
     delete(handlesB.ax(2:end))
 catch
@@ -247,9 +259,9 @@ end
 if handlesB.radiobutton1.Value
 
 for k=1:length(BD.SP)
-ax1(k)=subplot(subD,subD,k);
-histogram(ax1(k),BD.param_trace(BD.burnin:end,k),nbins)
-title(ax1(k),BD.coeffOrig{k})
+handlesB.ax1(k)=subplot(subD,subD,k);
+histogram(handlesB.ax1(k),BD.param_trace(BD.burnin:end,k),nbins)
+title(handlesB.ax1(k),BD.coeffOrig{k})
 
 end
 else
@@ -298,9 +310,9 @@ if handlesB.radiobutton1.Value
 linkaxes(handlesB.ax,'off')
 
 for k=1:length(handlesB.BD.SP)
-ax1(k)=subplot(subD,subD,k);
-histogram(ax1(k),handlesB.BD.param_trace(handlesB.BD.burnin:end,k,idF),nbins)
-title(ax1(k),handlesB.BD.coeffOrig{k})
+handlesB.ax1(k)=subplot(subD,subD,k);
+histogram(handlesB.ax1(k),handlesB.BD.param_trace(handlesB.BD.burnin:end,k,idF),nbins)
+title(handlesB.ax1(k),handlesB.BD.coeffOrig{k})
 end
 else
     handlesB.radiobutton2.Value=1;
@@ -316,6 +328,7 @@ linkaxes(handlesB.ax,'x')
 
 end
 handlesB.uitable2.Data(:,1)=handlesB.BD.acc_ratio(:,idF);
+handlesB.text11.String=round(handlesB.BD.accS(idF),4);
 assignin('base','handlesB',handlesB);
 guidata(hObject, handlesB);
 
@@ -325,7 +338,7 @@ function radiobutton3_Callback(hObject, eventdata, handlesB)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handlesB    structure with handlesB and user data (see GUIDATA)
 
-% disp('button 3')
+disp('button 3')
 if handlesB.radiobutton3.Value==0
     handlesB.uitable1.RowName=handlesB.OD.profiles.FitInitial.coeffs;
 
@@ -436,12 +449,25 @@ function radiobutton5_Callback(hObject, eventdata, handlesB)
 % hObject    handle to radiobutton5 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handlesB    structure with handlesB and user data (see GUIDATA)
+if hObject.Value
+    if any(contains(handlesB.OD.profiles.FitResults{1}{1}.CoeffNames,'bkg'))
+        calc=handlesB.OD.profiles.FitResults{1}{1}.FData;
+    else
+        calc=handlesB.OD.profiles.FitResults{1}{1}.FData+handlesB.OD.profiles.FitResults{1}{1}.Background;
+    end
+nint=handlesB.OD.profiles.xrd.getData(1);
+handlesB.edit2.String=round(std((nint-calc))^2, 3);
+handlesB.edit7.String= round(sqrt(str2double(handlesB.edit2.String))*2,3);
+handlesB.edit5.String= round(prctile(std([nint; calc],0,1),5)^2,3);
+handlesB.edit6.String=round(prctile(std([nint; calc],0,1),95)^2,3);
+    
+end
 
-% disp('button 5')
 
 function bi=BayesianLIPRAS_F(class, SP, LB, UB, SD, Sig2, Sig2SD, Sig2UB, Sig2LB,iterations, burnin,Naive,Default)
 handles=class;
-h=waitbar(0,'Bayesian analysis running...');
+h=waitbar(0,'Bayesian analysis running...','CreateCancelBtn','delete(gcf)');
+
 numFile=length(handles.profiles.FitResults{1});
 bi.burnin=burnin;
 bi.iterations=iterations;
@@ -460,7 +486,7 @@ bi.coeff=coeffnames(handles.profiles.FitResults{1}{f}.Fmodel)';
 if or(strcmp(Default,'on'), strcmp(Naive,'on'))
 bi.SP=handles.profiles.FitResults{1}{f}.CoeffValues;
 bi.Err=handles.profiles.FitResults{1}{f}.CoeffError;
-bi.m=4;
+bi.m=3;
 bi.UB=bi.SP+bi.Err*bi.m;
 bi.LB=bi.SP-bi.Err*bi.m;
 bi.param_sd=bi.Err/1.96;
@@ -504,10 +530,15 @@ FxnF = str2func([jp Fxn]);
 xv=bi.ntt;
 
 if strcmp(Naive,'on')
-bi.sigma2 = std((bi.nint-handles.profiles.FitResults{1}{1}.FData))^2;
-bi.sigma2sd = sqrt(bi.sigma2)*10;
-bi.sigma2ub= prctile(std([bi.nint; handles.profiles.FitResults{1}{1}.FData],0,1),95)^2;
-bi.sigma2lb= prctile(std([bi.nint; handles.profiles.FitResults{1}{1}.FData],0,1),5)^2;
+    if any(contains(bi.coeff,'bkg') )% ignore Bkg coeffs in Bayesian
+    calc=handles.profiles.FitResults{1}{f}.FData;
+    else
+    calc=handles.profiles.FitResults{1}{f}.FData+handles.profiles.FitResults{1}{f}.Background;
+    end
+bi.sigma2 = std((bi.nint-calc))^2;
+bi.sigma2sd = sqrt(bi.sigma2)*2;
+bi.sigma2ub= prctile(std([bi.nint; calc],0,1),95)^2;
+bi.sigma2lb= prctile(std([bi.nint; calc],0,1),5)^2;
 else
     bi.sigma2 = Sig2;
     bi.sigma2sd = Sig2SD;
@@ -516,6 +547,7 @@ else
 end
 
 acc=zeros(length(bi.SP),1); % need to reset for every file
+accS=0;
 
 if f==1
 param=bi.SP;
@@ -528,6 +560,7 @@ logp=zeros(bi.iterations,1);
 logp_new=zeros(bi.iterations,1);
 ob_count = zeros(length(param),1); % counter when random parameters are out of bound
 num_var=length(param);
+sigma2Orig=bi.sigma2;
 end
 
 Bkg=handles.profiles.FitResults{1}{f}.Background;
@@ -549,7 +582,7 @@ for i=1:bi.iterations
         rand_param=normrnd(param(j),bi.param_sd(j)); % generate random number from norm distribution with mean param(j) and sigma sd
             if rand_param>bi.UB(j) || rand_param<bi.LB(j) % check to make sure they are within the UB and LB
                 ob_count(j)=ob_count(j)+1; % counts how many times parameters are generated outside UB and LB
-                prob=0; % sets Prob to zero 
+                prob=1E-100; % sets Prob to zero 
             else
             param_new(j)=rand_param;   % Newly generated parameter substitutes into array of parameters that describe the model       
             inp_new=[num2cell(param_new,1) {xv}]; % Formatting for vectorization
@@ -577,7 +610,6 @@ for i=1:bi.iterations
 % sigma2_new=1/gamrnd(0.1+length(nint)/2, (0.1+0.5*sum((nint-fit_total_new).^2))^-1);
 % tau is sigma to -2 which has gamma(a,b), prob
 
-% Metro-Hasting
 bi.sigma2_new=normrnd(bi.sigma2,bi.sigma2sd); % new sigma2 from normal distribution with mean(sigma2) and sigma(sigma2sd)
    
    % autocorrelation, correlation between samples as a function lag (how
@@ -587,7 +619,7 @@ bi.sigma2_new=normrnd(bi.sigma2,bi.sigma2sd); % new sigma2 from normal distribut
    
     if bi.sigma2_new>bi.sigma2ub || bi.sigma2_new < bi.sigma2lb % checks to insure newly generated variable is withing range 
         ob_count(num_var)=ob_count(num_var)+1;
-        prob=0;
+        prob=1E-100;
     else
         % This is for sigma2 so param is used instead of param_new, param is newly accepted or previously accepted list of params in iteration
         inp_new=[num2cell(param,1) {xv}];  % Formatting for vectorization
@@ -595,7 +627,6 @@ bi.sigma2_new=normrnd(bi.sigma2,bi.sigma2sd); % new sigma2 from normal distribut
         fit_total_new=fit_total_new(1,:);
         logp_new(i)=LogLike(bi.nint, fit_total_new(1,:)+Bkg, bi.sigma2_new);  % calculate Loglikelihood
         prob=min(exp(logp_new(i)-logp(i)),1); % calculate probability
-        bi.sigma2=bi.sigma2_new;
 
     end
 
@@ -605,7 +636,7 @@ bi.sigma2=bi.sigma2_new;
 fit_total=fit_total_new;
 logp(i)=logp_new(i);
     if i>=burnin
-    acc(j)=acc(j)+1;
+    accS=accS+1;
     end
 end
        
@@ -619,8 +650,11 @@ if rem(i,1000)==0
     numera(f)=i;
     perc=(sum(numera))/(iterations*numFile)*100;
     try
-        waitbar(perc/100,h, sprintf('%s %.2f%%','Bayesian analysis running...',perc));
+        waitbar(perc/100,h, sprintf('%s %.2f%%','Bayesian analysis running...',perc),'CreateCancelBtn');
+        BD.fault=0;
     catch
+        bi.fault=1;
+        return
         h=waitbar(perc/100,sprintf('%s %.2f%%','Bayesian analysis running...',perc));
     end
     disp(i)
@@ -637,14 +671,14 @@ disp(['Time left= ',num2str(atime(f)) 'secs']);
 
 % Acceptance Ratio
 bi.acc_ratio(:,f) = acc/(bi.iterations-bi.burnin);
-
+bi.accS(:,f)=accS/(bi.iterations-bi.burnin);
 % Fit, Error, Sigma
     bi.fit_mean(f,:)=mean(fit_trace(:,:,f));
     bi.fit_sigma(f,:) =std(fit_trace(:,:,f)); % this assumes a normal distributon for resulting parameters, needs to change
     bi.fit_low(f,:) = prctile(fit_trace(:,:,f),2.5); % takes percentiles to represent std of parameters
     bi.fit_high(f,:) = prctile(fit_trace(:,:,f),97.5);
 end
-
+fprintf('%s %f\n','Acceptance for Sigma= ',bi.accS)
 for f=1:f
 % File Writer
 filess=handles.gui.FileNames{f};
@@ -700,9 +734,33 @@ bi.logp_trace=logp_trace;
 bi.numFile=numFile;
 bi.Rp=Rp;
 bi.Rwp=Rwp;
+bi.fault=0;
+bi.sigma2=sigma2Orig; % this is so the sigma2 value that was used as a starting parameter is not erased in edit box
 close(h)
 
 
 function [logp]=LogLike(nint,fit_total,sigma)
 sd=sqrt(sigma);
 logp=sum(log(pdf('Normal',nint, fit_total, sd)));
+
+
+function edit7_Callback(hObject, eventdata, handles)
+% hObject    handle to edit7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit7 as text
+%        str2double(get(hObject,'String')) returns contents of edit7 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit7_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
