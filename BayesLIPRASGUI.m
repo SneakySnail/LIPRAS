@@ -744,13 +744,20 @@ sd=sqrt(sigma);
 logp=sum(log(pdf('Normal',nint, fit_total, sd)));
 
 
-function edit7_Callback(hObject, eventdata, handles)
+function edit7_Callback(hObject, eventdata, handlesB)
 % hObject    handle to edit7 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hints: get(hObject,'String') returns contents of edit7 as text
 %        str2double(get(hObject,'String')) returns contents of edit7 as a double
+
+function PlotSigma2Trace(hObject,eventdata, handlesB)
+figure(3)
+id=handlesB.BD.burnin;
+plot(handlesB.BD.sigma2_trace(id:end))
+xlabel('Iterations- Burnin')
+ylabel('\sigma^2')
 
 
 % --- Executes during object creation, after setting all properties.
