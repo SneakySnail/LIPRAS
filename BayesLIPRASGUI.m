@@ -22,7 +22,7 @@ function varargout = BayesLIPRASGUI(varargin)
 
 % Edit the above text to modify the response to help BayesLIPRASGUI
 
-% Last Modified by GUIDE v2.5 07-Nov-2017 19:58:40
+% Last Modified by GUIDE v2.5 08-Nov-2017 22:03:38
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -78,6 +78,25 @@ handlesB.listbox1.String=handlesB.OD.profiles.FileNames;
     handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'-handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'...
     handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'+handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)' handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'/1.96];
 
+% Check to see if Statistics Toolbox is Installed
+CTB1=license('test','Statistics_toolbox');
+if CTB1==0
+    pp=ver;
+    po=struct2cell(pp);
+
+    for k=1:length(pp)
+        ct(k)=strcmp(po{1,1, k},'Statistics and Machine Learning Toolbox');
+    end
+    CTB2=any(ct);
+else 
+    CTB2=1;
+end
+
+if and(CTB1==0, CTB2==0)
+    warndlg('Statistics and Machine Learning Toolbox not found! You will not be able to run a Bayesian analysis until this is installed!','!! Warning !!')
+    close(handlesB.figure1)
+    return
+end
 % Update handlesB structure
 assignin('base','handlesB',handlesB);
 guidata(hObject, handlesB);
@@ -92,7 +111,9 @@ function varargout = BayesLIPRASGUI_OutputFcn(hObject, eventdata, handlesB)
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handlesB    structure with handlesB and user data (see GUIDATA)
-
+if isempty(handlesB)
+    return
+end
 % Get default command line output from handlesB structure
 varargout{1} = handlesB.output;
 
@@ -208,7 +229,7 @@ SP=handlesB.uitable1.Data(:,1)';
 LB=handlesB.uitable1.Data(:,2)';
 UB=handlesB.uitable1.Data(:,3)';
 SD=handlesB.uitable1.Data(:,4)';
-BD=BayesianLIPRAS_F(NewDat, SP, LB, UB, SD, Sig2, Sig2SD, Sig2UB, Sig2LB,iterations, burnin,Naive, Default);
+BD=BayesianLIPRAS_F(NewDat, SP, LB, UB, SD, Sig2, Sig2SD, Sig2UB, Sig2LB,iterations, burnin,Naive, Default,handlesB);
 handlesB.BD=BD;
 
 if BD.fault==1
@@ -299,8 +320,13 @@ idF=handlesB.listbox1.Value;
 subD=5;
 nbins=20;
 
+try
 numC=length(handlesB.BD.coeff);
 numAx=length(handlesB.ax);
+catch
+    warndlg('Run a Bayesian Analysis before attemping to plot','!! Warning !!')
+    return
+end
 if numC~=numAx && numC<numAx    
     dif=numAx-numC;
     delete(handlesB.ax(end-dif:end))
@@ -329,6 +355,42 @@ linkaxes(handlesB.ax,'x')
 end
 handlesB.uitable2.Data(:,1)=handlesB.BD.acc_ratio(:,idF);
 handlesB.text11.String=round(handlesB.BD.accS(idF),4);
+
+if handlesB.radiobutton6.Value
+    x=handlesB.OD.profiles.FitResults{1}{idF}.TwoTheta;
+    curve=handlesB.OD.profiles.xrd.getData(idF);
+    if any(contains(handlesB.OD.profiles.FitResults{1}{1}.CoeffNames,'bkg'))
+    curve1 = handlesB.OD.profiles.FitResults{1}{idF}.FData;
+    else
+    curve1 = handlesB.OD.profiles.FitResults{1}{idF}.FData+handlesB.OD.profiles.FitResults{1}{idF}.Background;
+    end
+    curve2 = handlesB.BD.fit_mean(idF,:)+handlesB.OD.profiles.FitResults{1}{idF}.Background;
+    curve3 = handlesB.BD.fit_low(idF,:)+handlesB.OD.profiles.FitResults{1}{idF}.Background;
+    curve4 = handlesB.BD.fit_high(idF,:)+handlesB.OD.profiles.FitResults{1}{idF}.Background;
+
+    handlesB.Fig3=figure(3);
+    clf(handlesB.Fig3)
+    hold on;    
+    plot(x, curve, 'o','Color', [0 0.17 0.5], 'MarkerFaceColor',[0 0.17 0.5], 'MarkerSize',4)
+    plot(x, curve1, 'Color',[0 0.5 0],'LineWidth',1.5);
+
+    plot(x, curve2, 'black', 'LineWidth',1.5);
+    plot(x,curve3, '-b', 'LineWidth',1.5);
+    plot(x,curve4,'-r','LineWidth',1.5);
+   x2=[x fliplr(x)];
+   inBetween=[curve2 fliplr(curve3)];
+   inBetweenUp=[curve2, fliplr(curve4)];
+   fill(x2, inBetween, [0.5 0.5 0.5]);
+   fill(x2, inBetweenUp, [0.5 0.5 0.5]);
+   alpha(0.25)
+
+   xlabel('2\theta (°)')
+   ylabel('Intensity (a.u.)')
+    box('on')
+    title(['Comparing Fits ' 'for ' handlesB.OD.profiles.FileNames{idF}])
+    legend('Obs', 'LS Fit','Bayesian','Low', 'High')
+end
+
 assignin('base','handlesB',handlesB);
 guidata(hObject, handlesB);
 
@@ -464,7 +526,7 @@ handlesB.edit6.String=round(prctile(std([nint; calc],0,1),95)^2,3);
 end
 
 
-function bi=BayesianLIPRAS_F(class, SP, LB, UB, SD, Sig2, Sig2SD, Sig2UB, Sig2LB,iterations, burnin,Naive,Default)
+function bi=BayesianLIPRAS_F(class, SP, LB, UB, SD, Sig2, Sig2SD, Sig2UB, Sig2LB,iterations, burnin,Naive,Default,handlesB)
 handles=class;
 h=waitbar(0,'Bayesian analysis running...','CreateCancelBtn','delete(gcf)');
 
@@ -486,10 +548,10 @@ bi.coeff=coeffnames(handles.profiles.FitResults{1}{f}.Fmodel)';
 if or(strcmp(Default,'on'), strcmp(Naive,'on'))
 bi.SP=handles.profiles.FitResults{1}{f}.CoeffValues;
 bi.Err=handles.profiles.FitResults{1}{f}.CoeffError;
-bi.m=3;
+bi.m=4;
 bi.UB=bi.SP+bi.Err*bi.m;
 bi.LB=bi.SP-bi.Err*bi.m;
-bi.param_sd=bi.Err/1.96;
+bi.param_sd=bi.Err/handlesB.mS;
 
 if any(contains(bi.coeff,'bkg') )% ignore Bkg coeffs in Bayesian
 bi.coeff(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
@@ -502,7 +564,7 @@ end
 
 else
     bi.SP=SP;
-    bi.Err=SD*1.96;
+    bi.Err=SD*handlesB.mS;
     bi.UB=UB;
     bi.LB=LB;
     bi.param_sd=SD;
@@ -530,7 +592,7 @@ FxnF = str2func([jp Fxn]);
 xv=bi.ntt;
 
 if strcmp(Naive,'on')
-    if any(contains(bi.coeff,'bkg') )% ignore Bkg coeffs in Bayesian
+    if any(contains(handles.profiles.FitResults{1}{1}.CoeffNames,'bkg') )% ignore Bkg coeffs in Bayesian
     calc=handles.profiles.FitResults{1}{f}.FData;
     else
     calc=handles.profiles.FitResults{1}{f}.FData+handles.profiles.FitResults{1}{f}.Background;
@@ -753,11 +815,21 @@ function edit7_Callback(hObject, eventdata, handlesB)
 %        str2double(get(hObject,'String')) returns contents of edit7 as a double
 
 function PlotSigma2Trace(hObject,eventdata, handlesB)
-figure(3)
+try
+handlesB.BD;
+catch
+    warndlg('Run a Bayesian Analysis before attemping to plot','!! Warning !!')
+    return
+end
+
+handlesB.Fig4=figure(4);
+clf(handlesB.Fig4)
 id=handlesB.BD.burnin;
-plot(handlesB.BD.sigma2_trace(id:end))
+plot(handlesB.BD.sigma2_trace(id:end,1,handlesB.listbox1.Value))
 xlabel('Iterations- Burnin')
 ylabel('\sigma^2')
+title(['\sigma^2 Trace ' 'for ' handlesB.OD.profiles.FileNames{handlesB.listbox1.Value}])
+
 
 
 % --- Executes during object creation, after setting all properties.
@@ -767,6 +839,93 @@ function edit7_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in radiobutton6.
+function radiobutton6_Callback(hObject, eventdata, handles)
+% hObject    handle to radiobutton6 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of radiobutton6
+
+
+% --- Executes on selection change in popupmenu2.
+function popupmenu2_Callback(hObject, eventdata, handlesB)
+% hObject    handle to popupmenu2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handlesB.m=str2double(hObject.String{hObject.Value});
+
+    idBkg=handlesB.OD.profiles.xrd.getBackgroundOrder+2; % to remove Bkg Coeffs since they will not be in Bayesian analysis
+    if handlesB.OD.profiles.xrd.BkgLS==1
+    else
+        idBkg=1;
+    end
+    handlesB.uitable1.Data(:,2:3)=[handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'-handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'*handlesB.m...
+    handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'+handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'*handlesB.m];
+
+
+assignin('base','handlesB',handlesB);
+guidata(hObject, handlesB);
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu2 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu2
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu2_CreateFcn(hObject, eventdata, handlesB)
+% hObject    handle to popupmenu2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+hObject.Value=7;
+handlesB.m=str2double(hObject.String{hObject.Value});
+assignin('base','handlesB',handlesB);
+guidata(hObject, handlesB);
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in popupmenu3.
+function popupmenu3_Callback(hObject, eventdata, handlesB)
+% hObject    handle to popupmenu3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handlesB.mS=str2double(hObject.String{hObject.Value});
+
+
+    idBkg=handlesB.OD.profiles.xrd.getBackgroundOrder+2; % to remove Bkg Coeffs since they will not be in Bayesian analysis
+    if handlesB.OD.profiles.xrd.BkgLS==1
+    else
+        idBkg=1;
+    end
+    handlesB.uitable1.Data(:,4)=handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'/handlesB.mS;
+
+
+
+assignin('base','handlesB',handlesB);
+guidata(hObject, handlesB);
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu3 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu3
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu3_CreateFcn(hObject, eventdata, handlesB)
+% hObject    handle to popupmenu3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+hObject.Value=7;
+handlesB.mS=str2double(hObject.String{hObject.Value});
+
+assignin('base','handlesB',handlesB);
+guidata(hObject, handlesB);
+% Hint: popupmenu controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
