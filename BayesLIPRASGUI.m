@@ -240,8 +240,12 @@ handlesB.uitable2.Data(:,2:end)=[];
 handlesB.uitable2.RowName=handlesB.OD.profiles.FitInitial.coeffs;
 handlesB.listbox1.String=handlesB.OD.profiles.FileNames;
 handlesB.uitable1.RowName=handlesB.OD.profiles.FitInitial.coeffs;
-handlesB.uitable1.Data=[handlesB.BD.SP' handlesB.BD.LB' handlesB.BD.UB' handlesB.BD.param_sd'];
 
+custB=handlesB.radiobutton4.Value;
+if custB==1||handlesB.radiobutton5.Value
+handlesB.uitable1.Data=[handlesB.BD.SP' handlesB.BD.LB' handlesB.BD.UB' handlesB.BD.param_sd'];
+else
+end
 % to update if user changes profile and runs Bayesian, otherwise leave it
 % if the user is using "Custom Bounds"
 
@@ -250,12 +254,12 @@ handlesB.edit7.String=handlesB.BD.sigma2sd;
 handlesB.edit5.String=handlesB.BD.sigma2lb;
 handlesB.edit6.String=handlesB.BD.sigma2ub;
 
-
 idBkg=handlesB.OD.profiles.xrd.getBackgroundOrder+2;
-    if handlesB.OD.profiles.xrd.BkgLS==1
-    else
+if handlesB.OD.profiles.xrd.BkgLS==1
+else
         idBkg=1;
-    end
+end
+    
 if length(handlesB.uitable1.Data(:,1))~=length(handlesB.OD.profiles.FitResults{1}{1}.CoeffNames(idBkg:end))
 try
     handlesB.uitable1.Data=[handlesB.BD.SP' handlesB.BD.LB' handlesB.BD.UB' handlesB.BD.param_sd'];
@@ -263,7 +267,6 @@ catch
     handlesB.uitable1.Data=[handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'...
     handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'-handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'...
     handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'+handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)' handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'/1.96];
-
 end
 end
 
@@ -280,14 +283,23 @@ end
 if handlesB.radiobutton1.Value
 
 for k=1:length(BD.SP)
+if k >subD^2
+        warndlg('Too many parameters to plot, check individual files','!! Warning !!')
+    return
+end
 handlesB.ax1(k)=subplot(subD,subD,k);
 histogram(handlesB.ax1(k),BD.param_trace(BD.burnin:end,k),nbins)
 title(handlesB.ax1(k),BD.coeffOrig{k})
+
 
 end
 else
     handlesB.radiobutton2.Value=1;
 for k=1:length(BD.SP)
+if k >subD^2
+        warndlg('Too many parameters to plot, check individual files','!! Warning !!')
+    return
+end
 handlesB.ax(k)=subplot(subD,subD,k);
 plot(BD.param_trace(BD.burnin:end,k))
 title(BD.coeffOrig{k})
@@ -336,13 +348,22 @@ if handlesB.radiobutton1.Value
 linkaxes(handlesB.ax,'off')
 
 for k=1:length(handlesB.BD.SP)
+if k >subD^2
+        warndlg('Too many parameters to plot, check individual files','!! Warning !!')
+    return
+end
 handlesB.ax1(k)=subplot(subD,subD,k);
 histogram(handlesB.ax1(k),handlesB.BD.param_trace(handlesB.BD.burnin:end,k,idF),nbins)
 title(handlesB.ax1(k),handlesB.BD.coeffOrig{k})
+
 end
 else
     handlesB.radiobutton2.Value=1;
 for k=1:length(handlesB.BD.SP)
+if k >subD^2
+        warndlg('Too many parameters to plot, check individual files','!! Warning !!')
+    return
+end
 handlesB.ax(k)=subplot(subD,subD,k);
 plot(handlesB.BD.param_trace(handlesB.BD.burnin:end,k,idF))
 title(handlesB.BD.coeffOrig{k})
@@ -368,27 +389,27 @@ if handlesB.radiobutton6.Value
     curve3 = handlesB.BD.fit_low(idF,:)+handlesB.OD.profiles.FitResults{1}{idF}.Background;
     curve4 = handlesB.BD.fit_high(idF,:)+handlesB.OD.profiles.FitResults{1}{idF}.Background;
 
-    handlesB.Fig3=figure(3);
-    clf(handlesB.Fig3)
-    hold on;    
-    plot(x, curve, 'o','Color', [0 0.17 0.5], 'MarkerFaceColor',[0 0.17 0.5], 'MarkerSize',4)
-    plot(x, curve1, 'Color',[0 0.5 0],'LineWidth',1.5);
+   handlesB.Fig3=figure(3);
+   clf(handlesB.Fig3)
+   hold on;    
+   plot(x, curve, 'o','Color', [0 0.17 0.5], 'MarkerFaceColor',[0 0.17 0.5], 'MarkerSize',4)
+   plot(x, curve1, 'Color',[0 0.5 0],'LineWidth',1.5);
 
-    plot(x, curve2, 'black', 'LineWidth',1.5);
-    plot(x,curve3, '-b', 'LineWidth',1.5);
-    plot(x,curve4,'-r','LineWidth',1.5);
+   plot(x, curve2, 'black', 'LineWidth',1.5);
+   plot(x,curve3, '-b', 'LineWidth',1.5);
+   plot(x,curve4,'-r','LineWidth',1.5);
    x2=[x fliplr(x)];
    inBetween=[curve2 fliplr(curve3)];
    inBetweenUp=[curve2, fliplr(curve4)];
    fill(x2, inBetween, [0.5 0.5 0.5]);
    fill(x2, inBetweenUp, [0.5 0.5 0.5]);
    alpha(0.25)
-
+   set(gca,'XLim',[ handlesB.OD.profiles.Min2T  handlesB.OD.profiles.Max2T])
    xlabel('2\theta (°)')
    ylabel('Intensity (a.u.)')
-    box('on')
-    title(['Comparing Fits ' 'for ' handlesB.OD.profiles.FileNames{idF}])
-    legend('Obs', 'LS Fit','Bayesian','Low', 'High')
+   box('on')
+   title(['Comparing Fits ' 'for ' handlesB.OD.profiles.FileNames{idF}])
+   legend('Obs', 'LS Fit','Bayesian','Low', 'High')
 end
 
 assignin('base','handlesB',handlesB);
@@ -412,7 +433,10 @@ if handlesB.radiobutton3.Value==0
     handlesB.uitable1.Data=[handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'...
     handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'-handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'...
     handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'+handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)' handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'/1.96];
-msgbox('Bounds reset')
+h=msgbox('Bounds reset');
+ah= get(h, 'CurrentAxes');
+ch= get(ah, 'Children');
+set(ch, 'Fontsize', 11);
 end
 
 if handlesB.radiobutton4.Value
@@ -545,10 +569,28 @@ bi.nint=handles.profiles.xrd.getData(f);
 bi.nintS(f,:)=bi.nint;
 bi.coeff=coeffnames(handles.profiles.FitResults{1}{f}.Fmodel)';
 
-if or(strcmp(Default,'on'), strcmp(Naive,'on'))
+if strcmp(Naive,'on')
 bi.SP=handles.profiles.FitResults{1}{f}.CoeffValues;
 bi.Err=handles.profiles.FitResults{1}{f}.CoeffError;
-bi.m=4;
+bi.m=3;
+bi.UB=bi.SP+bi.Err*bi.m;
+bi.LB=bi.SP-bi.Err*bi.m;
+bi.param_sd=bi.Err/1.96;
+
+if any(contains(bi.coeff,'bkg') )% ignore Bkg coeffs in Bayesian
+bi.coeff(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
+bi.SP(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
+bi.LB(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
+bi.UB(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
+bi.param_sd(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
+bi.Err(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
+end
+
+elseif strcmp(Default,'on')
+
+bi.SP=handles.profiles.FitResults{1}{f}.CoeffValues;
+bi.Err=handles.profiles.FitResults{1}{f}.CoeffError;
+bi.m=handlesB.m;
 bi.UB=bi.SP+bi.Err*bi.m;
 bi.LB=bi.SP-bi.Err*bi.m;
 bi.param_sd=bi.Err/handlesB.mS;
@@ -561,7 +603,7 @@ bi.UB(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
 bi.param_sd(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
 bi.Err(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
 end
-
+    
 else
     bi.SP=SP;
     bi.Err=SD*handlesB.mS;
@@ -611,8 +653,9 @@ end
 acc=zeros(length(bi.SP),1); % need to reset for every file
 accS=0;
 
+param=bi.SP; % load SP for file, this will change when Bayesian switches to new file
+
 if f==1
-param=bi.SP;
 acc=zeros(length(bi.SP),1);
 logp_trace=zeros(bi.iterations,1);
 param_trace = zeros(bi.iterations, length(param),numFile);
@@ -719,7 +762,7 @@ if rem(i,1000)==0
         return
         h=waitbar(perc/100,sprintf('%s %.2f%%','Bayesian analysis running...',perc));
     end
-    disp(i)
+%     disp(i)
 end        
 end
 end
@@ -740,7 +783,7 @@ bi.accS(:,f)=accS/(bi.iterations-bi.burnin);
     bi.fit_low(f,:) = prctile(fit_trace(:,:,f),2.5); % takes percentiles to represent std of parameters
     bi.fit_high(f,:) = prctile(fit_trace(:,:,f),97.5);
 end
-fprintf('%s %f\n','Acceptance for Sigma= ',bi.accS)
+
 for f=1:f
 % File Writer
 filess=handles.gui.FileNames{f};
