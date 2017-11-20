@@ -310,11 +310,10 @@ end
                 'FontName','default');
         end
         linkaxes(ax,'xy');
-        plotter.updateXYLim(ax);
-        plotter.updateXLabel(ax);
-        plotter.updateYLabel(ax);
         set(ax, 'box', 'on');
         set(findobj(f), 'Visible', 'on');
+        plotter.updateXLabel(ax);
+        plotter.updateYLabel(ax);
     catch exception
         delete(f);
         rethrow(exception)
