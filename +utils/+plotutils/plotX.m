@@ -137,7 +137,7 @@ end
         delete(dataLine(notDataLineIdx));
         dataLine = dataLine(~notDataLineIdx);
     end
-    xdata = xrd.getTwoTheta;
+    xdata = xrd.getTwoTheta(filenum);
     props = {'LineStyle', '-', 'LineWidth', 1, 'MarkerFaceColor', [1 1 1], ...
         'Color', 'k', 'Visible', 'on', 'MarkerSize', 5};
     if isvalid(dataLine)
@@ -153,7 +153,9 @@ end
                             'MarkerFaceColor', [1 1 1], ...
                             'Color', 'k', ...
                             'Visible', 'on');
+        filenum=j;                
         dataLine = findobj(axx, 'tag', 'raw');
+        xdata = xrd.getTwoTheta(j);
         set(dataLine, 'XData', xdata, 'YData', ydata);
         setappdata(dataLine, 'xdata', xdata);
         setappdata(dataLine, 'ydata', ydata);

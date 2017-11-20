@@ -229,8 +229,13 @@ SP=handlesB.uitable1.Data(:,1)';
 LB=handlesB.uitable1.Data(:,2)';
 UB=handlesB.uitable1.Data(:,3)';
 SD=handlesB.uitable1.Data(:,4)';
+utils.minfig(handlesB.OD.figure1,1); % last attempt to minimizes the LIPRAS-LS GUI, subplots need to be plotted in BayesGUI or it will destroy the figure in LIPRAS LS
+utils.minfig(handlesB.figure1,0);
+utils.maxfig(handlesB.figure1,1);
+
 BD=BayesianLIPRAS_F(NewDat, SP, LB, UB, SD, Sig2, Sig2SD, Sig2UB, Sig2LB,iterations, burnin,Naive, Default,handlesB);
 handlesB.BD=BD;
+
 
 if BD.fault==1
     return
@@ -273,15 +278,19 @@ end
 idF=handlesB.listbox1.Value; % this will be based on which file to view
 subD=5;
 nbins=20;
-
+utils.minfig(handlesB.OD.figure1,1); % last attempt to minimizes the LIPRAS-LS GUI, subplots need to be plotted in BayesGUI or it will destroy the figure in LIPRAS LS
+utils.minfig(handlesB.figure1,0);
+utils.maxfig(handlesB.figure1,1);
 handlesB.text11.String=round(BD.accS(:,1),4); % sigma for model
+
+try axes(handlesB.axes1); catch; end
 
 try
     delete(handlesB.ax(2:end))
 catch
 end
-if handlesB.radiobutton1.Value
 
+if handlesB.radiobutton1.Value
 for k=1:length(BD.SP)
 if k >subD^2
         warndlg('Too many parameters to plot, check individual files','!! Warning !!')
@@ -343,6 +352,10 @@ if numC~=numAx && numC<numAx
     dif=numAx-numC;
     delete(handlesB.ax(end-dif:end))
 end
+
+utils.minfig(handlesB.OD.figure1,1); % last attempt to minimizes the LIPRAS-LS GUI, subplots need to be plotted in BayesGUI or it will destroy the figure in LIPRAS LS
+utils.minfig(handlesB.figure1,0);
+utils.maxfig(handlesB.figure1,1);
 
 if handlesB.radiobutton1.Value
 linkaxes(handlesB.ax,'off')
@@ -789,9 +802,28 @@ for f=1:f
 filess=handles.gui.FileNames{f};
 nf=strsplit(filess,'.');
 nfs{f}=nf{1};
-masterfilename1 = [handles.gui.DataPath nf{1} '_Bayesian_Param_Trace' '.Bayes'];
-masterfilename2= [handles.gui.DataPath nf{1} '_Bayesian_LogP_Sigma2_Trace' '.Bayes'];
-masterfilename3= [handles.gui.DataPath nf{1} '_Bayesian_Fit_Mean_Error_Sigma' '.Bayes'];
+       if handles.profiles.UniqueSave
+              index = 0;
+            iprefix = '00';
+            while exist(strcat(handles.profiles.OutputPath,'Fit_',strcat(iprefix,num2str(index))),'dir') ==7
+                index = index + 1;
+                if index > 100
+                    iprefix = '';
+                elseif index > 10
+                    iprefix = '0';
+                end
+            end
+            outpath=strcat(handles.profiles.OutputPath,'Bayes_Fit_',strcat(iprefix,num2str(index)), filesep);  
+            mkdir(outpath)
+       else
+            outpath = [handles.profiles.OutputPath 'FitData' filesep];
+            if exist(outpath,'dir')==0 % incase user deletes this folder
+                mkdir(outpath)
+            end
+       end
+masterfilename1= [outpath nf{1} '_Bayesian_Param_Trace' '.Bayes'];
+masterfilename2= [outpath nf{1} '_Bayesian_LogP_Sigma2_Trace' '.Bayes'];
+masterfilename3= [outpath nf{1} '_Bayesian_Fit_Mean_Error_Sigma' '.Bayes'];
 
 fidmaster1 = fopen(masterfilename1, 'w');
        fprintf(fidmaster1,'%s\t', bi.coeffOrig{:});

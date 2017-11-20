@@ -104,7 +104,7 @@ end
         this.ProfileNum    = profile.getCurrentProfileNumber;
         this.OutputPath    = profile.OutputPath;
         this.FunctionNames = xrd.getFunctionNames;
-        this.TwoTheta      = xrd.getTwoTheta;
+        this.TwoTheta      = xrd.getTwoTheta(filenumber);
         this.Intensity     = xrd.getData(filenumber);
         if xrd.BkgLS
         else
@@ -115,7 +115,7 @@ end
         this.BackgroundPoints = xrd.getBackgroundPoints;
         this.PeakPositions = xrd.PeakPositions;
         this.Constraints = xrd.getConstraints;
-        this.FitType       = xrd.getFitType;
+        this.FitType       = xrd.getFitType(filenumber);
         
         if and(filenumber>1,xrd.recycle_results==1)
             this.FitOptions    = xrd.getFitOptions(filenumber);
@@ -229,7 +229,11 @@ end
         else
         this.FitInitial.start = this.FitOptions.StartPoint;
         end
-            
+        
+        if filenumber==xrd.NumFiles && xrd.BkgLS
+            xrd.FitInitial.start=this.CoeffValues(xrd.Background.Order+2:end); % fixes the starting values to remove bkg coeffs
+        end
+        
         if xrd.BkgLS % evaluates Poly Bkg based on refined Bkg Coefficients
            this.CoeffValues(1,1:this.BackgroundOrder+1)=fliplr(this.CoeffValues(1,1:this.BackgroundOrder+1));
            mu=[mean(this.TwoTheta) std(this.TwoTheta)]; % for centering and scaling
@@ -237,8 +241,9 @@ end
         else
         end
         this.FitInitial.coeffs = this.CoeffNames;
-        this.FitInitial.lower = this.FitOptions.Lower;
-        this.FitInitial.upper = this.FitOptions.Upper;
+%         this.FitInitial.lower = this.FitOptions.Lower;
+%         this.FitInitial.upper = this.FitOptions.Upper;
+        xrd.CurrentPro=1;
         end
         
         function output = calculateFitNoBackground(this, fcnID)

@@ -87,7 +87,7 @@ handles.OrigCD=cd;
 assignin('base','handles',handles);
 % Update handles structure
 checkforupdates(1,1,handles,'Short')
-
+handles.NoEqualData=0;
 guidata(hObject, handles);
 
 
@@ -148,6 +148,7 @@ else
     isNew = handles.profiles.newXRD();
 end
 if isNew % if not the same dataset as before
+    handles.popup_filename.Value=1;
     ui.update(handles, 'dataset');
     cla(handles.axes1);
     utils.plotutils.plotX(handles, 'data');
@@ -157,6 +158,19 @@ if isNew % if not the same dataset as before
 else
     handles.gui.PriorityStatus = '';
 end
+
+for k=1:handles.profiles.NumFiles
+    cF(k)=isequal(handles.profiles.dataReadin.two_theta{1},handles.profiles.dataReadin.two_theta{k});
+end
+if sum(double(cF))~=k
+h=warndlg({'You have entered files that do not have the same number of points. CAUTION when using a fitting range', 'Check your 2-Theta range!!!'},'!! Warning !!');
+handles.NoEqualData=1;
+else
+    handles.NoEqualData=0;
+end
+assignin('base','handles',handles);
+guidata(hObject,handles)
+
 
 
 function checkbox_reverse_Callback(o,e,handles)
@@ -261,6 +275,16 @@ end
 
 function edit_min2t_Callback(~, ~, handles)
 %EDIT_MIN2T_CALLBACK executes when the minimum 2theta value is changed in the GUI. 
+if handles.NoEqualData==1
+    for p=1:handles.profiles.NumFiles
+        cK(p)=min(handles.profiles.dataReadin.two_theta{p});
+    end
+    if any(find(cK>str2double(handles.edit_min2t.String)))
+        h=warndlg('You have files with different number of data points!! Check your bounds to ensure that it is captured by all files');
+        handles.gui.Min2T = handles.profiles.Min2T;
+        return
+    end
+end
 handles.profiles.Min2T = handles.gui.Min2T;
 handles.gui.Min2T = handles.profiles.Min2T;
 if length(handles.profiles.BackgroundPoints) <= handles.gui.PolyOrder
@@ -272,6 +296,17 @@ end
 ui.update(handles, 'backgroundpoints');
 
 function edit_max2t_Callback(~, ~, handles)
+if handles.NoEqualData==1
+    for p=1:handles.profiles.NumFiles
+        cK(p)=max(handles.profiles.dataReadin.two_theta{p});
+    end
+    if any(find(cK<str2double(handles.edit_max2t.String)))
+        h=warndlg('You have files with different number of data points!! Check your bounds to ensure that it is captured by all files');
+        handles.gui.Max2T = handles.profiles.Max2T;
+        return
+    end
+end
+    
 handles.profiles.Max2T = handles.gui.Max2T;
 handles.gui.Max2T = handles.profiles.Max2T;
 if length(handles.profiles.BackgroundPoints) <= handles.gui.PolyOrder
@@ -453,7 +488,7 @@ if isnan(evt.NewData)
 	hObject.Data{evt.Indices(1), evt.Indices(2)} = evt.PreviousData;
 else
        handles.profiles.FitInitial = handles.gui.FitInitial;
-       handles.gui.FitInitial = handles.profiles.FitInitial;
+%        handles.gui.FitInitial = handles.profiles.FitInitial;
 %     ui.update(handles, 'fitinitial_tableEdit'); %i dont think this is
 %     needed otherwise it resets the table based on edit which is annoying
 %     when editing a value of N9, x9, etc,.,,
@@ -562,6 +597,7 @@ end
 % Executes on selection change in popup_filename.
 function popup_filename_Callback(hObject, eventdata, handles)
 handles.gui.CurrentFile = hObject.Value;
+handles.profiles.xrd.CurrentPro=hObject.Value;
 superimposed=strcmp(handles.menuPlot_superimpose.Checked,'on'); 
 if superimposed
     utils.plotutils.plotX(handles, 'superimpose');

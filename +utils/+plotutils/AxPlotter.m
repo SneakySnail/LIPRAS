@@ -226,7 +226,7 @@ classdef AxPlotter < matlab.mixin.SetGet
         %   LINE = PLOTRAWDATA(THIS, AX, VARARGIN) plots the raw data to the axis specified by AX
         %   with properties specified by VARARGIN.
         filenum = this.gui.CurrentFile;
-        x = this.profiles.xrd.getTwoTheta;
+        x = this.profiles.xrd.getTwoTheta(filenum);
         y = this.profiles.xrd.getData(filenum);
         if nargin > 1 && isa(varargin{1}, 'matlab.graphics.axis.Axes')
             axx = varargin{1};
@@ -279,7 +279,9 @@ classdef AxPlotter < matlab.mixin.SetGet
         
         function line = plotBgFit(this, ax, file,Bkg)
         line = findobj(ax, 'tag', 'background');
+        if nargin<4
         file=this.CurrentFile;
+        end
         if length(this.profiles.xrd.getBackgroundPoints) < this.profiles.xrd.getBackgroundOrder
             if ~isempty(line), delete(line); end
             return
@@ -294,7 +296,7 @@ classdef AxPlotter < matlab.mixin.SetGet
             return
         end
         if isempty(line) || ~isvalid(line)
-            line = plot(ax, this.profiles.xrd.getTwoTheta, bkgdArray,...
+            line = plot(ax, this.profiles.xrd.getTwoTheta(file), bkgdArray,...
                 '--r','LineWidth', 1.5, ...
                 'Tag', 'background', ...
                 'DisplayName', 'Background', ...
@@ -302,7 +304,7 @@ classdef AxPlotter < matlab.mixin.SetGet
         else
             set(line, ...
                 'LineStyle', '--', ...
-                'XData', this.profiles.xrd.getTwoTheta, ...
+                'XData', this.profiles.xrd.getTwoTheta(file), ...
                 'YData', bkgdArray, ...
                 'Marker', 'none', ...
                 'LineWidth', 1.5);
@@ -319,7 +321,7 @@ classdef AxPlotter < matlab.mixin.SetGet
         try
             xdata = this.profiles.xrd.getTwoTheta;
             fitsample = this.profiles.xrd.calculateFitInitial(this.gui.FitInitial.start);
-            background = this.profiles.xrd.calculateBackground;
+            background = this.profiles.xrd.calculateBackground(this.profiles.xrd.CurrentPro);
             fcnNumStr = num2str(fcnID);
             line = findobj(ax.Children, 'tag', ['sample' fcnNumStr]);
             if isempty(line)
@@ -329,6 +331,7 @@ classdef AxPlotter < matlab.mixin.SetGet
                             'Tag', ['sample' fcnNumStr], ...
                             'Visible', 'off');
             else
+                set(line, 'XData', xdata)
                 set(line, 'YData', fitsample(fcnID,:)+background, ...
                     'DisplayName', ['(' fcnNumStr ') ' this.gui.FcnNames{fcnID}]);
             end

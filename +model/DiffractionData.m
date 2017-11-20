@@ -23,9 +23,9 @@ classdef DiffractionData
     methods
         function this = DiffractionData(data, filename, fileIndex)
         % Constructor
-        this.FullTwoTheta = data.two_theta(fileIndex,:);
-        this.FullIntensityData = data.data_fit(fileIndex,:);
-        this.FullErrorData=data.error(fileIndex, :);
+        this.FullTwoTheta = data.two_theta{fileIndex};
+        this.FullIntensityData = data.data_fit{fileIndex};
+        this.FullErrorData=data.error{fileIndex};
         [path, name, ext] = fileparts(filename);
         this.DataPath = path;
         this.FileName = [name ext];

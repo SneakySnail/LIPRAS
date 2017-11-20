@@ -83,6 +83,7 @@ for i=1:length(filename)
     if strcmpi(ext, '.xrdml')
         if size(datatemp.two_theta,1)~=1 % this means xrdml contains multiple scans
         data.two_theta = datatemp.two_theta;
+        data.two_theta = mat2cell(data.two_theta,ones(size(data.two_theta,1),1));
         data.data_fit=datatemp.data_fit;
         data.temperature(i,:)=25; % needs work, 2-26-2017
         data.KAlpha1(i,:)=datatemp.KAlpha1;
@@ -90,25 +91,27 @@ for i=1:length(filename)
         data.RKa1Ka2(i,:)=datatemp.RKa1Ka2;
         data.ext = ext;
         data.error=sqrt(datatemp.data_fit);
+        data.error= mat2cell(data.error,ones(size(data.error,1),1));
+        data.data_fit= mat2cell(data.data_fit,ones(size(data.data_fit,1),1));
             
         else % for XRDML that are single scans
-        data.two_theta(i,:) = datatemp.two_theta;
-        data.data_fit(i,:)=datatemp.data_fit;
+        data.two_theta{i} = datatemp.two_theta;
+        data.data_fit{i}=datatemp.data_fit;
         data.temperature(i,:)=datatemp.Temperature;
         data.KAlpha1(i,:)=datatemp.KAlpha1;
         data.KAlpha2(i,:)=datatemp.KAlpha2;
         data.RKa1Ka2(i,:)=datatemp.RKa1Ka2;
         data.ext = ext;
-        data.error=sqrt(datatemp.data_fit);
+        data.error{i}=sqrt(datatemp.data_fit);
 
         end
     else
-        data.two_theta(i,:) = datatemp.two_theta;
-        data.data_fit(i,:) = datatemp.data_fit;
+        data.two_theta{i} = datatemp.two_theta;
+        data.data_fit{i} = datatemp.data_fit;
         try
-        data.error(i,:)=datatemp.error;
+        data.error{i}=datatemp.error;
         catch % in cases where error is not specified upon read
-        data.error(i,:)=sqrt(data.data_fit(i,:));
+        data.error{i}=sqrt(data.data_fit{i});
         end
 
     end    
@@ -213,9 +216,9 @@ end
 dline=str2num(line);
 temp1=transpose(fscanf(fid,'%f',[3 inf]));%opens the file listed above and obtains data in all 5 columns
 temp1=[dline;temp1];
-data.two_theta = temp1(:,1)./100; % divides by 100 since units in fxye are in centi-degrees
-data.data_fit = temp1(:,2);
-data.error=temp1(:,3); % will become weights for fit for diffraction patterns
+data.two_theta = temp1(:,1)'./100; % divides by 100 since units in fxye are in centi-degrees
+data.data_fit = temp1(:,2)';
+data.error=temp1(:,3)'; % will become weights for fit for diffraction patterns
 
 try
 data.temperature=Temperature;
