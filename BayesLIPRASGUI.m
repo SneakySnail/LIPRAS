@@ -398,9 +398,9 @@ if handlesB.radiobutton6.Value
     else
     curve1 = handlesB.OD.profiles.FitResults{1}{idF}.FData+handlesB.OD.profiles.FitResults{1}{idF}.Background;
     end
-    curve2 = handlesB.BD.fit_mean(idF,:)+handlesB.OD.profiles.FitResults{1}{idF}.Background;
-    curve3 = handlesB.BD.fit_low(idF,:)+handlesB.OD.profiles.FitResults{1}{idF}.Background;
-    curve4 = handlesB.BD.fit_high(idF,:)+handlesB.OD.profiles.FitResults{1}{idF}.Background;
+    curve2 = handlesB.BD.fit_mean{idF}+handlesB.OD.profiles.FitResults{1}{idF}.Background;
+    curve3 = handlesB.BD.fit_low{idF}+handlesB.OD.profiles.FitResults{1}{idF}.Background;
+    curve4 = handlesB.BD.fit_high{idF}+handlesB.OD.profiles.FitResults{1}{idF}.Background;
 
    handlesB.Fig3=figure(3);
    clf(handlesB.Fig3)
@@ -578,8 +578,9 @@ bi.Eqn_noBkg=handles.profiles.xrd.getEqnStr; % use this to avoid bkg included in
 bi.Eqn=bi.Eqn_noBkg;
 
 bi.ntt=handles.profiles.FitResults{1}{f}.TwoTheta;
+bi.nttS{f}=bi.ntt;
 bi.nint=handles.profiles.xrd.getData(f);
-bi.nintS(f,:)=bi.nint;
+bi.nintS{f}=bi.nint;
 bi.coeff=coeffnames(handles.profiles.FitResults{1}{f}.Fmodel)';
 
 if strcmp(Naive,'on')
@@ -670,10 +671,10 @@ param=bi.SP; % load SP for file, this will change when Bayesian switches to new 
 
 if f==1
 acc=zeros(length(bi.SP),1);
-logp_trace=zeros(bi.iterations,1);
-param_trace = zeros(bi.iterations, length(param),numFile);
-sigma2_trace = zeros(bi.iterations,1, numFile);
-fit_trace = zeros(bi.iterations-bi.burnin,length(bi.nint));
+logp_trace=cell(bi.iterations,1);
+param_trace = cell(bi.iterations, numFile);
+sigma2_trace = cell(bi.iterations, numFile);
+fit_trace = cell(bi.iterations-bi.burnin);
 logp=zeros(bi.iterations,1);
 logp_new=zeros(bi.iterations,1);
 ob_count = zeros(length(param),1); % counter when random parameters are out of bound
@@ -718,8 +719,8 @@ for i=1:bi.iterations
     acc(j)=acc(j)+1; % acceptance 
     end
     end         
-            logp_trace(i,1,f)=logp(i); % stores loglikelihood into trace of loglikelihood
-            param_trace(i,:,f)=param; % stores params in fit trace
+            logp_trace{i,f}=logp(i); % stores loglikelihood into trace of loglikelihood
+            param_trace{i,f}=param; % stores params in fit trace
     end % ends the for loop for cycling through each variable in the model
     
 %% Draw New Sigma2
@@ -758,10 +759,10 @@ logp(i)=logp_new(i);
     end
 end
        
-sigma2_trace(i,1,f)=bi.sigma2; % store sigma2
+sigma2_trace{i,f}=bi.sigma2; % store sigma2
 
 if i>bi.burnin
-    fit_trace(i-bi.burnin,:,f)=fit_total(1,:); % stores fit_trace after burnin has been met
+    fit_trace{i-bi.burnin,f}=fit_total(1,:); % stores fit_trace after burnin has been met
 end
 % Status
 if rem(i,1000)==0 
@@ -791,10 +792,12 @@ disp(['Time left= ',num2str(atime(f)) 'secs']);
 bi.acc_ratio(:,f) = acc/(bi.iterations-bi.burnin);
 bi.accS(:,f)=accS/(bi.iterations-bi.burnin);
 % Fit, Error, Sigma
-    bi.fit_mean(f,:)=mean(fit_trace(:,:,f));
-    bi.fit_sigma(f,:) =std(fit_trace(:,:,f)); % this assumes a normal distributon for resulting parameters, needs to change
-    bi.fit_low(f,:) = prctile(fit_trace(:,:,f),2.5); % takes percentiles to represent std of parameters
-    bi.fit_high(f,:) = prctile(fit_trace(:,:,f),97.5);
+    temp1=fit_trace(:,f);
+    temp2=cell2mat(temp1);
+    bi.fit_mean{f}=mean(temp2);
+    bi.fit_sigma{f} =std(temp2); % this assumes a normal distributon for resulting parameters, needs to change
+    bi.fit_low{f} = prctile(temp2,2.5); % takes percentiles to represent std of parameters
+    bi.fit_high{f} = prctile(temp2,97.5);
 end
 
 for f=1:f
@@ -813,7 +816,7 @@ nfs{f}=nf{1};
                     iprefix = '0';
                 end
             end
-            outpath=strcat(handles.profiles.OutputPath,'Bayes_Fit_',strcat(iprefix,num2str(index)), filesep);  
+            outpath=strcat(handles.profiles.OutputPath,'Bayes_Fit_',strcat(iprefix,num2str(index-1)), filesep);  
             mkdir(outpath)
        else
             outpath = [handles.profiles.OutputPath 'FitData' filesep];
@@ -837,37 +840,38 @@ fidmaster3 = fopen(masterfilename3, 'w');
 
        for i=1:length(param_trace)
            % Param_trace
-           line = param_trace(i,:,f);
+           line = param_trace{i,f};
            fprintf(fidmaster1, '%2.8f\t', line(:));
            fprintf(fidmaster1, '\n');
            % Likelihood trace
-           line2 = [logp_trace(i,1,f) sigma2_trace(i,1,f)];
+           line2 = [logp_trace{i,f} sigma2_trace{i,f}];
            fprintf(fidmaster2, '%2.8f\t', line2(:));
            fprintf(fidmaster2, '\n');            
        end
        
-       for o=1:length(bi.ntt)
+       for o=1:length(bi.fit_mean{f})
                        % Fit trace
-           line3 = [bi.ntt(o) bi.fit_mean(f,o) bi.fit_high(f,o) bi.fit_low(f,o) bi.fit_sigma(f,o)];
+           line3 = [bi.nttS{f}(o) bi.fit_mean{f}(o) bi.fit_high{f}(o) bi.fit_low{f}(o) bi.fit_sigma{f}(o)];
            fprintf(fidmaster3, '%2.8f\t', line3(:));
            fprintf(fidmaster3, '\n');   
        end
        
 fclose('all');
 
-obs=bi.nintS(f,:);
-calc=bi.fit_mean(f,:)+Bkg;
+obs=bi.nintS{f};
+Bkg=handles.profiles.FitResults{1}{f}.Background;
+calc=bi.fit_mean{f}+Bkg;
 
 Rp(f)=sum(abs(obs-calc))/sum(obs)*100; % caculate a goodness-of-fit value, the lower the better
-w(:,f)=handles.profiles.FitResults{1}{f}.LSWeights;
-Rwp(f)=sqrt(sum(w(:,f)'.*(obs-calc).^2)/sum(w(:,f)'.*(obs).^2))*100; % caculate a goodness-of-fit value, the lower the better
+w{f}=handles.profiles.FitResults{1}{f}.LSWeights;
+Rwp(f)=sqrt(sum(w{f}'.*(obs-calc).^2)/sum(w{f}'.*(obs).^2))*100; % caculate a goodness-of-fit value, the lower the better
 fprintf('%s %.4f %s\n','LSRp=',handles.profiles.FitResults{1}{f}.Rp,'%')
 fprintf('%s %.4f %s\n','BayesRp=',Rp(f),'%')
 end
 
-bi.param_trace=param_trace;
-bi.sigma2_trace=sigma2_trace;
-bi.logp_trace=logp_trace;
+bi.param_trace=reshape(cell2mat(param_trace), [i, j, f]);
+bi.sigma2_trace=reshape(cell2mat(sigma2_trace), [i, 1, f]);
+bi.logp_trace=reshape(cell2mat(logp_trace), [i, 1 , f]);
 bi.numFile=numFile;
 bi.Rp=Rp;
 bi.Rwp=Rwp;
