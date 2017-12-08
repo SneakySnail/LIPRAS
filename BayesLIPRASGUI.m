@@ -671,10 +671,10 @@ param=bi.SP; % load SP for file, this will change when Bayesian switches to new 
 
 if f==1
 acc=zeros(length(bi.SP),1);
-logp_trace=cell(bi.iterations,1);
+logp_trace=cell(bi.iterations,numFile);
 param_trace = cell(bi.iterations, numFile);
 sigma2_trace = cell(bi.iterations, numFile);
-fit_trace = cell(bi.iterations-bi.burnin);
+fit_trace = cell(bi.iterations-bi.burnin, numFile);
 logp=zeros(bi.iterations,1);
 logp_new=zeros(bi.iterations,1);
 ob_count = zeros(length(param),1); % counter when random parameters are out of bound
