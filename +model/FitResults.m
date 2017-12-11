@@ -235,9 +235,10 @@ end
         end
         
         if xrd.BkgLS % evaluates Poly Bkg based on refined Bkg Coefficients
-           this.CoeffValues(1,1:this.BackgroundOrder+1)=fliplr(this.CoeffValues(1,1:this.BackgroundOrder+1));
+%            this.CoeffValues(1,1:this.BackgroundOrder+1)=fliplr(this.CoeffValues(1,1:this.BackgroundOrder+1));
+%            % not needed
            mu=[mean(this.TwoTheta) std(this.TwoTheta)]; % for centering and scaling
-           this.Background=polyval(this.CoeffValues(1,1:this.BackgroundOrder+1), this.TwoTheta,[],mu); 
+           this.Background=polyval(fliplr(this.CoeffValues(1,1:this.BackgroundOrder+1)), this.TwoTheta,[],mu); 
         else
         end
         this.FitInitial.coeffs = this.CoeffNames;

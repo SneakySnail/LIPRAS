@@ -22,7 +22,7 @@ function varargout = BayesLIPRASGUI(varargin)
 
 % Edit the above text to modify the response to help BayesLIPRASGUI
 
-% Last Modified by GUIDE v2.5 08-Nov-2017 22:03:38
+% Last Modified by GUIDE v2.5 09-Dec-2017 13:11:56
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -56,7 +56,10 @@ function BayesLIPRASGUI_OpeningFcn(hObject, eventdata, handlesB, varargin)
 handlesB.output = hObject;
 handlesB.OD=evalin('base','handles');
 idBkg=handlesB.OD.profiles.xrd.getBackgroundOrder+2; % to remove Bkg Coeffs since they will not be in Bayesian analysis
-handlesB.uitable1.RowName=handlesB.OD.profiles.FitInitial.coeffs;
+handlesB.uitable1.RowName=handlesB.OD.profiles.FitResults{1}{1}.CoeffNames;
+if any(contains(handlesB.uitable1.RowName,'bkg'))
+    idBkg=1;
+end
 handlesB.uitable1.Data=[handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'...
     handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'-handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'...
     handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'+handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)' handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'/1.96];
@@ -69,11 +72,6 @@ handlesB.uitable2.RowName=handlesB.OD.profiles.FitInitial.coeffs;
 handlesB.listbox1.String=handlesB.OD.profiles.FileNames;
 
 % Default from LIPRAS Results on StartUp
-    idBkg=handlesB.OD.profiles.xrd.getBackgroundOrder+2; % to remove Bkg Coeffs since they will not be in Bayesian analysis
-    if handlesB.OD.profiles.xrd.BkgLS==1
-    else
-        idBkg=1;
-    end
     handlesB.uitable1.Data=[handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'...
     handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'-handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'...
     handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'+handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)' handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'/1.96];
@@ -242,12 +240,12 @@ if BD.fault==1
 end
 handlesB.uitable2.Data=BD.acc_ratio;
 handlesB.uitable2.Data(:,2:end)=[];
-handlesB.uitable2.RowName=handlesB.OD.profiles.FitInitial.coeffs;
+handlesB.uitable1.RowName=handlesB.OD.profiles.FitResults{1}{1}.CoeffNames(BD.idBkg:end);
 handlesB.listbox1.String=handlesB.OD.profiles.FileNames;
-handlesB.uitable1.RowName=handlesB.OD.profiles.FitInitial.coeffs;
 
 custB=handlesB.radiobutton4.Value;
 if custB==1||handlesB.radiobutton5.Value
+handlesB.uitable1.RowName=handlesB.OD.profiles.FitResults{1}{1}.CoeffNames(BD.idBkg:end);
 handlesB.uitable1.Data=[handlesB.BD.SP' handlesB.BD.LB' handlesB.BD.UB' handlesB.BD.param_sd'];
 else
 end
@@ -260,9 +258,9 @@ handlesB.edit5.String=handlesB.BD.sigma2lb;
 handlesB.edit6.String=handlesB.BD.sigma2ub;
 
 idBkg=handlesB.OD.profiles.xrd.getBackgroundOrder+2;
-if handlesB.OD.profiles.xrd.BkgLS==1
+if handlesB.radiobutton7.Value==1
+            idBkg=1;
 else
-        idBkg=1;
 end
     
 if length(handlesB.uitable1.Data(:,1))~=length(handlesB.OD.profiles.FitResults{1}{1}.CoeffNames(idBkg:end))
@@ -398,9 +396,13 @@ if handlesB.radiobutton6.Value
     else
     curve1 = handlesB.OD.profiles.FitResults{1}{idF}.FData+handlesB.OD.profiles.FitResults{1}{idF}.Background;
     end
-    curve2 = handlesB.BD.fit_mean{idF}+handlesB.OD.profiles.FitResults{1}{idF}.Background;
-    curve3 = handlesB.BD.fit_low{idF}+handlesB.OD.profiles.FitResults{1}{idF}.Background;
-    curve4 = handlesB.BD.fit_high{idF}+handlesB.OD.profiles.FitResults{1}{idF}.Background;
+    Bkg=handlesB.OD.profiles.FitResults{1}{idF}.Background;
+    
+    if handlesB.radiobutton7.Value==1;Bkg=0;end
+    
+    curve2 = handlesB.BD.fit_mean{idF}+Bkg;
+    curve3 = handlesB.BD.fit_low{idF}+Bkg;
+    curve4 = handlesB.BD.fit_high{idF}+Bkg;
 
    handlesB.Fig3=figure(3);
    clf(handlesB.Fig3)
@@ -434,15 +436,16 @@ function radiobutton3_Callback(hObject, eventdata, handlesB)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handlesB    structure with handlesB and user data (see GUIDATA)
 
-disp('button 3')
+% disp('button 3')
 if handlesB.radiobutton3.Value==0
     handlesB.uitable1.RowName=handlesB.OD.profiles.FitInitial.coeffs;
 
-    idBkg=handlesB.OD.profiles.xrd.getBackgroundOrder+2; % to remove Bkg Coeffs since they will not be in Bayesian analysis
-    if handlesB.OD.profiles.xrd.BkgLS==1
+    idBkg=handlesB.OD.profiles.xrd.getBackgroundOrder+2; % to remove Bkg Coeffs when they will not be in Bayesian analysis
+    if handlesB.radiobutton7.Value==1
+                idBkg=1;
     else
-        idBkg=1;
     end
+    handlesB.uitable1.RowName=handlesB.OD.profiles.FitResults{1}{1}.CoeffNames(idBkg:end);
     handlesB.uitable1.Data=[handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'...
     handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'-handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'...
     handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'+handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)' handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'/1.96];
@@ -571,11 +574,23 @@ numFile=length(handles.profiles.FitResults{1});
 bi.burnin=burnin;
 bi.iterations=iterations;
 
+  idBkg=handlesB.OD.profiles.xrd.getBackgroundOrder+2; % to remove Bkg Coeffs when they will not be in Bayesian analysis
+
+if handlesB.radiobutton7.Value==1
+                    idBkg=1;
+    if any(contains(handles.profiles.FitResults{1}{1}.CoeffNames,'bkg')) % checks to make sure bkg coeffs were refined in LS LIPRAS
+    else
+        warndlg('You can only include the background in the Bayesian analysis if you refined it in the least squares portion of LIPRAS. Either uncheck "Include Bkg" or refine the Background in your model')
+        return
+    end
+end
+
 for f=1:numFile
  
 bi.Eqn=formula(handles.profiles.FitResults{1}{f}.Fmodel); % for when to include Bkg in Bayesian
 bi.Eqn_noBkg=handles.profiles.xrd.getEqnStr; % use this to avoid bkg included in Bayesian
-bi.Eqn=bi.Eqn_noBkg;
+
+if handlesB.radiobutton7.Value==0; bi.Eqn=bi.Eqn_noBkg; end
 
 bi.ntt=handles.profiles.FitResults{1}{f}.TwoTheta;
 bi.nttS{f}=bi.ntt;
@@ -591,7 +606,7 @@ bi.UB=bi.SP+bi.Err*bi.m;
 bi.LB=bi.SP-bi.Err*bi.m;
 bi.param_sd=bi.Err/1.96;
 
-if any(contains(bi.coeff,'bkg') )% ignore Bkg coeffs in Bayesian
+if and(any(contains(bi.coeff,'bkg') ), handlesB.radiobutton7.Value==0)% ignore Bkg coeffs in Bayesian
 bi.coeff(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
 bi.SP(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
 bi.LB(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
@@ -609,7 +624,7 @@ bi.UB=bi.SP+bi.Err*bi.m;
 bi.LB=bi.SP-bi.Err*bi.m;
 bi.param_sd=bi.Err/handlesB.mS;
 
-if any(contains(bi.coeff,'bkg') )% ignore Bkg coeffs in Bayesian
+if and(any(contains(bi.coeff,'bkg') ),handlesB.radiobutton7.Value==0)% ignore Bkg coeffs in Bayesian
 bi.coeff(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
 bi.SP(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
 bi.LB(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
@@ -625,7 +640,7 @@ else
     bi.LB=LB;
     bi.param_sd=SD;
     
-    if any(contains(bi.coeff,'bkg') )% ignore Bkg coeffs in Bayesian
+    if and(any(contains(bi.coeff,'bkg') ),handlesB.radiobutton7.Value==0)% ignore Bkg coeffs in Bayesian
     bi.coeff(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
     end
 end
@@ -683,6 +698,7 @@ sigma2Orig=bi.sigma2;
 end
 
 Bkg=handles.profiles.FitResults{1}{f}.Background;
+if handlesB.radiobutton7.Value==1;Bkg=0;end
 
 for RBay=1:1 % for future release, allow repetitions of Bayesian analysis
     if RBay>1
@@ -724,18 +740,34 @@ for i=1:bi.iterations
     end % ends the for loop for cycling through each variable in the model
     
 %% Draw New Sigma2
-% bi.sigma2_new=gamrnd(0.1+length(bi.nint)/2, 1/(0.1+(0.5*sum((bi.nint-fit_total_new).^2))^-1)); % new sigma2 from normal distribution with mean(sigma2) and sigma(sigma2sd)
+Gibbs=0;
+if Gibbs==1
+if handlesB.radiobutton7.Value==1
+    a=0.1; b=0.1;
+else
+a= sum(sqrt((bi.nint-handles.profiles.FitResults{1}{1}.FData-Bkg).^2));
+a=10000;
+b=0.1;
+end
+bi.sigma2_new=1/gamrnd(a+length(bi.nint)/2, (b+0.5*sum((bi.nint-fit_total_new).^2))^-1); % new sigma2 from normal distribution with mean(sigma2) and sigma(sigma2sd)
 % sigma2_new=1./gamrnd(0.001+length(nint)/2, (0.001+0.5*sum((nint-fit_total_new).^2))^-1);
 % sigma2_new=1/gamrnd(0.1+length(nint)/2, (0.1+0.5*sum((nint-fit_total_new).^2))^-1);
 % tau is sigma to -2 which has gamma(a,b), prob
-
+else
 bi.sigma2_new=normrnd(bi.sigma2,bi.sigma2sd); % new sigma2 from normal distribution with mean(sigma2) and sigma(sigma2sd)
-   
+end   
    % autocorrelation, correlation between samples as a function lag (how
    % far apart they are). Have autocorrelation plot for every parameter.
    % calculate of an effective sample size, if its its high its good or
    % close to the number of actual samples you drew
    
+if Gibbs==1
+        inp_new=[num2cell(param,1) {xv}];  % Formatting for vectorization
+        fit_total_new=FxnF(inp_new{:}); % Compute the model with current parameters
+        fit_total_new=fit_total_new(1,:);
+        logp_new(i)=LogLike(bi.nint, fit_total_new(1,:)+Bkg, bi.sigma2_new);  % calculate Loglikelihood
+        prob=min(exp(logp_new(i)-logp(i)),1); % calculate probability
+else
     if bi.sigma2_new>bi.sigma2ub || bi.sigma2_new < bi.sigma2lb % checks to insure newly generated variable is withing range 
         ob_count(num_var)=ob_count(num_var)+1;
         prob=1E-100;
@@ -746,9 +778,10 @@ bi.sigma2_new=normrnd(bi.sigma2,bi.sigma2sd); % new sigma2 from normal distribut
         fit_total_new=fit_total_new(1,:);
         logp_new(i)=LogLike(bi.nint, fit_total_new(1,:)+Bkg, bi.sigma2_new);  % calculate Loglikelihood
         prob=min(exp(logp_new(i)-logp(i)),1); % calculate probability
-
     end
-
+end
+if Gibbs==1;prob=1;end % so it always accepts
+  
 r=rand(1); % generate random number 
 if r<=prob % accepts sigma2 if prob is greater than or equal to r
 bi.sigma2=bi.sigma2_new;
@@ -860,6 +893,8 @@ fclose('all');
 
 obs=bi.nintS{f};
 Bkg=handles.profiles.FitResults{1}{f}.Background;
+if handlesB.radiobutton7.Value==1;Bkg=0;end
+
 calc=bi.fit_mean{f}+Bkg;
 
 Rp(f)=sum(abs(obs-calc))/sum(obs)*100; % caculate a goodness-of-fit value, the lower the better
@@ -873,6 +908,7 @@ bi.param_trace=reshape(cell2mat(param_trace), [i, j, f]);
 bi.sigma2_trace=reshape(cell2mat(sigma2_trace), [i, 1, f]);
 bi.logp_trace=reshape(cell2mat(logp_trace), [i, 1 , f]);
 bi.numFile=numFile;
+bi.idBkg=idBkg;
 bi.Rp=Rp;
 bi.Rwp=Rwp;
 bi.fault=0;
@@ -940,14 +976,21 @@ function popupmenu2_Callback(hObject, eventdata, handlesB)
 % handles    structure with handles and user data (see GUIDATA)
 handlesB.m=str2double(hObject.String{hObject.Value});
 
-    idBkg=handlesB.OD.profiles.xrd.getBackgroundOrder+2; % to remove Bkg Coeffs since they will not be in Bayesian analysis
-    if handlesB.OD.profiles.xrd.BkgLS==1
-    else
-        idBkg=1;
-    end
-    handlesB.uitable1.Data(:,2:3)=[handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'-handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'*handlesB.m...
-    handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'+handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'*handlesB.m];
 
+    idBkg=handlesB.OD.profiles.xrd.getBackgroundOrder+2; % to remove Bkg Coeffs since they will not be in Bayesian analysis
+    if handlesB.radiobutton7.Value==1
+                idBkg=1;
+    else
+        if any(contains(handlesB.uitable1.RowName,'bkg'))
+        handlesB.uitable1.RowName=handlesB.OD.profiles.FitResults{1}{1}.CoeffNames(idBkg:end);
+        end
+    end
+    handlesB.uitable1.RowName=handlesB.OD.profiles.FitResults{1}{1}.CoeffNames(idBkg:end);
+    handlesB.uitable1.Data=[handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)',...
+    handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'-handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'*handlesB.m,...
+    handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'+handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'*handlesB.m,...
+    handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'/handlesB.mS];
+   
 
 assignin('base','handlesB',handlesB);
 guidata(hObject, handlesB);
@@ -980,11 +1023,18 @@ handlesB.mS=str2double(hObject.String{hObject.Value});
 
 
     idBkg=handlesB.OD.profiles.xrd.getBackgroundOrder+2; % to remove Bkg Coeffs since they will not be in Bayesian analysis
-    if handlesB.OD.profiles.xrd.BkgLS==1
+    if handlesB.radiobutton7.Value==1
+                idBkg=1;
     else
-        idBkg=1;
+        if any(contains(handlesB.uitable1.RowName,'bkg'))
+        handlesB.uitable1.RowName=handlesB.OD.profiles.FitResults{1}{1}.CoeffNames(idBkg:end);
+        end
     end
-    handlesB.uitable1.Data(:,4)=handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'/handlesB.mS;
+    handlesB.uitable1.RowName=handlesB.OD.profiles.FitResults{1}{1}.CoeffNames(idBkg:end);
+    handlesB.uitable1.Data=[handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)',...
+       handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'-handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)',...
+       handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'+handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)',...
+       handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'/handlesB.mS];
 
 
 
@@ -1009,3 +1059,12 @@ guidata(hObject, handlesB);
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in radiobutton7.
+function radiobutton7_Callback(hObject, eventdata, handles)
+% hObject    handle to radiobutton7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of radiobutton7

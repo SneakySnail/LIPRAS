@@ -59,7 +59,7 @@ classdef Background
         bkgdArray = [];
         
         if ~isempty(this.xrd.BkgCoeff)&& this.xrd.BkgLS % for when viewing Bkg after refining it
-            P=this.xrd.BkgCoeff;
+            P=fliplr(this.xrd.BkgCoeff);
             if length(this.xrd.BkgCoeff)~=this.Order+1 % for when
                 order = this.Order;
                 x = this.InitialPoints;
