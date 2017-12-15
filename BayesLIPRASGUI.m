@@ -22,7 +22,7 @@ function varargout = BayesLIPRASGUI(varargin)
 
 % Edit the above text to modify the response to help BayesLIPRASGUI
 
-% Last Modified by GUIDE v2.5 09-Dec-2017 13:11:56
+% Last Modified by GUIDE v2.5 15-Dec-2017 11:44:27
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -57,6 +57,10 @@ handlesB.output = hObject;
 handlesB.OD=evalin('base','handles');
 idBkg=handlesB.OD.profiles.xrd.getBackgroundOrder+2; % to remove Bkg Coeffs since they will not be in Bayesian analysis
 handlesB.uitable1.RowName=handlesB.OD.profiles.FitResults{1}{1}.CoeffNames;
+
+handlesB.uitable2.ColumnName='Acc. Ratio';
+handlesB.uitable2.RowName=handlesB.uitable1.RowName;
+
 if any(contains(handlesB.uitable1.RowName,'bkg'))
     idBkg=1;
 end
@@ -65,8 +69,7 @@ handlesB.uitable1.Data=[handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:
     handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'+handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)' handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'/1.96];
 handlesB.radiobutton3.Value=1;
 
-handlesB.uitable2.ColumnName='Acc. Ratio';
-handlesB.uitable2.RowName=handlesB.OD.profiles.FitInitial.coeffs;
+
 
 
 handlesB.listbox1.String=handlesB.OD.profiles.FileNames;
@@ -241,6 +244,7 @@ end
 handlesB.uitable2.Data=BD.acc_ratio;
 handlesB.uitable2.Data(:,2:end)=[];
 handlesB.uitable1.RowName=handlesB.OD.profiles.FitResults{1}{1}.CoeffNames(BD.idBkg:end);
+handlesB.uitable2.RowName=handlesB.uitable1.RowName;
 handlesB.listbox1.String=handlesB.OD.profiles.FileNames;
 
 custB=handlesB.radiobutton4.Value;
@@ -420,6 +424,9 @@ if handlesB.radiobutton6.Value
    fill(x2, inBetweenUp, [0.5 0.5 0.5]);
    alpha(0.25)
    set(gca,'XLim',[ handlesB.OD.profiles.Min2T  handlesB.OD.profiles.Max2T])
+text(x(1),curve(1)+curve(1)*.55,['LSRp=',num2str(round(handlesB.OD.profiles.FitResults{1}{idF}.Rp,4)),'%'])
+text(x(1),curve(1)+curve(1)*.35,['BayesRp=',num2str(round(handlesB.BD.Rp,4)),'%'])
+% fprintf('%s %.4f %s\n','BayesRp=',Rp(f),'%')
    xlabel('2\theta (°)')
    ylabel('Intensity (a.u.)')
    box('on')
@@ -581,6 +588,8 @@ if handlesB.radiobutton7.Value==1
     if any(contains(handles.profiles.FitResults{1}{1}.CoeffNames,'bkg')) % checks to make sure bkg coeffs were refined in LS LIPRAS
     else
         warndlg('You can only include the background in the Bayesian analysis if you refined it in the least squares portion of LIPRAS. Either uncheck "Include Bkg" or refine the Background in your model')
+        bi.fault=1;
+        close(h)
         return
     end
 end
@@ -740,7 +749,7 @@ for i=1:bi.iterations
     end % ends the for loop for cycling through each variable in the model
     
 %% Draw New Sigma2
-Gibbs=0;
+Gibbs=handlesB.radiobutton8.Value;
 if Gibbs==1
 if handlesB.radiobutton7.Value==1
     a=0.1; b=0.1;
@@ -1068,3 +1077,12 @@ function radiobutton7_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of radiobutton7
+
+
+% --- Executes on button press in radiobutton8.
+function radiobutton8_Callback(hObject, eventdata, handles)
+% hObject    handle to radiobutton8 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of radiobutton8
