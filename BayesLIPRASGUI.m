@@ -424,10 +424,16 @@ if handlesB.radiobutton6.Value
    fill(x2, inBetweenUp, [0.5 0.5 0.5]);
    alpha(0.25)
    set(gca,'XLim',[ handlesB.OD.profiles.Min2T  handlesB.OD.profiles.Max2T])
-text(x(1),curve(1)+curve(1)*.55,['LSRp=',num2str(round(handlesB.OD.profiles.FitResults{1}{idF}.Rp,4)),'%'])
-text(x(1),curve(1)+curve(1)*.35,['BayesRp=',num2str(round(handlesB.BD.Rp,4)),'%'])
-% fprintf('%s %.4f %s\n','BayesRp=',Rp(f),'%')
-   xlabel('2\theta (°)')
+Dim=get(gca);
+   
+Rp1=['Rp_{LS}= ',num2str(round(handlesB.OD.profiles.FitResults{1}{idF}.Rp,4)),'%'];
+Rp2=['Rp_{Bayes}= ',num2str(round(handlesB.BD.Rp,4)),'%'];
+t1=text(Dim.XLim(1)*1.005 ,Dim.YLim(2)*0.95,Rp1);
+t2=text(Dim.XLim(1)*1.005,Dim.YLim(2)*0.9,Rp2);
+t1.FontSize=10.5;t1.FontWeight='bold';
+t2.FontSize=10.5;t2.FontWeight='bold';
+
+xlabel('2\theta (°)')
    ylabel('Intensity (a.u.)')
    box('on')
    title(['Comparing Fits ' 'for ' handlesB.OD.profiles.FileNames{idF}])

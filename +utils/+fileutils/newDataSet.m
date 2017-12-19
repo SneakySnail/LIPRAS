@@ -56,27 +56,27 @@ for i=1:length(filename)
     fullFileName = strcat(path, filename{i});
     fid = fopen(fullFileName, 'r');
     
-    if strcmp(ext, '.csv')|| strcmp(ext, '.xls')||strcmp(ext, '.xlsx') % For MAC, .csv should not be selected
+    if strcmpi(ext, '.csv')|| strcmpi(ext, '.xls')||strcmpi(ext, '.xlsx') % For MAC, .csv should not be selected
         datatemp = readSpreadsheet(fullFileName);
-    elseif strcmp(ext, '.txt')
+    elseif strcmpi(ext, '.txt')
 
         datatemp = readTXT(i,fullFileName);
-    elseif strcmp(ext, '.xy')||strcmp(ext, '.xye')
+    elseif strcmpi(ext, '.xy')||strcmpi(ext, '.xye')
         datatemp = readFile(fid, ext);
-    elseif strcmp(ext, '.fxye')
+    elseif strcmpi(ext, '.fxye')
         datatemp = readFXYE(i,fullFileName);
         try
         data.Temperature=datatemp.temperature;
         data.Wavelength=datatemp.wave;
         catch
         end
-    elseif strcmp(ext, '.chi')
+    elseif strcmpi(ext, '.chi')
         datatemp = readFile(fid, ext);
         datatemp.error=sqrt(datatemp.data_fit);
 
-    elseif strcmp(ext, '.dat')
+    elseif strcmpi(ext, '.dat')
         datatemp = readFile(fid, ext);
-    elseif strcmp(ext, '.xrdml')
+    elseif strcmpi(ext, '.xrdml')
         datatemp = parseXRDML(fullFileName);
     end
     
