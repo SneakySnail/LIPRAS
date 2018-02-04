@@ -301,6 +301,9 @@ end
 handlesB.ax1(k)=subplot(subD,subD,k);
 v=histogram(handlesB.ax1(k),BD.param_trace(BD.burnin:end,k),nbins);
 title(handlesB.ax1(k),BD.coeffOrig{k})
+if handlesB.radiobutton7.Value==0
+    k=k+(length(handlesB.OD.profiles.FitResults{1}{idF}.CoeffValues)-length(handlesB.BD.SP));
+end
 
 hold on
 errorbar(handlesB.OD.profiles.FitResults{1}{idF}.CoeffValues(k),max(v.BinCounts)*1.1,handlesB.OD.profiles.FitResults{1}{idF}.CoeffError(k),...
@@ -374,6 +377,9 @@ end
 handlesB.ax1(k)=subplot(subD,subD,k);
 v=histogram(handlesB.ax1(k),handlesB.BD.param_trace(handlesB.BD.burnin:end,k,idF),nbins);
 title(handlesB.ax1(k),handlesB.BD.coeffOrig{k})
+if handlesB.radiobutton7.Value==0
+    k=k+(length(handlesB.OD.profiles.FitResults{1}{idF}.CoeffValues)-length(handlesB.BD.SP));
+end
 hold on
 errorbar(handlesB.OD.profiles.FitResults{1}{idF}.CoeffValues(k),max(v.BinCounts)*1.1,handlesB.OD.profiles.FitResults{1}{idF}.CoeffError(k),...
     'horizontal','Marker','o','MarkerSize',2,'MarkerFaceColor','auto');
