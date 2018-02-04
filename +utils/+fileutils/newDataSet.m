@@ -324,7 +324,18 @@ end
 listPosElement = dom.getElementsByTagName('listPositions').item(0);
 if isempty(listPosElement)
     % Assuming the first item under the element 'positions' has the attribute '2Theta'
-    pos2thetaElement = dom.getElementsByTagName('positions').item(0);
+    scanType=dom.getElementsByTagName('scan').item(0).getAttribute('scanAxis');
+    if  scanType=='Gonio' ||scanType=='2Theta' 
+        pos2thetaElement = dom.getElementsByTagName('positions').item(0);
+    elseif scanType=='2Theta-Omega' 
+        pos2thetaElement = dom.getElementsByTagName('positions').item(0);
+    elseif scanType=='Phi' 
+        pos2thetaElement = dom.getElementsByTagName('positions').item(2);
+    elseif scanType=='Chi' 
+        pos2thetaElement = dom.getElementsByTagName('positions').item(3);
+    else
+        pos2thetaElement = dom.getElementsByTagName('positions').item(1);
+    end
     startPosElement = pos2thetaElement.getElementsByTagName('startPosition').item(0);
     startPosValue = str2double(startPosElement.getTextContent);
     endPosElement = pos2thetaElement.getElementsByTagName('endPosition').item(0);

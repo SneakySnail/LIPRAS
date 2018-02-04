@@ -299,9 +299,13 @@ if k >subD^2
     return
 end
 handlesB.ax1(k)=subplot(subD,subD,k);
-histogram(handlesB.ax1(k),BD.param_trace(BD.burnin:end,k),nbins)
+v=histogram(handlesB.ax1(k),BD.param_trace(BD.burnin:end,k),nbins);
 title(handlesB.ax1(k),BD.coeffOrig{k})
 
+hold on
+errorbar(handlesB.OD.profiles.FitResults{1}{idF}.CoeffValues(k),max(v.BinCounts)*1.1,handlesB.OD.profiles.FitResults{1}{idF}.CoeffError(k),...
+    'horizontal','Marker','o','MarkerSize',2,'MarkerFaceColor','auto');
+hold off
 
 end
 else
@@ -368,8 +372,12 @@ if k >subD^2
     return
 end
 handlesB.ax1(k)=subplot(subD,subD,k);
-histogram(handlesB.ax1(k),handlesB.BD.param_trace(handlesB.BD.burnin:end,k,idF),nbins)
+v=histogram(handlesB.ax1(k),handlesB.BD.param_trace(handlesB.BD.burnin:end,k,idF),nbins);
 title(handlesB.ax1(k),handlesB.BD.coeffOrig{k})
+hold on
+errorbar(handlesB.OD.profiles.FitResults{1}{idF}.CoeffValues(k),max(v.BinCounts)*1.1,handlesB.OD.profiles.FitResults{1}{idF}.CoeffError(k),...
+    'horizontal','Marker','o','MarkerSize',2,'MarkerFaceColor','auto');
+hold off
 
 end
 else
@@ -427,7 +435,7 @@ if handlesB.radiobutton6.Value
 Dim=get(gca);
    
 Rp1=['Rp_{LS}= ',num2str(round(handlesB.OD.profiles.FitResults{1}{idF}.Rp,4)),'%'];
-Rp2=['Rp_{Bayes}= ',num2str(round(handlesB.BD.Rp,4)),'%'];
+Rp2=['Rp_{Bayes}= ',num2str(round(handlesB.BD.Rp(idF),4)),'%'];
 t1=text(Dim.XLim(1)*1.005 ,Dim.YLim(2)*0.95,Rp1);
 t2=text(Dim.XLim(1)*1.005,Dim.YLim(2)*0.9,Rp2);
 t1.FontSize=10.5;t1.FontWeight='bold';
