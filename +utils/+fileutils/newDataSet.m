@@ -325,7 +325,7 @@ listPosElement = dom.getElementsByTagName('listPositions').item(0);
 if isempty(listPosElement)
     % Assuming the first item under the element 'positions' has the attribute '2Theta'
     scanType=dom.getElementsByTagName('scan').item(0).getAttribute('scanAxis');
-    if  scanType=='Gonio' ||scanType=='2Theta' 
+    if  strcmp(scanType, 'Gonio') || strcmp(scanType, '2Theta') 
         pos2thetaElement = dom.getElementsByTagName('positions').item(0);
     elseif scanType=='2Theta-Omega' 
         pos2thetaElement = dom.getElementsByTagName('positions').item(0);
