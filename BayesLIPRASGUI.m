@@ -299,7 +299,7 @@ if k >subD^2
     return
 end
 handlesB.ax1(k)=subplot(subD,subD,k);
-v=histogram(handlesB.ax1(k),BD.param_trace(BD.burnin:end,k),nbins);
+v=histogram(handlesB.ax1(k),BD.param_trace(BD.burnin:end,k,idF),nbins);
 title(handlesB.ax1(k),BD.coeffOrig{k})
 if handlesB.radiobutton7.Value==0
     k=k+(length(handlesB.OD.profiles.FitResults{1}{idF}.CoeffValues)-length(handlesB.BD.SP));
@@ -319,7 +319,7 @@ if k >subD^2
     return
 end
 handlesB.ax(k)=subplot(subD,subD,k);
-plot(BD.param_trace(BD.burnin:end,k))
+plot(BD.param_trace(BD.burnin:end,k,idF))
 title(BD.coeffOrig{k})
 end
 handlesB.ax(k+1)=subplot(subD,subD,k+1);
@@ -329,7 +329,11 @@ linkaxes(handlesB.ax,'x')
 end
 
 numC=length(handlesB.BD.coeff);
+try
 numAx=length(handlesB.ax);
+catch
+numAx=length(handlesB.ax1);    
+end
 if numC~=numAx && numC+1<numAx    
     dif=numAx-numC-2;
     
@@ -352,7 +356,12 @@ nbins=20;
 
 try
 numC=length(handlesB.BD.coeff);
+try
 numAx=length(handlesB.ax);
+catch
+    numAx=length(handlesB.ax1);
+end
+
 catch
     warndlg('Run a Bayesian Analysis before attemping to plot','!! Warning !!')
     return
@@ -360,6 +369,7 @@ end
 if numC~=numAx && numC<numAx    
     dif=numAx-numC;
     delete(handlesB.ax(end-dif:end))
+    delete(handlesB.ax1(end-dif:end))
 end
 
 utils.minfig(handlesB.OD.figure1,1); % last attempt to minimizes the LIPRAS-LS GUI, subplots need to be plotted in BayesGUI or it will destroy the figure in LIPRAS LS
