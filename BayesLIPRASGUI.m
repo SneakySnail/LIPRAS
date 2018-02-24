@@ -368,8 +368,8 @@ catch
 end
 if numC~=numAx && numC<numAx    
     dif=numAx-numC;
-    delete(handlesB.ax(end-dif:end))
-    delete(handlesB.ax1(end-dif:end))
+    try delete(handlesB.ax(end-dif:end)); catch; end
+    try delete(handlesB.ax1(end-dif:end)); catch; end
 end
 
 utils.minfig(handlesB.OD.figure1,1); % last attempt to minimizes the LIPRAS-LS GUI, subplots need to be plotted in BayesGUI or it will destroy the figure in LIPRAS LS
