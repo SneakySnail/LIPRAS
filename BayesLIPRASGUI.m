@@ -377,7 +377,7 @@ utils.minfig(handlesB.figure1,0);
 utils.maxfig(handlesB.figure1,1);
 
 if handlesB.radiobutton1.Value
-linkaxes(handlesB.ax,'off')
+try linkaxes(handlesB.ax,'off'); catch;end
 
 for k=1:length(handlesB.BD.SP)
 if k >subD^2
@@ -784,14 +784,13 @@ if Gibbs==1
 if handlesB.radiobutton7.Value==1
     a=0.1; b=0.1;
 else
-a= sum(sqrt((bi.nint-handles.profiles.FitResults{1}{1}.FData-Bkg).^2));
-a=10000;
+a= sum(sqrt((bi.nint-handles.profiles.FitResults{1}{1}.FData-Bkg).^2)); % needed when bkg was not refined in least-squares because
+                                                                                                                                                        % modeled background produce alot of deviation from data
+% a=10000;
 b=0.1;
 end
-bi.sigma2_new=1/gamrnd(a+length(bi.nint)/2, (b+0.5*sum((bi.nint-fit_total_new).^2))^-1); % new sigma2 from normal distribution with mean(sigma2) and sigma(sigma2sd)
-% sigma2_new=1./gamrnd(0.001+length(nint)/2, (0.001+0.5*sum((nint-fit_total_new).^2))^-1);
-% sigma2_new=1/gamrnd(0.1+length(nint)/2, (0.1+0.5*sum((nint-fit_total_new).^2))^-1);
-% tau is sigma to -2 which has gamma(a,b), prob
+bi.sigma2_new=1/gamrnd(a+length(bi.nint)/2, (b+0.5*sum((bi.nint-fit_total_new).^2))^-1); % inverse gamma sampling for Gibbs
+
 else
 bi.sigma2_new=normrnd(bi.sigma2,bi.sigma2sd); % new sigma2 from normal distribution with mean(sigma2) and sigma(sigma2sd)
 end   

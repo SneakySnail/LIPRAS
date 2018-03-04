@@ -378,7 +378,7 @@ if isempty(handles.profiles.FitResults)
 elseif ~isempty(handles.profiles.FitResults) && ~isFitD&& ~handles.profiles.xrd.BkgLS % should only pin after fit and with same profile and coefficients and BkgLS
          if strcmp(origin,'peakselect') % for scenarios in which Refine background is selected and user wants to hard reset by using peak selection
         handles.gui.FitInitial=handles.profiles.xrd.FitInitial; % update the table with fit results
-        handles.gui.FitInitial = handles.gui.FitInitial;
+%         handles.gui.FitInitial = handles.gui.FitInitial;
          else
                 if  isequal(handles.profiles.xrd.FitInitial.coeffs,handles.profiles.xrd.OriginalFitInitial.coeffs)
                         try

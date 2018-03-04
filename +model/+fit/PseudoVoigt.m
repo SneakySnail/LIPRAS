@@ -56,6 +56,7 @@ classdef PseudoVoigt < model.fit.FitFunctionInterface
         output.x = value.x;
         output.f = value.f;
         output.w = value.w;
+
         end
         
         function output = getDefaultLowerBounds(this, data, peakpos)
@@ -74,6 +75,7 @@ classdef PseudoVoigt < model.fit.FitFunctionInterface
         output.x = value.x;
         output.f = value.f;
         output.w = value.w;
+
         end
     end
     

@@ -93,7 +93,8 @@ for i=1:length(filename)
         data.error=sqrt(datatemp.data_fit);
         data.error= mat2cell(data.error,ones(size(data.error,1),1));
         data.data_fit= mat2cell(data.data_fit,ones(size(data.data_fit,1),1));
-            
+        data.scanType=datatemp.scanType;
+   
         else % for XRDML that are single scans
         data.two_theta{i} = datatemp.two_theta;
         data.data_fit{i}=datatemp.data_fit;
@@ -103,7 +104,7 @@ for i=1:length(filename)
         data.RKa1Ka2(i,:)=datatemp.RKa1Ka2;
         data.ext = ext;
         data.error{i}=sqrt(datatemp.data_fit);
-
+        data.scanType=datatemp.scanType;
         end
     else
         data.two_theta{i} = datatemp.two_theta;
@@ -358,7 +359,12 @@ ka2 = str2double(dom.getElementsByTagName('kAlpha2').item(0).getTextContent);
 kbeta = str2double(dom.getElementsByTagName('kBeta').item(0).getTextContent);
 ratio = str2double(dom.getElementsByTagName('ratioKAlpha2KAlpha1').item(0).getTextContent);
 
+try 
+    scanType; 
+catch
+    scanType=java.lang.String('Gonio');
+end
 % Save values into a struct
 data = struct('KAlpha1',ka1,'KAlpha2',ka2,'kBeta',kbeta,'RKa1Ka2',ratio,'two_theta',twotheta,...
-    'data_fit',intensity,'Temperature',temperature,'ext','');
+    'data_fit',intensity,'Temperature',temperature,'ext','','scanType',scanType);
 end

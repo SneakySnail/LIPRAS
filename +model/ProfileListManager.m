@@ -17,6 +17,7 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        GUIColor=[1 1 1]; % default GUI color by MATLAB
        Errors=[];
        FitResults % each profile results in a cell
+       XRDMLScan
        
    end
    
@@ -216,6 +217,7 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
            this.kBeta = data(1).kBeta;
            this.RKa1Ka2 = data(1).RKa1Ka2;
            this.CuKa = true;
+           this.XRDMLScan=data.scanType;
        else
            this.CuKa = false;
        end

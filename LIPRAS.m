@@ -86,7 +86,7 @@ handles.OrigCD=cd;
 
 assignin('base','handles',handles);
 % Update handles structure
-checkforupdates(1,1,handles,'Short')
+checkforupdates(1,1,handles,'Silent')
 handles.NoEqualData=0;
 guidata(hObject, handles);
 
@@ -145,6 +145,7 @@ handles.gui.PriorityStatus = 'Browsing for dataset... ';
 if isfield(evt, 'test')
     isNew = handles.profiles.newXRD(evt.path, evt.filename);
 else
+    handles.profiles.XRDMLScan=[]; % for when reading in different datasets, this should always reset to nothing
     isNew = handles.profiles.newXRD();
 end
 if isNew % if not the same dataset as before
@@ -1083,7 +1084,8 @@ if and(isequal(str2double(b{2}),cV),strcmp(ini,'na'))
            'Position',[125 10 100 30],...
            'String','Close','FontSize',12,...
            'Callback','delete(gcf)');
-
+elseif and(~isequal(str2double(b{2}),cV),strcmp(ini,'Silent'))
+    handles.profiles.Status='<html><strong>New version available, check for updates under "Help". Otherwise, import file(s) to start using "Browse"</strong></html>';
 elseif ~isequal(str2double(b{2}),cV)
             d = dialog('Position',[550 550 350 150],'Name','LIPRAS');
             txt = uicontrol('Parent',d,...

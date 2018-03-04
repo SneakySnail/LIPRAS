@@ -323,6 +323,7 @@ classdef FitFunctionInterface < handle
         result.f = result.N/ max(ydata(xlowi_:xupi_));
         result.w = FitFunctionInterface.DEFAULT_VALUE_W;
         result.m = FitFunctionInterface.DEFAULT_VALUE_M;
+        result.a=1;
         end
         
         function result = getDefaultLowerBounds(this, data, peakpos)
@@ -337,6 +338,7 @@ classdef FitFunctionInterface < handle
         result.f = 0.01;
         result.w = 0;
         result.m = 0.5;
+        result.a=-15;
         end
         
         function result = getDefaultUpperBounds(this, data, peakpos)
@@ -349,6 +351,7 @@ classdef FitFunctionInterface < handle
         result.f = initial.f * 2;
         result.w = 1;
         result.m = FitFunctionInterface.DEFAULT_VALUE_M * 10;
+        result.a=15;
         end
         
         function result = isAsymmetric(this)
