@@ -159,15 +159,16 @@ if isNew % if not the same dataset as before
 else
     handles.gui.PriorityStatus = '';
 end
-
+if handles.profiles.NumFiles~=0 && isNew~=0 % this is for when canceling browse file before a file has been inputtedd..only on startup
 for k=1:handles.profiles.NumFiles
-    cF(k)=isequal(handles.profiles.dataReadin.two_theta{1},handles.profiles.dataReadin.two_theta{k});
+    cF(k)=isequal(handles.profiles.dataReadin.two_theta{1},handles.profiles.dataReadin.two_theta{k}); % test to make sure data is equal for inputted x values
 end
 if sum(double(cF))~=k
 h=warndlg({'You have entered files that do not have the same number of points. CAUTION when using a fitting range', 'Check your 2-Theta range!!!'},'!! Warning !!');
 handles.NoEqualData=1;
 else
     handles.NoEqualData=0;
+end
 end
 assignin('base','handles',handles);
 guidata(hObject,handles)
@@ -996,10 +997,14 @@ textb=10;
             web('https://www.mathworks.com/help/curvefit/evaluating-goodness-of-fit.html','-browser')
         function web4(~,~)
             try
-                open('LIPRAS_Manual_5.pdf')
-                disp('worked')
+                manu=dir('*manual*.pdf');
+                open(manu.name)
             catch
-            web('https://github.com/SneakySnail/LIPRAS/blob/master/LIPRAS_Manual_5.pdf','-browser')
+                try
+            web(['https://github.com/SneakySnail/LIPRAS/blob/master/' manu.name ],'-browser')
+                catch
+            web('https://github.com/SneakySnail/LIPRAS/blob/master/LIPRAS_Manual_6.pdf','-browser')
+                end
             end
         function webupdate(~,~)
             web('http://www.mathworks.com/matlabcentral/fileexchange/62162-line-profile-analysis-software--lipras-','-browser')

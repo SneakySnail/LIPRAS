@@ -515,21 +515,20 @@ classdef AxPlotter < matlab.mixin.SetGet
         switch this.XScale
             case 'linear'
                 set([axx.XLabel], 'String', '2\theta (\circ)');
-            case 'dspace'
-                set([axx.XLabel], 'String', ['D-Space (' char(197) ')']);
-        end
-            if ~isempty(this.profiles.XRDMLScan) % For changing XLabel on different XRDML scans
-%                 this.profiles.XRDMLScan=java.lang.String('Phi'); % For testing
-               if strcmp(this.profiles.XRDMLScan, 'Gonio') || strcmp(this.profiles.XRDMLScan, '2Theta') 
+                if ~isempty(this.profiles.XRDMLScan) % For changing XLabel on different XRDML scans
+                if strcmp(this.profiles.XRDMLScan, 'Gonio') || strcmp(this.profiles.XRDMLScan, '2Theta') 
                                    set([axx.XLabel], 'String', '2\theta (\circ)');
-               elseif this.profiles.XRDMLScan=='Omega'
+                elseif this.profiles.XRDMLScan=='Omega'
                                    set([axx.XLabel], 'String', '\omega (\circ)');
-               elseif this.profiles.XRDMLScan=='Chi'
+                elseif this.profiles.XRDMLScan=='Chi'
                                    set([axx.XLabel], 'String', '\chi (\circ)');
-               elseif this.profiles.XRDMLScan=='Phi'
+                elseif this.profiles.XRDMLScan=='Phi'
                                    set([axx.XLabel], 'String', '\phi (\circ)');
-               end
-            end
+                end
+                end
+            case 'dspace'
+                set([axx.XLabel], 'String', ['{\itd}-space (' char(197) ')']);
+        end
         drawnow limitrate % limit rate added for speed
         warning(state.state, state.identifier);
         end
