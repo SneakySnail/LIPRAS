@@ -164,12 +164,28 @@ for k=1:handles.profiles.NumFiles
     cF(k)=isequal(handles.profiles.dataReadin.two_theta{1},handles.profiles.dataReadin.two_theta{k}); % test to make sure data is equal for inputted x values
 end
 if sum(double(cF))~=k
-h=warndlg({'You have entered files that do not have the same number of points. CAUTION when using a fitting range', 'Check your 2-Theta range!!!'},'!! Warning !!');
+h=warndlg({'You have entered files that do not have the same number of points AND/OR different X-values. CAUTION when using a fitting range', 'Check your 2-Theta range!!!'},'!! Warning !!');
 handles.NoEqualData=1;
 else
     handles.NoEqualData=0;
 end
 end
+
+if ~isempty(handles.profiles.XRDMLScan)
+    FiID=handles.profiles.XRDMLScan{handles.popup_filename.Value};
+    if ~isempty(FiID)
+        if strcmp(FiID,'Gonio')||strcmp(FiID,'2Theta')
+                        handles.text4.String=['2' char(952) 'Range:'];
+        elseif FiID=='Omega'
+                        handles.text4.String=[char(969) 'Range:'];
+        elseif FiID=='Chi'
+                        handles.text4.String=[char(967) 'Range:'];            
+        elseif FiID=='Phi'
+                        handles.text4.String=[char(966) 'Range:'];
+        end
+    end
+end
+
 assignin('base','handles',handles);
 guidata(hObject,handles)
 
@@ -194,7 +210,7 @@ function push_newbkgd_Callback(hObject, eventdata, handles)
 import utils.plotutils.*
 plotX(handles,'data');
 % handles.checkbox_superimpose.Value = 0;
-handles.gui.PriorityStatus = 'Selecting background points... Press the ESC key to cancel, "Z" to toogle zoom capability, and "Enter" to finish.';
+handles.gui.PriorityStatus = 'Selecting background points... Press the ESC key to cancel, "Z" to toogle zoom capability, and "Enter" to finish. Right-clicking can be used to delete points.';
 mode = get(handles.group_bkgd_edit_mode.SelectedObject, 'String');
 points = selectBackgroundPoints(handles, mode);
 if length(points) == 1 && isnan(points)
@@ -600,6 +616,23 @@ end
 function popup_filename_Callback(hObject, eventdata, handles)
 handles.gui.CurrentFile = hObject.Value;
 handles.profiles.xrd.CurrentPro=hObject.Value;
+
+if ~isempty(handles.profiles.XRDMLScan)
+    FiID=handles.profiles.XRDMLScan{handles.popup_filename.Value};
+        if strcmp(FiID,'Gonio')||strcmp(FiID,'2Theta')
+                        handles.text4.String=['2' char(952) 'Range:'];
+        elseif FiID=='Omega'
+                        handles.text4.String=[char(969) 'Range:'];
+        elseif FiID=='Chi'
+                        handles.text4.String=[char(967) 'Range:'];           
+        elseif FiID=='Phi'
+                        handles.text4.String=[char(966) 'Range:'];
+        end
+handles.gui.Plotter.updateXLabel(handles.axes1)
+else
+     handles.text4.String=['2' char(952) 'Range:'];
+end
+
 superimposed=strcmp(handles.menuPlot_superimpose.Checked,'on'); 
 if superimposed
     utils.plotutils.plotX(handles, 'superimpose');

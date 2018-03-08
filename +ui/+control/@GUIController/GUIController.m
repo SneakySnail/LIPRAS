@@ -504,6 +504,8 @@ classdef GUIController < handle
             if isfield(input, 'start') && ~isempty(input.start)
                  startpoints = num2cell(input.start)';
                  emptyIdx = cellfun(@(c)c<0, startpoints);
+%                  emptyIdx(find(contains(input.coeffs,'x')==1))=0; % to
+%                  allow negative peak position, and potentially, intensity
                  startpoints(emptyIdx) = {[]};
                  hObject.Data(:, 1) = startpoints;
             else

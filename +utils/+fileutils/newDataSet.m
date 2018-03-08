@@ -93,7 +93,11 @@ for i=1:length(filename)
         data.error=sqrt(datatemp.data_fit);
         data.error= mat2cell(data.error,ones(size(data.error,1),1));
         data.data_fit= mat2cell(data.data_fit,ones(size(data.data_fit,1),1));
-        data.scanType=datatemp.scanType;
+        data.scanType{i}=datatemp.scanType; % for when XRDML contains multiple scans in one file all get same scanType
+        if length(data.two_theta)~=length(data.scanType)
+            tCell=cell(1,length(data.two_theta));tCell(:)=data.scanType;
+            data.scanType=tCell;
+        end
    
         else % for XRDML that are single scans
         data.two_theta{i} = datatemp.two_theta;
@@ -104,7 +108,7 @@ for i=1:length(filename)
         data.RKa1Ka2(i,:)=datatemp.RKa1Ka2;
         data.ext = ext;
         data.error{i}=sqrt(datatemp.data_fit);
-        data.scanType=datatemp.scanType;
+        data.scanType{i}=datatemp.scanType;
         end
     else
         data.two_theta{i} = datatemp.two_theta;

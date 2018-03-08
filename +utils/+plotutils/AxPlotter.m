@@ -515,16 +515,18 @@ classdef AxPlotter < matlab.mixin.SetGet
         switch this.XScale
             case 'linear'
                 set([axx.XLabel], 'String', '2\theta (\circ)');
+                
                 if ~isempty(this.profiles.XRDMLScan) % For changing XLabel on different XRDML scans
-                if strcmp(this.profiles.XRDMLScan, 'Gonio') || strcmp(this.profiles.XRDMLScan, '2Theta') 
+                        FiID=this.profiles.XRDMLScan{this.gui.CurrentFile};
+                    if strcmp(FiID, 'Gonio') || strcmp(FiID, '2Theta') 
                                    set([axx.XLabel], 'String', '2\theta (\circ)');
-                elseif this.profiles.XRDMLScan=='Omega'
+                    elseif FiID=='Omega'
                                    set([axx.XLabel], 'String', '\omega (\circ)');
-                elseif this.profiles.XRDMLScan=='Chi'
+                    elseif FiID=='Chi'
                                    set([axx.XLabel], 'String', '\chi (\circ)');
-                elseif this.profiles.XRDMLScan=='Phi'
+                    elseif FiID=='Phi'
                                    set([axx.XLabel], 'String', '\phi (\circ)');
-                end
+                    end
                 end
             case 'dspace'
                 set([axx.XLabel], 'String', ['{\itd}-space (' char(197) ')']);
