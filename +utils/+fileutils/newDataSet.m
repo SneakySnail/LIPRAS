@@ -127,7 +127,11 @@ end
 
 
 function data = readSpreadsheet(filename)
-temp = xlsread(filename);
+if contains(filename,'csv')
+    temp=table2array(readtable(filename));
+else
+    temp = xlsread(filename);
+end
 % Method for reading of data that does not start with numerial
 % twotheta and intensity
 cc=isnan(temp(:,1)); % checks if any NaN were read in

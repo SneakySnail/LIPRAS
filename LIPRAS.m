@@ -150,12 +150,16 @@ else
 end
 if isNew % if not the same dataset as before
     handles.popup_filename.Value=1;
+    try
     ui.update(handles, 'dataset');
     cla(handles.axes1);
     utils.plotutils.plotX(handles, 'data');
             handles.FitStats1.Visible='off';
             handles.FitStats2.Visible='off';
             handles.FitStats3.Visible='off';
+    catch
+        disp('Error in grabbing limits from plot')
+    end
 else
     handles.gui.PriorityStatus = '';
 end

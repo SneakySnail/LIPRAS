@@ -74,12 +74,14 @@ classdef FileWriter < handle
            fdatafilename = [outpath filename '.Fdata'];
            fiddata = fopen(fdatafilename, 'w');
            if contains(fits{i}.FileName,'xrdml')
-               try this.printFdata(fits{i},fiddata,ImpPro.XRDMLScan{i});catch; end
+               try this.printFdata(fits{i},fiddata,ImpPro.XRDMLScan{i});
+               catch
+                	this.printFdata(fits{i}, fiddata);                  
+               end
            else
                this.printFdata(fits{i}, fiddata);
            end
            
-           this.printFdata(fits{i}, fiddata);
            fclose(fiddata);
            
            this.printFmodelValues(fits{i}, fidmaster);

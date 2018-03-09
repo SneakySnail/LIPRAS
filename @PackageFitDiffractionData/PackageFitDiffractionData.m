@@ -112,6 +112,8 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
                  end
                 
             end
+                        x={Stro.getTwoTheta(1)};
+
             Stro.AbsoluteRange = [x{1}(1) x{1}(end)];
             Stro.Background = model.Background(Stro);
         end
