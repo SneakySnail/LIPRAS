@@ -391,15 +391,21 @@ end
         adjrsquared(ss) = fitted.FmodelGOF.adjrsquare;
         rmse(ss) = fitted.FmodelGOF.rmse;
         Rp(ss) = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
-        w=w(w~=Inf); obs=obs(w~=Inf); calc=calc(w~=Inf); % Remove infinity values
-
+        w(w==Inf)=mean(w(w~=Inf)); %obs=obs(w~=Inf); calc=calc(w~=Inf); % this number has to match weight in FitResults line 153
+        
         DOF = fitted.FmodelGOF.dfe; % degrees of freedom from error
-        er=transpose(handles.profiles.xrd.DataSet{ss}.getDataErrors);
-        Rwp(ss) = sqrt(sum(((obs-calc)./er).^2)./sum(obs.^2./er.^2))*100 ; %Calculate Rwp
-        Rexp(ss)=sqrt(DOF/sum(obs.^2./er.^2))*100; % Rexpected
-        Rchi2(ss)= sum(((obs-calc)./er).^2)/DOF; % true Red-Chi^2
-
-     
+%         er=transpose(handles.profiles.xrd.DataSet{ss}.getDataErrors);
+%         er(er==0)=10;% Remove infinity values, this number has to be 1/w^2
+        
+        Rwp(ss) = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100;
+%         Rwp(ss) = sqrt(sum(((obs-calc)./er).^2)./sum(obs.^2./er.^2))*100; %Calculate Rwp equivalent to line about        
+        Rexp(ss)=sqrt(DOF/sum(w.*obs.^2))*100;
+%         Rexp(ss)=sqrt(DOF/sum(obs.^2./er.^2))*100; % Rexpected, same as line above
+        Rchi2(ss)=fitted.FmodelGOF.sse/DOF;
+%         Rchi2(ss)= sum(((obs-calc)./er).^2)/DOF; % true Red-Chi^2, equivalent to line above
+%         Rchi2(ss)= sum(w.*((obs-calc)).^2)/DOF; , equivalent to line above
+%         Rchi2(ss)=(Rwp(ss)/Rexp(ss))^2;
+    
     else
         obs = fitted.Intensity';
         calc = fitted.Background' + fitted.FData';
@@ -407,17 +413,20 @@ end
         adjrsquared(ss) = fitted.FmodelGOF.adjrsquare;
         rmse(ss) = fitted.FmodelGOF.rmse;
         Rp(ss) = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
-        w=w(w~=Inf); obs=obs(w~=Inf); calc=calc(w~=Inf); % Remove infinity values
-        er=transpose(handles.profiles.xrd.DataSet{ss}.getDataErrors);
-%         Rwp(ss) = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100 ; %Calculate Rwp
-        Rwp(ss) = sqrt(sum(((obs-calc)./er).^2)./sum(obs.^2./er.^2))*100 ; %Calculate Rwp
-
+        w(w==Inf)=mean(w(w~=Inf)); %obs=obs(w~=Inf); calc=calc(w~=Inf); % this number has to match weight in FitResults line 153
+        
         DOF = fitted.FmodelGOF.dfe; % degrees of freedom from error
-        Rexp(ss)=sqrt(DOF/sum(obs.^2./er.^2))*100; % Rexpected
-%         Rchi2(ss)=(Rwp2(ss)/Rexp(ss)).^2;
-%         Rchi2(ss)=sum((obs-calc).^2./obs)/(DOF); % specific to 1/obs
-        Rchi2(ss)= sum(((obs-calc)./er).^2)/DOF; % true Red-Chi^2
-
+%         er=transpose(handles.profiles.xrd.DataSet{ss}.getDataErrors);
+%         er(er==0)=10;% Remove infinity values, this number has to be 1/w^2
+        
+        Rwp(ss) = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100;
+%         Rwp(ss) = sqrt(sum(((obs-calc)./er).^2)./sum(obs.^2./er.^2))*100; %Calculate Rwp equivalent to line about        
+        Rexp(ss)=sqrt(DOF/sum(w.*obs.^2))*100;
+%         Rexp(ss)=sqrt(DOF/sum(obs.^2./er.^2))*100; % Rexpected, same as line above
+        Rchi2(ss)=fitted.FmodelGOF.sse/DOF;
+%         Rchi2(ss)= sum(((obs-calc)./er).^2)/DOF; % true Red-Chi^2, equivalent to line above
+%         Rchi2(ss)= sum(w.*((obs-calc)).^2)/DOF; , equivalent to line above
+%         Rchi2(ss)=(Rwp(ss)/Rexp(ss))^2;
     
     end
       end

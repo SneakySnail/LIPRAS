@@ -150,7 +150,7 @@ end
 %         disp(this.FitOptions.StartPoint) % to check SP being recycled
 
 if any(this.FitOptions.Weights==Inf)
-this.FitOptions.Weights(this.FitOptions.Weights==Inf)=.01; % sets to low value because intensity is low
+this.FitOptions.Weights(this.FitOptions.Weights==Inf)=mean(this.FitOptions.Weights(this.FitOptions.Weights~=Inf)); % sets to low value because intensity is low
 end
 
         if xrd.BkgLS
@@ -177,19 +177,15 @@ end
         this.CoeffError  = 0.5 * (fmodelci(2,:) - fmodelci(1,:));
         
 % Rp, Rwp, and Rchi2 Calculations
-  obs=this.Intensity';
-  w=this.LSWeights';
+    obs=this.Intensity';
+    w=this.LSWeights';
 
     if any(contains(this.CoeffNames,'bkg')) % for when BkgLS is checked
         calc=this.FData'; 
         DOF = this.FmodelGOF.dfe; % degrees of freedom from error
-        er=transpose(xrd.DataSet{filenumber}.getDataErrors);
-        if any(er==0)
-        er(er==0)=mean(er);
-        end
-        
         this.Rp = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
-        this.Rwp = sqrt(sum(((obs-calc)./er).^2)./sum(obs.^2./er.^2))*100 ; %Calculate Rwp
+        this.Rwp = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100;
+
         if strcmp(profile.Weights,'None')
          this.Rchi2=sum((obs-calc).^2./obs)/DOF;   
         else
@@ -199,14 +195,9 @@ end
         obs = this.Intensity';
         calc = this.Background' + this.FData';        
         DOF = this.FmodelGOF.dfe; % degrees of freedom from error
-        er=transpose(xrd.DataSet{filenumber}.getDataErrors);
-        
-        if any(er==0) % for when some Weight values are Inf due to 0 intensity
-        er(er==0)=mean(er);
-        end
-        
         this.Rp = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
-        this.Rwp = sqrt(sum(((obs-calc)./er).^2)./sum(obs.^2./er.^2))*100 ; %Calculate Rwp
+        this.Rwp = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100;
+
         if strcmp(profile.Weights,'None')
          this.Rchi2=sum((obs-calc).^2./obs)/DOF;   
         else
