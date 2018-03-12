@@ -433,7 +433,7 @@ handles.gui.PriorityStatus = 'Fit options were updated.';
 if s==0 && l==0 && u==0
 else
 if s==1 || s==nC || s~=nnC
-    handles.table_fitinitial.Enable='off';
+%     handles.table_fitinitial.Enable='off';
     handles.gui.PriorityStatus='Now Select Peak Posistions using Select Peak(s)';
 end
 end
@@ -476,6 +476,11 @@ function edit_numpeaks_Callback(src, eventdata, handles)
 handles.profiles.NumPeaks = src.getValue;
 
 ui.update(handles, 'NumPeaks');
+if src.getValue>0
+handles.AsymmPeaks.Visible='on';
+else
+handles.AsymmPeaks.Visible='off';
+end
 ui.update(handles, 'functions');
 ui.update(handles, 'constraints');
 
@@ -583,6 +588,24 @@ switch hObject.Tag
 end
 
 %% Checkbox callback functions
+
+    function AsymmPeaks_Callback(o,~,handles)
+ if get(o, 'value')
+  nFxn=length(handles.profiles.xrd.FitFunctions);
+  for p=1:nFxn
+      handles.profiles.xrd.FitFunctions{p}.Asym=1;
+  end
+    handles.table_fitinitial.Enable='off';
+ else
+  nFxn=length(handles.profiles.xrd.FitFunctions);
+  for p=1:nFxn
+      handles.profiles.xrd.FitFunctions{p}.Asym=0;
+  end
+    handles.table_fitinitial.Enable='off';
+
+end       
+        
+   
 
 function checkbox_recycle_Callback(o, ~, handles) %#ok<*DEFNU>
 if get(o, 'value')

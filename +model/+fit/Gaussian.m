@@ -5,10 +5,11 @@ classdef Gaussian < model.fit.FitFunctionInterface
     properties
         Name = 'Gaussian';
         
-        CoeffNames = {'N' 'x' 'f'};
+        CoeffNames = {'N' 'x' 'f','a'};
         
         ID
-                
+        
+        Asym=0;        
     end
     
     
@@ -41,11 +42,19 @@ classdef Gaussian < model.fit.FitFunctionInterface
         Nidx = find(contains(coeff, 'N'), 1);
         xidx = find(contains(coeff, 'x'), 1);
         fidx = find(contains(coeff, 'f'), 1);
+        aidx = find(contains(coeff, 'a'),1);
         if nargin > 1
            coeff{xidx} = num2str(xval);
         end
+        if this.Asym==0
         str = [coeff{Nidx},'*((2*sqrt(log(2)))/(sqrt(pi)*', coeff{fidx}, ...
             ')*exp(-4*log(2)*((xv-' coeff{xidx} ')^2/', coeff{fidx}, '^2)))'];
+        else
+            asymF=['(2*' coeff{fidx} '/(1+exp(' coeff{aidx} '*(xv-' coeff{xidx} '))))'];
+                    str = [coeff{Nidx},'*((2*sqrt(log(2)))/(sqrt(pi)*', asymF, ...
+                            ')*exp(-4*log(2)*((xv-' coeff{xidx} ')^2/', asymF, '^2)))'];
+            
+        end
         end
         
         function value = getCoeffs(this)
@@ -58,6 +67,7 @@ classdef Gaussian < model.fit.FitFunctionInterface
         output.N = value.N;
         output.x = value.x;
         output.f = value.f;
+        output.a = value.a;
         end
         
         function output = getDefaultLowerBounds(this, data, peakpos)
@@ -66,6 +76,7 @@ classdef Gaussian < model.fit.FitFunctionInterface
         output.N = value.N;
         output.x = value.x;
         output.f = value.f;
+        output.a = value.a;
         end
         
         function output = getDefaultUpperBounds(this, data, peakpos)
@@ -74,6 +85,7 @@ classdef Gaussian < model.fit.FitFunctionInterface
         output.N = value.N;
         output.x = value.x;
         output.f = value.f;
+        output.a = value.a;
         end
     end
     
@@ -102,10 +114,19 @@ classdef Gaussian < model.fit.FitFunctionInterface
                xv = coeffvals(i);
            elseif c == 'f'
                f = coeffvals(i);
+           elseif c=='a'
+               a=coeffvals(i);
            end
         end
+        
+        if this.Asym==0
         output = N.*((2.*sqrt(log(2)))./(sqrt(pi).*f).*exp(-4.*log(2).* ...
                     ((xdata - xv).^2./f.^2)));
+        else
+          asymF=(2.*f./(1+exp(a.*(xdata-xv))));
+                    output = N.*((2.*sqrt(log(2)))./(sqrt(pi).*asymF).*exp(-4.*log(2).* ...
+                    ((xdata - xv).^2./asymF.^2)));
+        end
         end
         
     end

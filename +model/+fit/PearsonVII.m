@@ -5,10 +5,11 @@ classdef PearsonVII < model.fit.FitFunctionInterface
     properties
         Name = 'Pearson VII'
         
-        CoeffNames = {'N' 'x' 'f' 'm'};
+        CoeffNames = {'N' 'x' 'f' 'm' 'a'};
    
         ID
         
+        Asym=0;
     end
     
     
@@ -37,12 +38,19 @@ classdef PearsonVII < model.fit.FitFunctionInterface
         xidx = find(contains(coeff, 'x'), 1);
         fidx = find(contains(coeff, 'f'), 1);
         midx = find(contains(coeff, 'm'), 1);
+        aidx = find(contains(coeff, 'a'),1);
         if nargin > 1
            coeff{xidx} = num2str(xval);
         end
-                    
+        
+        if this.Asym==0
         str = [coeff{Nidx} '*model.fit.PearsonVII.C4(' coeff{midx} ')/' coeff{fidx} ...
             '*(1+4*(2^(1/' coeff{midx} ')-1)*(xv-' coeff{xidx} ')^2/' coeff{fidx} '^2)^(-' coeff{midx} ')'];
+        else
+            asymF=['(2*' coeff{fidx} '/(1+exp(' coeff{aidx} '*(xv-' coeff{xidx} '))))'];
+                    str = [coeff{Nidx} '*model.fit.PearsonVII.C4(' coeff{midx} ')/' asymF ...
+            '*(1+4*(2^(1/' coeff{midx} ')-1)*(xv-' coeff{xidx} ')^2/' asymF '^2)^(-' coeff{midx} ')'];
+        end
         end
         
         function value = getCoeffs(this)
@@ -56,6 +64,7 @@ classdef PearsonVII < model.fit.FitFunctionInterface
         output.x = value.x;
         output.f = value.f;
         output.m = value.m;
+        output.a = value.a;
         end
         
         function output = getDefaultLowerBounds(this, data, peakpos)
@@ -65,6 +74,7 @@ classdef PearsonVII < model.fit.FitFunctionInterface
         output.x = value.x;
         output.f = value.f;
         output.m = value.m;
+        output.a = value.a;
         end
         
         function output = getDefaultUpperBounds(this, data, peakpos)
@@ -74,6 +84,7 @@ classdef PearsonVII < model.fit.FitFunctionInterface
         output.x = value.x;
         output.f = value.f;
         output.m = value.m;
+        output.a = value.a;
         end
     end
     
@@ -102,9 +113,16 @@ classdef PearsonVII < model.fit.FitFunctionInterface
                f = coeffvals(i);
            elseif c == 'm'
                m = coeffvals(i);
+           elseif c=='a'
+               a=coeffvals(i);
            end
         end
-        output = N .* this.C4(m) ./ f .*(1+4.*(2.^(1/m)-1).*(xdata-xv).^2/f.^2).^(-m);
+        if this.Asym==0
+        output = N .* this.C4(m) ./ f .*(1+4.*(2.^(1/m)-1).*(xdata-xv).^2./f.^2).^(-m);
+        else
+             asymF=(2.*f./(1+exp(a.*(xdata-xv))));
+        output = N .* this.C4(m) ./ asymF .*(1+4.*(2.^(1/m)-1).*(xdata-xv).^2./asymF.^2).^(-m);
+        end
         end
         
     end

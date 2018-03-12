@@ -5,10 +5,11 @@ classdef PseudoVoigt < model.fit.FitFunctionInterface
     properties 
         Name = 'Pseudo-Voigt'
         
-        CoeffNames = {'N' 'x' 'f' 'w'};
+        CoeffNames = {'N' 'x' 'f' 'w' 'a'};
         
         ID
         
+        Asym=0;
     end
     
     
@@ -36,12 +37,23 @@ classdef PseudoVoigt < model.fit.FitFunctionInterface
         xidx = find(contains(coeff, 'x'), 1);
         fidx = find(contains(coeff, 'f'), 1);
         widx = find(contains(coeff, 'w'), 1);
+        aidx =find(contains(coeff,'a'),1);
         if nargin > 1
            coeff{xidx} = num2str(xval);
         end
-        str = [coeff{Nidx} '*((' coeff{widx} '*(2/pi)*(1/' coeff{fidx} ')*1/(1+(4*(xv-' coeff{xidx} ...
-            ')^2/' coeff{fidx} '^2))) + ((1-' coeff{widx} ')*(2*sqrt(log(2))/(sqrt(pi)))*1/' ...
-            coeff{fidx} '*exp(-log(2)*4*(xv-' coeff{xidx} ')^2/' coeff{fidx} '^2)))'];
+        
+            if this.Asym==0
+                str = [coeff{Nidx} '*((' coeff{widx} '*(2/pi)*(1/' coeff{fidx} ')*1/(1+(4*(xv-' coeff{xidx} ...
+                    ')^2/' coeff{fidx} '^2))) + ((1-' coeff{widx} ')*(2*sqrt(log(2))/(sqrt(pi)))*1/' ...
+                    coeff{fidx} '*exp(-log(2)*4*(xv-' coeff{xidx} ')^2/' coeff{fidx} '^2)))'];
+            else
+                asymF=['(2*' coeff{fidx} '/(1+exp(' coeff{aidx} '*(xv-' coeff{xidx} '))))'];
+                
+                str = [coeff{Nidx} '*((' coeff{widx} '*(2/pi)*(1/' asymF ')*1/(1+(4*(xv-' coeff{xidx} ...
+                    ')^2/' asymF '^2))) + ((1-' coeff{widx} ')*(2*sqrt(log(2))/(sqrt(pi)))*1/' ...
+                    asymF '*exp(-log(2)*4*(xv-' coeff{xidx} ')^2/' asymF '^2)))'];
+            end
+        
         end
         
         function value = getCoeffs(this)
@@ -56,6 +68,7 @@ classdef PseudoVoigt < model.fit.FitFunctionInterface
         output.x = value.x;
         output.f = value.f;
         output.w = value.w;
+        output.a=value.a;
 
         end
         
@@ -66,6 +79,7 @@ classdef PseudoVoigt < model.fit.FitFunctionInterface
         output.x = value.x;
         output.f = value.f;
         output.w = value.w;
+        output.a=value.a;
         end
         
         function output = getDefaultUpperBounds(this, data, peakpos)
@@ -75,6 +89,7 @@ classdef PseudoVoigt < model.fit.FitFunctionInterface
         output.x = value.x;
         output.f = value.f;
         output.w = value.w;
+        output.a=value.a;
 
         end
     end
@@ -103,11 +118,20 @@ classdef PseudoVoigt < model.fit.FitFunctionInterface
                f = coeffvals(i);
            elseif c == 'w'
                w = coeffvals(i);
+           elseif c=='a'
+               a=coeffvals(i);
            end
         end
         
+        if this.Asym==0
         output = N.*((w.*(2./pi).*(1./f).*1./(1+(4.*(xdata-xv).^2./f.^2))) + ...
             ((1-w).*(2.*sqrt(log(2))./(sqrt(pi))).*1./f.*exp(-log(2).*4.*(xdata-xv).^2./f.^2)));
+        else
+            asymF=(2.*f./(1+exp(a.*(xdata-xv))));
+            output = N.*((w.*(2./pi).*(1./asymF).*1./(1+(4.*(xdata-xv).^2./asymF.^2))) + ...
+                ((1-w).*(2.*sqrt(log(2))./(sqrt(pi))).*1./asymF.*exp(-log(2).*4.*(xdata-xv).^2./asymF.^2)));
+        end
+        
         end
         
         

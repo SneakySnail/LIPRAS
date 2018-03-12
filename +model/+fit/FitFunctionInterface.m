@@ -37,6 +37,12 @@ classdef FitFunctionInterface < handle
        DEFAULT_VALUE_M = 2;
        
        DEFAULT_UPPER_M = 20;
+       
+       DEFAULT_VALUE_A=1;
+       
+       DEFAULT_UPPER_A=30;
+       
+       DEFAULT_LOWER_A=-30;
     end
     
     properties (Dependent)
@@ -277,9 +283,22 @@ classdef FitFunctionInterface < handle
         if ~constraints(4) && contains(this.Name, 'Pseudo')
             unconstrained{i} = [this.CoeffNames{4} num];
             i=i+1;
+            if this.Asym==1
+            unconstrained{i} = [this.CoeffNames{5} num];
+            i=i+1;       
+            end
         elseif ~constraints(5) && contains(this.Name, 'Pearson VII')
             unconstrained{i} = [this.CoeffNames{4} num];
             i=i+1;
+            if this.Asym==1
+            unconstrained{i} = [this.CoeffNames{5} num];
+            i=i+1;       
+            end
+        elseif  contains(this.Name, {'Gaussian', 'Lorentzian'})
+            if this.Asym==1
+            unconstrained{i} = [this.CoeffNames{4} num];
+            i=i+1;       
+            end
         end
         if i <= length(unconstrained)
             unconstrained(i:end) = [];
@@ -323,7 +342,7 @@ classdef FitFunctionInterface < handle
         result.f = abs(result.N/ max(ydata(xlowi_:xupi_)));
         result.w = FitFunctionInterface.DEFAULT_VALUE_W;
         result.m = FitFunctionInterface.DEFAULT_VALUE_M;
-        result.a=1;
+        result.a = FitFunctionInterface.DEFAULT_VALUE_A;
         end
         
         function result = getDefaultLowerBounds(this, data, peakpos)
@@ -338,7 +357,7 @@ classdef FitFunctionInterface < handle
         result.f = 0.01;
         result.w = 0;
         result.m = 0.5;
-        result.a=-15;
+        result.a=FitFunctionInterface.DEFAULT_LOWER_A;
         end
         
         function result = getDefaultUpperBounds(this, data, peakpos)
@@ -351,7 +370,7 @@ classdef FitFunctionInterface < handle
         result.f = initial.f * 2;
         result.w = 1;
         result.m = FitFunctionInterface.DEFAULT_VALUE_M * 10;
-        result.a=15;
+        result.a=FitFunctionInterface.DEFAULT_UPPER_A;
         end
         
         function result = isAsymmetric(this)
