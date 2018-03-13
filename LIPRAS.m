@@ -179,13 +179,13 @@ if ~isempty(handles.profiles.XRDMLScan)
     FiID=handles.profiles.XRDMLScan{handles.popup_filename.Value};
     if ~isempty(FiID)
         if strcmp(FiID,'Gonio')||strcmp(FiID,'2Theta')
-                        handles.text4.String=['2' char(952) 'Range:'];
+                        handles.text4.String=['2' char(952) 'Range (°):'];
         elseif FiID=='Omega'
-                        handles.text4.String=[char(969) 'Range:'];
+                        handles.text4.String=[char(969) ' Range (°):'];
         elseif FiID=='Chi'
-                        handles.text4.String=[char(967) 'Range:'];            
+                        handles.text4.String=[char(967) ' Range (°):'];            
         elseif FiID=='Phi'
-                        handles.text4.String=[char(966) 'Range:'];
+                        handles.text4.String=[char(966) ' Range (°):'];
         end
     end
 end
@@ -647,17 +647,17 @@ handles.profiles.xrd.CurrentPro=hObject.Value;
 if ~isempty(handles.profiles.XRDMLScan)
     FiID=handles.profiles.XRDMLScan{handles.popup_filename.Value};
         if strcmp(FiID,'Gonio')||strcmp(FiID,'2Theta')
-                        handles.text4.String=['2' char(952) 'Range:'];
+                        handles.text4.String=['2' char(952) 'Range (°):'];
         elseif FiID=='Omega'
-                        handles.text4.String=[char(969) 'Range:'];
+                        handles.text4.String=[char(969) 'Range (°):'];
         elseif FiID=='Chi'
-                        handles.text4.String=[char(967) 'Range:'];           
+                        handles.text4.String=[char(967) 'Range (°):'];           
         elseif FiID=='Phi'
-                        handles.text4.String=[char(966) 'Range:'];
+                        handles.text4.String=[char(966) 'Range (°):'];
         end
 handles.gui.Plotter.updateXLabel(handles.axes1)
 else
-     handles.text4.String=['2' char(952) 'Range:'];
+     handles.text4.String=['2' char(952) 'Range (°):'];
 end
 
 superimposed=strcmp(handles.menuPlot_superimpose.Checked,'on'); 
@@ -1059,12 +1059,13 @@ textb=10;
             try
                 manu=dir('*manual*.pdf');
                 open(manu.name)
-            catch
-                try
-            web(['https://github.com/SneakySnail/LIPRAS/blob/master/' manu.name ],'-browser')
-                catch
-            web('https://github.com/SneakySnail/LIPRAS/blob/master/LIPRAS_Manual_6.pdf','-browser')
-                end
+            catch               
+                    if ~isempty(manu)
+                    web(['https://github.com/SneakySnail/LIPRAS/blob/master/' manu.name ],'-browser')
+                    else              
+                    h1=warndlg('Could not find local version...searching online');
+                    web('https://github.com/SneakySnail/LIPRAS/blob/master/LIPRAS_Manual_6.pdf','-browser')
+                    end
             end
         function webupdate(~,~)
             web('http://www.mathworks.com/matlabcentral/fileexchange/62162-line-profile-analysis-software--lipras-','-browser')

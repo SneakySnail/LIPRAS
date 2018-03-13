@@ -44,6 +44,8 @@ classdef FitResults
         FPeaks          % Numeric array result of each function's fits
         
         FCuKa2Peaks     % Empty if no Cu-Ka2 
+        
+        PredictInt % Prediction of model at 95% confidence interval
     end
     
     properties
@@ -175,6 +177,7 @@ end
         this.FCuKa2Peaks = zeros(length(xrd.getFunctions),length(this.FData));
         this.CoeffValues = coeffvalues(fmodel);
         this.CoeffError  = 0.5 * (fmodelci(2,:) - fmodelci(1,:));
+        this.PredictInt=predint(fmodel,this.TwoTheta,0.95,'functional','on');
         
 % Rp, Rwp, and Rchi2 Calculations
     obs=this.Intensity';

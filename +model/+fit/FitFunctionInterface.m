@@ -38,7 +38,7 @@ classdef FitFunctionInterface < handle
        
        DEFAULT_UPPER_M = 20;
        
-       DEFAULT_VALUE_A=1;
+       DEFAULT_VALUE_A=0; % means symmetric
        
        DEFAULT_UPPER_A=30;
        

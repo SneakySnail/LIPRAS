@@ -250,16 +250,16 @@ classdef FileWriter < handle
                         vars{:,p+1}=strcat('Kalpha2...',' \t');                   
                     end
         if isempty(ImpX)
-                t='2Theta \t Obs \t Calc \t BkgdFit \t Weights \t';
+                t='2Theta \t Obs \t Calc \t BkgdFit \t PredIntLow \t PredIntHigh \t Weights \t';
         else
             if strcmp(ImpX,'Omega')
-                                t='Omega \t Obs \t Calc \t BkgdFit \t Weights \t';
+                                t='Omega \t Obs \t Calc \t BkgdFit \t PredIntLow \t PredIntHigh \t Weights \t';
             elseif strcmp(ImpX,'Chi')
-                                t='Chi \t Obs \t Calc \t BkgdFit \t Weights \t';
+                                t='Chi \t Obs \t Calc \t BkgdFit \t PredIntLow \t PredIntHigh \t Weights \t';
             elseif strcmp(ImpX,'Phi')
-                                t='Phi \t Obs \t Calc \t BkgdFit \t Weights \t';
+                                t='Phi \t Obs \t Calc \t BkgdFit \t PredIntLow \t PredIntHigh \t Weights \t';
             else
-                                t='2Theta \t Obs \t Calc \t BkgdFit \t Weights \t';
+                                t='2Theta \t Obs \t Calc \t BkgdFit \t PredIntLow \t PredIntHigh \t Weights \t';
             end
         end
         
@@ -269,7 +269,8 @@ classdef FileWriter < handle
        twotheta = fitted.TwoTheta';
        intmeas = fitted.Intensity';
        calc=fitted.FData;
-       background = fitted.Background';  
+       background = fitted.Background';
+       PredInt=fitted.PredictInt;
        Weights=fitted.LSWeights;
                        if fitted.CuKa && ~isempty(fitted.FCuKa2Peaks)
                             peaks=[fitted.FPeaks' fitted.FCuKa2Peaks']; % combines the matrixes together to write to FData
@@ -277,7 +278,7 @@ classdef FileWriter < handle
                             peaks=fitted.FPeaks';
                        end
        for i=1:length(twotheta)
-           line = [twotheta(i), intmeas(i), calc(i), background(i), Weights(i),peaks(i,:)];
+           line = [twotheta(i), intmeas(i), calc(i), background(i), PredInt(i,:) Weights(i),peaks(i,:)];
            fprintf(fid, '%2.8f\t', line(:));
            fprintf(fid, '\n');
        end
