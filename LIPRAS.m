@@ -86,8 +86,8 @@ handles.OrigCD=cd;
 
 assignin('base','handles',handles);
 % Update handles structure
-checkforupdates(1,1,handles,'Short')
-
+checkforupdates(1,1,handles,'Silent')
+handles.NoEqualData=0;
 guidata(hObject, handles);
 
 
@@ -145,18 +145,54 @@ handles.gui.PriorityStatus = 'Browsing for dataset... ';
 if isfield(evt, 'test')
     isNew = handles.profiles.newXRD(evt.path, evt.filename);
 else
+    handles.profiles.XRDMLScan=[]; % for when reading in different datasets, this should always reset to nothing
     isNew = handles.profiles.newXRD();
 end
 if isNew % if not the same dataset as before
+    handles.popup_filename.Value=1;
+    try
     ui.update(handles, 'dataset');
     cla(handles.axes1);
     utils.plotutils.plotX(handles, 'data');
             handles.FitStats1.Visible='off';
             handles.FitStats2.Visible='off';
             handles.FitStats3.Visible='off';
+    catch
+        disp('Error in grabbing limits from plot')
+    end
 else
     handles.gui.PriorityStatus = '';
 end
+if handles.profiles.NumFiles~=0 && isNew~=0 % this is for when canceling browse file before a file has been inputtedd..only on startup
+for k=1:handles.profiles.NumFiles
+    cF(k)=isequal(handles.profiles.dataReadin.two_theta{1},handles.profiles.dataReadin.two_theta{k}); % test to make sure data is equal for inputted x values
+end
+if sum(double(cF))~=k
+h=warndlg({'You have entered files that do not have the same number of points AND/OR different X-values. CAUTION when using a fitting range', 'Check your 2-Theta range!!!'},'!! Warning !!');
+handles.NoEqualData=1;
+else
+    handles.NoEqualData=0;
+end
+end
+
+if ~isempty(handles.profiles.XRDMLScan)
+    FiID=handles.profiles.XRDMLScan{handles.popup_filename.Value};
+    if ~isempty(FiID)
+        if strcmp(FiID,'Gonio')||strcmp(FiID,'2Theta')
+                        handles.text4.String=['2' char(952) 'Range (°):'];
+        elseif FiID=='Omega'
+                        handles.text4.String=[char(969) ' Range (°):'];
+        elseif FiID=='Chi'
+                        handles.text4.String=[char(967) ' Range (°):'];            
+        elseif FiID=='Phi'
+                        handles.text4.String=[char(966) ' Range (°):'];
+        end
+    end
+end
+
+assignin('base','handles',handles);
+guidata(hObject,handles)
+
 
 
 function checkbox_reverse_Callback(o,e,handles)
@@ -178,7 +214,7 @@ function push_newbkgd_Callback(hObject, eventdata, handles)
 import utils.plotutils.*
 plotX(handles,'data');
 % handles.checkbox_superimpose.Value = 0;
-handles.gui.PriorityStatus = 'Selecting background points... Press the ESC key to cancel, "Z" to toogle zoom capability, and "Enter" to finish.';
+handles.gui.PriorityStatus = 'Selecting background points... Press the ESC key to cancel, "Z" to toogle zoom capability, and "Enter" to finish. Right-clicking can be used to delete points.';
 mode = get(handles.group_bkgd_edit_mode.SelectedObject, 'String');
 points = selectBackgroundPoints(handles, mode);
 if length(points) == 1 && isnan(points)
@@ -261,6 +297,16 @@ end
 
 function edit_min2t_Callback(~, ~, handles)
 %EDIT_MIN2T_CALLBACK executes when the minimum 2theta value is changed in the GUI. 
+if handles.NoEqualData==1
+    for p=1:handles.profiles.NumFiles
+        cK(p)=min(handles.profiles.dataReadin.two_theta{p});
+    end
+    if any(find(cK>str2double(handles.edit_min2t.String)))
+        h=warndlg('You have files with different number of data points!! Check your bounds to ensure that it is captured by all files');
+        handles.gui.Min2T = handles.profiles.Min2T;
+        return
+    end
+end
 handles.profiles.Min2T = handles.gui.Min2T;
 handles.gui.Min2T = handles.profiles.Min2T;
 if length(handles.profiles.BackgroundPoints) <= handles.gui.PolyOrder
@@ -272,6 +318,17 @@ end
 ui.update(handles, 'backgroundpoints');
 
 function edit_max2t_Callback(~, ~, handles)
+if handles.NoEqualData==1
+    for p=1:handles.profiles.NumFiles
+        cK(p)=max(handles.profiles.dataReadin.two_theta{p});
+    end
+    if any(find(cK<str2double(handles.edit_max2t.String)))
+        h=warndlg('You have files with different number of data points!! Check your bounds to ensure that it is captured by all files');
+        handles.gui.Max2T = handles.profiles.Max2T;
+        return
+    end
+end
+    
 handles.profiles.Max2T = handles.gui.Max2T;
 handles.gui.Max2T = handles.profiles.Max2T;
 if length(handles.profiles.BackgroundPoints) <= handles.gui.PolyOrder
@@ -376,7 +433,7 @@ handles.gui.PriorityStatus = 'Fit options were updated.';
 if s==0 && l==0 && u==0
 else
 if s==1 || s==nC || s~=nnC
-    handles.table_fitinitial.Enable='off';
+%     handles.table_fitinitial.Enable='off';
     handles.gui.PriorityStatus='Now Select Peak Posistions using Select Peak(s)';
 end
 end
@@ -419,6 +476,11 @@ function edit_numpeaks_Callback(src, eventdata, handles)
 handles.profiles.NumPeaks = src.getValue;
 
 ui.update(handles, 'NumPeaks');
+if src.getValue>0
+handles.AsymmPeaks.Visible='on';
+else
+handles.AsymmPeaks.Visible='off';
+end
 ui.update(handles, 'functions');
 ui.update(handles, 'constraints');
 
@@ -453,7 +515,7 @@ if isnan(evt.NewData)
 	hObject.Data{evt.Indices(1), evt.Indices(2)} = evt.PreviousData;
 else
        handles.profiles.FitInitial = handles.gui.FitInitial;
-       handles.gui.FitInitial = handles.profiles.FitInitial;
+%        handles.gui.FitInitial = handles.profiles.FitInitial;
 %     ui.update(handles, 'fitinitial_tableEdit'); %i dont think this is
 %     needed otherwise it resets the table based on edit which is annoying
 %     when editing a value of N9, x9, etc,.,,
@@ -527,6 +589,24 @@ end
 
 %% Checkbox callback functions
 
+    function AsymmPeaks_Callback(o,~,handles)
+ if get(o, 'value')
+  nFxn=length(handles.profiles.xrd.FitFunctions);
+  for p=1:nFxn
+      handles.profiles.xrd.FitFunctions{p}.Asym=1;
+  end
+    handles.table_fitinitial.Enable='off';
+ else
+  nFxn=length(handles.profiles.xrd.FitFunctions);
+  for p=1:nFxn
+      handles.profiles.xrd.FitFunctions{p}.Asym=0;
+  end
+    handles.table_fitinitial.Enable='off';
+
+end       
+        
+   
+
 function checkbox_recycle_Callback(o, ~, handles) %#ok<*DEFNU>
 if get(o, 'value')
   handles.xrd.recycle_results = 1;
@@ -562,6 +642,24 @@ end
 % Executes on selection change in popup_filename.
 function popup_filename_Callback(hObject, eventdata, handles)
 handles.gui.CurrentFile = hObject.Value;
+handles.profiles.xrd.CurrentPro=hObject.Value;
+
+if ~isempty(handles.profiles.XRDMLScan)
+    FiID=handles.profiles.XRDMLScan{handles.popup_filename.Value};
+        if strcmp(FiID,'Gonio')||strcmp(FiID,'2Theta')
+                        handles.text4.String=['2' char(952) 'Range (°):'];
+        elseif FiID=='Omega'
+                        handles.text4.String=[char(969) 'Range (°):'];
+        elseif FiID=='Chi'
+                        handles.text4.String=[char(967) 'Range (°):'];           
+        elseif FiID=='Phi'
+                        handles.text4.String=[char(966) 'Range (°):'];
+        end
+handles.gui.Plotter.updateXLabel(handles.axes1)
+else
+     handles.text4.String=['2' char(952) 'Range (°):'];
+end
+
 superimposed=strcmp(handles.menuPlot_superimpose.Checked,'on'); 
 if superimposed
     utils.plotutils.plotX(handles, 'superimpose');
@@ -959,10 +1057,15 @@ textb=10;
             web('https://www.mathworks.com/help/curvefit/evaluating-goodness-of-fit.html','-browser')
         function web4(~,~)
             try
-                open('LIPRAS_Manual_5.pdf')
-                disp('worked')
-            catch
-            web('https://github.com/SneakySnail/LIPRAS/blob/master/LIPRAS_Manual_5.pdf','-browser')
+                manu=dir('*manual*.pdf');
+                open(manu.name)
+            catch               
+                    if ~isempty(manu)
+                    web(['https://github.com/SneakySnail/LIPRAS/blob/master/' manu.name ],'-browser')
+                    else              
+                    h1=warndlg('Could not find local version...searching online');
+                    web('https://github.com/SneakySnail/LIPRAS/blob/master/LIPRAS_Manual_6.pdf','-browser')
+                    end
             end
         function webupdate(~,~)
             web('http://www.mathworks.com/matlabcentral/fileexchange/62162-line-profile-analysis-software--lipras-','-browser')
@@ -1047,7 +1150,8 @@ if and(isequal(str2double(b{2}),cV),strcmp(ini,'na'))
            'Position',[125 10 100 30],...
            'String','Close','FontSize',12,...
            'Callback','delete(gcf)');
-
+elseif and(~isequal(str2double(b{2}),cV),strcmp(ini,'Silent'))
+    handles.profiles.Status='<html><strong>New version available, check for updates under "Help". Otherwise, import file(s) to start using "Browse"</strong></html>';
 elseif ~isequal(str2double(b{2}),cV)
             d = dialog('Position',[550 550 350 150],'Name','LIPRAS');
             txt = uicontrol('Parent',d,...

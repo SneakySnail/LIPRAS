@@ -17,6 +17,7 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        GUIColor=[1 1 1]; % default GUI color by MATLAB
        Errors=[];
        FitResults % each profile results in a cell
+       XRDMLScan
        
    end
    
@@ -24,7 +25,7 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        ActiveProfile
        
        FileNames 
-       
+              
        NumFiles
        
        Min2T
@@ -47,7 +48,7 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        
        CuKa
        
-       KAlpha1=1.54000;
+       KAlpha1=1.54056;
        
        KAlpha2 = 1.544426; 
    end
@@ -58,6 +59,7 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
    
    properties (Hidden)
        ext % file type for this dataset
+       dataReadin
        FullTwoThetaRange
 %        FullIntensityData
        Temperature
@@ -189,6 +191,7 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        else % if xrd was already created, just save as the new xrd
            data = utils.fileutils.newDataSet(path,filename);
        end
+       this.dataReadin=data;
        isNew = true;
        this.reset();
        this.initialXRD_ = PackageFitDiffractionData(data, filename);
@@ -214,6 +217,7 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
            this.kBeta = data(1).kBeta;
            this.RKa1Ka2 = data(1).RKa1Ka2;
            this.CuKa = true;
+           this.XRDMLScan=data.scanType;
        else
            this.CuKa = false;
        end

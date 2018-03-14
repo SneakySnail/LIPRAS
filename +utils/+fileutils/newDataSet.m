@@ -56,33 +56,34 @@ for i=1:length(filename)
     fullFileName = strcat(path, filename{i});
     fid = fopen(fullFileName, 'r');
     
-    if strcmp(ext, '.csv')|| strcmp(ext, '.xls')||strcmp(ext, '.xlsx') % For MAC, .csv should not be selected
+    if strcmpi(ext, '.csv')|| strcmpi(ext, '.xls')||strcmpi(ext, '.xlsx') % For MAC, .csv should not be selected
         datatemp = readSpreadsheet(fullFileName);
-    elseif strcmp(ext, '.txt')
+    elseif strcmpi(ext, '.txt')
 
         datatemp = readTXT(i,fullFileName);
-    elseif strcmp(ext, '.xy')||strcmp(ext, '.xye')
+    elseif strcmpi(ext, '.xy')||strcmpi(ext, '.xye')
         datatemp = readFile(fid, ext);
-    elseif strcmp(ext, '.fxye')
+    elseif strcmpi(ext, '.fxye')
         datatemp = readFXYE(i,fullFileName);
         try
         data.Temperature=datatemp.temperature;
         data.Wavelength=datatemp.wave;
         catch
         end
-    elseif strcmp(ext, '.chi')
+    elseif strcmpi(ext, '.chi')
         datatemp = readFile(fid, ext);
         datatemp.error=sqrt(datatemp.data_fit);
 
-    elseif strcmp(ext, '.dat')
+    elseif strcmpi(ext, '.dat')
         datatemp = readFile(fid, ext);
-    elseif strcmp(ext, '.xrdml')
+    elseif strcmpi(ext, '.xrdml')
         datatemp = parseXRDML(fullFileName);
     end
     
     if strcmpi(ext, '.xrdml')
         if size(datatemp.two_theta,1)~=1 % this means xrdml contains multiple scans
         data.two_theta = datatemp.two_theta;
+        data.two_theta = mat2cell(data.two_theta,ones(size(data.two_theta,1),1));
         data.data_fit=datatemp.data_fit;
         data.temperature(i,:)=25; % needs work, 2-26-2017
         data.KAlpha1(i,:)=datatemp.KAlpha1;
@@ -90,25 +91,32 @@ for i=1:length(filename)
         data.RKa1Ka2(i,:)=datatemp.RKa1Ka2;
         data.ext = ext;
         data.error=sqrt(datatemp.data_fit);
-            
+        data.error= mat2cell(data.error,ones(size(data.error,1),1));
+        data.data_fit= mat2cell(data.data_fit,ones(size(data.data_fit,1),1));
+        data.scanType{i}=datatemp.scanType; % for when XRDML contains multiple scans in one file all get same scanType
+        if length(data.two_theta)~=length(data.scanType)
+            tCell=cell(1,length(data.two_theta));tCell(:)=data.scanType;
+            data.scanType=tCell;
+        end
+   
         else % for XRDML that are single scans
-        data.two_theta(i,:) = datatemp.two_theta;
-        data.data_fit(i,:)=datatemp.data_fit;
+        data.two_theta{i} = datatemp.two_theta;
+        data.data_fit{i}=datatemp.data_fit;
         data.temperature(i,:)=datatemp.Temperature;
         data.KAlpha1(i,:)=datatemp.KAlpha1;
         data.KAlpha2(i,:)=datatemp.KAlpha2;
         data.RKa1Ka2(i,:)=datatemp.RKa1Ka2;
         data.ext = ext;
-        data.error=sqrt(datatemp.data_fit);
-
+        data.error{i}=sqrt(datatemp.data_fit);
+        data.scanType{i}=datatemp.scanType;
         end
     else
-        data.two_theta(i,:) = datatemp.two_theta;
-        data.data_fit(i,:) = datatemp.data_fit;
+        data.two_theta{i} = datatemp.two_theta;
+        data.data_fit{i} = datatemp.data_fit;
         try
-        data.error(i,:)=datatemp.error;
+        data.error{i}=datatemp.error;
         catch % in cases where error is not specified upon read
-        data.error(i,:)=sqrt(data.data_fit(i,:));
+        data.error{i}=sqrt(data.data_fit{i});
         end
 
     end    
@@ -119,7 +127,11 @@ end
 
 
 function data = readSpreadsheet(filename)
-temp = xlsread(filename);
+if contains(filename,'csv')
+    temp=table2array(readtable(filename));
+else
+    temp = xlsread(filename);
+end
 % Method for reading of data that does not start with numerial
 % twotheta and intensity
 cc=isnan(temp(:,1)); % checks if any NaN were read in
@@ -213,9 +225,9 @@ end
 dline=str2num(line);
 temp1=transpose(fscanf(fid,'%f',[3 inf]));%opens the file listed above and obtains data in all 5 columns
 temp1=[dline;temp1];
-data.two_theta = temp1(:,1)./100; % divides by 100 since units in fxye are in centi-degrees
-data.data_fit = temp1(:,2);
-data.error=temp1(:,3); % will become weights for fit for diffraction patterns
+data.two_theta = temp1(:,1)'./100; % divides by 100 since units in fxye are in centi-degrees
+data.data_fit = temp1(:,2)';
+data.error=temp1(:,3)'; % will become weights for fit for diffraction patterns
 
 try
 data.temperature=Temperature;
@@ -321,7 +333,18 @@ end
 listPosElement = dom.getElementsByTagName('listPositions').item(0);
 if isempty(listPosElement)
     % Assuming the first item under the element 'positions' has the attribute '2Theta'
-    pos2thetaElement = dom.getElementsByTagName('positions').item(0);
+    scanType=dom.getElementsByTagName('scan').item(0).getAttribute('scanAxis');
+    if  strcmp(scanType, 'Gonio') || strcmp(scanType, '2Theta') 
+        pos2thetaElement = dom.getElementsByTagName('positions').item(0);
+    elseif scanType=='2Theta-Omega' 
+        pos2thetaElement = dom.getElementsByTagName('positions').item(0);
+    elseif scanType=='Phi' 
+        pos2thetaElement = dom.getElementsByTagName('positions').item(2);
+    elseif scanType=='Chi' 
+        pos2thetaElement = dom.getElementsByTagName('positions').item(3);
+    else
+        pos2thetaElement = dom.getElementsByTagName('positions').item(1);
+    end
     startPosElement = pos2thetaElement.getElementsByTagName('startPosition').item(0);
     startPosValue = str2double(startPosElement.getTextContent);
     endPosElement = pos2thetaElement.getElementsByTagName('endPosition').item(0);
@@ -344,7 +367,12 @@ ka2 = str2double(dom.getElementsByTagName('kAlpha2').item(0).getTextContent);
 kbeta = str2double(dom.getElementsByTagName('kBeta').item(0).getTextContent);
 ratio = str2double(dom.getElementsByTagName('ratioKAlpha2KAlpha1').item(0).getTextContent);
 
+try 
+    scanType; 
+catch
+    scanType=java.lang.String('Gonio');
+end
 % Save values into a struct
 data = struct('KAlpha1',ka1,'KAlpha2',ka2,'kBeta',kbeta,'RKa1Ka2',ratio,'two_theta',twotheta,...
-    'data_fit',intensity,'Temperature',temperature,'ext','');
+    'data_fit',intensity,'Temperature',temperature,'ext','','scanType',scanType);
 end

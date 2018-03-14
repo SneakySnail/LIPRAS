@@ -59,6 +59,7 @@ classdef FileWriter < handle
        masterfilename = [outpath fits{1}.FileName '_Master_Profile_' '.Fmodel'];
        fidmaster = fopen(masterfilename, 'w');
        this.printFmodelHeader(fits{1}, fidmaster);
+       ImpPro=evalin('base','handles.profiles');
        
        for i=1:length(fits)
            filename = [fits{i}.FileName '_Profile_' num2str(profnum)];
@@ -72,7 +73,15 @@ classdef FileWriter < handle
            
            fdatafilename = [outpath filename '.Fdata'];
            fiddata = fopen(fdatafilename, 'w');
-           this.printFdata(fits{i}, fiddata);
+           if contains(fits{i}.FileName,'xrdml')
+               try this.printFdata(fits{i},fiddata,ImpPro.XRDMLScan{i});
+               catch
+                	this.printFdata(fits{i}, fiddata);                  
+               end
+           else
+               this.printFdata(fits{i}, fiddata);
+           end
+           
            fclose(fiddata);
            
            this.printFmodelValues(fits{i}, fidmaster);
@@ -226,8 +235,11 @@ classdef FileWriter < handle
        fprintf(fid, '\n');
        end
        
-       function printFdata(fitted, fid)
+       function printFdata(fitted, fid, ImpX)
        %PRINTFDATAFILES prints the results of the fit specified by FITTED to a file.
+       if nargin<3
+            ImpX='2Theta';
+       end
        fprintf(fid, 'This is an output file from a MATLAB routine.\n');
        fprintf(fid, 'All single peak data (column 3+) does not include background intensity.\n\n');
        nPeaks=size(fitted.FPeaks,1);
@@ -237,14 +249,28 @@ classdef FileWriter < handle
                     if fitted.CuKa && ~isempty(fitted.FCuKa2Peaks) % this is for Kalpha2
                         vars{:,p+1}=strcat('Kalpha2...',' \t');                   
                     end
-        t='2theta \t Obs \t Calc \t BkgdFit \t Weights \t';
-        nw=strcat(t,[vars{:}],' \n');
+        if isempty(ImpX)
+                t='2Theta \t Obs \t Calc \t BkgdFit \t PredIntLow \t PredIntHigh \t Weights \t';
+        else
+            if strcmp(ImpX,'Omega')
+                                t='Omega \t Obs \t Calc \t BkgdFit \t PredIntLow \t PredIntHigh \t Weights \t';
+            elseif strcmp(ImpX,'Chi')
+                                t='Chi \t Obs \t Calc \t BkgdFit \t PredIntLow \t PredIntHigh \t Weights \t';
+            elseif strcmp(ImpX,'Phi')
+                                t='Phi \t Obs \t Calc \t BkgdFit \t PredIntLow \t PredIntHigh \t Weights \t';
+            else
+                                t='2Theta \t Obs \t Calc \t BkgdFit \t PredIntLow \t PredIntHigh \t Weights \t';
+            end
+        end
+        
+                nw=strcat(t,[vars{:}],' \n');
        fprintf(fid, nw);
        
        twotheta = fitted.TwoTheta';
        intmeas = fitted.Intensity';
        calc=fitted.FData;
-       background = fitted.Background';  
+       background = fitted.Background';
+       PredInt=fitted.PredictInt;
        Weights=fitted.LSWeights;
                        if fitted.CuKa && ~isempty(fitted.FCuKa2Peaks)
                             peaks=[fitted.FPeaks' fitted.FCuKa2Peaks']; % combines the matrixes together to write to FData
@@ -252,7 +278,7 @@ classdef FileWriter < handle
                             peaks=fitted.FPeaks';
                        end
        for i=1:length(twotheta)
-           line = [twotheta(i), intmeas(i), calc(i), background(i), Weights(i),peaks(i,:)];
+           line = [twotheta(i), intmeas(i), calc(i), background(i), PredInt(i,:) Weights(i),peaks(i,:)];
            fprintf(fid, '%2.8f\t', line(:));
            fprintf(fid, '\n');
        end

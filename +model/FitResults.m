@@ -44,6 +44,8 @@ classdef FitResults
         FPeaks          % Numeric array result of each function's fits
         
         FCuKa2Peaks     % Empty if no Cu-Ka2 
+        
+        PredictInt % Prediction of model at 95% confidence interval
     end
     
     properties
@@ -104,7 +106,7 @@ end
         this.ProfileNum    = profile.getCurrentProfileNumber;
         this.OutputPath    = profile.OutputPath;
         this.FunctionNames = xrd.getFunctionNames;
-        this.TwoTheta      = xrd.getTwoTheta;
+        this.TwoTheta      = xrd.getTwoTheta(filenumber);
         this.Intensity     = xrd.getData(filenumber);
         if xrd.BkgLS
         else
@@ -115,7 +117,7 @@ end
         this.BackgroundPoints = xrd.getBackgroundPoints;
         this.PeakPositions = xrd.PeakPositions;
         this.Constraints = xrd.getConstraints;
-        this.FitType       = xrd.getFitType;
+        this.FitType       = xrd.getFitType(filenumber);
         
         if and(filenumber>1,xrd.recycle_results==1)
             this.FitOptions    = xrd.getFitOptions(filenumber);
@@ -150,7 +152,7 @@ end
 %         disp(this.FitOptions.StartPoint) % to check SP being recycled
 
 if any(this.FitOptions.Weights==Inf)
-this.FitOptions.Weights(this.FitOptions.Weights==Inf)=.01; % sets to low value because intensity is low
+this.FitOptions.Weights(this.FitOptions.Weights==Inf)=mean(this.FitOptions.Weights(this.FitOptions.Weights~=Inf)); % sets to low value because intensity is low
 end
 
         if xrd.BkgLS
@@ -175,21 +177,18 @@ end
         this.FCuKa2Peaks = zeros(length(xrd.getFunctions),length(this.FData));
         this.CoeffValues = coeffvalues(fmodel);
         this.CoeffError  = 0.5 * (fmodelci(2,:) - fmodelci(1,:));
+        this.PredictInt=predint(fmodel,this.TwoTheta,0.95,'functional','on');
         
 % Rp, Rwp, and Rchi2 Calculations
-  obs=this.Intensity';
-  w=this.LSWeights';
+    obs=this.Intensity';
+    w=this.LSWeights';
 
     if any(contains(this.CoeffNames,'bkg')) % for when BkgLS is checked
         calc=this.FData'; 
         DOF = this.FmodelGOF.dfe; % degrees of freedom from error
-        er=transpose(xrd.DataSet{filenumber}.getDataErrors);
-        if any(er==0)
-        er(er==0)=mean(er);
-        end
-        
         this.Rp = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
-        this.Rwp = sqrt(sum(((obs-calc)./er).^2)./sum(obs.^2./er.^2))*100 ; %Calculate Rwp
+        this.Rwp = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100;
+
         if strcmp(profile.Weights,'None')
          this.Rchi2=sum((obs-calc).^2./obs)/DOF;   
         else
@@ -199,14 +198,9 @@ end
         obs = this.Intensity';
         calc = this.Background' + this.FData';        
         DOF = this.FmodelGOF.dfe; % degrees of freedom from error
-        er=transpose(xrd.DataSet{filenumber}.getDataErrors);
-        
-        if any(er==0) % for when some Weight values are Inf due to 0 intensity
-        er(er==0)=mean(er);
-        end
-        
         this.Rp = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
-        this.Rwp = sqrt(sum(((obs-calc)./er).^2)./sum(obs.^2./er.^2))*100 ; %Calculate Rwp
+        this.Rwp = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100;
+
         if strcmp(profile.Weights,'None')
          this.Rchi2=sum((obs-calc).^2./obs)/DOF;   
         else
@@ -229,16 +223,22 @@ end
         else
         this.FitInitial.start = this.FitOptions.StartPoint;
         end
-            
+        
+        if filenumber==xrd.NumFiles && xrd.BkgLS
+            xrd.FitInitial.start=this.CoeffValues(xrd.Background.Order+2:end); % fixes the starting values to remove bkg coeffs
+        end
+        
         if xrd.BkgLS % evaluates Poly Bkg based on refined Bkg Coefficients
-           this.CoeffValues(1,1:this.BackgroundOrder+1)=fliplr(this.CoeffValues(1,1:this.BackgroundOrder+1));
+%            this.CoeffValues(1,1:this.BackgroundOrder+1)=fliplr(this.CoeffValues(1,1:this.BackgroundOrder+1));
+%            % not needed
            mu=[mean(this.TwoTheta) std(this.TwoTheta)]; % for centering and scaling
-           this.Background=polyval(this.CoeffValues(1,1:this.BackgroundOrder+1), this.TwoTheta,[],mu); 
+           this.Background=polyval(fliplr(this.CoeffValues(1,1:this.BackgroundOrder+1)), this.TwoTheta,[],mu); 
         else
         end
         this.FitInitial.coeffs = this.CoeffNames;
-        this.FitInitial.lower = this.FitOptions.Lower;
-        this.FitInitial.upper = this.FitOptions.Upper;
+%         this.FitInitial.lower = this.FitOptions.Lower;
+%         this.FitInitial.upper = this.FitOptions.Upper;
+        xrd.CurrentPro=1;
         end
         
         function output = calculateFitNoBackground(this, fcnID)

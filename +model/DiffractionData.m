@@ -23,9 +23,9 @@ classdef DiffractionData
     methods
         function this = DiffractionData(data, filename, fileIndex)
         % Constructor
-        this.FullTwoTheta = data.two_theta(fileIndex,:);
-        this.FullIntensityData = data.data_fit(fileIndex,:);
-        this.FullErrorData=data.error(fileIndex, :);
+        this.FullTwoTheta = data.two_theta{fileIndex};
+        this.FullIntensityData = data.data_fit{fileIndex};
+        this.FullErrorData=data.error{fileIndex};
         [path, name, ext] = fileparts(filename);
         this.DataPath = path;
         this.FileName = [name ext];
@@ -48,8 +48,11 @@ classdef DiffractionData
         end
         
         indices = utils.findIndex(this.FullTwoTheta, range);
-        
+        if indices(1)>indices(2) % for when reading in all negative data
+        result =fliplr( this.FullIntensityData(indices(2):indices(1)));
+        else
         result = this.FullIntensityData(indices(1):indices(2));
+        end
         end
         
                 function result = getDataErrors(this, range)
@@ -64,7 +67,11 @@ classdef DiffractionData
         
         indices = utils.findIndex(this.FullTwoTheta, range);
         
+        if indices(1)>indices(2) % for when reading in all negative X-value data
+                    result = fliplr(this.FullErrorData(indices(2):indices(1)));
+        else
         result = this.FullErrorData(indices(1):indices(2));
+        end
         end
         
         function result = getDataTwoTheta(this, range)
@@ -78,8 +85,12 @@ classdef DiffractionData
         end
         
         indices = utils.findIndex(this.FullTwoTheta, range);
-        
+        if indices(1)>indices(2) % for when reading in all negative X-value data
+        result =fliplr(this.FullTwoTheta(indices(2):indices(1)));            
+        else
         result = this.FullTwoTheta(indices(1):indices(2));
+        end
+        
         end
         
     end

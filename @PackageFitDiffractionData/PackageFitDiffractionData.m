@@ -47,7 +47,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
     
     properties (Dependent, Hidden)
         DataPath
-        KAlpha1= 1.54000;
+        KAlpha1= 1.54056;
         KAlpha2 = 1.544426; % Å
         Min2T
         Max2T
@@ -82,6 +82,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         BkgLS=0;
         Weights='Default';
         UniqueSave=0;
+        CurrentPro=1;
 
     end
     
@@ -93,10 +94,10 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             if ischar(filenames)
                 filenames = {filenames};
             end
-            x = data(1).two_theta;
-            Stro.DataSet = cell(1, size(x,1));
-            if size(x,1)~=size(filenames,2) % checks wether one xrdml with one scan or one xrdml with multiple scans, this condiction specific to XRDML
-            for i=1:size(x,1)
+            x = data(1).two_theta';
+            Stro.DataSet = cell(1, length(x));
+            if length(x)~=size(filenames,2) % checks wether one xrdml with one scan or one xrdml with multiple scans, this condiction specific to XRDML
+            for i=1:length(x)
                 if isequal(data(1).ext,'.xrdml')
                     fn = [filenames{1} ' (scan ' num2str(i) ')'];
                     Stro.DataSet{i} = model.XRDMLData(data, fn, i);
@@ -111,7 +112,9 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
                  end
                 
             end
-            Stro.AbsoluteRange = [x(1) x(end)];
+                        x={Stro.getTwoTheta(1)};
+
+            Stro.AbsoluteRange = [x{1}(1) x{1}(end)];
             Stro.Background = model.Background(Stro);
         end
         if nargin > 2
@@ -179,7 +182,6 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         result = names;
         end
         
-        
         function vals = get.PeakPositions(Stro)
         vals = zeros(1, Stro.NumFuncs);
         if ~isempty(Stro.PeakPositions_)
@@ -205,8 +207,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
         Stro.PeakPositions_ = pos;
         end
-        
-        
+           
         function coeffvals = startingValuesForPeak(Stro, fcnID)
         %STARTINGVALUESFORPEAK returns the coefficient values stored in Stro.FitInitial for the peak
         %   specified in FCNID. 
@@ -225,8 +226,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
         coeffvals = start(coeffIdx);
         end
-        
-        
+                
         function output = calculateCuKaPeak(Stro, fcnID, coeffvals)
         output = [];
         if nargin < 3
@@ -509,7 +509,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         if nargin > 1
             result = Stro.DataSet{file}.getDataTwoTheta();
         else
-            result = Stro.DataSet{1}.getDataTwoTheta();
+            result = Stro.DataSet{Stro.CurrentPro}.getDataTwoTheta();
         end
         
         end
@@ -524,7 +524,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
         Stro.Background.update2T([Stro.Min2T Stro.Max2T]);
         if nargin < 2
-            file = 1;
+            file = Stro.CurrentPro;
         end
         data = Stro.getData(file);
         bg = Stro.Background.calculateFit(file);
@@ -547,7 +547,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
         end
         
-        function result = getFitType(Stro)
+        function result = getFitType(Stro,file)
             
 % Assumes that Stro.FitFunctions is not empty
         coeffs = Stro.getCoeffs;
@@ -565,8 +565,8 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
             end
         end
         PolyM=strcat(Eq{:});
-        m=num2str(mean( Stro.getTwoTheta));
-        s=num2str(std( Stro.getTwoTheta));
+        m=num2str(mean( Stro.getTwoTheta(file)));
+        s=num2str(std( Stro.getTwoTheta(file)));
         newxv=strcat('((xv-',m,')/',s,')');
         PolyM=strrep(PolyM,'xv',newxv);
 
@@ -592,7 +592,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         bkgp=Stro.getBackgroundPoints; 
         bkgdat=Stro.getData(filenum);
         for bp=1:length(Stro.getBackgroundPoints)
-        ibkg(bp)=FindValue(Stro.getTwoTheta,bkgp(bp));
+        ibkg(bp)=FindValue(Stro.getTwoTheta(filenum),bkgp(bp));
         bkgd(bp)=bkgdat(ibkg(bp));
         end       
         [p,~,~] = polyfit(bkgp,bkgd,Stro.getBackgroundOrder);
@@ -678,7 +678,12 @@ end
     methods
         function value = get.Min2T(Stro)
         % Assumes all datasets have identical Min2T
-        value = Stro.DataSet{1}.Min2T;
+        try
+        File=evalin('base','handles.gui.CurrentFile');
+        catch
+        File=1;    
+        end
+            value = Stro.DataSet{File}.Min2T;
         end
         
         function set.Min2T(Stro, value)
@@ -689,9 +694,13 @@ end
         
         function value = get.Max2T(Stro)
         % Assumes all datasets have identical Max2T
-        value = Stro.DataSet{1}.Max2T;
+        try
+        File=evalin('base','handles.gui.CurrentFile');
+        catch
+        File=1;    
         end
-        
+        value = Stro.DataSet{File}.Max2T;
+        end
         
         function set.Max2T(Stro, value)
         for i=1:length(Stro.DataSet)

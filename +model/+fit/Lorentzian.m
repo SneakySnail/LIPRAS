@@ -5,10 +5,11 @@ classdef Lorentzian < model.fit.FitFunctionInterface
     properties
         Name = 'Lorentzian';
         
-        CoeffNames = {'N' 'x' 'f'};
+        CoeffNames = {'N' 'x' 'f','a'};
         
         ID
         
+        Asym=0;
     end
     
     
@@ -47,11 +48,19 @@ classdef Lorentzian < model.fit.FitFunctionInterface
         Nidx = find(contains(coeff, 'N'), 1);
         xidx = find(contains(coeff, 'x'), 1);
         fidx = find(contains(coeff, 'f'), 1);
+        aidx = find(contains(coeff,'a'),1);
         if nargin > 1
            coeff{xidx} = num2str(xval);
         end
+        
+        if this.Asym==0
         str = [coeff{Nidx} '*1/pi* (0.5*' coeff{fidx} '/((xv-', ...
             coeff{xidx} ')^2+(0.5*' coeff{fidx} ')^2))'];
+        else
+             asymF=['(2*' coeff{fidx} '/(1+exp(' coeff{aidx} '*(xv-' coeff{xidx} '))))'];
+                     str = [coeff{Nidx} '*1/pi* (0.5*' asymF '/((xv-', ...
+            coeff{xidx} ')^2+(0.5*' asymF ')^2))'];
+        end
         end
         
         
@@ -66,6 +75,7 @@ classdef Lorentzian < model.fit.FitFunctionInterface
         output.N = value.N;
         output.x = value.x;
         output.f = value.f;
+        output.a = value.a;
         end
         
         
@@ -74,6 +84,7 @@ classdef Lorentzian < model.fit.FitFunctionInterface
         output.N = value.N;
         output.x = value.x;
         output.f = value.f;
+        output.a = value.a;
         end
         
         
@@ -83,6 +94,7 @@ classdef Lorentzian < model.fit.FitFunctionInterface
         output.N = value.N;
         output.x = value.x;
         output.f = value.f;
+        output.a = value.a;
         end
         
     end
@@ -114,10 +126,18 @@ classdef Lorentzian < model.fit.FitFunctionInterface
                xv = coeffvals(i);
            elseif c == 'f'
                f = coeffvals(i);
+           elseif c=='a'
+               a = coeffvals(i);
            end
         end
         
+        if this.Asym==0
         output = N.*1./pi* (0.5.*f./((xdata-xv).^2+(0.5.*f).^2));
+        else
+                        asymF=(2.*f./(1+exp(a.*(xdata-xv))));
+        output = N.*1./pi* (0.5.*asymF./((xdata-xv).^2+(0.5.*asymF).^2));
+
+        end
         
         end
         

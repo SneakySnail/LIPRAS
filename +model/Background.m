@@ -55,11 +55,11 @@ classdef Background
         
         function bkgdArray = calculateFit(this, file)
         % Calculates the resulting background fit.        
-        twotheta = this.xrd.getTwoTheta();
+        twotheta = this.xrd.getTwoTheta(file);
         bkgdArray = [];
         
         if ~isempty(this.xrd.BkgCoeff)&& this.xrd.BkgLS % for when viewing Bkg after refining it
-            P=this.xrd.BkgCoeff;
+            P=fliplr(this.xrd.BkgCoeff);
             if length(this.xrd.BkgCoeff)~=this.Order+1 % for when
                 order = this.Order;
                 x = this.InitialPoints;
@@ -92,7 +92,7 @@ end
         end
         
         function value = get.InitialPointsIdx(this)
-        twotheta = this.xrd.getTwoTheta();
+        twotheta = this.xrd.getTwoTheta(this.xrd.CurrentPro);
         value = utils.findIndex(twotheta, this.InitialPoints);
         end
         
@@ -113,7 +113,7 @@ end
          end
         
         function [p, s, u] = getPolyFit(this, file)
-            
+        this.xrd.CurrentPro=file;    
         intensity = this.xrd.getData(file);
         x = this.InitialPoints;
         y = intensity(this.InitialPointsIdx);
@@ -124,7 +124,7 @@ end
         
         function result = getSplineFit(this, file)
         %GETSPLINEFIT fits a spline function to the dataset using initial points set by the user.
-        twotheta = this.xrd.getTwoTheta();
+        twotheta = this.xrd.getTwoTheta(file);
         intensity = this.xrd.getData(file);
         
         idx = this.InitialPointsIdx;

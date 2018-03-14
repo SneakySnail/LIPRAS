@@ -504,6 +504,7 @@ classdef GUIController < handle
             if isfield(input, 'start') && ~isempty(input.start)
                  startpoints = num2cell(input.start)';
                  emptyIdx = cellfun(@(c)c<0, startpoints);
+                 emptyIdx(contains(input.coeffs,{'x' 'a'})==1)=0; % allows for negative peak positions             
                  startpoints(emptyIdx) = {[]};
                  hObject.Data(:, 1) = startpoints;
             else
@@ -512,6 +513,7 @@ classdef GUIController < handle
             if isfield(input, 'lower') && ~isempty(input.lower)
                 lower = num2cell(input.lower)';
                 emptyIdx = cellfun(@(c)c<0, lower);
+                 emptyIdx(contains(input.coeffs,{'x' 'a'})==1)=0; % allows for negative peak positions             
                 lower(emptyIdx) = {[]};
                 hObject.Data(:, 2) = lower;
             else
@@ -520,6 +522,7 @@ classdef GUIController < handle
             if isfield(input, 'upper') && ~isempty(input.upper)
                 upper = num2cell(input.upper)';
                 emptyIdx = cellfun(@(c)c<0, upper);
+                 emptyIdx(contains(input.coeffs,{'x' 'a'})==1)=0; % allows for negative peak positions             
                 upper(emptyIdx) = {[]};
                 hObject.Data(:, 3) = upper;
             else

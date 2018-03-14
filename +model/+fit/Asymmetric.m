@@ -6,6 +6,8 @@ classdef Asymmetric < model.fit.FitFunctionInterface
         CoeffNames
         
         ID
+        
+        Asym=0;
     end
     
     properties (Hidden)
