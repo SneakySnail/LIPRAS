@@ -16,12 +16,13 @@ Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones
 <b> Why use LIPRAS?</b> You can use LIPRAS to visualize and analyze diffraction data.
 
 <li> Quickly extract relevant peak information about the <b>position, full width at half maximum (FWHM), and intensity</b> </li>
-<li>Conduct Bayesian inference on least-squares results using a Markov Chain Monte Carlo algorithm</li>
+<li> Conduct Bayesian inference on least-squares results using a Markov Chain Monte Carlo algorithm</li>
 <li> Customize the background fit by either treating it separately (Polynomial or Spline) or including it in the least-squares routine (Polynomial only)</li>
+<li> Can analyzes files with a different number of data points and/or X-values, however, check fitting range before attempting </li>
 <li> Fit up to <b>20 peaks</b> in the current profile region </li>
 <li> Choose from 5 different peak-shape functions: <b>Gaussian, Lorentzian, Pseudo-Voigt, and Pearson VII, and Asymmetric Pearson VII</b> </li>
 <li> Peak-shape functions can be constrained in terms of intensity, peak position, FWHM, and mixing coefficient</li>
-<li> Automatically calculate **Cu-Kalpha2** peaks when working with laboratory X-ray data </li>
+<li> Automatically calculate Cu-Kalpha2 peaks when working with laboratory X-ray data </li>
 <li> Change any of the starting fit values and instantly view a sample plot of the fit, before conducting a fit</li>
 <li> For multiple diffraction patterns, results from previous fit are subsequent starting parameters for next fit </li>
 <li> Visualize results with a plot of the resulting peak fit and residual plot</li>
@@ -65,7 +66,7 @@ that the following conditions are met:
 following disclaimer.
 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
 the following disclaimer in the documentation and/or other materials provided with the distribution.
-3. The names â€œNorth Carolina State Universityâ€?, â€œNCSUâ€? and any tradeâ€?name, personal name,
+3. The names North Carolina State University, NCSU and any tradename, personal name,
 trademark, trade device, service mark, symbol, image, icon, or any abbreviation, contraction or
 simulation thereof owned by North Carolina State University must not be used to endorse or promote
 products derived from this software without prior written permission.
