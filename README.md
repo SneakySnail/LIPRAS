@@ -5,6 +5,10 @@
 ## Authors
 Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones
 
+<p>Contact Info<br>
+<b>Email:</b> gesteve@ncsu.edu or gesteves21@gmail.com<br>
+<i> Please include "LIPRAS" in subject </i></p>
+
 <b> History: </b>The backbone of the code was originally created by Jacob L. Jones during his post doc back in 2006-2007. In 2014, Chris M. Fancher continued development of the code created by Jacob and successfully turned it into a class file within MATLAB. Giovanni Esteves further built upon Chris's version by polishing the code and adding features to enhances its feasibility to new users. Finally, in 2016 Klarissa Ramos joined the Jones Research group and jointly with Giovanni they restructured the class file into a graphical user interface (GUI) which is now known as LIPRAS.
 
 ## What is LIPRAS?
@@ -16,17 +20,18 @@ Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones
 <b> Why use LIPRAS?</b> You can use LIPRAS to visualize and analyze diffraction data.
 
 <li> Quickly extract relevant peak information about the <b>position, full width at half maximum (FWHM), and intensity</b> </li>
-<li>Conduct Bayesian inference on least-squares results using a Markov Chain Monte Carlo algorithm</li>
+<li> Conduct Bayesian inference on least-squares results using a Markov Chain Monte Carlo algorithm</li>
 <li> Customize the background fit by either treating it separately (Polynomial or Spline) or including it in the least-squares routine (Polynomial only)</li>
+<li> Can analyzes files with a different number of data points and/or X-values, however, check fitting range before attempting </li>
 <li> Fit up to <b>20 peaks</b> in the current profile region </li>
-<li> Choose from 5 different peak-shape functions: <b>Gaussian, Lorentzian, Pseudo-Voigt, and Pearson VII, and Asymmetric Pearson VII</b> </li>
+<li> Choose from 5 peak-shape functions: <b>Gaussian, Lorentzian, Pseudo-Voigt, and Pearson VII, and Asymmetric Pearson VII</b> </li>
 <li> Peak-shape functions can be constrained in terms of intensity, peak position, FWHM, and mixing coefficient</li>
-<li> Automatically calculate **Cu-Kalpha2** peaks when working with laboratory X-ray data </li>
+<li> Automatically calculate Cu-Kalpha2 peaks when working with laboratory X-ray data </li>
 <li> Change any of the starting fit values and instantly view a sample plot of the fit, before conducting a fit</li>
 <li> For multiple diffraction patterns, results from previous fit are subsequent starting parameters for next fit </li>
 <li> Visualize results with a plot of the resulting peak fit and residual plot</li>
 <li> Resulting coefficients values can be viewed with file number </li>
-<li> Parameters files can be written and used to recreate fits and detail what fit parameters and profile shape functions were used</li>
+<li> Parameters files are written to recreate fits and detail what fit parameters and profile shape functions were used</li>
 <li> Accepts the following <b>file types: .xy, .xye, .xls, .xlsx, .fxye, .xrdml, .chi, .csv (Windows Only)</b></li>
 
 
@@ -65,7 +70,7 @@ that the following conditions are met:
 following disclaimer.
 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
 the following disclaimer in the documentation and/or other materials provided with the distribution.
-3. The names â€œNorth Carolina State Universityâ€?, â€œNCSUâ€? and any tradeâ€?name, personal name,
+3. The names North Carolina State University, NCSU and any tradename, personal name,
 trademark, trade device, service mark, symbol, image, icon, or any abbreviation, contraction or
 simulation thereof owned by North Carolina State University must not be used to endorse or promote
 products derived from this software without prior written permission.

@@ -179,7 +179,7 @@ if ~isempty(handles.profiles.XRDMLScan)
     FiID=handles.profiles.XRDMLScan{handles.popup_filename.Value};
     if ~isempty(FiID)
         if strcmp(FiID,'Gonio')||strcmp(FiID,'2Theta')
-                        handles.text4.String=['2' char(952) 'Range (°):'];
+                        handles.text4.String=['2' char(952) ' Range (°):'];
         elseif FiID=='Omega'
                         handles.text4.String=[char(969) ' Range (°):'];
         elseif FiID=='Chi'
