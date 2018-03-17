@@ -430,7 +430,7 @@ if handlesB.radiobutton6.Value
     end
     Bkg=handlesB.OD.profiles.FitResults{1}{idF}.Background;
     
-    if handlesB.radiobutton7.Value==1 && any(contains(handlesB.BD.coeff,'bkg'))
+    if any(contains(handlesB.BD.coeff,'bkg')) % for plotting the final results
         Bkg=0;
     end
     
