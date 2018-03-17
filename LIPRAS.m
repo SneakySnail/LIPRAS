@@ -186,6 +186,10 @@ if ~isempty(handles.profiles.XRDMLScan)
                         handles.text4.String=[char(967) ' Range (°):'];            
         elseif FiID=='Phi'
                         handles.text4.String=[char(966) ' Range (°):'];
+        elseif FiID=='2Theta/Omega'
+                        handles.text4.String=['2' char(952) ' Range (°):'];
+        elseif FiID=='Omega/2Theta'
+                        handles.text4.String=['2' char(969) ' Range (°):'];
         end
     end
 end
@@ -1068,8 +1072,17 @@ textb=10;
                     end
             end
         function webupdate(~,~)
-            web('http://www.mathworks.com/matlabcentral/fileexchange/62162-line-profile-analysis-software--lipras-','-browser')
-
+            choice = questdlg('Go to Web Page or Download ZIP?', ...
+                        'Options', ...
+                        'LIPRAS Web Page','Download ZIP File','No thank you','No thank you');
+            % Handle response
+            switch choice
+                     case 'LIPRAS Web Page'
+                    web('http://www.mathworks.com/matlabcentral/fileexchange/62162-line-profile-analysis-software--lipras-','-browser')
+                    case 'Download ZIP File'
+                    web('https://www.mathworks.com/matlabcentral/mlc-downloads/downloads/submissions/62162/versions/18/download/zip','-new','-notoolbar','-browser');
+                     case 'No Thank You'
+            end
 
 function menu_about_Callback(~,~,handles)
 % Displays a message box

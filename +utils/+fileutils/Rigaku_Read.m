@@ -47,7 +47,7 @@ while pp<1
     elseif contains(a,'ALPHA2')
         alpha2=strsplit(a);
         kalpha2=str2double(strrep(alpha2{2},'"',''));
-    elseif contains(a,'TAB_NAME')
+    elseif contains(a,'MEAS_SCAN_AXIS_X')
                 scanType=strsplit(a);
                 scanType=strrep(scanType{2},'"','');
     end
