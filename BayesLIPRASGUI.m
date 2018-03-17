@@ -63,6 +63,9 @@ handlesB.uitable2.RowName=handlesB.uitable1.RowName;
 
 if any(contains(handlesB.uitable1.RowName,'bkg'))
     idBkg=1;
+    handlesB.radiobutton7.Value=1;
+else
+        idBkg=sum(contains(handlesB.OD.profiles.FitResults{1}{1}.CoeffNames,'bkg'))+1; % to remove Bkg Coeffs when they will not be in Bayesian analysis
 end
 handlesB.uitable1.Data=[handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'...
     handlesB.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'-handlesB.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'...
@@ -261,7 +264,8 @@ handlesB.edit7.String=handlesB.BD.sigma2sd;
 handlesB.edit5.String=handlesB.BD.sigma2lb;
 handlesB.edit6.String=handlesB.BD.sigma2ub;
 
-idBkg=handlesB.OD.profiles.xrd.getBackgroundOrder+2;
+idBkg=sum(contains(handlesB.OD.profiles.FitResults{1}{1}.CoeffNames,'bkg'))+1; % to remove Bkg Coeffs when they will not be in Bayesian analysis
+
 if handlesB.radiobutton7.Value==1
             idBkg=1;
 else
@@ -426,7 +430,9 @@ if handlesB.radiobutton6.Value
     end
     Bkg=handlesB.OD.profiles.FitResults{1}{idF}.Background;
     
-    if handlesB.radiobutton7.Value==1;Bkg=0;end
+    if any(contains(handlesB.BD.coeff,'bkg')) % for plotting the final results
+        Bkg=0;
+    end
     
     curve2 = handlesB.BD.fit_mean{idF}+Bkg;
     curve3 = handlesB.BD.fit_low{idF}+Bkg;
@@ -477,7 +483,8 @@ function radiobutton3_Callback(hObject, eventdata, handlesB)
 if handlesB.radiobutton3.Value==0
     handlesB.uitable1.RowName=handlesB.OD.profiles.FitInitial.coeffs;
 
-    idBkg=handlesB.OD.profiles.xrd.getBackgroundOrder+2; % to remove Bkg Coeffs when they will not be in Bayesian analysis
+    idBkg=sum(contains(handlesB.OD.profiles.FitResults{1}{1}.CoeffNames,'bkg'))+1; % to remove Bkg Coeffs when they will not be in Bayesian analysis
+    
     if handlesB.radiobutton7.Value==1
                 idBkg=1;
     else
@@ -611,7 +618,7 @@ numFile=length(handles.profiles.FitResults{1});
 bi.burnin=burnin;
 bi.iterations=iterations;
 
-  idBkg=handlesB.OD.profiles.xrd.getBackgroundOrder+2; % to remove Bkg Coeffs when they will not be in Bayesian analysis
+idBkg=sum(contains(handlesB.OD.profiles.FitResults{1}{1}.CoeffNames,'bkg'))+1; % to remove Bkg Coeffs when they will not be in Bayesian analysis
 
 if handlesB.radiobutton7.Value==1
                     idBkg=1;
@@ -1015,7 +1022,7 @@ function popupmenu2_Callback(hObject, eventdata, handlesB)
 handlesB.m=str2double(hObject.String{hObject.Value});
 
 
-    idBkg=handlesB.OD.profiles.xrd.getBackgroundOrder+2; % to remove Bkg Coeffs since they will not be in Bayesian analysis
+    idBkg=sum(contains(handlesB.OD.profiles.FitResults{1}{1}.CoeffNames,'bkg'))+1; % to remove Bkg Coeffs since they will not be in Bayesian analysis
     if handlesB.radiobutton7.Value==1
                 idBkg=1;
     else
@@ -1104,7 +1111,18 @@ function radiobutton7_Callback(hObject, eventdata, handles)
 % hObject    handle to radiobutton7 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+if hObject.Value==1 && ~any(contains(handles.uitable1.RowName,'bkg'))
+        idBkg=1;
+else
+            idBkg=sum(contains(handles.OD.profiles.FitResults{1}{1}.CoeffNames,'bkg'))+1; % to remove Bkg Coeffs when they will not be in Bayesian analysis
+end
+    handles.uitable1.RowName=handles.OD.profiles.FitResults{1}{1}.CoeffNames(idBkg:end);
+    handles.uitable1.Data=[handles.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'...
+    handles.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'-handles.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'...
+    handles.OD.profiles.FitResults{1}{1}.CoeffValues(idBkg:end)'+handles.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)' handles.OD.profiles.FitResults{1}{1}.CoeffError(idBkg:end)'/1.96];
+    handles.uitable2.RowName=handles.OD.profiles.FitResults{1}{1}.CoeffNames(idBkg:end);
 
+guidata(hObject, handles)
 % Hint: get(hObject,'Value') returns toggle state of radiobutton7
 
 

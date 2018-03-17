@@ -12,11 +12,11 @@ end
 
 % allowedFiles = {'*.csv; *.txt; *.xy; *.fxye; *.dat; *.xrdml; *.chi; *.spr'}; % underdevelopment
 if ispc
-allowedFiles = {'*.csv; *.xls; *.xlsx; *.xy; *.xye; *.fxye;*.xrdml; *.chi'};
+allowedFiles = {'*.xy; *.xye; *.xrdml; *.asc; *.ras; *.chi; *.fxye;  *.csv; *.xls; *.xlsx'};
 elseif ismac
-    allowedFiles = {'*.xls;*.xlsx; *.xy; *.xye; *.fxye;*.xrdml; *.chi'};
+    allowedFiles = {'*.xy; *.xye; *.xrdml; *.asc; *.ras; *.chi; *.fxye; *.xls; *.xlsx'};
 else % Defaults to Windows
-    allowedFiles = {'*.csv; *.xls; *.xlsx; *.xy; *.xye; *.fxye;*.xrdml; *.chi'};
+allowedFiles = {'*.xy; *.xye; *.xrdml; *.asc; *.ras; *.chi; *.fxye;  *.csv; *.xls; *.xlsx'};
 
 end
 
@@ -53,6 +53,8 @@ data = struct('two_theta',[],'data_fit',[],'KAlpha1',[],'KAlpha2',[],...
 
 % iterate through all files
 for i=1:length(filename)
+    [~,~,ext] = fileparts(filename{i});
+
     fullFileName = strcat(path, filename{i});
     fid = fopen(fullFileName, 'r');
     
@@ -78,6 +80,10 @@ for i=1:length(filename)
         datatemp = readFile(fid, ext);
     elseif strcmpi(ext, '.xrdml')
         datatemp = parseXRDML(fullFileName);
+    elseif strcmpi(ext,'.ras')
+                datatemp = utils.fileutils.Rigaku_Read(fullFileName, ext);
+    elseif strcmpi(ext,'.asc')
+                datatemp = utils.fileutils.Rigaku_Read(fullFileName, ext);
     end
     
     if strcmpi(ext, '.xrdml')
@@ -110,6 +116,15 @@ for i=1:length(filename)
         data.error{i}=sqrt(datatemp.data_fit);
         data.scanType{i}=datatemp.scanType;
         end
+    elseif strcmpi(ext,'.asc')||strcmpi(ext,'.ras')
+        data.two_theta{i} = datatemp.two_theta;
+        data.data_fit{i} = datatemp.data_fit;
+        data.KAlpha1(i,:)=datatemp.KAlpha1;
+        data.KAlpha2(i,:)=datatemp.KAlpha2;
+        data.error{i}=sqrt(datatemp.data_fit);
+        data.scanType{i}=datatemp.scanType;
+        data.ext = ext;
+
     else
         data.two_theta{i} = datatemp.two_theta;
         data.data_fit{i} = datatemp.data_fit;
