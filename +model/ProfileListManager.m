@@ -210,7 +210,7 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        
 
        
-       if strcmpi(this.ext, '.xrdml')
+       if strcmpi(this.ext, '.xrdml')||strcmpi(this.ext, '.asc')||strcmpi(this.ext, '.ras')
            this.Temperature = {data.Temperature};
            this.KAlpha1 = data(1).KAlpha1;
            this.KAlpha2 = data(1).KAlpha2;
