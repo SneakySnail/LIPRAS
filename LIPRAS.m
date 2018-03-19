@@ -194,6 +194,9 @@ if ~isempty(handles.profiles.XRDMLScan)
     end
 end
 
+handles.uitoggletool1.State='off'; % makes sure this is not checked so new file displays entire range otherwise user has to uncheck zoom capability
+utils.plotutils.toggleZoom(handles.uitoggletool1);
+
 assignin('base','handles',handles);
 guidata(hObject,handles)
 
@@ -321,6 +324,9 @@ else
 end
 ui.update(handles, 'backgroundpoints');
 
+handles.uitoggletool1.State='off'; % makes sure this is not checked so new file displays entire range otherwise user has to uncheck zoom capability
+utils.plotutils.toggleZoom(handles.uitoggletool1);
+
 function edit_max2t_Callback(~, ~, handles)
 if handles.NoEqualData==1
     for p=1:handles.profiles.NumFiles
@@ -342,6 +348,9 @@ else
     utils.plotutils.plotX(handles, 'background');
 end
 ui.update(handles, 'backgroundpoints');
+
+handles.uitoggletool1.State='off'; % makes sure this is not checked so new file displays entire range otherwise user has to uncheck zoom capability
+utils.plotutils.toggleZoom(handles.uitoggletool1);
 
 function edit_polyorder_Callback(src, ~, handles)
 %BACKGROUNDORDERCHANGED Summary of this function goes here
@@ -546,7 +555,11 @@ end
 % From Preferences
 handles.profiles.xrd.Weights=handles.profiles.Weights;
 handles.profiles.xrd.UniqueSave=handles.profiles.UniqueSave;
-
+try
+    handles.profiles.xrd.FitInitial.lower=handles.gui.FitInitial.lower;
+    handles.profiles.xrd.FitInitial.upper=handles.gui.FitInitial.upper;
+catch
+end
 
 try
     prfn = handles.profiles.ActiveProfile;    
