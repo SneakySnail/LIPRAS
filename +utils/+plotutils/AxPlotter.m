@@ -547,13 +547,13 @@ classdef AxPlotter < matlab.mixin.SetGet
                 
                 if ~isempty(this.profiles.XRDMLScan) % For changing XLabel on different XRDML scans
                         FiID=this.profiles.XRDMLScan{this.gui.CurrentFile};
-                    if strcmp(FiID, 'Gonio') || strcmp(FiID, '2Theta') 
+                    if strcmpi(FiID, 'Gonio') || strcmpi(FiID, '2Theta') 
                                    set([axx.XLabel], 'String', '2\theta (\circ)');
-                    elseif FiID=='Omega'
+                    elseif strcmpi(FiID,'Omega')
                                    set([axx.XLabel], 'String', '\omega (\circ)');
-                    elseif FiID=='Chi'
+                    elseif strcmpi(FiID,'Chi')
                                    set([axx.XLabel], 'String', '\chi (\circ)');
-                    elseif FiID=='Phi'
+                    elseif strcmpi(FiID,'Phi')
                                    set([axx.XLabel], 'String', '\phi (\circ)');
                     end
                 end

@@ -791,7 +791,7 @@ if Gibbs==1
 if handlesB.radiobutton7.Value==1
     a=0.1; b=0.1;
 else
-a= sum(sqrt((bi.nint-handles.profiles.FitResults{1}{1}.FData-Bkg).^2)); % needed when bkg was not refined in least-squares because
+a= sum(sqrt((bi.nint-handles.profiles.FitResults{1}{f}.FData-Bkg).^2)); % needed when bkg was not refined in least-squares because
                                                                                                                                                         % modeled background produce alot of deviation from data
 % a=10000;
 b=0.1;

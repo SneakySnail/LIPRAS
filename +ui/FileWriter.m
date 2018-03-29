@@ -252,11 +252,11 @@ classdef FileWriter < handle
         if isempty(ImpX)
                 t='2Theta \t Obs \t Calc \t BkgdFit \t PredIntLow \t PredIntHigh \t Weights \t';
         else
-            if strcmp(ImpX,'Omega')
+            if strcmpi(ImpX,'Omega')
                                 t='Omega \t Obs \t Calc \t BkgdFit \t PredIntLow \t PredIntHigh \t Weights \t';
-            elseif strcmp(ImpX,'Chi')
+            elseif strcmpi(ImpX,'Chi')
                                 t='Chi \t Obs \t Calc \t BkgdFit \t PredIntLow \t PredIntHigh \t Weights \t';
-            elseif strcmp(ImpX,'Phi')
+            elseif strcmpi(ImpX,'Phi')
                                 t='Phi \t Obs \t Calc \t BkgdFit \t PredIntLow \t PredIntHigh \t Weights \t';
             else
                                 t='2Theta \t Obs \t Calc \t BkgdFit \t PredIntLow \t PredIntHigh \t Weights \t';

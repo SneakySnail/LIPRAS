@@ -178,17 +178,17 @@ end
 if ~isempty(handles.profiles.XRDMLScan)
     FiID=handles.profiles.XRDMLScan{handles.popup_filename.Value};
     if ~isempty(FiID)
-        if strcmp(FiID,'Gonio')||strcmp(FiID,'2Theta')
+        if strcmpi(FiID,'Gonio')||strcmpi(FiID,'2Theta')
                         handles.text4.String=['2' char(952) ' Range (°):'];
-        elseif FiID=='Omega'
+        elseif strcmpi(FiID,'Omega')
                         handles.text4.String=[char(969) ' Range (°):'];
-        elseif FiID=='Chi'
+        elseif strcmpi(FiID,'Chi')
                         handles.text4.String=[char(967) ' Range (°):'];            
-        elseif FiID=='Phi'
+        elseif strcmpi(FiID,'Phi')
                         handles.text4.String=[char(966) ' Range (°):'];
-        elseif FiID=='2Theta/Omega'
+        elseif strcmpi(FiID,'2Theta/Omega')
                         handles.text4.String=['2' char(952) ' Range (°):'];
-        elseif FiID=='Omega/2Theta'
+        elseif strcmpi(FiID,'Omega/2Theta')
                         handles.text4.String=['2' char(969) ' Range (°):'];
         end
     end
@@ -663,14 +663,18 @@ handles.profiles.xrd.CurrentPro=hObject.Value;
 
 if ~isempty(handles.profiles.XRDMLScan)
     FiID=handles.profiles.XRDMLScan{handles.popup_filename.Value};
-        if strcmp(FiID,'Gonio')||strcmp(FiID,'2Theta')
+        if strcmpi(FiID,'Gonio')||strcmpi(FiID,'2Theta')
                         handles.text4.String=['2' char(952) 'Range (°):'];
-        elseif FiID=='Omega'
-                        handles.text4.String=[char(969) 'Range (°):'];
-        elseif FiID=='Chi'
-                        handles.text4.String=[char(967) 'Range (°):'];           
-        elseif FiID=='Phi'
-                        handles.text4.String=[char(966) 'Range (°):'];
+        elseif strcmpi(FiID,'Omega')
+                        handles.text4.String=[char(969) ' Range (°):'];
+        elseif strcmpi(FiID,'Chi')
+                        handles.text4.String=[char(967) ' Range (°):'];            
+        elseif strcmpi(FiID,'Phi')
+                        handles.text4.String=[char(966) ' Range (°):'];
+        elseif strcmpi(FiID,'2Theta/Omega')
+                        handles.text4.String=['2' char(952) ' Range (°):'];
+        elseif strcmpi(FiID,'Omega/2Theta')
+                        handles.text4.String=['2' char(969) ' Range (°):'];
         end
 handles.gui.Plotter.updateXLabel(handles.axes1)
 else
@@ -1074,6 +1078,8 @@ textb=10;
             web('https://www.mathworks.com/help/curvefit/evaluating-goodness-of-fit.html','-browser')
         function web4(~,~)
             try
+                h=evalin('base','handles');
+                cd(h.OrigCD) % switches to LIPRAS directory to find manual
                 manu=dir('*manual*.pdf');
                 open(manu.name)
             catch               
@@ -1081,7 +1087,7 @@ textb=10;
                     web(['https://github.com/SneakySnail/LIPRAS/blob/master/' manu.name ],'-browser')
                     else              
                     h1=warndlg('Could not find local version...searching online');
-                    web('https://github.com/SneakySnail/LIPRAS/blob/master/LIPRAS_Manual_6.pdf','-browser')
+                    web('https://github.com/SneakySnail/LIPRAS/blob/master/LIPRAS_Manual_6.pdf','-browser') % this needs manual adjustment
                     end
             end
         function webupdate(~,~)
