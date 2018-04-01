@@ -195,7 +195,7 @@ if ~isempty(handles.profiles.XRDMLScan)
 end
 
 handles.uitoggletool1.State='off'; % makes sure this is not checked so new file displays entire range otherwise user has to uncheck zoom capability
-utils.plotutils.toggleZoom(handles.uitoggletool1);
+try utils.plotutils.toggleZoom(handles.uitoggletool1);catch;end
 
 assignin('base','handles',handles);
 guidata(hObject,handles)
