@@ -1099,8 +1099,18 @@ textb=10;
                      case 'LIPRAS Web Page'
                     web('http://www.mathworks.com/matlabcentral/fileexchange/62162-line-profile-analysis-software--lipras-','-browser')
                     case 'Download ZIP File'
+                        try % attemps to find accurate version number to account for number of downloads
+                    w=webread('https://www.mathworks.com/matlabcentral/fileexchange/62162-line-profile-analysis-software--lipras-');
+                    n=strsplit(w);
+                    [~,c]=find(contains(n,'/matlabcentral/mlc-downloads/downloads/submissions/62162')==1); % trying to find current version number
+                    pp=n{c};
+                    p2=strsplit(pp,'/');
+                    Num=p2{end-1};
+                    web(['https://www.mathworks.com/matlabcentral/mlc-downloads/downloads/submissions/62162/versions/' num2str(Num) '/download/zip'],'-new','-notoolbar','-browser');
+                        catch
                     web('https://www.mathworks.com/matlabcentral/mlc-downloads/downloads/submissions/62162/versions/18/download/zip','-new','-notoolbar','-browser');
-                     case 'No Thank You'
+                        end
+                    case 'No Thank You'
             end
 
 function menu_about_Callback(~,~,handles)
