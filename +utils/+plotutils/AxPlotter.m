@@ -137,7 +137,7 @@ classdef AxPlotter < matlab.mixin.SetGet
             case 'linear'
                 ydata = intensity;
             case 'log'
-                ydata = log(intensity);
+                ydata = log10(intensity);
             case 'sqrt'
                 ydata = sqrt(intensity);
         end
@@ -188,7 +188,7 @@ classdef AxPlotter < matlab.mixin.SetGet
             case 'log'
                 set(line, ...
                     'XData', line.XData(ydata>0), ...
-                    'YData', log(ydata(ydata>0)));
+                    'YData', log10(ydata(ydata>0)));
             case 'sqrt'
                 set(line, ...
                     'XData', line.XData(ydata>=0), ...
@@ -612,7 +612,7 @@ classdef AxPlotter < matlab.mixin.SetGet
             case 'linear'
                 set([axx.YLabel], 'Interpreter', 'tex', 'String', 'Intensity (a.u.)');
             case 'log'
-                set([axx.YLabel], 'Interpreter', 'tex', 'String', 'ln(Intensity) (a.u.)');
+                set([axx.YLabel], 'Interpreter', 'tex', 'String', 'log10(Intensity) (a.u.)');
             case 'sqrt'
                 set([axx.YLabel], 'Interpreter', 'latex', 'String', '$$\sqrt{Intensity}$$ (a.u.)');
         end
