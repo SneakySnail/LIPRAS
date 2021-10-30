@@ -1,4 +1,7 @@
-![stack Overflow](https://github.com/SneakySnail/LIPRAS/blob/master/Logo/Logo_R3.png?raw=true)
+<p align="center">
+<img src="https://github.com/SneakySnail/LIPRAS/blob/master/Logo/Logo_R3.png?raw=true" width="700">
+</p>
+  
 # Line-Profile Analysis Software (LIPRAS)
 
 
@@ -50,10 +53,9 @@ This version is not updated as often as the GitHub repository since it needs to 
 LIPRAS, uploaded to SourceForge:
 *[Stand-Alone Version Download](https://sourceforge.net/projects/lipras/)
 
-**If you use LIPRAS for your research, please cite it (choose one):**
+**If you use LIPRAS for your research, please cite it:**
 
 1. Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones. LIPRAS: Line-Profile Analysis Software. (2017). DOI: 10.13140/RG.2.2.29970.25282/3
-2. Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones. LIPRAS: Line-Profile Analysis Software. (2017). https://github.com/SneakySnail/LIPRAS
 
 
 ## Acknowledgement
