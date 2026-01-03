@@ -86,7 +86,11 @@ handles.OrigCD=cd;
 
 assignin('base','handles',handles);
 % Update handles structure
+<<<<<<< HEAD
 % checkforupdates(1,1,handles,'Silent')
+=======
+checkforupdates(1,1,handles,'Silent')
+>>>>>>> c38a598 (Initial App Designer migration)
 handles.NoEqualData=0;
 guidata(hObject, handles);
 
@@ -1137,10 +1141,17 @@ function panel_choosePlotView_SelectionChangedFcn(hObject, evt, handles)
 % Executes upon Plot View change in the Results tab.
 
 switch hObject.SelectedObject
+<<<<<<< HEAD
     case handles.radio_peakeqn
         handles.gui.onPlotFitChange('peakfit');
         
     case handles.radio_coeff
+=======
+    case handles.PeakFitButton
+        handles.gui.onPlotFitChange('peakfit');
+        
+    case handles.CoefficientsButton
+>>>>>>> c38a598 (Initial App Designer migration)
         handles.gui.onPlotFitChange('coeff');
         
     case handles.radio_statistics
@@ -1174,10 +1185,18 @@ function checkforupdates(~,~,handles,ini)
     end
             cV=handles.profiles.LIPRAS_Version; 
 options = weboptions('ContentType','auto');
+<<<<<<< HEAD
 data=webread('https://www.mathworks.com/matlabcentral/fileexchange/62162-line-profile-analysis-software-lipras',options); % for releases based on commit number
 b1=strsplit(data,'>version');
 b=str2double(b1{2}(4:6));
 if and(isequal(b,cV),strcmp(ini,'na'))
+=======
+data=webread('https://github.com/SneakySnail/LIPRAS/tree/master',options); % for releases based on commit number
+b1=strsplit(data,'<span class="num text-emphasized">\n');
+c=strsplit(b1{4},' '); % number of releases
+b=strsplit(b1{2},' ');
+if and(isequal(str2double(b{2}),cV),strcmp(ini,'na'))
+>>>>>>> c38a598 (Initial App Designer migration)
         d = dialog('Position',[550 550 350 100],'Name','LIPRAS');
             txt = uicontrol('Parent',d,...
            'Style','text',...
@@ -1191,9 +1210,15 @@ if and(isequal(b,cV),strcmp(ini,'na'))
            'Position',[125 10 100 30],...
            'String','Close','FontSize',12,...
            'Callback','delete(gcf)');
+<<<<<<< HEAD
 elseif and(~isequal(b,cV),strcmp(ini,'Silent'))
     handles.profiles.Status='<html><strong>New version available, check for updates under "Help". Otherwise, import file(s) to start using "Browse"</strong></html>';
 elseif ~isequal(b,cV)
+=======
+elseif and(~isequal(str2double(b{2}),cV),strcmp(ini,'Silent'))
+    handles.profiles.Status='<html><strong>New version available, check for updates under "Help". Otherwise, import file(s) to start using "Browse"</strong></html>';
+elseif ~isequal(str2double(b{2}),cV)
+>>>>>>> c38a598 (Initial App Designer migration)
             d = dialog('Position',[550 550 350 150],'Name','LIPRAS');
             txt = uicontrol('Parent',d,...
            'Style','text',...
@@ -1206,7 +1231,11 @@ elseif ~isequal(b,cV)
               txt3 = uicontrol('Parent',d,...
            'Style','text',...
            'Position',[70 120 210 25],...
+<<<<<<< HEAD
            'String',['Available Version: ' num2str(b)],'FontSize',11); %%%
+=======
+           'String',['Available Version: ' num2str(b{2})],'FontSize',11); %%%
+>>>>>>> c38a598 (Initial App Designer migration)
     btn1 = uicontrol('Parent',d,...
            'Position',[190 10 100 30],...
            'String','Close','FontSize',12,...

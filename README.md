@@ -1,7 +1,11 @@
+<<<<<<< HEAD
 <p align="center">
 <img src="https://github.com/SneakySnail/LIPRAS/blob/master/Logo/Logo_R3.png?raw=true" width="700">
 </p>
   
+=======
+![stack Overflow](https://github.com/SneakySnail/LIPRAS/blob/master/Logo/Logo_R3.png?raw=true)
+>>>>>>> c38a598 (Initial App Designer migration)
 # Line-Profile Analysis Software (LIPRAS)
 
 
@@ -12,7 +16,11 @@ Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones
 <b>Email:</b> gesteve@ncsu.edu or gesteves21@gmail.com<br>
 <i> Please include "LIPRAS" in subject </i></p>
 
+<<<<<<< HEAD
 <b> History: </b>The backbone of the code was originally created by Jacob L. Jones when he was a post doc back in 2006-2007. In 2014, Chris M. Fancher continued development of the code created by Jacob and successfully turned it into a class file within MATLAB. Giovanni Esteves further built upon Chris's version by polishing the code and adding features to enhances its feasibility to new users. Finally, in 2016 Klarissa Ramos joined the Jones Research group and jointly with Giovanni they restructured the class file into a graphical user interface (GUI) which is now known as LIPRAS.
+=======
+<b> History: </b>The backbone of the code was originally created by Jacob L. Jones during his post doc back in 2006-2007. In 2014, Chris M. Fancher continued development of the code created by Jacob and successfully turned it into a class file within MATLAB. Giovanni Esteves further built upon Chris's version by polishing the code and adding features to enhances its feasibility to new users. Finally, in 2016 Klarissa Ramos joined the Jones Research group and jointly with Giovanni they restructured the class file into a graphical user interface (GUI) which is now known as LIPRAS.
+>>>>>>> c38a598 (Initial App Designer migration)
 
 ## What is LIPRAS?
 
@@ -53,9 +61,16 @@ This version is not updated as often as the GitHub repository since it needs to 
 LIPRAS, uploaded to SourceForge:
 *[Stand-Alone Version Download](https://sourceforge.net/projects/lipras/)
 
+<<<<<<< HEAD
 **If you use LIPRAS for your research, please cite it:**
 
 1. Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones. LIPRAS: Line-Profile Analysis Software. (2017). DOI: 10.13140/RG.2.2.29970.25282/3
+=======
+**If you use LIPRAS for your research, please cite it (choose one):**
+
+1. Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones. LIPRAS: Line-Profile Analysis Software. (2017). DOI: 10.13140/RG.2.2.29970.25282/3
+2. Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones. LIPRAS: Line-Profile Analysis Software. (2017). https://github.com/SneakySnail/LIPRAS
+>>>>>>> c38a598 (Initial App Designer migration)
 
 
 ## Acknowledgement

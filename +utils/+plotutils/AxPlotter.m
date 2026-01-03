@@ -54,10 +54,17 @@ classdef AxPlotter < matlab.mixin.SetGet
     methods
         function this = AxPlotter(handles)
         this.hg_ = handles;
+<<<<<<< HEAD
         this.ax = handles.axes1;
         this.axerr = handles.axes2;
         % Default color order for plotting data series
         set(get(handles.axes1, 'Parent'), 'DefaultAxesColorOrder', ...
+=======
+        this.ax = handles.UIAxes;
+        this.axerr = handles.UIAxes2;
+        % Default color order for plotting data series
+        set(get(handles.UIAxes, 'Parent'), 'DefaultAxesColorOrder', ...
+>>>>>>> c38a598 (Initial App Designer migration)
             [0      0     0;        % black
             1      0     0;        % red
             1      0.4   0;        % orange
@@ -66,11 +73,19 @@ classdef AxPlotter < matlab.mixin.SetGet
             0.502  0     0.502;    % violet
             0      0     1;        % royal blue
             0.502  0.502 0]);      % dark yellow
+<<<<<<< HEAD
         z=zoom(handles.figure1);
         z.setAllowAxesZoom(handles.axes2, false);
         set(handles.axes1,'ColorOrder',get(handles.axes1,'DefaultAxesColorOrder'), 'LineWidth', 1);
         set([handles.axes1.XLabel], 'Interpreter', 'tex');
         set([handles.axes1.YLabel], 'Interpreter', 'tex');
+=======
+%         z=zoom(handles.figure1);
+%         z.setAllowAxesZoom(handles.axes2, false);
+        set(handles.UIAxes,'ColorOrder',get(handles.UIAxes,'DefaultAxesColorOrder'), 'LineWidth', 1);
+        set([handles.UIAxes.XLabel], 'Interpreter', 'tex');
+        set([handles.UIAxes.YLabel], 'Interpreter', 'tex');
+>>>>>>> c38a598 (Initial App Designer migration)
         end
         
         
@@ -107,6 +122,7 @@ classdef AxPlotter < matlab.mixin.SetGet
         
         function set.CurrentFile(this, val)
         %   
+<<<<<<< HEAD
         this.hg.popup_filename.Value = val;
         this.hg.text_filenum.String = [num2str(val) ' of ' num2str(length(this.FileNames))];
         this.CurrentFileNumber_ = val;
@@ -114,6 +130,16 @@ classdef AxPlotter < matlab.mixin.SetGet
         if this.hg.panel_choosePlotView.SelectedObject == this.hg.radio_peakeqn
             this.hg.listbox_results.Value = val;
         end
+=======
+        this.hg.DropDown.Value = val;
+        this.hg.DropDownLabel.Text= [num2str(val) ' of ' num2str(length(this.FileNames))];
+        this.CurrentFileNumber_ = val;
+        this.title;
+%         if this.hg.panel_choosePlotView.SelectedObject == this.hg.radio_peakeqn
+%             this.hg.listbox_results.Value = val;
+%         end 
+%  above lines not needed since mlapp does change
+>>>>>>> c38a598 (Initial App Designer migration)
         end
         
         function num = get.CurrentFile(this)
@@ -137,7 +163,11 @@ classdef AxPlotter < matlab.mixin.SetGet
             case 'linear'
                 ydata = intensity;
             case 'log'
+<<<<<<< HEAD
                 ydata = log10(intensity);
+=======
+                ydata = log(intensity);
+>>>>>>> c38a598 (Initial App Designer migration)
             case 'sqrt'
                 ydata = sqrt(intensity);
         end
@@ -170,7 +200,11 @@ classdef AxPlotter < matlab.mixin.SetGet
         
         function transformXData_(this, line)
         if isempty(line), return, end
+<<<<<<< HEAD
         xdata = getappdata(line, 'xdata');
+=======
+        xdata = getappdata(line,'xdata');
+>>>>>>> c38a598 (Initial App Designer migration)
         switch this.XScale
             case 'linear'
                 line.XData = xdata;
@@ -188,7 +222,11 @@ classdef AxPlotter < matlab.mixin.SetGet
             case 'log'
                 set(line, ...
                     'XData', line.XData(ydata>0), ...
+<<<<<<< HEAD
                     'YData', log10(ydata(ydata>0)));
+=======
+                    'YData', log(ydata(ydata>0)));
+>>>>>>> c38a598 (Initial App Designer migration)
             case 'sqrt'
                 set(line, ...
                     'XData', line.XData(ydata>=0), ...
@@ -205,7 +243,11 @@ classdef AxPlotter < matlab.mixin.SetGet
         end
         end
         
+<<<<<<< HEAD
         function line = plotRawData(this, varargin)
+=======
+        function line = plotObsData(this, varargin)
+>>>>>>> c38a598 (Initial App Designer migration)
         %PLOTRAWDATA plots the profile's raw data for the currently viewing file. The plotted line's
         %   'Visible' option is always initially set to 'off' so that any line conversions that
         %   might be performed will not be visible to the user. Any call to this function will
@@ -238,7 +280,11 @@ classdef AxPlotter < matlab.mixin.SetGet
         end
         line = plot(axx,x,y,'o',...
             'DisplayName', 'Measured Data', ...
+<<<<<<< HEAD
             'tag', 'raw', ...
+=======
+            'tag', 'Obs', ...
+>>>>>>> c38a598 (Initial App Designer migration)
             'MarkerFaceColor', [1 1 1], ...
             'MarkerEdgeColor', 'auto', ...
             'MarkerSize', 5, ...
@@ -546,7 +592,11 @@ classdef AxPlotter < matlab.mixin.SetGet
                 set([axx.XLabel], 'String', '2\theta (\circ)');
                 
                 if ~isempty(this.profiles.XRDMLScan) % For changing XLabel on different XRDML scans
+<<<<<<< HEAD
                         FiID=this.profiles.XRDMLScan{this.gui.CurrentFile};
+=======
+                        FiID=this.profiles.XRDMLScan{this.CurrentFile};
+>>>>>>> c38a598 (Initial App Designer migration)
                     if strcmpi(FiID, 'Gonio') || strcmpi(FiID, '2Theta') 
                                    set([axx.XLabel], 'String', '2\theta (\circ)');
                     elseif strcmpi(FiID,'Omega')
@@ -626,6 +676,7 @@ classdef AxPlotter < matlab.mixin.SetGet
          h=guidata(axx);
          if isempty(h)
          else
+<<<<<<< HEAD
          zoomstate = getappdata(h.figure1, 'ZoomOnState');
          if isequal(zoomstate, 'on')
              return
@@ -633,6 +684,15 @@ classdef AxPlotter < matlab.mixin.SetGet
         
         if isempty([axx.Children]), return, end
         ydata = get(findobj(axx, 'tag', 'raw'), 'YData');
+=======
+         %zoomstate = getappdata(h.figure1, 'ZoomOnState');
+%          if isequal(zoomstate, 'on')
+%              return
+%          end
+        
+        if isempty([axx.Children]), return, end
+        ydata = get(findobj(axx, 'tag', 'Obs'), 'YData');
+>>>>>>> c38a598 (Initial App Designer migration)
         if isempty(ydata)
             ydata = get(findobj(axx, 'tag', 'superimposed'), 'YData');
         end
@@ -685,7 +745,11 @@ classdef AxPlotter < matlab.mixin.SetGet
         state = warning('query', 'MATLAB:handle_graphics:exceptions:SceneNode');
         warning('off', state.identifier);
         for i=1:length(axx)
+<<<<<<< HEAD
             filenum = this.CurrentFile;
+=======
+            filenum = this.gui.CurrentFile; % change back to removing gui
+>>>>>>> c38a598 (Initial App Designer migration)
             filename = this.FileNames{filenum};
             title(axx, [filename ' (' num2str(filenum) ' of ' num2str(length(this.FileNames)) ')'], ...
                 'Interpreter', 'none', ...

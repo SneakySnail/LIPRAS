@@ -5,7 +5,11 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
     %   ProfileListManager.getInstance.
    properties
        
+<<<<<<< HEAD
        LIPRAS_Version=466; % LIPRAS version number, must match comitt on GitHub or it asks for update
+=======
+       LIPRAS_Version=465; % LIPRAS version number, must match comitt on GitHub or it asks for update
+>>>>>>> c38a598 (Initial App Designer migration)
        DataPath = [];
        
        OutputPath = ['FitOutputs' filesep];
@@ -469,9 +473,17 @@ this.xrd.PeakPositions(1:end)=0;
             prfn = this.getCurrentProfileNumber;
         end
         fitresults = cell(1, this.NumFiles);
+<<<<<<< HEAD
         msg = LiprasDialogCollection.fittingDataSet;
         for i=1:this.NumFiles
             this.Status = ['Fitting dataset ' num2str(i) ' of ' num2str(this.NumFiles) '...'];
+=======
+%         msg = LiprasDialogCollection.fittingDataSet;
+        for i=1:this.NumFiles
+            this.Status = ['<div align="right"><font size="2" face="Helvetica"><i>Fitting dataset ' num2str(i) ' of ' num2str(this.NumFiles) '...</i></font></div>'];
+            evalin('base',['app.HTML.HTMLSource=' '''' '<div align="right"><i>' this.Status '</i></div>' ''';']);
+%             msg.HTMLSource=this.Status;
+>>>>>>> c38a598 (Initial App Designer migration)
             try
                 % stop the fit if the user closes the msgbox
 %                 if ~isvalid(msg)
@@ -481,12 +493,20 @@ this.xrd.PeakPositions(1:end)=0;
 %                 end
                 fitresults{i} = model.FitResults(this, i);
             catch exception
+<<<<<<< HEAD
                 delete(msg)
+=======
+%                 delete(msg)
+>>>>>>> c38a598 (Initial App Designer migration)
                 exception.getReport
                 rethrow(exception)
             end
         end
+<<<<<<< HEAD
         delete(msg);
+=======
+%         delete(msg);
+>>>>>>> c38a598 (Initial App Designer migration)
         this.FitResults{prfn} = fitresults;
         this.Writer.printFitOutputs(fitresults);
         end
