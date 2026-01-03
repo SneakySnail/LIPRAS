@@ -70,11 +70,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
     properties(Hidden)
         suffix   = '';
         CuKa2Peak
-<<<<<<< HEAD
-        KAlpha1_ = 1.540000;
-=======
         KAlpha1_ = 1.5405980;
->>>>>>> c38a598 (Initial App Designer migration)
         KAlpha2_ = 1.544426; % Å
         symdata = 0;
         binID = 1:1:24;
@@ -683,11 +679,7 @@ end
         function value = get.Min2T(Stro)
         % Assumes all datasets have identical Min2T
         try
-<<<<<<< HEAD
-        File=evalin('base','handles.gui.CurrentFile');
-=======
         File=evalin('base','app.gui.CurrentFile');
->>>>>>> c38a598 (Initial App Designer migration)
         catch
         File=1;    
         end

@@ -187,19 +187,11 @@ classdef GUIController < handle
         end
         
         function text = get.Status(this)
-<<<<<<< HEAD
-        text = this.hg.statusbarObj.getText;
-        end
-        
-        function set.PriorityStatus(this, text)
-        this.hg.statusbarObj.setText(text);
-=======
         text = this.hg.HTML.HTMLSource;
         end
         
         function set.PriorityStatus(this, text)
         this.hg.HTML.HTMLSource=['<div align="right"><font size="2" face="Helvetica"><i>' text '</i></div>'];
->>>>>>> c38a598 (Initial App Designer migration)
         end
         
         function set.HelpMode(this, mode)
@@ -228,11 +220,7 @@ classdef GUIController < handle
                 'ForegroundColor', [0.5 0.5 0.5]);
         else
             set(component, ...
-<<<<<<< HEAD
-                'String', pathname,...
-=======
                 'Value', pathname,...
->>>>>>> c38a598 (Initial App Designer migration)
                 'FontAngle','normal', ...
                 'ForegroundColor',[0 0 0]);
         end
@@ -265,30 +253,11 @@ classdef GUIController < handle
         end
         
         function set.Legend(this, mode)
-<<<<<<< HEAD
-        if isempty(this.hg.axes1.Children)
-=======
         if isempty(this.hg.UIAxes.Children)
->>>>>>> c38a598 (Initial App Designer migration)
             return
         end
         switch mode
             case 'reset'
-<<<<<<< HEAD
-                if strcmpi(this.hg.toolbar_legend.State, 'on')
-                    legend(this.hg.axes1, 'off');
-                    this.hg.toolbar_legend.State = 'on';
-                    lgd = legend(this.hg.axes1, 'show');
-                    set(lgd, 'FontSize', 9, 'Box', 'off');
-                end
-            case 'on'
-                this.hg.toolbar_legend.State = 'on';
-                lgd = legend(this.hg.axes1, 'show');
-                set(lgd, 'FontSize', 9, 'Box', 'off');
-            case 'off'
-                this.hg.toolbar_legend.State = 'off';
-                legend(this.hg.axes1, 'hide');
-=======
                 if strcmpi(this.hg.LegendOn.Checked, 'on')
                     legend(this.hg.UIAxes, 'off');
                     this.hg.LegendOn.Checked = 'on';
@@ -302,7 +271,6 @@ classdef GUIController < handle
             case 'off'
                 this.hg.LegendOn.Checked = 'off';
                 legend(this.hg.UIAxes, 'hide');
->>>>>>> c38a598 (Initial App Designer migration)
         end
         end
         
@@ -328,11 +296,7 @@ classdef GUIController < handle
             this.hg.checkbox_lambda.Value = 0;
             this.hg.panel_cuka.Visible = 'off';
         else
-<<<<<<< HEAD
-            this.hg.edit_kalpha1.String = sprintf('%.4f',wavelength);
-=======
 %             this.hg.edit_kalpha1.String = sprintf('%.4f',wavelength); % in new LIPRAS, this value will not be able to be changed since it doesnt matter. Only Kalpha2 changes peak position.
->>>>>>> c38a598 (Initial App Designer migration)
         end
         end
         
@@ -345,18 +309,11 @@ classdef GUIController < handle
             this.hg.checkbox_lambda.Value = 0;
             this.hg.panel_cuka.Visible = 'off';
         else
-<<<<<<< HEAD
-            component = this.hg.edit_kalpha2;
-            component.String = sprintf('%.4f',wavelength);
-            this.hg.checkbox_lambda.Value = 1;
-            this.hg.panel_cuka.Visible = 'on';
-=======
             component = this.hg.CuK2CheckBox;
 %             component.String = sprintf('%.4f',wavelength); % tabbed out
 %             on 12-28-2022 since this wont be an editable option here.
             this.hg.CuK2CheckBox.Value = 1;
 %             this.hg.panel_cuka.Visible = 'on'; % not needed for LIPRAS App
->>>>>>> c38a598 (Initial App Designer migration)
         end
         end
         
@@ -366,14 +323,9 @@ classdef GUIController < handle
         
         function set.FileNames(this, strcell)
         % Updates both the listbox in Tab 3 and the popup above the axes1.
-<<<<<<< HEAD
-        this.hg.popup_filename.String = strcell;
-        this.hg.listbox_results.String = strcell;
-=======
         this.hg.DropDown.Items = strcell;
 %         this.hg.listbox_results.String = strcell; % not needed, list box
 %         is box in fitresults tab
->>>>>>> c38a598 (Initial App Designer migration)
         end
         
         function set.hg(this, handles)
@@ -388,11 +340,7 @@ classdef GUIController < handle
         function set.CurrentProfile(this, value)
         numprofiles = this.hg.profiles.getNumProfiles;
         profiletitle = ['Profile ' num2str(value) ' of ' num2str(numprofiles)];
-<<<<<<< HEAD
-        set(this.hg.text_numprofile, 'String', profiletitle);
-=======
         set(this.hg.DropDownLabel, 'Text', profiletitle);
->>>>>>> c38a598 (Initial App Designer migration)
         
         end
         
@@ -406,11 +354,7 @@ classdef GUIController < handle
         if isempty(profiles.xrd)
             return
         end        
-<<<<<<< HEAD
-        this.hg.edit_min2t.String = sprintf('%.3f', value);
-=======
         this.hg.EditMin2T.Value = value; % changed from sprintf('%.3f', value) to value
->>>>>>> c38a598 (Initial App Designer migration)
         end
         
         function set.Max2T(this, value)
@@ -418,11 +362,7 @@ classdef GUIController < handle
         if isempty(profiles.xrd)
             return
         end      
-<<<<<<< HEAD
-        this.hg.edit_max2t.String = sprintf('%.3f', value);       
-=======
         this.hg.EditMax2T.Value = value; % sprintf('%.3f', value)       
->>>>>>> c38a598 (Initial App Designer migration)
         end
         
         function set.BackgroundModel(this, value)
@@ -548,11 +488,7 @@ classdef GUIController < handle
         %       
         %       Cell     - Formatted as {'BOUNDS', VALUES}  or 
         %                  {'BOUNDS', {COEFFS}, VALUES} 
-<<<<<<< HEAD
-        hObject = this.hg.table_fitinitial;
-=======
         hObject = this.hg.UITable2;
->>>>>>> c38a598 (Initial App Designer migration)
         % Clear the table if input is empty
         if isempty(input)
             hObject.Data = cell(size(hObject.Data));
@@ -604,11 +540,7 @@ classdef GUIController < handle
         function output = get.FitInitial(this)
         % Gets the values in table_fitinitial and returns it as a numeric array of doubles. If the
         %   cell is empty, it returns a -1.
-<<<<<<< HEAD
-        hObject = this.hg.table_fitinitial;
-=======
         hObject = this.hg.UITable2;
->>>>>>> c38a598 (Initial App Designer migration)
         start = hObject.Data(:, 1)';
         lower = hObject.Data(:, 2)';
         upper = hObject.Data(:, 3)';
@@ -651,11 +583,7 @@ classdef GUIController < handle
         end
         
         function value = get.FitResults(this)
-<<<<<<< HEAD
-        component = this.hg.table_results;
-=======
         component = this.hg.UITable3;
->>>>>>> c38a598 (Initial App Designer migration)
         value = cell2mat(component.Data);
         end
         
@@ -664,13 +592,8 @@ classdef GUIController < handle
         %   RowName property to the specified argument. 
         %
         %   VALUE - 1xN string cell array
-<<<<<<< HEAD
-        comp1 = this.hg.table_fitinitial;
-        comp2 = this.hg.table_results;
-=======
         comp1 = this.hg.UITable2;
         comp2 = this.hg.UITable3;
->>>>>>> c38a598 (Initial App Designer migration)
         if ~isequal(comp1.RowName, value')
             comp1.RowName = value';
             comp1.Data = cell(length(value), 3);
@@ -699,21 +622,6 @@ classdef GUIController < handle
         end
         
         function value = get.CurrentFile(this)
-<<<<<<< HEAD
-        value = this.hg.popup_filename.Value;
-        end
- 
-        function value = get.Min2T(this)
-        value = str2double(this.hg.edit_min2t.String);
-        end
-        
-        function value = get.Max2T(this)
-        value = str2double(this.hg.edit_max2t.String);
-        end
-        
-        function value = get.NumPeaks(this)
-        value = this.hg.edit_numpeaks.getValue();
-=======
         value = this.hg.DropDown.Value;
         end
  
@@ -727,7 +635,6 @@ classdef GUIController < handle
         
         function value = get.NumPeaks(this)
         value = this.hg.NumberofPeaksSpinner.Value;
->>>>>>> c38a598 (Initial App Designer migration)
         end
         
         
@@ -745,15 +652,11 @@ classdef GUIController < handle
         
         function value = get.FcnNames(this)
         % Cell array of the fit function names.
-<<<<<<< HEAD
-        h = this.hg.table_paramselection;
-=======
         h = this.hg.UITable;
         if isempty(h.Data) % this was added because if the UITable is empty, for first fit, then it would not come in as a cell and cause an error, 12-24-2022.
             value={};
             return
         end
->>>>>>> c38a598 (Initial App Designer migration)
         if iscell(h.Data(:,1))
             value = h.Data(:,1)';
         else
@@ -773,11 +676,7 @@ classdef GUIController < handle
         %   function per cell. Any cell in CONS can be either empty or it can 
         %   contain any combination of the characters 'Nxfwm'. 
         import utils.*
-<<<<<<< HEAD
-        table = this.hg.table_paramselection;
-=======
         table = this.hg.UITable;
->>>>>>> c38a598 (Initial App Designer migration)
         if this.NumPeaks > 2
         % colnames = cell array of the name of the constrained coefficients
             output = this.ConstraintsInTable;
@@ -800,11 +699,7 @@ classdef GUIController < handle
         coeffs = 'Nxfwm';
         value = '';
         for i=1:length(coeffs)
-<<<<<<< HEAD
-           obj = findobj(this.hg.panel_constraints.Children, 'String', coeffs(i));
-=======
            obj = findobj(this.hg.ConstraintsPanel.Children, 'Text', coeffs(i));
->>>>>>> c38a598 (Initial App Designer migration)
            if obj.Value
                value = [value coeffs(i)]; 
            end
@@ -817,20 +712,12 @@ classdef GUIController < handle
         %   previously checked boxes.
         %
         %   VALUE is a string or cell array with any combination of the letters 'Nxfwm'.
-<<<<<<< HEAD
-        set(this.hg.panel_constraints.Children, 'Value', 0);
-=======
         set(this.hg.ConstraintsPanel.Children, 'Value', 0);
->>>>>>> c38a598 (Initial App Designer migration)
         if iscell(coeffs)
             coeffs = unique([coeffs{:}]);
         end
         for i=1:length(coeffs)
-<<<<<<< HEAD
-            obj = findobj(this.hg.panel_constraints.Children, 'String', coeffs(i));
-=======
             obj = findobj(this.hg.ConstraintsPanel.Children, 'String', coeffs(i));
->>>>>>> c38a598 (Initial App Designer migration)
             obj.Value = 1;
         end
         end
@@ -838,11 +725,7 @@ classdef GUIController < handle
         function output = get.ConstraintsInTable(this)
         % Returns the checked constraints in handles.table_paramselection and returns a cell array
         % of any combination of the letters 'Nxfwm', with one cell per function.
-<<<<<<< HEAD
-        table = this.hg.table_paramselection;
-=======
         table = this.hg.UITable;
->>>>>>> c38a598 (Initial App Designer migration)
         output = cell(1, this.NumPeaks);
         if length(table.ColumnName) > 1
             % colnames = cell array of the name of the constrained coefficients
@@ -859,11 +742,7 @@ classdef GUIController < handle
         %   If the coefficient is not already a column, it creates a new one. It MUST be the same
         %   size as NumPeaks. 
         import utils.*
-<<<<<<< HEAD
-        table = this.hg.table_paramselection;
-=======
         table = this.hg.UITable;
->>>>>>> c38a598 (Initial App Designer migration)
         if isempty(value)
             set(table, 'Data', this.FcnNames', 'ColumnName', table.ColumnName(1), ...
                 'ColumnWidth', {this.FUNCTION_COLUMN_WIDTH});
@@ -898,11 +777,7 @@ classdef GUIController < handle
         %   VALUE is a string with any combination of the letters 'Nxfwm'
         
         % 
-<<<<<<< HEAD
-        table = this.hg.table_paramselection;
-=======
         table = this.hg.UITable;
->>>>>>> c38a598 (Initial App Designer migration)
         data = [table.Data(:,1), cell(this.NumPeaks, length(value))];
         widths = {this.FUNCTION_COLUMN_WIDTH - length(value)*this.CONSTRAINTS_COLUMN_WIDTH};
         colnames = table.ColumnName(1);
@@ -951,11 +826,7 @@ classdef GUIController < handle
                 c = coeffs{i};
             end
             if ~isempty(c)
-<<<<<<< HEAD
-                obj = findobj(this.hg.panel_constraints.Children, 'String', c);
-=======
             obj = findobj(this.hg.ConstraintsPanel.Children, 'Text', c);
->>>>>>> c38a598 (Initial App Designer migration)
                 obj.Value = true;
             end
         end
@@ -971,11 +842,7 @@ classdef GUIController < handle
         
         % Returns the coefficients row name as a 1xN cell array of strings.
         function value = get.Coefficients(this)
-<<<<<<< HEAD
-        hObject = this.hg.table_fitinitial;
-=======
         hObject = this.hg.UITable2;
->>>>>>> c38a598 (Initial App Designer migration)
         value = hObject.RowName';
         end 
     end
@@ -997,19 +864,11 @@ classdef GUIController < handle
         end
         
         function str = get.FileNames(this)
-<<<<<<< HEAD
-        str = this.hg.popup_filename.String;
-        end
-    
-        function output = getFileNames(this, file)
-        str = this.hg.popup_filename.String;
-=======
         str = this.hg.DropDown.Items;
         end
     
         function output = getFileNames(this, file)
         str = this.hg.DropDown.Items;
->>>>>>> c38a598 (Initial App Designer migration)
         if nargin > 1 
             output = str{file};
         else

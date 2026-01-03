@@ -59,11 +59,7 @@ classdef FileWriter < handle
        masterfilename = [outpath fits{1}.FileName '_Master_Profile_' '.Fmodel'];
        fidmaster = fopen(masterfilename, 'w');
        this.printFmodelHeader(fits{1}, fidmaster);
-<<<<<<< HEAD
-       ImpPro=evalin('base','handles.profiles');
-=======
        ImpPro=evalin('base','app.profiles');
->>>>>>> c38a598 (Initial App Designer migration)
        
        for i=1:length(fits)
            filename = [fits{i}.FileName '_Profile_' num2str(profnum)];

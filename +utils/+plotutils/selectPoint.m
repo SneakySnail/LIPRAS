@@ -18,11 +18,8 @@ if nargin < 1
     ax = gca;
 end
 point = []; 
-<<<<<<< HEAD
-=======
 
 
->>>>>>> c38a598 (Initial App Designer migration)
 [x, ~, key] = ginput(1);    
 
 if key == ZOOM_KEY

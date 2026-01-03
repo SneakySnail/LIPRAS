@@ -3,13 +3,8 @@ function resizeAxes1ForErrorPlot(handles, size)
 if ~handles.profiles.hasData
     return
 end
-<<<<<<< HEAD
-axes1Pos = getappdata(handles.axes1, 'OriginalSize');
-axes2Pos = getappdata(handles.axes2, 'OriginalSize');
-=======
 axes1Pos = getappdata(handles.UIAxes, 'OriginalSize');
 axes2Pos = getappdata(handles.UIAxes2, 'OriginalSize');
->>>>>>> c38a598 (Initial App Designer migration)
 axes2height = 0.8*axes2Pos(4);
 if nargin <= 1
     if handles.profiles.hasData
