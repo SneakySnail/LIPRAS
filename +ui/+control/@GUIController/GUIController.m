@@ -712,13 +712,21 @@ classdef GUIController < handle
         %   previously checked boxes.
         %
         %   VALUE is a string or cell array with any combination of the letters 'Nxfwm'.
-        set(this.hg.ConstraintsPanel.Children, 'Value', 0);
+        set(this.hg.ConstraintsPanel.Children, 'Value', 0); % resets all to 0
+        % Get all checkbox handles and their labels
+        cbList = this.hg.ConstraintsPanel.Children;
+        labels = string({cbList.Text});
         if iscell(coeffs)
             coeffs = unique([coeffs{:}]);
         end
-        for i=1:length(coeffs)
-            obj = findobj(this.hg.ConstraintsPanel.Children, 'String', coeffs(i));
-            obj.Value = 1;
+        % Switch to Vectorized approach, 1-3-26
+        % Set value = true for checkboxes whose label matches any letter in coeffs
+        for k = 1:numel(coeffs)
+            match = coeffs(k);
+            idx = find(labels == match, 1);  % exact match
+            if ~isempty(idx)
+                cbList(idx).Value = true;
+            end
         end
         end
         

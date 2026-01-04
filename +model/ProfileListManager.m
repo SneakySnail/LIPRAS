@@ -423,7 +423,9 @@ this.xrd.PeakPositions(1:end)=0;
        line  = fgetl(fid);
        coeff = textscan(line, '%s');
        coeff = coeff{1}';
-       if ~isequal(coeff, this.xrd.getCoeffs)
+       if ~isequal(coeff, this.xrd.getCoeffs)&&any(contains(coeff,'a'))
+                % Coeffs probably match but have asymmetryc 'a'
+       elseif ~isequal(coeff, this.xrd.getCoeffs)
            error('Coefficients do not match')
        end
        % Read SP values

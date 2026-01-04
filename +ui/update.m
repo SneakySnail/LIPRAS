@@ -156,6 +156,8 @@ function newParameterFile(app)
 %UPDATEPARAMETERS is called when a new parameter file is read in. This function updates
 %   the GUI to display the new parameters.
 profiles = app.profiles;
+app.AsymmetryCheckBox.Value=0; % forced to 0 since it should fix below
+
 fcns = profiles.xrd.getFunctionNames;
 constraints = profiles.xrd.getConstraints;
 coeffs = profiles.xrd.getCoeffs;
@@ -177,7 +179,20 @@ end
 updateOptionsTabView(app);
 newPeakPositions(app);
 
+% Check if Coeffs may contains 'a' from FitParameter insert, would only happen on import files. 1-4-26
+if ~isequal(coeffs, profiles.FitInitial.coeffs)
+app.gui.Coefficients = profiles.FitInitial.coeffs;
+app.AsymmetryCheckBox.Value=1;
+
+% Force box to check and this may run everything to update equations. 1-4-26
+              nFxn=length(app.profiles.xrd.FitFunctions);
+              for p=1:nFxn
+                  app.profiles.xrd.FitFunctions{p}.Asym=1;
+              end
+else
 app.gui.Coefficients = coeffs;
+end
+
 updateFitBoundsTable(app);
 
 % What to enable to allow a fit
@@ -365,7 +380,20 @@ elseif and(isFitD, ~app.profiles.xrd.BkgLS)
     app.RefineBkgCheckBox.Value=0;
     app.NoBoundsCheckBox.Value=0;
 end
-coeffs = app.profiles.xrd.getCoeffs;
+
+try
+    % Check if any coefficient name contains 'a'
+    if any(contains(app.profiles.FitInitial.coeffs, 'a'))
+        coeffs = app.profiles.FitInitial.coeffs;
+    else
+        coeffs = app.profiles.xrd.getCoeffs();
+    end
+catch
+    % If app.profiles.FitInitial.coeffs doesn't exist or fails
+    coeffs = app.profiles.xrd.getCoeffs();
+end
+
+
 if isempty(coeffs)
     return
 elseif isFitD
