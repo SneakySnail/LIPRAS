@@ -346,7 +346,7 @@ classdef GUIController < handle
         
         function set.NumPeaks(this, value)
         % Update the View
-        this.hg.edit_numpeaks.setValue(value);
+        this.hg.NumberofPeaksSpinner.Value=value;
         end
         
         function set.Min2T(this, value)
@@ -372,29 +372,29 @@ classdef GUIController < handle
         %VALUE: 
         %   'Polynomial' OR 1
         %   'Spline' OR 2
-        h = this.hg.popup_bkgdmodel;
+        h = this.hg.ModelDropDown; % changed 1-3-26
         if ischar(value)
             name = value;
-            indx = find(strcmpi(name, h.String), 1); % Find index of current bkgd model
+            indx = find(strcmpi(name, h.Value), 1); % Find index of current bkgd model
         elseif isnumeric(value)
             indx = value;
             name = h.String{indx};
         end
         profiles = this.hg.profiles;
         profiles.xrd.setBackgroundModel(name);
-        h.Value = indx;
+        h.Value = h.Items{indx}; 
         end
         
         function set.PolyOrder(this, value)
         profiles = this.hg.profiles;
         profiles.xrd.setBackgroundOrder(value);
-        this.hg.edit_polyorder.setValue(value);
+        this.hg.PolyOrderSpinner.Value=value;
         end
         
         function set.FcnNames(this, value)
         %SET.FCNNAMES(THIS, VALUE) updates the Model to have the correct
         %   function object and then updates the View.
-        ht = this.hg.table_paramselection;
+        ht = this.hg.UITable;
         if isempty(value)
             set(ht, 'Data', cell(1,1), 'ColumnWidth', this.FUNCTION_COLUMN_WIDTH);
             return

@@ -180,11 +180,12 @@ newPeakPositions(app);
 app.gui.Coefficients = coeffs;
 updateFitBoundsTable(app);
 
-set(app.tabpanel, 'tabenables', {'on' 'on' 'off'}, 'selection', 2);
-set(app.tab2_next, 'visible', 'off');
-set(app.panel_coeffs.Children, 'enable', 'on');
-set(app.push_update, 'enable', 'on');
-set(app.push_selectpeak, 'enable', 'on');
+% What to enable to allow a fit
+app.LineProfilesPanel.Enable='on';
+app.SelectPeaksButton.Enable='on';
+app.FitDataButton.Enable=1;
+
+% Plot starting peaks, after this, user should just be able to hit fit
 app.gui.Plotter.updateXYLim 
 utils.plotutils.plotX(app, 'sample');
 app.gui.Plotter.updateXYLim 
@@ -201,10 +202,12 @@ import utils.plotutils.*
 % app.container_numpeaks.Visible = 'on';
 xrd = app.profiles.xrd;
 if xrd.hasBackground && length(app.profiles.BackgroundPoints) > xrd.getBackgroundOrder
-    app.tab1_next.Visible = 'on';
-    app.group_bkgd_edit_mode.SelectedObject = app.radiobutton14_add;
-    set(findobj(app.panel_setup, 'enable', 'off'), 'enable', 'on')
-    app.tabpanel.TabEnables{2} = 'on';
+    % app.tab1_next.Visible = 'on';
+    % app.group_bkgd_edit_mode.SelectedObject = app.radiobutton14_add;
+    % set(findobj(app.panel_setup, 'enable', 'off'), 'enable', 'on')
+    % app.tabpanel.TabEnables{2} = 'on';
+
+    % None of this is needed since it was used for GUI Layout
     
 elseif ~isempty(app.profiles.BackgroundPoints)
     set(app.group_bkgd_edit_mode, 'SelectedObject', app.radiobutton14_add);
