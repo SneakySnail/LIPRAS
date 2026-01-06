@@ -174,7 +174,9 @@ classdef GUIController < handle
         % text in the status bar and if it has been displayed for at least 1 second before
         % overriding it.
         persistent timerStart
-        previousText = char(this.hg.statusbarObj.getText);
+        % previousText = char(this.hg.statusbarObj.getText);
+                previousText = char(this.hg.statusbarObj.getText);
+
         if isempty(timerStart) 
             timerStart = tic;
         end
