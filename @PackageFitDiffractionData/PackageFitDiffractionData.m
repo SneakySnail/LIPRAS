@@ -592,7 +592,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         bkgp=Stro.getBackgroundPoints; 
         bkgdat=Stro.getData(filenum);
         for bp=1:length(Stro.getBackgroundPoints)
-        ibkg(bp)=FindValue(Stro.getTwoTheta(filenum),bkgp(bp));
+        ibkg(bp)=Stro.FindValue(Stro.getTwoTheta(filenum),bkgp(bp));
         bkgd(bp)=bkgdat(ibkg(bp));
         end       
         [p,~,~] = polyfit(bkgp,bkgd,Stro.getBackgroundOrder);
@@ -673,6 +673,14 @@ end
         position2 = 180 / pi * (2*asin(lambda2/lambda1*sin(pi / 180 * (position1/2))));
         end
         
+        function idx=FindValue(~,data, value) % For when bkg is in LS
+        % Finds index of nearest value in a 1D (2) vector
+
+        assert(isvector(data),'Data must be a vector');
+        assert(~isempty(data),'Data must not be empty');
+
+        [~, idx] = min(abs(data - value));
+        end
     end
     
     methods

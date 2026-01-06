@@ -50,9 +50,6 @@ elseif isequal(key, KEY_ENTER)
     return
 end
 
-% -------------------------------------------------------------------------
-% Right-click behavior (delete)
-% -------------------------------------------------------------------------
 if key == 3   % Right mouse button
 
     % Initialize newPoints if not yet defined
