@@ -250,6 +250,10 @@ classdef AxPlotter < matlab.mixin.SetGet
         if length(varargin) > 1
             set(line, varargin{:});
         end
+        set([axx.YLabel], 'Interpreter', 'tex', 'String', 'Intensity (a.u.)');
+        this.updateXLabel(this.ax); % resets x-label when toggle to coefficients then back to peak fit
+
+
         end
         
         function line = plotBgPoints(this, ax)

@@ -60,18 +60,6 @@ try
             Resi1=['Rp:' ' ' R1 ' %'];
             Resi2=['Rwp:' ' ' R2 ' %'];
             Resi3=['GOF:' ' ' R3];
-%             app.FitStats1.FontSize=11; app.FitStats1.FontWeight='bold';            
-%             app.FitStats2.FontSize=11; app.FitStats2.FontWeight='bold';          
-%             app.FitStats3.FontSize=11; app.FitStats3.FontWeight='bold'; 
-%             app.FitStats1.String=Resi1;
-%             app.FitStats2.String=Resi2;
-%             app.FitStats3.String=Resi3;
-%             app.FitStats1.Visible='on';
-%             app.FitStats2.Visible='on';
-%             app.FitStats3.Visible='on';
-
-%             resizeAxes1ForErrorPlot(app, 'fit');
-
 
             delete(app.UIAxes.Children(~contains({app.UIAxes.Children.Tag},'Obs'))) % deletes all but whatever is specified in Tag
 
@@ -321,12 +309,6 @@ end
 
     function plotCoefficients(app)
     cla(app.UIAxes)
-%     if app.panel_choosePlotView.SelectedObject ~= app.radio_coeff %
-%     commneted out on 07/03/2020
-%         keyboard % delete -- testing only
-%         return
-%     end
-%     utils.plotutils.resizeAxes1ForErrorPlot(app, 'data');    
     hTable = app.UITable3;
     row = app.FilesListBox.Value;
     NumCoef_all=size(hTable.Data,1);
@@ -353,8 +335,10 @@ end
     ylim(app.UIAxes,'auto')
     app.UIAxes.XAxis.TickLabelsMode = 'auto';
     app.UIAxes.XLabel.String = 'File Number';
-    app.UIAxes.YLabel.String = [];
+    app.UIAxes.YLabel.String=app.FilesListBox.Items{app.FilesListBox.Value}; % Sets ylabel
     app.gui.Legend = 'reset';
+    app.UIAxes2.Visible='off'; % added to remove subplot when coefficients is toggled, 1-6-2026
+    app.UIAxes2.Children.Visible='off'; % added to remove subplot when coefficients is toggled, 1-6-2026
     end
 
 % plots the statistics of all the fits, when 'Fit Statistics' is selected
