@@ -56,7 +56,7 @@ switch lower(varargin{1})
         newFitResults(app);
 end
 set(findobj(app.figure1, 'enable','inactive'), 'enable', 'on');
-assignin('base', 'app', app);
+assignin('base', 'app', app); %done alot, seems to be needed until eval and assignin are out
 guidata(app.figure1, app);
 
 
