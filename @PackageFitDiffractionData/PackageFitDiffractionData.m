@@ -687,7 +687,7 @@ end
         function value = get.Min2T(Stro)
         % Assumes all datasets have identical Min2T
         try
-        File=evalin('base','app.gui.CurrentFile');
+        File=Stro.CurrentPro; % Current profile
         catch
         File=1;    
         end
@@ -703,7 +703,7 @@ end
         function value = get.Max2T(Stro)
         % Assumes all datasets have identical Max2T
         try
-        File=evalin('base','handles.gui.CurrentFile');
+        File=Stro.CurrentPro; % Current profile
         catch
         File=1;    
         end

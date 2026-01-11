@@ -116,15 +116,16 @@ classdef GUIController < handle
     %   GUIController.getInstance(handles).
     methods (Access = private)
         % Takes the handles of the current figure and saves i
-        function this = GUIController(figure1)
+        function this = GUIController(app)
         %   handles - the handles structure to the GUI components 
-        if nargin < 1
-            this.hg = guidata(findall(0,'tag', 'figure1'));
-        else
-            this.hg = guidata(figure1);
-        end
-        this.Profiles = this.hg.profiles;
-        this.Plotter = utils.plotutils.AxPlotter(this.hg);
+        % if nargin < 1
+        %     this.hg = guidata(findall(0,'tag', 'figure1'));
+        % else
+        %     this.hg = guidata(figure1);
+        % end
+        this.hg=app;
+        this.Profiles = app.profiles;
+        this.Plotter = utils.plotutils.AxPlotter(app);
         end
     end
         
@@ -200,6 +201,7 @@ classdef GUIController < handle
         % mode is `on` or `off`
         this.HelpMode_ = mode;
         this.hg.figure1.CSHelpMode = mode;
+        disp('Helper mode is used...')
         helper = getappdata(this.hg.figure1, 'helper');
         if isequal(mode, 'on')
             helper.helpModeDidTurnOn(this.hg.figure1);
@@ -610,17 +612,7 @@ classdef GUIController < handle
     methods
         
         function value = get.hg(this)
-        % Returns empty if 
-        try
-            fig = this.hg_.figure1;
-        catch
-            fig = [];
-        end
-        if ~isempty(fig)
-            value = guidata(fig);
-        else
-            value = fig;
-        end
+            value=this.hg_;
         end
         
         function value = get.CurrentFile(this)
@@ -896,19 +888,13 @@ classdef GUIController < handle
     methods (Static)
         handles = initGUI(handles)
         
-        function singleObj = getInstance(handles)
+        function singleObj = getInstance(app)
         % 
-        persistent localObj;
-        
-        if isempty(localObj) || ~isvalid(localObj)
-            if nargin < 1
-                localObj = [];
-            else
-                localObj = ui.control.GUIController(handles);
+            persistent localObj;
+            if isempty(localObj) || ~isvalid(localObj)
+                localObj = ui.control.GUIController(app);
             end
-        end
-        
-        singleObj = localObj;
+            singleObj = localObj;
         end
         
         function value = hasEmptyCell(data)

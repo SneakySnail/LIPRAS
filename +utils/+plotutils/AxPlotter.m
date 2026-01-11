@@ -518,7 +518,7 @@ classdef AxPlotter < matlab.mixin.SetGet
         if nargin < 1
             ax = this.axerr;
         end
-        cla(ax)
+        % cla(ax)
         if Bkg_LS
                     line = plot(ax, fitted.TwoTheta, fitted.Intensity - (fitted.FData), ...
                     'r', 'Tag', 'error', ...
@@ -528,8 +528,7 @@ classdef AxPlotter < matlab.mixin.SetGet
                     'r', 'Tag', 'error', ...
                     'visible','off','LineWidth',1); 
         end
-        set(ax, 'LineWidth', 1, ...
-                'XLim', [min(fitted.TwoTheta) max(fitted.TwoTheta)]);
+        % set(ax, 'LineWidth', 1, 'XLim', [min(fitted.TwoTheta) max(fitted.TwoTheta)]); % resets plot window X
         setappdata(line,'xdata',line.XData);
         setappdata(line,'ydata',line.YData);
         this.transformXData_(line);
@@ -577,35 +576,43 @@ classdef AxPlotter < matlab.mixin.SetGet
  %         set(ax, 'XLim', zoomlim(1:2), 'YLim', zoomlim(3:4));
  %         end
         
-        function updateXLim(this, axx)
-            h=guidata(axx);
-            if isempty(h)
-            
-
-           
-        if isempty([axx.Children]), return, end
-        xrange = [this.profiles.Min2T this.profiles.Max2T];
-        switch this.XScale
-            case 'linear'
-                set(axx, 'XLim', xrange);
-            case 'dspace'
-                set(axx, 'XLim', sort(this.profiles.dspace(xrange)));
-        end
-            else
-                zoomstate = getappdata(h.figure1, 'ZoomOnState');
-                      if isequal(zoomstate, 'on')
-                            return
-                      end
-                      zoom(h.figure1, 'reset')
-                              if isempty([axx.Children]), return, end
-                                    xrange = [this.profiles.Min2T this.profiles.Max2T];
-                                    switch this.XScale
-                                        case 'linear'
-                                            set(axx, 'XLim', xrange);
-                                        case 'dspace'
-                                            set(axx, 'XLim', sort(this.profiles.dspace(xrange)));
-                                    end
+        function updateXLim(this, axx, mode)
+            % updateXLim Updates the X-axis limits based on current scale and zoom state
+            % axx: (optional) Axes handle to update; defaults to this.ax
+        
+            if nargin < 2 || isempty(axx)
+                axx = this.ax;
+            elseif nargin <3
+                mode=this.Mode;
             end
+        
+            current_xlim = axx.XLim;
+            master_xrange=[this.profiles.Min2T this.profiles.Max2T];
+            master_xranged= sort(this.profiles.dspace(master_xrange));
+
+            if strcmp(mode,'fit')
+            xrange=current_xlim;
+            else
+            xrange = master_xrange;
+            end
+            
+            switch this.XScale
+                case 'linear'
+                          if current_xlim(1) >= master_xrange(1) && current_xlim(2) <= master_xrange(2)
+                                return;  % Don't adjust XLim if zoomed outside range
+                          else
+                                          xrange = [this.profiles.Min2T this.profiles.Max2T];
+                          end
+                                          set(axx, 'XLim', xrange);
+                case 'dspace'
+                              if current_xlim(1) >= master_xranged(1) && current_xlim(2) <= master_xranged(2)
+                                return;  % Don't adjust XLim if zoomed outside range
+                              else
+                                        xrange = [this.profiles.Min2T this.profiles.Max2T];
+                              end
+                                        set(axx, 'XLim', sort(this.profiles.dspace(xrange)));
+            end
+
         end
         
         function updateYLabel(this, axx)
@@ -626,31 +633,37 @@ classdef AxPlotter < matlab.mixin.SetGet
         end
         
         function updateYLim(this, axx)
-        %updateYAxis modifies the y-axis limits based on the minimum and maximum values of the
-        %   plotted lines.
-         h=guidata(axx);
-         if isempty(h)
-         else
-         %zoomstate = getappdata(h.figure1, 'ZoomOnState');
-%          if isequal(zoomstate, 'on')
-%              return
-%          end
-        
-        if isempty([axx.Children]), return, end
-        ydata = get(findobj(axx, 'tag', 'Obs'), 'YData');
-        if isempty(ydata)
-            ydata = get(findobj(axx, 'tag', 'superimposed'), 'YData');
-        end
-        if iscell(ydata)
-            ydata = [ydata{:}];
-        elseif isempty(ydata)
-            return
-        end
-        ydiff = max(ydata) - min(ydata);
-        ymin = min(ydata)-0.05*ydiff;
-        ymax = max(ydata)+0.2*ydiff;
-        set(axx, 'YLim', sort([ymin ymax]));
-         end
+             % updateYLim adjusts the Y-axis limits based on data in the axes
+                if nargin < 2 || isempty(axx)
+                    axx = this.ax;
+                end
+            
+                if isempty(axx.Children)
+                    return;
+                end
+            
+                % Try to get YData from primary data line
+                ydata = get(findobj(axx, 'Tag', 'Obs'), 'YData');
+            
+                % Fallback to superimposed data
+                if isempty(ydata)
+                    ydata = get(findobj(axx, 'Tag', 'superimposed'), 'YData');
+                end
+            
+                % Unwrap cell if needed
+                if iscell(ydata)
+                    ydata = [ydata{:}];
+                end
+            
+                if isempty(ydata)
+                    return;
+                end
+            
+                % Set new Y limits with padding
+                ydiff = max(ydata) - min(ydata);
+                ymin = min(ydata) - 0.05 * ydiff;
+                ymax = max(ydata) + 0.2 * ydiff;
+                set(axx, 'YLim', sort([ymin ymax]));
         end
         
         function updateXYLim(this, axx,mode)
@@ -662,7 +675,7 @@ classdef AxPlotter < matlab.mixin.SetGet
         
         if strcmp(mode,'sample')   % should trigger when plotting sample
         else
-        this.updateXLim(axx);
+        this.updateXLim(axx,mode);
         this.updateYLim(axx);
         end
         this.title;
@@ -735,7 +748,7 @@ classdef AxPlotter < matlab.mixin.SetGet
     
     methods 
         function handles = get.hg(this)
-        handles = guidata(this.hg_.figure1);
+        handles = this.hg_;
         end
         
         function gui = get.gui(this)

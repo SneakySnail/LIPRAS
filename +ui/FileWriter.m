@@ -29,12 +29,13 @@ classdef FileWriter < handle
    end 
    
    methods
-       function printFitOutputs(this, fits)
+       function printFitOutputs(this, fits, XRDMLScan)
        %PRINTFILEOUTPUTS prints the results of the fit for each file in a .Fdata, .Fmodel, and the
        %    master .Fmodel file.
        if ~iscell(fits)
            fits = {fits};
        end
+
        profnum = this.Profiles.getCurrentProfileNumber;
        if this.Profiles.xrd.UniqueSave
               index = 0;
@@ -59,7 +60,6 @@ classdef FileWriter < handle
        masterfilename = [outpath fits{1}.FileName '_Master_Profile_' '.Fmodel'];
        fidmaster = fopen(masterfilename, 'w');
        this.printFmodelHeader(fits{1}, fidmaster);
-       ImpPro=evalin('base','app.profiles');
        
        for i=1:length(fits)
            filename = [fits{i}.FileName '_Profile_' num2str(profnum)];
@@ -74,7 +74,7 @@ classdef FileWriter < handle
            fdatafilename = [outpath filename '.Fdata'];
            fiddata = fopen(fdatafilename, 'w');
            if contains(fits{i}.FileName,'xrdml')
-               try this.printFdata(fits{i},fiddata,ImpPro.XRDMLScan{i});
+               try this.printFdata(fits{i},fiddata,XRDMLScan{i});
                catch
                 	this.printFdata(fits{i}, fiddata);                  
                end

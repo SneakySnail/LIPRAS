@@ -465,7 +465,7 @@ this.xrd.PeakPositions(1:end)=0;
        results = this.FitResults{1};
        end
        
-       function fitresults = fitDataSet(this, prfn)
+       function fitresults = fitDataSet(this, prfn, HTML)
         % Fits the entire dataset for the current profile and saves it as a cell array of FitResults.
         if nargin < 2
             prfn = this.getCurrentProfileNumber;
@@ -474,7 +474,7 @@ this.xrd.PeakPositions(1:end)=0;
 %         msg = LiprasDialogCollection.fittingDataSet;
         for i=1:this.NumFiles
             this.Status = ['<div align="right"><font size="2" face="Helvetica"><i>Fitting dataset ' num2str(i) ' of ' num2str(this.NumFiles) '...</i></font></div>'];
-            evalin('base',['app.HTML.HTMLSource=' '''' '<div align="right"><i>' this.Status '</i></div>' ''';']);
+            HTML.HTMLSource=this.Status;
 %             msg.HTMLSource=this.Status;
             try
                 % stop the fit if the user closes the msgbox
@@ -491,8 +491,8 @@ this.xrd.PeakPositions(1:end)=0;
             end
         end
 %         delete(msg);
-        this.FitResults{prfn} = fitresults;
-        this.Writer.printFitOutputs(fitresults);
+        this.FitResults{prfn} = fitresults; % sets X2, Rp, Rwp for profile selected
+        this.Writer.printFitOutputs(fitresults,this.XRDMLScan); % modifed this to allow xrdmlScan to be passed, 1-10-2026
         end
    end
         
