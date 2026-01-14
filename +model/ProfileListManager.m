@@ -15,7 +15,7 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        ImageFormat='TIFF';
        ImageRes='100 DPI';
        ImageSaveAll=0;
-       GUIColor=[1 1 1]; % default GUI color by MATLAB
+       GUIColor=[0.96 0.96 0.96]; % default GUI color by MATLAB
        Errors=[];
        FitResults % each profile results in a cell
        XRDMLScan
