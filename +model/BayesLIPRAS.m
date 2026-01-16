@@ -45,6 +45,8 @@ bi.m=3;
 bi.UB=bi.SP+bi.Err*bi.m;
 bi.LB=bi.SP-bi.Err*bi.m;
 bi.param_sd=bi.Err/1.96;
+app.HTML.HTMLSource='<div align="right"><font size="2" face="Helvetica"><i>Bound multiplier set to 3 for "Auto"</i></font></div>';
+app.MultiplyLBUBDropDown.Value='3';
 
 if and(any(contains(bi.coeff,'bkg') ), app.IncludeBackgroundCheckBox.Value==0)% ignore Bkg coeffs in Bayesian
 bi.coeff(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
@@ -59,10 +61,13 @@ elseif strcmp(Default,'on')
 
 bi.SP=handles.profiles.FitResults{1}{f}.CoeffValues;
 bi.Err=handles.profiles.FitResults{1}{f}.CoeffError;
-bi.m=str2double(app.BoundMultiplyDropDown.Value);
-bi.UB=bi.SP+bi.Err*bi.m;
-bi.LB=bi.SP-bi.Err*bi.m;
-bi.param_sd=bi.Err/str2double(app.SDDividerDropDown.Value);
+bi.m=str2double(app.MultiplyLBUBDropDown.Value);
+bi.UB=bi.SP+bi.Err*1;
+bi.LB=bi.SP-bi.Err*1; % changed from multiplier so user uses custom button
+bi.param_sd=bi.Err/2;  % changed from multiplier so user uses custom button
+app.UITable4.Data=[bi.SP' bi.LB' bi.UB' bi.param_sd'];
+app.MultiplyLBUBDropDown.Value='1';
+app.DivideSDDropDown.Value='1';
 
 if and(any(contains(bi.coeff,'bkg') ),app.IncludeBackgroundCheckBox.Value==0)% ignore Bkg coeffs in Bayesian
 bi.coeff(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
@@ -75,7 +80,7 @@ end
     
 else
     bi.SP=SP;
-    bi.Err=SD*str2double(app.SDDividerDropDown.Value); % Why multiply?
+    bi.Err=SD*str2double(app.DivideSDDropDown.Value); % Why multiply?
     bi.UB=UB;
     bi.LB=LB;
     bi.param_sd=SD;
