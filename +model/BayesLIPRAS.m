@@ -1,7 +1,8 @@
-function [bi, status]=BayesLIPRAS(app, SP, LB, UB, SD, Sig2, Sig2SD, Sig2UB, Sig2LB,iterations, burnin,Naive,Default)
+function [bi, status]=BayesLIPRAS(app, SP, LB, UB, SD, Sig2, Sig2SD, Sig2UB, Sig2LB,iterations, burnin,Naive,Default,BayesBkg)
 status.success = false;
 status.message = '';
 
+% BayesBkg is 
 handles=app;
 h=waitbar(0,'Bayesian analysis running...','CreateCancelBtn','delete(gcf)');
 
@@ -11,7 +12,7 @@ bi.iterations=iterations;
 
 idBkg=sum(contains(app.profiles.FitResults{1}{1}.CoeffNames,'bkg'))+1; % to remove Bkg Coeffs when they will not be in Bayesian analysis
 
-if app.IncludeBackgroundCheckBox.Value
+if BayesBkg
                     idBkg=1;
     if any(contains(handles.profiles.FitResults{1}{1}.CoeffNames,'bkg')) % checks to make sure bkg coeffs were refined in LS LIPRAS
     else
@@ -30,7 +31,7 @@ for f=1:numFile
 bi.Eqn=formula(handles.profiles.FitResults{1}{f}.Fmodel); % for when to include Bkg in Bayesian
 bi.Eqn_noBkg=handles.profiles.xrd.getEqnStr; % use this to avoid bkg included in Bayesian
 
-if app.IncludeBackgroundCheckBox.Value==0; bi.Eqn=bi.Eqn_noBkg; end
+if BayesBkg==0; bi.Eqn=bi.Eqn_noBkg; end
 
 bi.ntt=handles.profiles.FitResults{1}{f}.TwoTheta;
 bi.nttS{f}=bi.ntt;
@@ -46,9 +47,9 @@ bi.UB=bi.SP+bi.Err*bi.m;
 bi.LB=bi.SP-bi.Err*bi.m;
 bi.param_sd=bi.Err/1.96;
 app.HTML.HTMLSource='<div align="right"><font size="2" face="Helvetica"><i>Bound multiplier set to 3 for "Auto"</i></font></div>';
-app.MultiplyLBUBDropDown.Value='3';
 
-if and(any(contains(bi.coeff,'bkg') ), app.IncludeBackgroundCheckBox.Value==0)% ignore Bkg coeffs in Bayesian
+
+if and(any(contains(bi.coeff,'bkg') ), BayesBkg==0)% ignore Bkg coeffs in Bayesian
 bi.coeff(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
 bi.SP(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
 bi.LB(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
@@ -61,31 +62,32 @@ elseif strcmp(Default,'on')
 
 bi.SP=handles.profiles.FitResults{1}{f}.CoeffValues;
 bi.Err=handles.profiles.FitResults{1}{f}.CoeffError;
-bi.m=str2double(app.MultiplyLBUBDropDown.Value);
+bi.m=1; % If you increase this, change the default value LBUB goes to before running BayesLIPRAS
 bi.UB=bi.SP+bi.Err*1;
 bi.LB=bi.SP-bi.Err*1; % changed from multiplier so user uses custom button
 bi.param_sd=bi.Err/2;  % changed from multiplier so user uses custom button
 app.UITable4.Data=[bi.SP' bi.LB' bi.UB' bi.param_sd'];
-app.MultiplyLBUBDropDown.Value='1';
-app.DivideSDDropDown.Value='1';
 
-if and(any(contains(bi.coeff,'bkg') ),app.IncludeBackgroundCheckBox.Value==0)% ignore Bkg coeffs in Bayesian
+
+if and(any(contains(bi.coeff,'bkg') ),BayesBkg==0)% ignore Bkg coeffs in Bayesian
 bi.coeff(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
 bi.SP(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
 bi.LB(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
 bi.UB(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
 bi.param_sd(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
 bi.Err(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
+app.UITable4.Data=[bi.SP' bi.LB' bi.UB' bi.param_sd']; % snip again if they are introduced above
+
 end
     
 else
     bi.SP=SP;
-    bi.Err=SD*str2double(app.DivideSDDropDown.Value); % Why multiply?
     bi.UB=UB;
     bi.LB=LB;
     bi.param_sd=SD;
-    
-    if and(any(contains(bi.coeff,'bkg') ),app.IncludeBackgroundCheckBox.Value==0)% ignore Bkg coeffs in Bayesian
+    bi.Err = handles.profiles.FitResults{1}{f}.CoeffError;
+
+    if and(any(contains(bi.coeff,'bkg') ),BayesBkg==0)% ignore Bkg coeffs in Bayesian
     bi.coeff(1:handles.profiles.xrd.getBackgroundOrder+1)=[];
     end
 end
@@ -114,7 +116,7 @@ if strcmp(Naive,'on')
     calc=handles.profiles.FitResults{1}{f}.FData+handles.profiles.FitResults{1}{f}.Background;
     end
 bi.sigma2 = std((bi.nint-calc))^2;
-bi.sigma2sd = sqrt(bi.sigma2)*2;
+bi.sigma2sd = sqrt(bi.sigma2)*4;
 bi.sigma2ub= prctile(std([bi.nint; calc],0,1),95)^2;
 bi.sigma2lb= prctile(std([bi.nint; calc],0,1),5)^2;
 else
@@ -143,7 +145,7 @@ sigma2Orig=bi.sigma2;
 end
 
 Bkg=handles.profiles.FitResults{1}{f}.Background;
-if app.IncludeBackgroundCheckBox.Value==1;Bkg=0;end
+if BayesBkg==1;Bkg=0;end
 
 for RBay=1:1 % for future release, allow repetitions of Bayesian analysis
     if RBay>1
@@ -187,7 +189,7 @@ for i=1:bi.iterations
 %% Draw New Sigma2
 Gibbs=app.GibbsSamplingCheckBox.Value;
 if Gibbs==1
-if app.IncludeBackgroundCheckBox.Value==1
+if BayesBkg==1
     a=0.1; b=0.1;
 else
 a= sum(sqrt((bi.nint-handles.profiles.FitResults{1}{f}.FData-Bkg).^2)); % needed when bkg was not refined in least-squares because
@@ -340,7 +342,7 @@ fclose('all');
 
 obs=bi.nintS{f};
 Bkg=handles.profiles.FitResults{1}{f}.Background;
-if app.IncludeBackgroundCheckBox.Value==1;Bkg=0;end
+if BayesBkg==1;Bkg=0;end
 
 calc=bi.fit_mean{f}+Bkg;
 
