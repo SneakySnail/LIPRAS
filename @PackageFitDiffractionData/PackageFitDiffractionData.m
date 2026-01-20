@@ -81,8 +81,10 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         ignore_bounds=0;
         BkgLS=0;
         Weights='Default';
+        w
         UniqueSave=0;
         CurrentPro=1;
+        CF
 
     end
     
@@ -547,7 +549,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         end
         end
         
-        function result = getFitType(Stro,file)
+        function [result, EqnLS] = getFitType(Stro,file)
             
 % Assumes that Stro.FitFunctions is not empty
         coeffs = Stro.getCoeffs;
@@ -576,6 +578,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         else
         
 % NO bkg in LS
+        EqnLS=eqnStr;
         result = fittype(eqnStr, 'coefficients', coeffs, 'independent', 'xv'); 
         end
         
@@ -648,7 +651,11 @@ elseif strcmp(Stro.Weights,'1/obs')||strcmp(Stro.Weights,'Default')
 elseif strcmp(Stro.Weights,'1/sqrt(obs)')
     weight=1./sqrt(int);
 end
-           
+          
+    Stro.w=weight; % send weigths to this var
+
+
+if ~Stro.CF
         if Stro.ignore_bounds
              s = fitoptions('Method', 'NonlinearLeastSquares', ...
             'StartPoint', SP, ...                 
@@ -662,7 +669,11 @@ end
             'Weight',weight,'DiffMinChange',...
             10E-9,'DiffMaxChange',0.001,'MaxIter',1000);
         end
-
+else % Not using CF toolbox, so do nothing
+    s.SP=SP; % returns empty
+    s.LB=LB;
+    s.UB=UB;
+end
         end
         
         function position2 = Ka2fromKa1(Stro, position1)

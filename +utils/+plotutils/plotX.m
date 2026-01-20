@@ -366,6 +366,8 @@ elseif strcmp(app.profiles.xrd.Weights,'Log10')
     w=log10(obs);
 end
     
+
+
     if app.profiles.xrd.BkgLS % for when BkgLS is checked
         calc=fitted.FData'; 
         rsquared(ss) = fitted.FmodelGOF.rsquare;
@@ -383,6 +385,7 @@ end
         Rexp(ss)=sqrt(DOF/sum(w.*obs.^2))*100;
 %         Rexp(ss)=sqrt(DOF/sum(obs.^2./er.^2))*100; % Rexpected, same as line above
         Rchi2(ss)=fitted.FmodelGOF.sse/DOF;
+        Rchi2(ss)=fitted.Rchi2;
 %         Rchi2(ss)= sum(((obs-calc)./er).^2)/DOF; % true Red-Chi^2, equivalent to line above
 %         Rchi2(ss)= sum(w.*((obs-calc)).^2)/DOF; , equivalent to line above
 %         Rchi2(ss)=(Rwp(ss)/Rexp(ss))^2;
@@ -404,7 +407,8 @@ end
 %         Rwp(ss) = sqrt(sum(((obs-calc)./er).^2)./sum(obs.^2./er.^2))*100; %Calculate Rwp equivalent to line about        
         Rexp(ss)=sqrt(DOF/sum(w.*obs.^2))*100;
 %         Rexp(ss)=sqrt(DOF/sum(obs.^2./er.^2))*100; % Rexpected, same as line above
-        Rchi2(ss)=fitted.FmodelGOF.sse/DOF;
+        % Rchi2(ss)=fitted.FmodelGOF.sse/DOF;
+        Rchi2(ss)=fitted.Rchi2;
 %         Rchi2(ss)= sum(((obs-calc)./er).^2)/DOF; % true Red-Chi^2, equivalent to line above
 %         Rchi2(ss)= sum(w.*((obs-calc)).^2)/DOF; , equivalent to line above
 %         Rchi2(ss)=(Rwp(ss)/Rexp(ss))^2;

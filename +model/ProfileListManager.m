@@ -19,6 +19,7 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        Errors=[];
        FitResults % each profile results in a cell
        XRDMLScan
+       CF % Curve fitting toolbox present, 1, if not, 0
        
    end
    

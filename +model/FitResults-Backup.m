@@ -46,8 +46,6 @@ classdef FitResults
         FCuKa2Peaks     % Empty if no Cu-Ka2 
         
         PredictInt % Prediction of model at 95% confidence interval
-
-        eqnStr % Equation string with and without Background
     end
     
     properties
@@ -104,7 +102,6 @@ end
             this.KAlpha2 = profile.xrd.KAlpha2;
         end
         xrd = profile.xrd;
-        xrd.CF=profile.CF; % Pass Curve Fitting Toolbox dependency
         this.FileName      = strrep(xrd.getFileNames{filenumber}, '.', '_');
         this.ProfileNum    = profile.getCurrentProfileNumber;
         this.OutputPath    = profile.OutputPath;
@@ -120,14 +117,8 @@ end
         this.BackgroundPoints = xrd.getBackgroundPoints;
         this.PeakPositions = xrd.PeakPositions;
         this.Constraints = xrd.getConstraints;
-        [this.FitType,this.eqnStr]       = xrd.getFitType(filenumber);
-        this.CoeffNames    = coeffnames(this.FitType)';
-        this.FitFunctions  = xrd.getFunctions;
-
-
-% Start of CF Dependency
-if profile.CF
-
+        this.FitType       = xrd.getFitType(filenumber);
+        
         if and(filenumber>1,xrd.recycle_results==1)
             this.FitOptions    = xrd.getFitOptions(filenumber);
         elseif filenumber==1 && xrd.BkgLS && xrd.recycle_results
@@ -145,6 +136,8 @@ if profile.CF
                 this.FitOptions.Weights=1./xrd.DataSet{filenumber}.getDataIntensity;
             end
         end
+        this.CoeffNames    = coeffnames(this.FitType)';
+        this.FitFunctions  = xrd.getFunctions;
         
         if xrd.BkgLS && ~isempty(xrd.BkgCoeff) && filenumber==1 % handling bkgCoeff refined and how they cycle after being refined
             if length(xrd.BkgCoeff)==this.BackgroundOrder+1           % when BkgOrder is switched after a refined bkg has been done    
@@ -158,10 +151,10 @@ if profile.CF
         end
 %         disp(this.FitOptions.StartPoint) % to check SP being recycled
 
-    if any(this.FitOptions.Weights==Inf)
-    this.FitOptions.Weights(this.FitOptions.Weights==Inf)=mean(this.FitOptions.Weights(this.FitOptions.Weights~=Inf)); % sets to low value because intensity is low
-    end
-        
+if any(this.FitOptions.Weights==Inf)
+this.FitOptions.Weights(this.FitOptions.Weights==Inf)=mean(this.FitOptions.Weights(this.FitOptions.Weights~=Inf)); % sets to low value because intensity is low
+end
+
         if xrd.BkgLS
                     [fmodel, fmodelgof, outputMatrix] = fit(this.TwoTheta', ...
                                  (this.Intensity)', ...
@@ -176,7 +169,7 @@ if profile.CF
         this.Fmodel    = fmodel;
         this.FmodelGOF = fmodelgof;
         this.FmodelCI  = fmodelci;
-        this.LSWeights=this.FitOptions.Weights';
+        this.LSWeights=this.FitOptions.Weights;
         this.FitInfo=outputMatrix;
 %         this.CovJacobianFit=(this.FitInfo.Jacobian'*this.FitInfo.Jacobian)^(-1)*this.FmodelGOF.rmse^2;
         this.FData       = fmodel(this.TwoTheta)';
@@ -185,174 +178,34 @@ if profile.CF
         this.CoeffValues = coeffvalues(fmodel);
         this.CoeffError  = 0.5 * (fmodelci(2,:) - fmodelci(1,:));
         this.PredictInt=predint(fmodel,this.TwoTheta,0.95,'functional','on');
-        DOF=fmodelgof.dfe;
-
-else
-% --------------------------------------------
-% REPLACEMENT FOR: fit / confint / predint
-% NO TOOLBOX REQUIRED
-% --------------------------------------------
-        this.FitOptions    = xrd.getFitOptions(filenumber); % should not fail
-
-% ---- Select ydata ----
-if xrd.BkgLS
-    ydata = (this.Intensity)';
-else
-    ydata = (this.Intensity - this.Background)';
-end
-
-this.LSWeights=xrd.w';
-W = xrd.w';
-
-% ---- Convert FitType → RHS expression ----
-raw = formula(this.FitType);          % "ans(N1,x1,f1,xv)= ..."
-parts = split(raw, '=');
-expr = strtrim(parts{end});           % keep only the right-hand side
-
-% ---- Vectorize operators ----
-expr = regexprep(expr, '(?<!\.)\^', '.^');
-expr = regexprep(expr, '(?<=[0-9A-Za-z\)])\*(?=[0-9A-Za-z\(])', '.*');
-expr = regexprep(expr, '(?<!\.)/(?=[0-9A-Za-z\(])', './');
-
-% ---- Replace coefficient names with p(i) ----
-for k = 1:numel(this.CoeffNames)
-    cname = this.CoeffNames{k};
-    expr = regexprep(expr, ...
-        ['(?<![A-Za-z0-9_])', cname, '(?![A-Za-z0-9_])'], ...
-        sprintf('p(%d)',k));
-end
-
-% ---- Construct model function ----
-model = str2func(['@(p,xv) ' expr]);
-p0 = this.FitOptions.StartPoint(:);
-opts = optimset( ...
-    'Display','off', ...
-    'MaxIter',5000, ...      % more stable like fit
-    'TolX',1e-12, ...
-    'TolFun',1e-12);
-
-% ---- Objective: weighted least squares ----
-objfun = @(p) sum( ( W .* ( model(p, this.TwoTheta') - ydata ) ).^2 );
-
-        if xrd.ignore_bounds
-
-% ------------------------------------------------------------
-% NO BOUNDS OPTION — direct fminsearch using only SP
-% ------------------------------------------------------------
-    p = fminsearch(objfun, p0, opts);
-
-        else
-% ---- Bounds transform (FitOptions are YOUR variables) ----
-lb = this.FitOptions.Lower(:);
-ub = this.FitOptions.Upper(:);
-
-% ---- Fix invalid bounds ----
-    bad = (ub <= lb);
-    ub(bad) = lb(bad) + eps;
-
-    % ---- Clamp start point into bounds ----
-    p0 = max(p0, lb);
-    p0 = min(p0, ub);
-
-    % ---- Safe transform ----
-    arg = 2*(p0-lb)./(ub-lb) - 1;
-    arg = min(max(arg, -1+1e-12), 1-1e-12);
-
-    % toUnit   = @(p) asin( min(max(2*(p-lb)./(ub-lb)-1, -1+1e-12), 1-1e-12) );
-    fromUnit = @(u) lb + (sin(u)+1).*(ub-lb)/2;
-
-    p0u = asin(arg);
-
-    % ---- Solve in transformed space ----
-    pu = fminsearch(@(pu)objfun(fromUnit(pu)'), p0u, opts);
-    p  = fromUnit(pu);
-        end
-% --------------------------------------------
-% STORE EXACTLY WHAT THE ORIGINAL CODE EXPECTED
-% --------------------------------------------
-
-% There is no fmodel (toolbox object), so set empty
-this.Fmodel = [];
-
-% Coefficients
-this.CoeffValues = p(:)';
-
-% Model prediction
-this.FData = model(p, this.TwoTheta')';
-
-% ---- Numeric Jacobian (needed for CI + PI) ----
-y0 = model(p, this.TwoTheta');
-N = numel(y0);
-M = numel(p);
-
-J = zeros(N,M);
-eps0 = 1e-6;
-for i = 1:M
-    dp = zeros(size(p)); dp(i) = eps0* (1 + abs(p(i)));
-    yi = model(p+dp, this.TwoTheta');
-    J(:,i) = (yi - y0) / eps0;
-end
-
-% ---- GOF (replacing fmodelgof) ----
-res = y0 - ydata(:);
-DOF = N - M;
-s2  = sum(res.^2) / DOF;
-
-this.FmodelGOF.sse  = sum(res.^2);
-this.FmodelGOF.rmse = sqrt(this.FmodelGOF.sse / N);
-this.FmodelGOF.dfe  = DOF;
-% ---- R^2 and adjusted R^2 ----
-ybar = mean(ydata(:));
-SST  = sum((ydata(:) - ybar).^2);
-
-this.FmodelGOF.rsquare = 1 - this.FmodelGOF.sse / SST;
-this.FmodelGOF.adjrsquare = 1 - (1 - this.FmodelGOF.rsquare) * (N - 1) / (DOF);
-
-% ---- Confidence intervals (replaces confint) ----
-Cov = inv(J.'*J) * s2;
-this.CovJacobianFit = Cov;
-
-z = sqrt(2) * erfinv(this.CONFIDENCE_LEVEL);  % ≈ 1.96 for 95%
-
-err = z * sqrt(diag(Cov));
-this.CoeffError = err(:)';
-this.FmodelCI   = [p(:)-err  p(:)+err];
-
-% ---- Prediction interval (replaces predint) ----
-Vp = diag(J*Cov*J.');
-delta = z * sqrt(Vp);
-yp = this.FData(:);
-this.PredictInt = [yp-delta yp+delta];
-
-% ---- Placeholders to match old behavior ----
-this.FitInfo = struct('exitflag',[],'output',opts);
-
-this.FPeaks      = zeros(length(xrd.getFunctions), length(this.FData));
-this.FCuKa2Peaks = zeros(length(xrd.getFunctions), length(this.FData));
-    
-%----------End of No toolbox routine--------------
-end
-    
+        
 % Rp, Rwp, and Rchi2 Calculations
     obs=this.Intensity';
-    w=this.LSWeights;
+    w=this.LSWeights';
 
     if any(contains(this.CoeffNames,'bkg')) % for when BkgLS is checked
         calc=this.FData'; 
+        DOF = this.FmodelGOF.dfe; % degrees of freedom from error
+        this.Rp = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
+        this.Rwp = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100;
+
+        if strcmp(profile.Weights,'None')
+         this.Rchi2=sum((obs-calc).^2./obs)/DOF;   
+        else
+        this. Rchi2= this.FmodelGOF.sse/DOF; % true Red-Chi^2
+        end
     else
+        obs = this.Intensity';
         calc = this.Background' + this.FData';        
-    end
+        DOF = this.FmodelGOF.dfe; % degrees of freedom from error
+        this.Rp = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
+        this.Rwp = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100;
 
-    this.Rp = (sum(abs(obs-calc))./(sum(obs))) * 100; %calculates Rp
-    this.Rwp = (sqrt(sum(w.*(obs-calc).^2)./sum(w.*obs.^2)))*100;
-
-    % ----------- Chi-square (weighted or unweighted) -----------
-    if strcmp(profile.Weights,'None')
-        % unweighted χ²
-        this.Rchi2 = sum((obs-calc).^2) / DOF;
-    else
-        % weighted χ²  (W = 1/σ²)
-        this.Rchi2 = sum( this.LSWeights .* ((obs-calc).^2) ) / DOF;
+        if strcmp(profile.Weights,'None')
+         this.Rchi2=sum((obs-calc).^2./obs)/DOF;   
+        else
+        this. Rchi2= this.FmodelGOF.sse/DOF; % true Red-Chi^2
+        end
     end
 
         for i=1:length(this.FitFunctions)

@@ -28,7 +28,8 @@ end
 
 for f=1:numFile
  
-bi.Eqn=formula(handles.profiles.FitResults{1}{f}.Fmodel); % for when to include Bkg in Bayesian
+% bi.Eqn=formula(handles.profiles.FitResults{1}{f}.Fmodel); % for when to include Bkg in Bayesian
+bi.Eqn=handles.profiles.FitResults{1}{f}.eqnStr;
 bi.Eqn_noBkg=handles.profiles.xrd.getEqnStr; % use this to avoid bkg included in Bayesian
 
 if BayesBkg==0; bi.Eqn=bi.Eqn_noBkg; end
@@ -37,7 +38,8 @@ bi.ntt=handles.profiles.FitResults{1}{f}.TwoTheta;
 bi.nttS{f}=bi.ntt;
 bi.nint=handles.profiles.xrd.getData(f);
 bi.nintS{f}=bi.nint;
-bi.coeff=coeffnames(handles.profiles.FitResults{1}{f}.Fmodel)';
+% bi.coeff=coeffnames(handles.profiles.FitResults{1}{f}.Fmodel)';
+bi.coeff=handles.profiles.FitResults{1}{f}.CoeffNames;
 
 if strcmp(Naive,'on')
 bi.SP=handles.profiles.FitResults{1}{f}.CoeffValues;
