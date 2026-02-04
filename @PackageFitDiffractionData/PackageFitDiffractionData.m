@@ -574,12 +574,22 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
 
         EqnLS=strcat(PolyM,eqnStr);
         coeffsLS=[vars coeffs];
+        if Stro.CF
         result = fittype(EqnLS, 'coefficients', coeffsLS, 'independent', 'xv');
+        else % No Curve Fit Toolbox
+            result=coeffsLS;
+        end
         else
         
 % NO bkg in LS
         EqnLS=eqnStr;
-        result = fittype(eqnStr, 'coefficients', coeffs, 'independent', 'xv'); 
+        coeffsLS=coeffs;
+        if Stro.CF
+        result = fittype(eqnStr, 'coefficients', coeffs, 'independent', 'xv');
+        else % No Curve Fit Toolbox
+            result=coeffsLS;
+        end
+        
         end
         
         end
@@ -655,7 +665,7 @@ end
     Stro.w=weight; % send weigths to this var
 
 
-if ~Stro.CF
+if Stro.CF
         if Stro.ignore_bounds
              s = fitoptions('Method', 'NonlinearLeastSquares', ...
             'StartPoint', SP, ...                 
@@ -673,6 +683,7 @@ else % Not using CF toolbox, so do nothing
     s.SP=SP; % returns empty
     s.LB=LB;
     s.UB=UB;
+    s.coeff=Stro.getCoeffs;
 end
         end
         

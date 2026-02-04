@@ -624,9 +624,9 @@ classdef AxPlotter < matlab.mixin.SetGet
             case 'linear'
                 set([axx.YLabel], 'Interpreter', 'tex', 'String', 'Intensity (a.u.)');
             case 'log'
-                set([axx.YLabel], 'Interpreter', 'tex', 'String', 'log10(Intensity) (a.u.)');
+                set([axx.YLabel], 'Interpreter', 'latex', 'String', '$\log_{10}(I)$ (a.u.)');
             case 'sqrt'
-                set([axx.YLabel], 'Interpreter', 'latex', 'String', '$$\sqrt{Intensity}$$ (a.u.)');
+                set([axx.YLabel], 'Interpreter', 'latex', 'String', '$\sqrt{I}$ (a.u.)');
         end
         drawnow limitrate
         warning(state.state, state.identifier);

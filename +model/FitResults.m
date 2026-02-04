@@ -121,12 +121,12 @@ end
         this.PeakPositions = xrd.PeakPositions;
         this.Constraints = xrd.getConstraints;
         [this.FitType,this.eqnStr]       = xrd.getFitType(filenumber);
-        this.CoeffNames    = coeffnames(this.FitType)';
         this.FitFunctions  = xrd.getFunctions;
 
 
 % Start of CF Dependency
 if profile.CF
+        this.CoeffNames    = coeffnames(this.FitType)';
 
         if and(filenumber>1,xrd.recycle_results==1)
             this.FitOptions    = xrd.getFitOptions(filenumber);
@@ -193,7 +193,8 @@ else
 % NO TOOLBOX REQUIRED
 % --------------------------------------------
         this.FitOptions    = xrd.getFitOptions(filenumber); % should not fail
-
+        % this.CoeffNames=this.FitOptions.coeff; % Needed to be added since original form uses CFT dependency
+        this.CoeffNames=this.FitType;
 % ---- Select ydata ----
 if xrd.BkgLS
     ydata = (this.Intensity)';
@@ -205,14 +206,13 @@ this.LSWeights=xrd.w';
 W = xrd.w';
 
 % ---- Convert FitType → RHS expression ----
-raw = formula(this.FitType);          % "ans(N1,x1,f1,xv)= ..."
-parts = split(raw, '=');
-expr = strtrim(parts{end});           % keep only the right-hand side
+
+expr = this.eqnStr;           % keep only the right-hand side
 
 % ---- Vectorize operators ----
-expr = regexprep(expr, '(?<!\.)\^', '.^');
-expr = regexprep(expr, '(?<=[0-9A-Za-z\)])\*(?=[0-9A-Za-z\(])', '.*');
-expr = regexprep(expr, '(?<!\.)/(?=[0-9A-Za-z\(])', './');
+expr = strrep(expr,'^','.^');
+expr = strrep(expr,'*','.*');
+expr = strrep(expr,'/','./');
 
 % ---- Replace coefficient names with p(i) ----
 for k = 1:numel(this.CoeffNames)
@@ -224,7 +224,7 @@ end
 
 % ---- Construct model function ----
 model = str2func(['@(p,xv) ' expr]);
-p0 = this.FitOptions.StartPoint(:);
+p0 = this.FitOptions.SP;
 opts = optimset( ...
     'Display','off', ...
     'MaxIter',5000, ...      % more stable like fit
@@ -243,8 +243,8 @@ objfun = @(p) sum( ( W .* ( model(p, this.TwoTheta') - ydata ) ).^2 );
 
         else
 % ---- Bounds transform (FitOptions are YOUR variables) ----
-lb = this.FitOptions.Lower(:);
-ub = this.FitOptions.Upper(:);
+lb = this.FitOptions.LB;
+ub = this.FitOptions.UB;
 
 % ---- Fix invalid bounds ----
     bad = (ub <= lb);
@@ -368,7 +368,11 @@ end
         elseif filenumber==1 && xrd.BkgLS && xrd.recycle_results
             xrd.FitInitial.start = this.CoeffValues;
         else
-        this.FitInitial.start = this.FitOptions.StartPoint;
+            if profile.CF
+            this.FitInitial.start = this.FitOptions.StartPoint;
+            else
+            this.FitInitial.start = this.FitOptions.SP;
+            end
         end
         
         if filenumber==xrd.NumFiles && xrd.BkgLS
@@ -376,15 +380,12 @@ end
         end
         
         if xrd.BkgLS % evaluates Poly Bkg based on refined Bkg Coefficients
-%            this.CoeffValues(1,1:this.BackgroundOrder+1)=fliplr(this.CoeffValues(1,1:this.BackgroundOrder+1));
-%            % not needed
+
            mu=[mean(this.TwoTheta) std(this.TwoTheta)]; % for centering and scaling
            this.Background=polyval(fliplr(this.CoeffValues(1,1:this.BackgroundOrder+1)), this.TwoTheta,[],mu); 
         else
         end
         this.FitInitial.coeffs = this.CoeffNames;
-%         this.FitInitial.lower = this.FitOptions.Lower;
-%         this.FitInitial.upper = this.FitOptions.Upper;
         xrd.CurrentPro=1;
         end
         

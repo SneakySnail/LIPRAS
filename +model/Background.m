@@ -85,7 +85,11 @@ end
             bkgdArray = polyval(P, twotheta, S, U);
         elseif strcmpi(this.Model, this.ModelNames{2})
             P = this.getSplineFit(file);
+            if this.xrd.CF
             bkgdArray = fnval(P, twotheta);
+            else
+            bkgdArray = bspline_eval(this,P,twotheta)'; % When not CF installed
+            end
         end
         
         end
@@ -134,10 +138,151 @@ end
         y = [intensity(2), intensity(idx), intensity(end)];
         order = this.Order;
         
+        if this.xrd.CF
         result = spapi(order,x,y);
-        
+        else
+        result = bspline_interpolant(this,x,y,order);   % order = 4 or 5
         end
         
+        end
+
+
+
+        function S = bspline_interpolant(this,x, y, k)
+        %BSPLINE_INTERPOLANT  Interpolating B-spline of order k (degree k-1).
+        %   S = bspline_interpolant(x,y,k) returns a struct S with fields:
+        %     S.order, S.knots, S.coefs
+        %
+        %   Evaluate later with: yq = bspline_eval(S, xq)
+        
+            x = x(:); y = y(:);
+            n = numel(x);
+        
+            if numel(y) ~= n
+                error('x and y must have the same length.');
+            end
+            if any(~isfinite(x)) || any(~isfinite(y))
+                error('x and y must be finite.');
+            end
+            if any(diff(x) <= 0)
+                error('x must be strictly increasing.');
+            end
+            if k < 2 || k > n
+                error('Order k must satisfy 2 <= k <= numel(x).');
+            end
+        
+            % ---- Open/clamped knot vector (averaged internal knots) ----
+            t = zeros(n + k, 1);
+            t(1:k) = x(1);
+            t(end-k+1:end) = x(end);
+        
+            % Averaged internal knots (standard for global interpolation)
+            for i = 1:(n - k)
+                t(k + i) = mean(x(i+1 : i+k-1));
+            end
+        
+            % ---- Build basis matrix A(i,j) = N_{j,k}(x_i) ----
+            A = zeros(n, n);
+            for i = 1:n
+                A(i,:) = bspline_basis_all(this, x(i), t, k, n);
+            end
+        
+            % Solve for B-spline coefficients (control-point ordinates)
+            c = A \ y;
+        
+            S.order = k;
+            S.knots = t;
+            S.coefs = c;
+        end
+        
+        
+        function N = bspline_basis_all(this,xq, t, k, n)
+        % Returns row vector N(1:n): all B-spline basis values of order k at xq.
+        
+            % Order-1 bases
+            N = zeros(1, n);
+            for j = 1:n
+                inSpan = (t(j) <= xq && xq < t(j+1));
+                if xq == t(end) && (t(j) <= xq && xq <= t(j+1))
+                    inSpan = true;
+                end
+                if inSpan, N(j) = 1; end
+            end
+        
+            % Cox–de Boor recursion up to order k
+            for d = 2:k
+                Nnew = zeros(1, n);
+                for j = 1:n
+                    % left term
+                    denom1 = t(j+d-1) - t(j);
+                    term1 = 0;
+                    if denom1 > 0
+                        term1 = (xq - t(j)) / denom1 * N(j);
+                    end
+        
+                    % right term
+                    term2 = 0;
+                    if j+1 <= n
+                        denom2 = t(j+d) - t(j+1);
+                        if denom2 > 0
+                            term2 = (t(j+d) - xq) / denom2 * N(j+1);
+                        end
+                    end
+        
+                    Nnew(j) = term1 + term2;
+                end
+                N = Nnew;
+            end
+        end
+
+
+
+        function yq = bspline_eval(this, S, xq)
+%BSPLINE_EVAL  Evaluate interpolating B-spline made by bspline_interpolant.
+
+    t = S.knots;
+    c = S.coefs;
+    k = S.order;
+    n = numel(c);
+
+    xq = xq(:);
+    yq = zeros(size(xq));
+
+    % valid param range for open knot vector:
+    xmin = t(k);
+    xmax = t(n+1);
+
+    for m = 1:numel(xq)
+        x = min(max(xq(m), xmin), xmax);
+
+        % Find knot span i such that t(i) <= x < t(i+1)
+        i = find(t <= x, 1, 'last');
+        i = min(max(i, k), n);  % clamp span index
+
+        % de Boor points
+        d = c(i-k+1 : i);
+
+        % de Boor recursion
+        for r = 1:(k-1)
+            for j = k:-1:(r+1)
+                idx = i - k + j;  % knot index
+                denom = t(idx + k - r) - t(idx);
+                if denom == 0
+                    alpha = 0;
+                else
+                    alpha = (x - t(idx)) / denom;
+                end
+                d(j) = (1 - alpha)*d(j-1) + alpha*d(j);
+            end
+        end
+
+        yq(m) = d(k);
+    end
+
+    % preserve input shape (row/col)
+    if isrow(xq), yq = yq.'; end
+end
+
         
         
     end
