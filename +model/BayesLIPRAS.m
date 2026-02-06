@@ -280,8 +280,8 @@ bi.accS(:,f)=accS/(bi.iterations-bi.burnin);
     temp2=cell2mat(temp1);
     bi.fit_mean{f}=mean(temp2);
     bi.fit_sigma{f} =std(temp2); % this assumes a normal distributon for resulting parameters, needs to change
-    bi.fit_low{f} = prctile(temp2,2.5); % takes percentiles to represent std of parameters
-    bi.fit_high{f} = prctile(temp2,97.5);
+    bi.fit_low{f} = quantile(temp2, 0.025); % takes percentiles to represent std of parameters
+    bi.fit_high{f} = quantile(temp2, 0.975); % this and above switched to remove Stat Toolbox Depend, 2-5-2026
 end
 
 for f=1:f
