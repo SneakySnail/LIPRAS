@@ -62,6 +62,7 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
    properties (Hidden)
        ext % file type for this dataset
        dataReadin
+       LastLoadedKey 
        FullTwoThetaRange
 %        FullIntensityData
        Temperature
@@ -194,11 +195,17 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
            data = utils.fileutils.newDataSet(path,filename);
        end
        this.dataReadin=data;
-       isNew = true;
+       
+       newKey = string(fullfile(path,filename)) + "|" + string(data(1).ext);
+       isNew = ~strcmp(this.LastLoadedKey, newKey);
+       this.LastLoadedKey = newKey;
+
+       if isNew
        this.reset();
        this.initialXRD_ = PackageFitDiffractionData(data, filename);
        this.initialXRD_.DataPath = path;
        this.ext = data(1).ext;
+       end
        
        xrdItem = this.initialXRD_;
        this.FullTwoThetaRange = xrdItem.getTwoTheta;
@@ -225,6 +232,8 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        end
        
        this.Validator = utils.Validator(this, this.xrd);
+
+
        end
        
        function files = get.FileNames(this)
