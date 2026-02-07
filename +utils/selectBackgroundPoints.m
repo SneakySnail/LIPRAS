@@ -1,4 +1,4 @@
-function bkgdpoints = selectBackgroundPoints(app, mode)
+function bkgdpoints = selectBackgroundPoints(app, mode,clickType)
 %   Selects background points interactively from the plot. 1-4-2026
 %
 % Behavior:
@@ -50,7 +50,7 @@ elseif isequal(key, KEY_ENTER)
     return
 end
 
-if key == 3   % Right mouse button
+if strcmp(clickType,'alt')  % Right mouse button
 
     % Initialize newPoints if not yet defined
     if exist('NewPoints', 'var') == 0
