@@ -150,6 +150,7 @@ end
 %             'visible', 'on');
         filenum=j;                
         dataLine = findobj(axx, 'tag', 'Obs');
+
         xdata = xrd.getTwoTheta(j);
         set(dataLine, 'XData', xdata, 'YData', ydata);
         setappdata(dataLine, 'xdata', xdata);
@@ -162,8 +163,18 @@ end
                             'MarkerFaceColor', [1 1 1], ...
                             'Color', 'k', ...
                             'Visible', 'on');
+
+        % Only triggers on 'update'
+        app.ObsStyleBackup = struct( ...
+        'LineStyle',       dataLine.LineStyle, ...
+        'Marker',          dataLine.Marker, ...
+        'MarkerSize',      dataLine.MarkerSize, ...
+        'MarkerFaceColor', dataLine.MarkerFaceColor, ...
+        'MarkerEdgeColor', dataLine.MarkerEdgeColor ); % keep plotting of Obs, can be used in Bkg selection if fit has been done
     end
+    
     plotter.updateXYLim(axx,mode);
+
     end
 
     function plotFit(app, ax, fileID)
@@ -176,7 +187,9 @@ end
     fitted = app.profiles.getProfileResult{fileID};
     % Obs Data
     dataLine = findobj(ax, 'tag', 'Obs');
-    set(dataLine, 'LineStyle', 'none', 'MarkerSize', 3.5, 'MarkerFaceColor', [0.08 .17 0.65],'MarkerEdgeColor',[0.08 0.17 0.65]);
+    
+    set(dataLine, 'LineStyle', 'none', 'MarkerSize', 3.5, 'MarkerFaceColor', [0.08 .17 0.65],'MarkerEdgeColor',[0.08 0.17 0.65]); % sets measured data atributes when plotting fit
+    
     plotter.plotOverallFit(ax,fitted);
     if app.profiles.xrd.BkgLS % background specific to BkgLS otherwise, peaks undershoot in plot window
     plotter.plotBgFit(ax,filenum,fitted.Background);
@@ -187,7 +200,9 @@ end
         plotter.plotFittedPeak(ax,fitted,ii);
     end
     if isequal(ax, app.UIAxes) % not supported for UIAxes
+        app.UIAxes2.XLim = app.UIAxes.XLim;   % sets initial master
         linkaxes([app.UIAxes app.UIAxes2], 'x');
+
     end
     if nargin < 2
         plotter.updateXYLim(app.UIAxes);

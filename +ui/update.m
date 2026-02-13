@@ -347,6 +347,7 @@ if app.gui.NumPeaks > 2
 else
     app.gui.ConstraintsInTable = [];
 end
+
 if app.gui.isFitDirty
     set(app.FitDataButton, 'enable', 'off'); % changed to fit data button since layout changed in LIPRAS App
 else
