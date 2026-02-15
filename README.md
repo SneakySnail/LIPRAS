@@ -6,10 +6,10 @@
 Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones
 
 <p>Contact Info<br>
-<b>Email:</b> gesteve@ncsu.edu or gesteves21@gmail.com<br>
+<b>Email:</b> lipras17@gmail.com<br>
 <i> Please include "LIPRAS" in subject </i></p>
 
-<b> History: </b>The backbone of the code was originally created by Jacob L. Jones during his post doc back in 2006-2007. In 2014, Chris M. Fancher continued development of the code created by Jacob and successfully turned it into a class file within MATLAB. Giovanni Esteves further built upon Chris's version by polishing the code and adding features to enhances its feasibility to new users. Finally, in 2016 Klarissa Ramos joined the Jones Research group and jointly with Giovanni they restructured the class file into a graphical user interface (GUI) which is now known as LIPRAS.
+<b> History: </b>The backbone of the code was originally created by Jacob L. Jones during his post doc back in 2006-2007. In 2014, Chris M. Fancher continued development of the code created by Jacob and successfully turned it into a class file within MATLAB. Giovanni Esteves further built upon Chris's version by polishing the code and adding features to enhances its feasibility to new users. In 2016 Klarissa Ramos joined the Jones Research group and jointly with Giovanni they restructured the class file into a graphical user interface (GUI) which is now known as LIPRAS. Today, LIPRAS is soley maintained by Giovanni and has been migrated to MATLAB App Designer.
 
 ## What is LIPRAS?
 
@@ -38,10 +38,8 @@ Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones
 ## Installation
 **MATLAB Users**
 
-**Requires MATLAB 2016b, Curve Fitting Toolbox, and GUI Layout Toolbox**<br>
-You can start using LIPRAS in MATLAB after downloading GUI Layout Toolbox with a MATLAB version 2016b or greater thats equipped with Curve Fitting Toolbox. The Statistics and Machine Learning Toolbox is required for Bayesian analysis, but not for peak fitting.
-
-GUI Layout Toolbox: https://www.mathworks.com/matlabcentral/fileexchange/47982-gui-layout-toolbox
+**Requires MATLAB 2024a**<br>, Curve Fitting Toolbox is recommended but not required
+You can start using LIPRAS in MATLAB 2024a or newer after downloading it from File Exchange. Earlier MATLAB releases may also work, but could require minor tweaks to avoid errors. LIPRAS runs without the Curve Fitting Toolbox, but having it installed can improve fit speed and robustness in some cases.
 
 **Stand-Alone Version (NO MATLAB NEEDED)**
 
