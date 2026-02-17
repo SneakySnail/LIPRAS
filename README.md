@@ -1,4 +1,4 @@
-![stack Overflow](https://github.com/SneakySnail/LIPRAS/blob/master/Logo/Logo_R3.png?raw=true)
+![stack Overflow](https://github.com/SneakySnail/LIPRAS/blob/master/Logo/Logo_R5.tif?raw=true)
 # Line-Profile Analysis Software (LIPRAS)
 
 
@@ -38,15 +38,15 @@ Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones
 ## Installation
 **MATLAB Users**
 
-**Requires MATLAB 2024a**<br>, Curve Fitting Toolbox is recommended but not required
-You can start using LIPRAS in MATLAB 2024a or newer after downloading it from File Exchange. Earlier MATLAB releases may also work, but could require minor tweaks to avoid errors. LIPRAS runs without the Curve Fitting Toolbox, but having it installed can improve fit speed and robustness in some cases.
+**Requires MATLAB 2024a**<br>
+Curve Fitting Toolbox is recommended but not required. You can start using LIPRAS in MATLAB 2024a or newer after downloading it from File Exchange. Earlier MATLAB releases may also work, but could require minor tweaks to avoid errors. LIPRAS runs without the Curve Fitting Toolbox, but having it installed can improve fit speed and robustness in some cases.
 
 **Stand-Alone Version (NO MATLAB NEEDED)**
 
 This version is not updated as often as the GitHub repository since it needs to be compiled using a specific MATLAB license on a specific computer. 
 
 LIPRAS, uploaded to SourceForge:
-*[Stand-Alone Version Download](https://sourceforge.net/projects/lipras/)
+[Stand-Alone Version Download](https://sourceforge.net/projects/lipras/)
 
 **If you use LIPRAS for your research, please cite it (choose one):**
 
