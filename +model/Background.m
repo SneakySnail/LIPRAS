@@ -7,7 +7,7 @@ classdef Background
        
         InitialPoints
         
-        Order = 3;
+        Order = 1;
     end
     
     properties (Dependent, SetAccess = private)
