@@ -1,4 +1,6 @@
-<img src="Logo/Logo_R5.png" alt="LIPRAS logo" width="600">
+<p align="center">
+  <img src="Logo/Logo_R5.png" alt="LIPRAS logo" width="600">
+</p>
 
 # 
 
