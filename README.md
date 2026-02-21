@@ -2,7 +2,6 @@
 
 # 
 
-
 ## Authors
 Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones
 
@@ -39,10 +38,10 @@ Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones
 
 ## Changes from LIPRAS-Classic
 
-Background Point Selection
+<b> Background Point Selection </b>
 * Click Select Points, then click on the plot to add points. Press Enter to finish, or Esc to cancel.
 
-Peak Point Selection
+<b> Peak Point Selection </b>
 * Click Select Peaks, then click peak locations until you reach the Number of Peaks. LIPRAS then plots the initial fit automatically.
 
 ## Installation
