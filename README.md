@@ -1,4 +1,5 @@
-![LIPRAS logo](Logo/Logo_R5.png)
+<img src="Logo/Logo_R5.png" alt="LIPRAS logo" width="600">
+
 # Line-Profile Analysis Software (LIPRAS)
 
 
@@ -9,7 +10,7 @@ Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones
 <b>Email:</b> lipras17@gmail.com<br>
 <i> Please include "LIPRAS" in subject </i></p>
 
-<b> History: </b>The backbone of the code was originally created by Jacob L. Jones during his post doc back in 2006-2007. In 2014, Chris M. Fancher continued development of the code created by Jacob and successfully turned it into a class file within MATLAB. Giovanni Esteves further built upon Chris's version by polishing the code and adding features to enhances its feasibility to new users. In 2016 Klarissa Ramos joined the Jones Research group and jointly with Giovanni they restructured the class file into a graphical user interface (GUI) which is now known as LIPRAS. Today, LIPRAS is soley maintained by Giovanni and has been migrated to MATLAB App Designer.
+<b> History: </b>Jacob L. Jones created the original code in 2006–2007. Chris M. Fancher expanded it in 2014 and converted it into a MATLAB class. Giovanni Esteves then refined and extended it, and in 2016 Klarissa Ramos and Giovanni developed the GUI now known as LIPRAS. Today, LIPRAS is maintained by Giovanni and has been migrated to MATLAB App Designer.
 
 ## What is LIPRAS?
 
@@ -19,6 +20,7 @@ Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones
 ## Features in LIPRAS
 <b> Why use LIPRAS?</b> You can use LIPRAS to visualize and analyze diffraction data.
 
+<ul>
 <li> Quickly extract relevant peak information about the <b>position, full width at half maximum (FWHM), and intensity</b> </li>
 <li> Conduct Bayesian inference on least-squares results using a Markov Chain Monte Carlo algorithm</li>
 <li> Customize the background fit by either treating it separately (Polynomial or Spline) or including it in the least-squares routine (Polynomial only)</li>
@@ -33,20 +35,20 @@ Giovanni Esteves, Klarissa Ramos, Chris M. Fancher, and Jacob L. Jones
 <li> Resulting coefficients values can be viewed with file number </li>
 <li> Parameters files are written to recreate fits and detail what fit parameters and profile shape functions were used</li>
 <li> Accepts the following <b>file types: .xy, .xye, .xls, .xlsx, .fxye, .xrdml, .chi, .csv (Windows Only)</b></li>
+</ul>
 
+## Changes from LIPRAS-Classic
+
+Background Point Selection
+* Click Select Points, then click on the plot to add points. Press Enter to finish, or Esc to cancel.
+
+Peak Point Selection
+* Click Select Peaks, then click peak locations until you reach the Number of Peaks. LIPRAS then plots the initial fit automatically.
 
 ## Installation
-**MATLAB Users**
+<b>MATLAB Users: Requires MATLAB 2024a or newer.</b>
 
-**Requires MATLAB 2024a**<br>
-Curve Fitting Toolbox is recommended but not required. You can start using LIPRAS in MATLAB 2024a or newer after downloading it from File Exchange. Earlier MATLAB releases may also work, but could require minor tweaks to avoid errors. LIPRAS runs without the Curve Fitting Toolbox, but having it installed can improve fit speed and robustness in some cases.
-
-**Stand-Alone Version (NO MATLAB NEEDED)**
-
-This version is not updated as often as the GitHub repository since it needs to be compiled using a specific MATLAB license on a specific computer. 
-
-LIPRAS, uploaded to SourceForge:
-[Stand-Alone Version Download](https://sourceforge.net/projects/lipras/)
+<b>Curve Fitting Toolbox is recommended, </b> but not required. You can start using LIPRAS in MATLAB 2024a or newer after downloading it from File Exchange. Earlier MATLAB releases may also work, but could require minor tweaks to avoid errors. LIPRAS runs without the Curve Fitting Toolbox, but having it installed can improve fit speed and robustness in some cases.
 
 **If you use LIPRAS for your research, please cite it (choose one):**
 
