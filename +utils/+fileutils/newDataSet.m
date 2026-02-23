@@ -62,7 +62,7 @@ for i=1:length(filename)
         datatemp = readSpreadsheet(fullFileName);
     elseif strcmpi(ext, '.txt')
 
-        datatemp = readTXT(i,fullFileName);
+        datatemp = readXYorXYE(i,fullFileName);
     elseif strcmpi(ext, '.xy')||strcmpi(ext, '.xye')
         datatemp = readFile(fid, ext);
     elseif strcmpi(ext, '.fxye')
@@ -202,115 +202,105 @@ data.data_fit = temp(2,:);
 end
 
 
-function data=readFXYE(fileIndex,inFile)
-fid = fopen(inFile,'r');
-index = 0;
-done = 0;
+function data = readFXYE(~, inFile)
+%READFXYE Read GSAS/APS-style FXYE text file (BANK header + 3 numeric cols).
+%   Column 1 is 2theta in centi-degrees -> converted to degrees.
 
-while done == 0
+fid = fopen(inFile,'rt');
+if fid < 0
+    error('readFXYE:FileOpen','Could not open file: %s', inFile);
+end
+C = onCleanup(@() fclose(fid));  %#ok<NASGU>
+
+T_K    = NaN;
+lambda = NaN;
+
+% --- scan header, capture metadata, stop at BANK line
+while true
     line = fgetl(fid);
-    a = strsplit(line, ' ');
-    try
-        if strcmp(a(2),'Temp')
-            temp = sprintf('%s*', cell2mat(a(5)));
-            Temperature(fileIndex) = sscanf(temp, '%f*');
-        
-        elseif strcmp(a(3),'wavelength')
-            wave = sprintf('%s*', cell2mat(a(5)));
-            Wavelength(fileIndex) = sscanf(wave, '%f*');
-        end
-        if strcmp(a(1), '')
-            S = sprintf('%s*', cell2mat(a(2)));
-        else
-            S = sprintf('%s*', cell2mat(a(1)));
-        end
-        N = sscanf(S, '%f*');
-        if isempty(N)
-            
-        elseif isa(N, 'double')
-            done = 1;
-        end
-    catch
-        
+    if ~ischar(line)
+        error('readFXYE:NoBank','Reached EOF before BANK line: %s', inFile);
     end
-    
-    index = index + 1;
-end
+    s = strtrim(string(line));
+    if s == ""
+        continue
+    end
 
-dline=str2num(line);
-temp1=transpose(fscanf(fid,'%f',[3 inf]));%opens the file listed above and obtains data in all 5 columns
-temp1=[dline;temp1];
-data.two_theta = temp1(:,1)'./100; % divides by 100 since units in fxye are in centi-degrees
-data.data_fit = temp1(:,2)';
-data.error=temp1(:,3)'; % will become weights for fit for diffraction patterns
+    % Metadata (flexible and cheap)
+    tok = regexp(s, "(?i)^#\s*Temp\s*\(K\)\s*=\s*([+\-]?\d*\.?\d+(?:[eE][+\-]?\d+)?)", ...
+        "tokens","once");
+    if ~isempty(tok), T_K = str2double(tok{1}); end
 
-try
-data.temperature=Temperature;
-data.wave=Wavelength;
-catch
-end
+    tok = regexp(s, "(?i)^#\s*Calibrated\s+wavelength\s*=\s*([+\-]?\d*\.?\d+(?:[eE][+\-]?\d+)?)", ...
+        "tokens","once");
+    if ~isempty(tok), lambda = str2double(tok{1}); end
 
-fclose(fid);
-
-end
-
-function data=readTXT(fileIndex,inFile)
-% Not finished 2-26-2017
-fid = fopen(inFile,'r');
-index = 0;
-done = 0;
-n=1;
-
-if fileIndex==1;
-dat=textscan(fid,'%s');
-fclose(fid);
-
-
-for j=1:size(dat{1},1)
-    data=str2double(cell2mat(dat{:}(j)));
-test(j)=isnan(data);
-
-
-end
-
-
-for i=1:length(test)
-    s= sum(test(i:i+5),1);
-    if s==0
-        p=i;
+    % Start of numeric section
+    if startsWith(s,"BANK","IgnoreCase",true)
         break
     end
 end
 
-
-temp1=data(1,p:end);
-
-
-else 
-    
-    for oo=1:p
-        v=fgetl(fid);
-    end
-    
-    temp1=transpose(fscanf(fid,'%f',[3 inf]));%opens the file listed above and obtains data in all 5 columns
-    fclose(fid);
-    
-    
+% --- numeric block: three columns until EOF
+blk = textscan(fid, "%f%f%f", "CollectOutput", true);
+M = blk{1};
+if isempty(M) || size(M,2) ~= 3
+    error('readFXYE:NoData','No 3-column numeric data after BANK in %s', inFile);
 end
 
+twoTheta_cdeg = M(:,1).';
+data.two_theta = twoTheta_cdeg ./ 100;   % centi-deg -> deg
+data.data_fit  = M(:,2).';
+data.error     = M(:,3).';
 
+% Optional metadata (store like your GUI expects)
+if ~isnan(T_K),    data.temperature = T_K - 273.15; end
+if ~isnan(lambda), data.wave        = lambda;       end
+end
 
+function data = readXYorXYE(~,filename)
+%READXYORXYE Read a 2- or 3-column numeric text file (X Y or X Y E).
+%   DATA = readXYorXYE(filename) returns a struct with fields:
+%     two_theta  (row vector)  -> X
+%     data_fit   (row vector)  -> Y
+%     error      (row vector)  -> E (optional; [] if absent)
+%
+%   The file is assumed to contain numeric data only (no header).
+%   Works with whitespace-, tab-, comma-, or semicolon-delimited files.
 
+filename = string(filename);
 
+% readmatrix is a good default for numeric text files. :contentReference[oaicite:2]{index=2}
+A = readmatrix(filename);
 
-data.two_theta = temp1(:,1)./100; % divides by 100 since units in fxye are in centi-degrees
-data.data_fit = temp1(:,2);
-data.temperature=Temperature;
-data.wave=Wavelength;
+% Drop completely empty rows (can happen with trailing blanks)
+A = A(~all(isnan(A),2), :);
 
+% Basic validation
+if isempty(A) || size(A,2) < 2
+    error("readXYorXYE:BadFormat", ...
+        "File must contain at least 2 numeric columns (X Y): %s", filename);
+end
 
-fclose(fid)
+% Keep only the first 3 columns (ignore extras)
+A = A(:, 1:min(3,size(A,2)));
 
+data = struct();
+data.two_theta = A(:,1).';      % X
+data.data_fit  = A(:,2).';      % Y
+
+if size(A,2) >= 3
+    data.error = A(:,3).';      % E
+else
+    data.error = [];            % optional
+end
+
+% A tiny sanity check: X should usually be monotone for scans (warn only)
+dx = diff(data.two_theta);
+if ~isempty(dx) && nnz(dx <= 0) > 0
+    warning("readXYorXYE:NonMonotoneX", ...
+        "X column is not strictly increasing in %s.", filename);
+end
 end
 
 

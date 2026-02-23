@@ -97,8 +97,8 @@ if ~isempty(Stro.FitFunctions) && ...
     return
 end
 
-allowedFcns = {'Gaussian' 'Lorentzian' 'Pearson VII' 'Pseudo-Voigt'};
-allowedFcns_ = {'Gaussian' 'Lorentzian' 'PearsonVII' 'PseudoVoigt'};
+allowedFcns = {'Gaussian' 'Lorentzian' 'Pearson VII' 'Pseudo-Voigt' 'Gauss-Bk2BkExpConv'};
+allowedFcns_ = {'Gaussian' 'Lorentzian' 'PearsonVII' 'PseudoVoigt' 'GaussBk2BkExpConv'};
 
 isAsym = Stro.isFuncAsymmetric(fcnName);
 

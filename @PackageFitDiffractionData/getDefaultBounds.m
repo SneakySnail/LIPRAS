@@ -27,13 +27,29 @@ for j=1:length(Stro.FitFunctions)
         uppervals = Stro.FitFunctions{j}.getDefaultUpperBounds(data, Stro.PeakPositions(j));
         fcnCoeffNames = Stro.FitFunctions{j}.getCoeffs;
         
-        for i=1:length(fcnCoeffNames)
-            coeff = fcnCoeffNames{i};
-            idx = find(strcmp(coefflist, coeff),1);
-            result.start(idx) = startvals.(coeff(1));
-            result.lower(idx) = lowervals.(coeff(1));
-            result.upper(idx) = uppervals.(coeff(1));
+    doNotCollapse = {'aL','bR'};        % keep these as-is
+    collapseLR    = {'N','x','f','w','m'}; % collapse NL/NR -> N, xL/xR -> x, etc.
+    
+    for i = 1:length(fcnCoeffNames)
+        coeff = fcnCoeffNames{i};
+        idx = find(strcmpi(coefflist, coeff), 1);
+        if isempty(idx), continue; end
+    
+        base = regexprep(coeff, '\d+$', '');   % 'NL','bR','aL', etc.
+    
+        % Collapse legacy left/right tags (NL->N), but never collapse tails (aL,bR)
+        if ~any(strcmpi(base, doNotCollapse))
+            if numel(base)==2 && any(base(end)==['L','R']) && any(strcmpi(base(1), collapseLR))
+                base = base(1);
+            end
         end
+    
+        % --- case-insensitive struct field fetch ---
+        result.start(idx) = getFieldCI(startvals, base);
+        result.lower(idx) = getFieldCI(lowervals, base);
+        result.upper(idx) = getFieldCI(uppervals, base);
+    end
+
     catch ME
         if strcmp(ME.identifier, 'LIPRAS:FitFunction:NegativePeakArea')
             msg = ME.message;
@@ -58,4 +74,18 @@ else
             output = result.upper;
     end
 end
+
+function v = getFieldCI(s, name)
+    if isfield(s, name)
+        v = s.(name);
+        return
+    end
+    fn = fieldnames(s);
+    k = find(strcmpi(fn, name), 1);
+    if isempty(k)
+        error('Missing field "%s" in defaults struct. Available: %s', name, strjoin(fn.', ', '));
+    end
+    v = s.(fn{k});
+end
+
 end

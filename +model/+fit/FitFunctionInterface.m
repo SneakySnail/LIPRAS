@@ -151,13 +151,19 @@ classdef FitFunctionInterface < handle
                 
         function result = getUnconstrainedCoeffs(this)
         coeffs = this.getCoeffs;
-        for i=1:length(coeffs)
-            coeffs{i} = coeffs{i}(1);
+    
+        % Convert coeffs like {'aL2','bR2','f2'} -> {'aL','bR','f'}
+        bases = cell(size(coeffs));
+        for i = 1:length(coeffs)
+            bases{i} = this.coeffBase_(coeffs{i});
         end
+    
+        % Remove constrained base coeffs (e.g. 'N','x','f','w','m', ...)
         idx = zeros(1, length(this.ConstrainedCoeffs));
-        for i=1:length(this.ConstrainedCoeffs)
-            idx(i) = find(strcmpi(this.ConstrainedCoeffs{i}, coeffs), 1);
+        for i = 1:length(this.ConstrainedCoeffs)
+            idx(i) = find(strcmpi(this.ConstrainedCoeffs{i}, bases), 1);
         end
+    
         result = this.getCoeffs;
         result(idx) = [];
         end
@@ -183,11 +189,17 @@ classdef FitFunctionInterface < handle
         unconstrained = this.getUnConstrainedCoeffs;
         initial = []; lower = []; upper = []; 
         
-        for i=1:length(unconstrained)
-           ch = unconstrained{i}(1);
-           initial = [initial init.(ch)];
-           lower = [lower low.(ch)];
-           upper = [upper up.(ch)];
+        for i = 1:length(unconstrained)
+            ch = this.coeffBase_(unconstrained{i});
+        
+            % defensive: ensure the field exists
+            if ~isfield(init, ch) || ~isfield(low, ch) || ~isfield(up, ch)
+                error('Missing bounds field "%s" for coeff "%s".', ch, unconstrained{i});
+            end
+        
+            initial(end+1) = init.(ch);
+            lower(end+1)   = low.(ch);
+            upper(end+1)   = up.(ch);
         end
         
         output.initial = initial;
@@ -207,17 +219,24 @@ classdef FitFunctionInterface < handle
         constrained = this.getConstrainedCoeffs;
         initial = []; lower = []; upper = []; 
         
-        for i=1:length(constrained)
-           ch = constrained{i}(1);
-           initial = [initial init.(ch)];
-           lower = [lower low.(ch)];
-           upper = [upper up.(ch)];
+        for i = 1:length(constrained)
+        ch = this.coeffBase_(constrained{i});
+    
+        if ~isfield(init, ch) || ~isfield(low, ch) || ~isfield(up, ch)
+            error('Missing bounds field "%s" for coeff "%s".', ch, constrained{i});
         end
+    
+        initial(end+1) = init.(ch);
+        lower(end+1)   = low.(ch);
+        upper(end+1)   = up.(ch);
+        end
+        
         output.initial = initial;
         output.lower = lower;
         output.upper = upper;
         output.coeff = constrained;
         this.RawData = data;
+        this.CoeffValues = init;
         end
 
         function set.ConstrainedCoeffs(this, value)
@@ -263,47 +282,37 @@ classdef FitFunctionInterface < handle
         end
         
         function result = getCoeffs(this)
-        %GETCOEFFS returns a cell array of strings with the coefficients to use in the fit equation.
-        import utils.contains
-        constraints = this.ConstrainedLogical;
         num = num2str(this.ID);
-        unconstrained = cell(1, length(this.CoeffNames)); i=1;
-        if ~constraints(1)
-            unconstrained{i} = [this.CoeffNames{1} num];
-            i=i+1;
-        end    
-        if ~constraints(2)
-            unconstrained{i} = [this.CoeffNames{2} num];
-            i=i+1;        
-        end
-        if ~constraints(3)
-            unconstrained{i} = [this.CoeffNames{3} num];
-            i=i+1;
-        end
-        if ~constraints(4) && contains(this.Name, 'Pseudo')
-            unconstrained{i} = [this.CoeffNames{4} num];
-            i=i+1;
-            if this.Asym==1
-            unconstrained{i} = [this.CoeffNames{5} num];
-            i=i+1;       
+            constraints = this.ConstrainedLogical;
+        
+            unconstrained = {};
+        
+            % N, x, f
+            if ~constraints(1), unconstrained{end+1} = [this.CoeffNames{1} num]; end
+            if ~constraints(2), unconstrained{end+1} = [this.CoeffNames{2} num]; end
+            if ~constraints(3), unconstrained{end+1} = [this.CoeffNames{3} num]; end
+        
+            % Remaining coeffs
+            for k = 4:numel(this.CoeffNames)
+                cname = this.CoeffNames{k};
+        
+                % Respect existing constraint slots
+                if strcmpi(cname,'w') && constraints(4)
+                    continue
+                end
+                if strcmpi(cname,'m') && constraints(5)
+                    continue
+                end
+        
+                % Only include 'a' when active
+                if strcmpi(cname,'a') && isprop(this,'Asym') && this.Asym==0
+                    continue
+                end
+        
+                unconstrained{end+1} = [cname num]; %#ok<AGROW>
             end
-        elseif ~constraints(5) && contains(this.Name, 'Pearson VII')
-            unconstrained{i} = [this.CoeffNames{4} num];
-            i=i+1;
-            if this.Asym==1
-            unconstrained{i} = [this.CoeffNames{5} num];
-            i=i+1;       
-            end
-        elseif  contains(this.Name, {'Gaussian', 'Lorentzian'})
-            if this.Asym==1
-            unconstrained{i} = [this.CoeffNames{4} num];
-            i=i+1;       
-            end
-        end
-        if i <= length(unconstrained)
-            unconstrained(i:end) = [];
-        end
-        result = [this.ConstrainedCoeffs, unconstrained];
+        
+            result = [this.ConstrainedCoeffs, unconstrained];
         end
         
         function output = getConstrainedCoeffs(this)
@@ -343,6 +352,14 @@ classdef FitFunctionInterface < handle
         result.w = FitFunctionInterface.DEFAULT_VALUE_W;
         result.m = FitFunctionInterface.DEFAULT_VALUE_M;
         result.a = FitFunctionInterface.DEFAULT_VALUE_A;
+        % --- generic extras for multi-letter coeffs (only if present) ---
+        if any(strcmpi(this.CoeffNames, 'aL'))
+            result.aL = 1;  % fallback, TOF classes can override with better guess
+        end
+        if any(strcmpi(this.CoeffNames, 'bR'))
+            result.bR = 1;
+        end
+
         end
         
         function result = getDefaultLowerBounds(this, data, peakpos)
@@ -358,6 +375,14 @@ classdef FitFunctionInterface < handle
         result.w = 0;
         result.m = 0.5;
         result.a=FitFunctionInterface.DEFAULT_LOWER_A;
+        
+        if any(strcmpi(this.CoeffNames, 'aL'))
+            result.aL = 1e-6;
+        end
+        if any(strcmpi(this.CoeffNames, 'bR'))
+            result.bR = 1e-6;
+        end
+
         end
         
         function result = getDefaultUpperBounds(this, data, peakpos)
@@ -371,6 +396,20 @@ classdef FitFunctionInterface < handle
         result.w = 1;
         result.m = FitFunctionInterface.DEFAULT_VALUE_M * 10;
         result.a=FitFunctionInterface.DEFAULT_UPPER_A;
+
+        dx = median(diff(data(1,:)));
+        if ~isfinite(dx) || dx <= 0
+            dx = (data(1,end) - data(1,1)) / max(10, numel(data(1,:))-1);
+        end
+        tailMax = 10 / max(eps, dx);  % 10/dx is a generous cap
+        
+        if any(strcmpi(this.CoeffNames, 'aL'))
+            result.aL = tailMax;
+        end
+        if any(strcmpi(this.CoeffNames, 'bR'))
+            result.bR = tailMax;
+        end
+        
         end
         
         function result = isAsymmetric(this)
@@ -409,21 +448,59 @@ classdef FitFunctionInterface < handle
         setappdata(lineObj, 'ydata', ydata);
         end
         
-        function coefficient = coeff(this, letter)
-        %coeff Returns the coefficient starting with 'letter' used for the equation in the fit.
-        %   'letter' must be either: {'N', 'x', 'f', 'w', 'm'}.
-        coeffs = this.getCoeffs;
-        idx = utils.contains(coeffs, letter);
-        coefficient = coeffs(idx);
-        if length(coefficient) == 1
-            coefficient = coefficient{1};
+        function coefficient = coeff(this, baseName)
+        %coeff Returns coefficient name(s) (with ID suffix) used for the equation in the fit.
+        % - If multiple coefficients match (e.g., NL/NR), returns a cell array.
+        % - If one matches, returns a char.
+        % baseName examples: 'N','x','f','w','m','a','aL','bR'
+        
+            coeffs = this.getCoeffs;
+        
+            % strip trailing peak ID digits: 'NL12'->'NL', 'aL2'->'aL'
+            bases = cell(size(coeffs));
+            for i = 1:numel(coeffs)
+                bases{i} = this.coeffBase_(coeffs{i});
+            end
+        
+            % Allow left/right variants only for these single-letter bases
+            lrAllowed = {'N','x','f','w','m'};
+        
+            if any(strcmpi(baseName, lrAllowed))
+                % match baseName, baseNameL, baseNameR
+                idx = find(strcmpi(bases, baseName) | ...
+                           strcmpi(bases, [baseName 'L']) | ...
+                           strcmpi(bases, [baseName 'R']));
+            else
+                % exact base match only (prevents 'a' matching 'aL')
+                idx = find(strcmpi(bases, baseName));
+            end
+        
+            if isempty(idx)
+                coefficient = {};
+                return
+            end
+        
+            coefficient = coeffs(idx);
+        
+            % keep legacy behavior: return char if single, cell if multiple
+            if numel(coefficient) == 1
+                coefficient = coefficient{1};
+            end
+            
         end
-        end
+
     end
     
     methods (Abstract, Access = protected)
        output = calculate_(this, xdata, coeffvals);
     end
     
+    methods (Access = protected)
+        function base = coeffBase_(~, coeffWithId)
+            % 'aL12' -> 'aL', 'bR2' -> 'bR', 'f3' -> 'f'
+            base = regexprep(coeffWithId, '\d+$', '');
+        end
+    end
+
 end
 
