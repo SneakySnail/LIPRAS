@@ -17,6 +17,8 @@ classdef PVBk2BkExpConv < model.fit.FitFunctionInterface
         Name = 'PV-Bk2BkExpConv';
         CoeffNames = {'N','x','f','w','aL','bR'};
         ID
+        Asym=0;        
+
     end
 
     methods
@@ -31,23 +33,41 @@ classdef PVBk2BkExpConv < model.fit.FitFunctionInterface
         end
 
         function str = getEqnStr(this, xval)
-            % There isn't a simple closed-form string here (numeric convolution).
-            % Return a compact identifier string for display.
+            import utils.contains
             coeff = this.getCoeffs;
+        
             Nidx = find(contains(coeff,'N'),1);
             xidx = find(contains(coeff,'x'),1);
             fidx = find(contains(coeff,'f'),1);
             widx = find(contains(coeff,'w'),1);
-
-            if nargin > 1
-                coeff{xidx} = num2str(xval);
+        
+            % ID suffixed tail coeffs
+            aLtok = ['aL' num2str(this.ID)];
+            bRtok = ['bR' num2str(this.ID)];
+        
+            aLidx = find(strcmpi(coeff, aLtok), 1);
+            bRidx = find(strcmpi(coeff, bRtok), 1);
+        
+            aLname = aLtok; 
+            bRname = bRtok;
+            if ~isempty(aLidx), aLname = coeff{aLidx}; end
+            if ~isempty(bRidx), bRname = coeff{bRidx}; end
+        
+            % Center expression (x0): default is the parameter name, or substitute a value/string
+            x0 = coeff{xidx};
+            if nargin > 1 && ~isempty(xval)
+                if isnumeric(xval)
+                    x0 = num2str(xval);
+                else
+                    x0 = char(string(xval));
+                end
             end
-
-            aLname = ['aL' num2str(this.ID)];
-            bRname = ['bR' num2str(this.ID)];
-
-            str = [coeff{Nidx} '*ConvFFT(PVoigtCore(' coeff{xidx} ',' coeff{fidx} ',' coeff{widx} '),Bk2Bk(' aLname ',' bRname '))'];
+        
+            % Display string (numeric convolution, no closed form)
+            str = [coeff{Nidx} '*ConvFFT(PVoigtCore(xv,' x0 ',' coeff{fidx} ',' coeff{widx} ...
+                   '),Bk2Bk(' aLname ',' bRname '))'];
         end
+
 
         function value = getCoeffs(this)
             value = getCoeffs@model.fit.FitFunctionInterface(this);
@@ -56,32 +76,78 @@ classdef PVBk2BkExpConv < model.fit.FitFunctionInterface
         function output = getDefaultInitialValues(this, data, peakpos)
             value = getDefaultInitialValues@model.fit.FitFunctionInterface(this, data, peakpos);
 
-            output.N = value.N;
-            output.x = value.x;
-            output.f = value.f;
             output.w = value.w;
 
-            % Tail guesses (same heuristic as Gaussian)
-            try
-                x = data.X(:);
-                y = data.Y(:);
-                [~, imax] = max(y);
-                xc = x(imax);
-                ypk = y(imax);
-                ythr = max(ypk*0.05, min(y(y>0)));
-
-                il = find(x < xc & y <= ythr, 1, 'last');
-                if isempty(il), Lleft = max(eps, xc - min(x)); else, Lleft = max(eps, xc - x(il)); end
-
-                ir = find(x > xc & y <= ythr, 1, 'first');
-                if isempty(ir), Lright = max(eps, max(x) - xc); else, Lright = max(eps, x(ir) - xc); end
-
-                output.aL = 1 / Lleft;
-                output.bR = 1 / Lright;
-            catch
-                output.aL = 1;
-                output.bR = 1;
+        value = getDefaultInitialValues@model.fit.FitFunctionInterface(this, data, peakpos);
+    
+        output.N = value.N;
+        output.x = value.x;
+    
+        x = data(1,:); 
+        y = data(2,:);
+        x = x(:); y = y(:);
+    
+        dx = median(diff(x));
+        if ~isfinite(dx) || dx <= 0
+            dx = (x(end)-x(1)) / max(10, numel(x)-1);
+        end
+    
+        % center at local max
+        [ypk, imax] = max(y);
+        xc = x(imax);
+        if ~isfinite(ypk) || ypk <= 0
+            xc = peakpos;
+            ypk = max(y);
+        end
+        % output.x = xc;
+    
+        % --- FWHM estimate (then make it a bit sharper) ---
+        f0 = value.f;
+        if isfinite(ypk) && ypk > 0
+            yhalf = 0.5*ypk;
+            iL = find(x < xc & y <= yhalf, 1, 'last');
+            iR = find(x > xc & y <= yhalf, 1, 'first');
+            if ~isempty(iL) && ~isempty(iR)
+                f0 = x(iR) - x(iL);
+            else
+                f0 = abs(trapz(x,y)) / max(ypk, eps);
             end
+        end
+    
+        f0 = 0.75*f0;          % <-- sharper start (15% narrower)
+        f0 = max(f0, 1.5*dx);   % <-- allow narrower than before
+        output.f = f0;
+    
+        % --- Tail rates: use higher fraction to make tails "sharper/intense" ---
+        frac = 0.8;            % <-- was 0.05; higher -> larger aL/bR
+        aL0 = 1; bR0 = 1;
+    
+        if isfinite(ypk) && ypk > 0
+            ythr = frac*ypk;
+    
+            il = find(x < xc & y <= ythr, 1, 'last');
+            ir = find(x > xc & y <= ythr, 1, 'first');
+    
+            if isempty(il), Lleft  = xc - x(1); else, Lleft  = xc - x(il); end
+            if isempty(ir), Lright = x(end) - xc; else, Lright = x(ir) - xc; end
+    
+            % smaller minimum tail length -> larger rates
+            Lleft  = max(Lleft,  f0/4);
+            Lright = max(Lright, f0/4);
+    
+            aL0 = 1 / max(eps, Lleft);
+            bR0 = 1 / max(eps, Lright);
+        end
+    
+        % Clamp
+        aL0 = min(max(aL0, 1e-6), 20/max(eps,dx));  % <-- allow larger max
+        bR0 = min(max(bR0, 1e-6), 20/max(eps,dx));
+    
+        output.aL = aL0;
+        output.bR = bR0;
+    
+        this.CoeffValues = output;
+
         end
 
         function output = getDefaultLowerBounds(this, data, peakpos)
@@ -92,8 +158,8 @@ classdef PVBk2BkExpConv < model.fit.FitFunctionInterface
             output.f = value.f;
             output.w = value.w;
 
-            output.aL = 1e-6;
-            output.bR = 1e-6;
+            output.aL = 0;
+            output.bR = 0;
         end
 
         function output = getDefaultUpperBounds(this, data, peakpos)
@@ -104,8 +170,8 @@ classdef PVBk2BkExpConv < model.fit.FitFunctionInterface
             output.f = value.f;
             output.w = value.w;
 
-            output.aL = Inf;
-            output.bR = Inf;
+            output.aL = 20 / max(eps, output.f); 
+            output.bR = 20 / max(eps, output.f);
         end
     end
 
