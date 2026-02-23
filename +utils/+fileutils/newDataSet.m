@@ -203,59 +203,72 @@ end
 
 
 function data = readFXYE(~, inFile)
-%READFXYE Read GSAS/APS-style FXYE text file (BANK header + 3 numeric cols).
-%   Column 1 is 2theta in centi-degrees -> converted to degrees.
+%READFXYE Read GSAS-II/APS-style FXYE (BANK header + 3 numeric cols).
+%   Auto-detects X units from BANK: degrees vs centi-degrees vs TOF-like.
 
 fid = fopen(inFile,'rt');
 if fid < 0
     error('readFXYE:FileOpen','Could not open file: %s', inFile);
 end
-C = onCleanup(@() fclose(fid));  %#ok<NASGU>
+C = onCleanup(@() fclose(fid)); %#ok<NASGU>
 
-T_K    = NaN;
-lambda = NaN;
-
-% --- scan header, capture metadata, stop at BANK line
+% --- find BANK line
+bankLine = "";
 while true
     line = fgetl(fid);
     if ~ischar(line)
         error('readFXYE:NoBank','Reached EOF before BANK line: %s', inFile);
     end
     s = strtrim(string(line));
-    if s == ""
-        continue
-    end
-
-    % Metadata (flexible and cheap)
-    tok = regexp(s, "(?i)^#\s*Temp\s*\(K\)\s*=\s*([+\-]?\d*\.?\d+(?:[eE][+\-]?\d+)?)", ...
-        "tokens","once");
-    if ~isempty(tok), T_K = str2double(tok{1}); end
-
-    tok = regexp(s, "(?i)^#\s*Calibrated\s+wavelength\s*=\s*([+\-]?\d*\.?\d+(?:[eE][+\-]?\d+)?)", ...
-        "tokens","once");
-    if ~isempty(tok), lambda = str2double(tok{1}); end
-
-    % Start of numeric section
     if startsWith(s,"BANK","IgnoreCase",true)
+        bankLine = s;
         break
     end
 end
 
-% --- numeric block: three columns until EOF
+% --- parse BANK fields (BANK i n1 n2 CONS start step ...)
+t = split(bankLine);
+if numel(t) < 8 || ~strcmpi(t(5),"CONS")
+    error('readFXYE:BadBank','Unexpected BANK format: %s', bankLine);
+end
+
+nPts = str2double(t(3));
+startVal = str2double(t(6));
+stepVal  = str2double(t(7));
+
+if ~isfinite(nPts) || ~isfinite(startVal) || ~isfinite(stepVal) || nPts < 2
+    error('readFXYE:BadBankNumbers','Could not parse Npts/start/step from: %s', bankLine);
+end
+
+% --- read numeric block: 3 cols to EOF
 blk = textscan(fid, "%f%f%f", "CollectOutput", true);
 M = blk{1};
 if isempty(M) || size(M,2) ~= 3
     error('readFXYE:NoData','No 3-column numeric data after BANK in %s', inFile);
 end
 
-twoTheta_cdeg = M(:,1).';
-data.two_theta = twoTheta_cdeg ./ 100;   % centi-deg -> deg
-data.data_fit  = M(:,2).';
-data.error     = M(:,3).';
+x = M(:,1).';
+y = M(:,2).';
+e = M(:,3).';
 
-% Optional metadata (store like your GUI expects)
-if ~isnan(T_K),    data.temperature = T_K - 273.15; end
-if ~isnan(lambda), data.wave        = lambda;       end
+% --- decide units
+span = (nPts - 1) * stepVal;   % units of X in BANK line
+
+if span > 400
+    if startVal > 20000
+        scanType = "TOF";      % leave as-is
+    else
+        x = x ./ 100;          % centi-deg -> deg
+        scanType = "2Theta";
+    end
+else
+    scanType = "2Theta";       % normal degrees
+end
+
+data.two_theta = x;
+data.data_fit  = y;
+data.error     = e;
+data.scanType  = scanType;
 end
 
 function data = readXYorXYE(~,filename)

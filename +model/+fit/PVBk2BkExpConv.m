@@ -48,7 +48,7 @@ classdef PVBk2BkExpConv < model.fit.FitFunctionInterface
             aLidx = find(strcmpi(coeff, aLtok), 1);
             bRidx = find(strcmpi(coeff, bRtok), 1);
         
-            aLname = aLtok; 
+            aLname = aLtok;
             bRname = bRtok;
             if ~isempty(aLidx), aLname = coeff{aLidx}; end
             if ~isempty(bRidx), bRname = coeff{bRidx}; end
@@ -63,9 +63,10 @@ classdef PVBk2BkExpConv < model.fit.FitFunctionInterface
                 end
             end
         
-            % Display string (numeric convolution, no closed form)
-            str = [coeff{Nidx} '*ConvFFT(PVoigtCore(xv,' x0 ',' coeff{fidx} ',' coeff{widx} ...
-                   '),Bk2Bk(' aLname ',' bRname '))'];
+            % Use fully-qualified names so fittype can resolve them
+            coreStr = ['model.fit.PVoigtCore(xv,' x0 ',' coeff{fidx} ',' coeff{widx} ')'];
+            kerStr  = ['model.fit.Bk2BkKernel(xv,' aLname ',' bRname ')'];
+            str     = [coeff{Nidx} '*model.fit.ConvFFT(' coreStr ',' kerStr ')'];
         end
 
 
@@ -185,71 +186,41 @@ classdef PVBk2BkExpConv < model.fit.FitFunctionInterface
         function output = calculate_(this, xdata, coeffvals)
             coeffs = this.getCoeffs;
             num = num2str(this.ID);
-
+        
             get1 = @(base) coeffvals( find(strcmpi(coeffs, [base num]), 1, 'first') );
-
+        
             N  = get1('N');
-            xv = get1('x');
+            x0 = get1('x');
             f  = get1('f');
             w  = get1('w');
-            aL = get1('aL');
-            bR = get1('bR');
-
-            aL = max(1e-12, aL);
-            bR = max(1e-12, bR);
-
-            % Ensure column vectors
+            aL = max(1e-12, get1('aL'));
+            bR = max(1e-12, get1('bR'));
+        
             x = xdata(:);
             dx = median(diff(x));
-
-            % If x is not ~uniform, resample to a uniform grid for convolution
-            if any(~isfinite(x)) || numel(x) < 8 || dx <= 0
+        
+            if any(~isfinite(x)) || numel(x) < 8 || ~isfinite(dx) || dx <= 0
                 output = nan(size(xdata));
                 return
             end
-            if max(abs(diff(x) - dx)) > 1e-6*max(1,abs(dx))
+        
+            nonUniform = max(abs(diff(x) - dx)) > 1e-6*max(1,abs(dx));
+        
+            if nonUniform
                 xU = linspace(x(1), x(end), numel(x)).';
-                % Build core on uniform grid and convolve there
-                coreU = local_pvoigt_core(xU, xv, f, w);
-                yU = local_bk2bk_conv_fft(xU, coreU, aL, bR);
-                output = N .* interp1(xU, yU, x, 'linear', 'extrap');
+                coreU = model.fit.PVoigtCore(xU, x0, f, w);
+                kU    = model.fit.Bk2BkKernel(xU, aL, bR);
+                yU    = model.fit.ConvFFT(coreU, kU);          % padded linear conv, same length
+                out   = N .* interp1(xU, yU, x, 'linear', 'extrap');
             else
-                core = local_pvoigt_core(x, xv, f, w);
-                y = local_bk2bk_conv_fft(x, core, aL, bR);
-                output = N .* y;
+                core = model.fit.PVoigtCore(x, x0, f, w);
+                k    = model.fit.Bk2BkKernel(x, aL, bR);
+                y    = model.fit.ConvFFT(core, k);
+                out  = N .* y;
             end
-
+        
+            output = out;
             if isrow(xdata), output = output.'; end
         end
     end
-end
-
-% ---------- local helpers (file-scope) ----------
-function core = local_pvoigt_core(x, xv, f, w)
-    % Area-normalized Lorentzian + area-normalized Gaussian, common FWHM f
-    % (matches your PseudoVoigt.calculate_ formula with Asym==0 and without N)
-    lor = (2/pi) .* (1./f) .* 1./(1 + (4.*(x-xv).^2./f.^2));
-    gau = (2*sqrt(log(2))/sqrt(pi)) .* (1./f) .* exp(-log(2).*4.*(x-xv).^2./f.^2);
-    core = w.*lor + (1-w).*gau;
-end
-
-function y = local_bk2bk_conv_fft(x, core, aL, bR)
-    % Numeric convolution y = (core * k)(x) with back-to-back exponential kernel k
-    % Uses FFT; assumes x is uniform.
-    n = numel(x);
-    dx = x(2) - x(1);
-
-    % centered lag grid
-    t = ((0:n-1) - floor(n/2)).' * dx;
-
-    k = zeros(n,1);
-    k(t<0)  = (aL*bR/(aL+bR)) .* exp( aL.*t(t<0) );
-    k(t>=0) = (aL*bR/(aL+bR)) .* exp(-bR.*t(t>=0));
-
-    % shift so that zero-lag is at index 1 for FFT
-    k = ifftshift(k);
-
-    % FFT convolution (same length), scale by dx to approximate integral
-    Y = ifft( fft(core) .* fft(k) );
-    y = real(Y) .* dx;
 end
