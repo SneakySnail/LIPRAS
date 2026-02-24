@@ -75,12 +75,9 @@ classdef PVBk2BkExpConv < model.fit.FitFunctionInterface
         end
 
         function output = getDefaultInitialValues(this, data, peakpos)
-            value = getDefaultInitialValues@model.fit.FitFunctionInterface(this, data, peakpos);
-
-            output.w = value.w;
-
         value = getDefaultInitialValues@model.fit.FitFunctionInterface(this, data, peakpos);
-    
+
+        output.w = value.w;    
         output.N = value.N;
         output.x = value.x;
     
@@ -120,7 +117,7 @@ classdef PVBk2BkExpConv < model.fit.FitFunctionInterface
         output.f = f0;
     
         % --- Tail rates: use higher fraction to make tails "sharper/intense" ---
-        frac = 0.8;            % <-- was 0.05; higher -> larger aL/bR
+        frac = 1;            % <-- was 0.05; higher -> larger aL/bR
         aL0 = 1; bR0 = 1;
     
         if isfinite(ypk) && ypk > 0
