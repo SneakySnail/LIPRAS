@@ -63,7 +63,7 @@ end
         ZStr = ['(' bRname '*' sigStr '^2-(xv-' coeff{xidx} '))/(sqrt(2)*' sigStr ')'];
     
         str = [coeff{Nidx} '*0.5*(' aLname '*' bRname '/(' aLname '+' bRname '))' ...
-            '*(exp(min((' uStr '),700)).*erfc(' YStr ') + exp(min((' vStr '),700)).*erfc(' ZStr '))']; % exp(min(u,700)) keeps exp from blowing up
+            '*(exp(min((' uStr '),700))*erfc(' YStr ') + exp(min((' vStr '),700))*erfc(' ZStr '))']; % exp(min(u,700)) keeps exp from blowing up
         end
 
         function value = getCoeffs(this)
