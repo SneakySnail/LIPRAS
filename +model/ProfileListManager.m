@@ -196,9 +196,20 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        end
        this.dataReadin=data;
        
-       newKey = string(fullfile(path,filename)) + "|" + string(data(1).ext);
-       isNew = ~strcmp(this.LastLoadedKey, newKey);
-       this.LastLoadedKey = newKey;
+        % filename can be char (single) or cell (multi), 2-25-26
+        files = string(fullfile(path, filename));
+        files = files(:);   % force column for consistency
+        
+        exts = string({data.ext});              % N x 1
+        pairs = files(:) + "|" + exts(:);       % N x 1
+        
+        pairs = sort(pairs);                    % optional: order-independent
+        newKey = strjoin(pairs, ";;");          % SCALAR string
+        
+        oldKey = string(this.LastLoadedKey);    % ensure string scalar ("" if empty)
+        
+        isNew = oldKey ~= newKey;               % scalar logical
+        this.LastLoadedKey = newKey;
 
        if isNew
        this.reset();

@@ -138,13 +138,13 @@ if profile.CF
         this.FitOptions    = xrd.getFitOptions(filenumber);
         end
         
-        if strcmp(profile.Weights,'Default')
-            if ~isempty(profile.Errors)
-                this.FitOptions.Weights=1./(xrd.DataSet{filenumber}.getDataErrors).^2; % default to 1/sigma^2 when errors are read in or generated upon file read
-            else
-                this.FitOptions.Weights=1./xrd.DataSet{filenumber}.getDataIntensity;
-            end
-        end
+        % if strcmp(profile.Weights,'Default') % this is what sets different between default and 1/obs
+        %     if ~isempty(profile.Errors)
+        %         this.FitOptions.Weights=1./(xrd.DataSet{filenumber}.getDataErrors).^2; % default to 1/sigma^2 when errors are read in or generated upon file read
+        %     else
+        %         this.FitOptions.Weights=1./xrd.DataSet{filenumber}.getDataIntensity;
+        %     end
+        % end
         
         if xrd.BkgLS && ~isempty(xrd.BkgCoeff) && filenumber==1 % handling bkgCoeff refined and how they cycle after being refined
             if length(xrd.BkgCoeff)==this.BackgroundOrder+1           % when BkgOrder is switched after a refined bkg has been done    
