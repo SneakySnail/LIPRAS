@@ -755,45 +755,59 @@ end
     methods (Static)
 
         function w = makeWeights(weightMode, intensity, errors)
-                %MAKEWEIGHTS Build fit weights vector based on mode + optional errors.
-                % weightMode: 'None' | 'Default' | '1/obs' | '1/sqrt(obs)'
-                % intensity:  vector of observed y (must be same length as errors if provided)
-                % errors:     [] or vector of 1-sigma errors for intensity
-                
-                intensity = intensity(:);
-                haveErr = nargin >= 3 && ~isempty(errors);
-                if haveErr, errors = errors(:); end
-                
-                epsI = 1e-12; % guard against divide-by-zero
-                
-                switch lower(strtrim(weightMode))
-                    case 'none'
-                        w = ones(size(intensity));
-                
-                    case 'default'
-                        if haveErr
-                            e = max(errors, epsI);
-                            w = 1 ./ (e.^2);
-                        else
-                            y = max(intensity, epsI);
-                            w = 1 ./ y;
+            %MAKEWEIGHTS Build fit weights vector based on mode + optional errors.
+            % weightMode: 'None' | 'Default' | '1/obs' | '1/sqrt(obs)'
+            % intensity:  vector of observed y (must be same length as errors if provided)
+            % errors:     [] or vector of 1-sigma errors for intensity
+        
+            intensity = intensity(:);
+            haveErr = nargin >= 3 && ~isempty(errors);
+            if haveErr, errors = errors(:); end
+        
+            % Poisson-safe floors (counts-domain)
+            iFloor = 1;                         % minimum counts used for sqrt(I)
+            eFloor = 1;                         % minimum sigma (prevents 1e24 weights)
+        
+            switch lower(strtrim(weightMode))
+                case 'none'
+                    w = ones(size(intensity));
+        
+                case 'default'
+                    if haveErr
+                        % Use file errors when valid, otherwise fall back to Poisson sqrt(I)
+                        e = errors;
+                        bad = ~isfinite(e) | e <= 0;
+                        if any(bad)
+                            e(bad) = sqrt(max(intensity(bad), iFloor));
                         end
-                
-                    case '1/obs'
-                        y = max(intensity, epsI);
+                        e = max(e, eFloor);     % avoid absurdly huge weights
+                        w = 1 ./ (e.^2);
+                    else
+                        % Poisson weights: w = 1/I, with I floored at 1
+                        y = max(intensity, iFloor);
                         w = 1 ./ y;
-                
-                    case '1/sqrt(obs)'
-                        y = max(intensity, epsI);
-                        w = 1 ./ sqrt(y);
-                
-                    otherwise
-                        % fallback: be safe and unweighted
-                        w = ones(size(intensity));
-                end
-                
-                % final cleanup
-                w(~isfinite(w)) = 0;
+                    end
+        
+                case '1/obs'
+                    y = max(intensity, iFloor);
+                    w = 1 ./ y;
+        
+                case '1/sqrt(obs)'
+                    y = max(intensity, iFloor);
+                    w = 1 ./ sqrt(y);
+        
+                otherwise
+                    w = ones(size(intensity));
+            end
+        
+            % final cleanup
+            good = isfinite(w) & w>0;
+            if any(good)
+                w(~good) = median(w(good));
+            else
+                w(:) = 1;
+            end
+            
         end
 
     end
