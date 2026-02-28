@@ -1,4 +1,3 @@
-
 classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
     %PACKAGEFITDIFFRACTIONDATA Contains the data for
     
@@ -51,6 +50,7 @@ classdef PackageFitDiffractionData < matlab.mixin.Copyable & matlab.mixin.SetGet
         KAlpha2 = 1.544426; % Å
         Min2T
         Max2T
+        Step2T
     end
     
     properties (Hidden)
@@ -750,6 +750,20 @@ end
         
         end
 
+        function value = get.Step2T(Stro)
+        % Assumes all datasets have identical Max2T
+        try
+        File=Stro.CurrentPro; % Current profile
+        catch
+        File=1;    
+        end
+
+        x = Stro.DataSet{File}.getDataTwoTheta;
+        step = x(2) - x(1);
+        % snap for display / logic
+        value= round(step, 12);          % or 10, 14, etc
+        end
+
     end
 
     methods (Static)
@@ -812,4 +826,4 @@ end
 
     end
 
-    end
+end
