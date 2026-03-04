@@ -20,6 +20,7 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        FitResults % each profile results in a cell
        XRDMLScan
        CF % Curve fitting toolbox present, 1, if not, 0
+       KalphaAuto=0;
        
    end
    
@@ -239,7 +240,7 @@ classdef ProfileListManager < handle & matlab.mixin.SetGet
        
 
        
-       if strcmpi(this.ext, '.xrdml')||strcmpi(this.ext, '.asc')||strcmpi(this.ext, '.ras')
+       if ismember(lower(this.ext), {'.xrdml','.asc','.ras'}) && this.KalphaAuto
            this.Temperature = {data.Temperature};
            this.KAlpha1 = data(1).KAlpha1;
            this.KAlpha2 = data(1).KAlpha2;

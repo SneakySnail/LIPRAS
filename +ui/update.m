@@ -146,6 +146,8 @@ end
 if app.profiles.CuKa
 app.gui.KAlpha1 = app.profiles.KAlpha1(1); %specify 1 for multile XRDML
 app.gui.KAlpha2 = app.profiles.KAlpha2(1);
+else 
+    app.CuK2CheckBox.Value=0;
 end
 app.gui.Legend = 'on'; % figure out how to handle legend
 app.gui.Legend = 'reset';
