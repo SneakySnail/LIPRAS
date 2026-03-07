@@ -22,6 +22,8 @@ classdef AxPlotter < matlab.mixin.SetGet
         XScale % 'linear' or 'dspace'
         
         YScale % 'linear', 'log', or 'sqrt'
+
+        Marker
     end
     
     properties (Dependent, Hidden)
@@ -37,6 +39,8 @@ classdef AxPlotter < matlab.mixin.SetGet
         XScale_ = 'linear';
         
         YScale_ = 'linear';
+
+        Marker_ ='o';
         
         XLim
         
@@ -169,6 +173,17 @@ classdef AxPlotter < matlab.mixin.SetGet
         name = this.YScale_;
         end
         
+        function set.Marker(this, type)
+        this.Marker_ = type;
+        this.updateYLabel(this.ax);
+        this.transform(this.ax.Children);
+        this.updateYLim(this.ax);
+        end
+
+        function name = get.Marker(this)
+        name = this.Marker_;
+        end
+
         function transformXData_(this, line)
         if isempty(line), return, end
         xdata = getappdata(line,'xdata');
@@ -245,6 +260,15 @@ classdef AxPlotter < matlab.mixin.SetGet
         else
             axx = this.ax;
         end
+        try
+        line = plot(axx,x,y,this.Marker,...
+            'DisplayName', 'Measured Data', ...
+            'tag', 'Obs', ...
+            'MarkerFaceColor', [1 1 1], ...
+            'MarkerEdgeColor', 'auto', ...
+            'MarkerSize', 5, ...
+            'visible', 'off');
+        catch
         line = plot(axx,x,y,'o',...
             'DisplayName', 'Measured Data', ...
             'tag', 'Obs', ...
@@ -252,6 +276,7 @@ classdef AxPlotter < matlab.mixin.SetGet
             'MarkerEdgeColor', 'auto', ...
             'MarkerSize', 5, ...
             'visible', 'off');
+        end
         setappdata(line, 'xdata', x);
         setappdata(line, 'ydata', y);
         this.transform(line);
@@ -422,13 +447,9 @@ classdef AxPlotter < matlab.mixin.SetGet
                         'Visible', 'off');
             end
         else
-            if Bkg_LS % plotting if Bkg in LS
-                            set(line, 'XData', fitted.TwoTheta, ...
+                      set(line, 'XData', fitted.TwoTheta, ...
                       'YData', fitted.FPeaks(fcnID,:)+fitted.Background); % needs to be modified based on Bkg from LS
-            else
-            set(line, 'XData', fitted.TwoTheta, ...
-                      'YData', fitted.FPeaks(fcnID,:)+fitted.Background);
-            end
+
         end
         if fitted.CuKa
             kaLine = findobj(ax, 'tag', ['cuka' num2str(fcnID)]);
@@ -473,14 +494,6 @@ classdef AxPlotter < matlab.mixin.SetGet
                         'Color',[0 0.5 0], ...
                         'Tag', 'OverallFit',...
                         'Visible', 'off'); % Overall Fit
-%             lineP1=plot(ax, fitted.TwoTheta,fitted.PredictInt(:,1),...
-%                         '--', 'LineWidth',1,...
-%                         'DisplayName', '95% CI Low','Tag','95% CI Low',...
-%                         'Color',[0.5 0.5 0.5],'Visible','off');
-%             lineP2=plot(ax, fitted.TwoTheta,fitted.PredictInt(:,2),...
-%                         '--', 'LineWidth',1,...
-%                         'DisplayName', '95% CI High','Tag','95% CI High',...
-%                         'Color',[0.5 0.5 0.5]);
                     
             else
             line = plot(ax, fitted.TwoTheta, fitted.FData+fitted.Background, ...
@@ -489,31 +502,16 @@ classdef AxPlotter < matlab.mixin.SetGet
                         'Color',[0 0.5 0], ...
                         'Tag', 'OverallFit',...
                         'Visible', 'off'); % Overall Fit
-                    % For Plotting Predicted Interval based on CI after
-                    % fit, makes plots too cluttered
-%             lineP1=plot(ax, fitted.TwoTheta,fitted.PredictInt(:,1)+fitted.Background',...
-%                         '--', 'LineWidth',1,...
-%                         'DisplayName', '95% CI Low','Tag','95% CI Low',...
-%                         'Color',[0.5 0.5 0.5],'Visible','off');
-%             lineP2=plot(ax, fitted.TwoTheta,fitted.PredictInt(:,2)+fitted.Background',...
-%                         '--', 'LineWidth',1,...
-%                         'DisplayName', '95% CI High','Tag','95% CI High',...
-%                         'Color',[0.5 0.5 0.5]);
             end
         else
             if Bkg_LS
                             set(line, 'XData', fitted.TwoTheta, ...
                       'YData', fitted.FData,'LineWidth',1.4,'Color',[.0 .5 .0]);
-                                      % For Plotting Predicted Interval based on CI after fit
-%             set(lineP1, 'XData', fitted.TwoTheta,'YData', fitted.PredictInt(:,1), 'LineWidth',1, 'Color',[0.5 0.5 0.5])
-%             set(lineP2,'XData',fitted.TwoTheta, 'YData', fitted.PredictInt(:,2),'LineWidth',1, 'Color',[0.5 0.5 0.5]);
             
             else
             set(line, 'XData', fitted.TwoTheta, ...
                       'YData', fitted.FData+fitted.Background,'LineWidth',1.4,'Color',[.0 .5 .0]);
-                                      % For Plotting Predicted Interval based on CI after fit
-%             set(lineP1, 'XData', fitted.TwoTheta,'YData', fitted.PredictInt(:,1)+fitted.Background', 'LineWidth',1, 'Color',[0.5 0.5 0.5])
-%             set(lineP2,'XData',fitted.TwoTheta, 'YData', fitted.PredictInt(:,2)+fitted.Background','LineWidth',1, 'Color',[0.5 0.5 0.5]);
+
             end
         end
         setappdata(line,'xdata',line.XData);
